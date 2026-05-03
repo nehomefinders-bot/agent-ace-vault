@@ -116,6 +116,68 @@ export type Database = {
         }
         Relationships: []
       }
+      receipts: {
+        Row: {
+          created_at: string
+          id: string
+          image_path: string
+          notes: string | null
+          raw_ai: Json | null
+          receipt_date: string | null
+          status: string
+          subtotal: number | null
+          suggested_category: string | null
+          tax: number | null
+          total: number | null
+          transaction_id: string | null
+          updated_at: string
+          user_id: string
+          vendor: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_path: string
+          notes?: string | null
+          raw_ai?: Json | null
+          receipt_date?: string | null
+          status?: string
+          subtotal?: number | null
+          suggested_category?: string | null
+          tax?: number | null
+          total?: number | null
+          transaction_id?: string | null
+          updated_at?: string
+          user_id: string
+          vendor?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_path?: string
+          notes?: string | null
+          raw_ai?: Json | null
+          receipt_date?: string | null
+          status?: string
+          subtotal?: number | null
+          suggested_category?: string | null
+          tax?: number | null
+          total?: number | null
+          transaction_id?: string | null
+          updated_at?: string
+          user_id?: string
+          vendor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receipts_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number
