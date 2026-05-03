@@ -1,8 +1,9 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, TrendingUp, Home, Users, Receipt,
-  Wallet, Car, ScanLine, FolderOpen, Building2, BookOpen, LifeBuoy,
+  Wallet, Car, ScanLine, FolderOpen, Building2, BookOpen, LifeBuoy, LogOut, LogIn,
 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 const sections = [
   {
@@ -35,6 +36,8 @@ const sections = [
 
 export function AppSidebar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
+  const nav = useNavigate();
+  const { user, signOut } = useAuth();
 
   return (
     <aside className="w-64 shrink-0 bg-sidebar text-sidebar-foreground flex flex-col min-h-dvh sticky top-0">
@@ -77,10 +80,26 @@ export function AppSidebar() {
         ))}
       </nav>
 
-      <div className="m-3 p-4 rounded-xl bg-sidebar-accent/60 border border-sidebar-border">
-        <div className="text-xs uppercase tracking-wider opacity-60 mb-1">Plan</div>
-        <div className="text-sm font-medium">Solo Agent</div>
-        <div className="text-xs opacity-60 mt-2">Connect Stripe to start invoicing clients.</div>
+      <div className="m-3 p-4 rounded-xl bg-sidebar-accent/60 border border-sidebar-border space-y-3">
+        <div>
+          <div className="text-xs uppercase tracking-wider opacity-60 mb-1">Plan</div>
+          <div className="text-sm font-medium">Solo Agent</div>
+        </div>
+        {user ? (
+          <div className="pt-2 border-t border-sidebar-border">
+            <div className="text-xs opacity-60 truncate mb-2">{user.email}</div>
+            <button
+              onClick={async () => { await signOut(); nav({ to: "/landing" }); }}
+              className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium border border-sidebar-border hover:bg-sidebar-accent"
+            >
+              <LogOut className="h-3.5 w-3.5" /> Sign out
+            </button>
+          </div>
+        ) : (
+          <Link to="/auth" className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-sidebar-primary text-sidebar-primary-foreground">
+            <LogIn className="h-3.5 w-3.5" /> Sign in
+          </Link>
+        )}
       </div>
     </aside>
   );
