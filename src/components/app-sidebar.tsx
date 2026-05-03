@@ -5,6 +5,8 @@ import {
   CreditCard, Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useSubscription } from "@/hooks/use-subscription";
+import { PLANS } from "@/lib/stripe";
 
 const sections = [
   {
@@ -42,6 +44,14 @@ export function AppSidebar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const nav = useNavigate();
   const { user, signOut } = useAuth();
+  const { subscription, isActive } = useSubscription();
+  const currentPlan = subscription
+    ? PLANS.find(p => p.monthly.priceId === subscription.price_id || p.yearly.priceId === subscription.price_id)
+    : null;
+  const planLabel = !user ? "—"
+    : !isActive ? "No plan"
+    : subscription?.status === "trialing" ? `${currentPlan?.name ?? "Trial"} (trial)`
+    : currentPlan?.name ?? "Active";
 
   return (
     <aside className="w-64 shrink-0 bg-sidebar text-sidebar-foreground flex flex-col min-h-dvh sticky top-0">
@@ -87,7 +97,7 @@ export function AppSidebar() {
       <div className="m-3 p-4 rounded-xl bg-sidebar-accent/60 border border-sidebar-border space-y-3">
         <div>
           <div className="text-xs uppercase tracking-wider opacity-60 mb-1">Plan</div>
-          <div className="text-sm font-medium">Solo Agent</div>
+          <div className="text-sm font-medium">{planLabel}</div>
         </div>
         {user ? (
           <div className="pt-2 border-t border-sidebar-border">

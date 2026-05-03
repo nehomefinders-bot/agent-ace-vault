@@ -1,5 +1,6 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts, useRouterState } from "@tanstack/react-router";
 import { AppSidebar } from "@/components/app-sidebar";
+import { PaywallGate } from "@/components/paywall-gate";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -77,7 +78,9 @@ function RootComponent() {
     <div className="flex min-h-dvh w-full bg-background">
       <AppSidebar />
       <main className="flex-1 min-w-0">
-        <Outlet />
+        <PaywallGate>
+          <Outlet />
+        </PaywallGate>
       </main>
     </div>
   );
