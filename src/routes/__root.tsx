@@ -1,6 +1,5 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts, useRouterState } from "@tanstack/react-router";
 import { AppSidebar } from "@/components/app-sidebar";
-import { BooksProvider } from "@/hooks/use-books";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -30,19 +29,18 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Apex Realty OS — Business tracker for brokers & agents" },
+      { title: "Agent Tracker OS — Business tracker for brokers & agents" },
       { name: "description", content: "QuickBooks for real estate. Track deals, commissions, invoices, expenses, mileage and clients in one cockpit." },
-      { property: "og:title", content: "Apex Realty OS — Books, commissions & mileage for agents" },
-      { property: "og:description", content: "The all-in-one business cockpit for real estate agents and small brokerages." },
-      { property: "og:image", content: "/og-image.jpg" },
-      { property: "og:type", content: "website" },
+      { property: "og:title", content: "Agent Tracker OS — Business tracker for brokers & agents" },
+      { name: "twitter:title", content: "Agent Tracker OS — Business tracker for brokers & agents" },
+      { property: "og:description", content: "QuickBooks for real estate. Track deals, commissions, invoices, expenses, mileage and clients in one cockpit." },
+      { name: "twitter:description", content: "QuickBooks for real estate. Track deals, commissions, invoices, expenses, mileage and clients in one cockpit." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/1d29e18f-a478-4c8d-b62b-0a4afcdf8c1d" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/1d29e18f-a478-4c8d-b62b-0a4afcdf8c1d" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: "/og-image.jpg" },
+      { property: "og:type", content: "website" },
     ],
-    links: [
-      { rel: "icon", type: "image/png", href: "/favicon.png" },
-      { rel: "apple-touch-icon", href: "/favicon.png" },
-      { rel: "stylesheet", href: appCss },
+    links: [{ rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" },
@@ -67,7 +65,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const path = useRouterState({ select: (s) => s.location.pathname });
-  const bare = path === "/auth" || path === "/landing" || path === "/forgot-password" || path === "/reset-password" || path === "/privacy" || path === "/terms";
+  const bare = path === "/auth" || path === "/landing";
   if (bare) {
     return (
       <div className="min-h-dvh w-full bg-background">
@@ -76,13 +74,11 @@ function RootComponent() {
     );
   }
   return (
-    <BooksProvider>
-      <div className="flex min-h-dvh w-full bg-background">
-        <AppSidebar />
-        <main className="flex-1 min-w-0">
-          <Outlet />
-        </main>
-      </div>
-    </BooksProvider>
+    <div className="flex min-h-dvh w-full bg-background">
+      <AppSidebar />
+      <main className="flex-1 min-w-0">
+        <Outlet />
+      </main>
+    </div>
   );
 }
