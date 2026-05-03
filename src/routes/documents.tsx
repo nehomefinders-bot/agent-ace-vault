@@ -4,7 +4,7 @@ import { PageShell, StatusPill } from "@/components/page-shell";
 
 export const Route = createFileRoute("/documents")({
   component: Documents,
-  head: () => ({ meta: [{ title: "Documents — Apex Realty OS" }] }),
+  head: () => ({ meta: [{ title: "Documents — Agent Business Tracker" }] }),
 });
 
 const docs = [

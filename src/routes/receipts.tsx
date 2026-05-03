@@ -8,7 +8,7 @@ import { formatMoneyCents } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/receipts")({
   component: Receipts,
-  head: () => ({ meta: [{ title: "Receipts — Apex Realty OS" }] }),
+  head: () => ({ meta: [{ title: "Receipts — Agent Business Tracker" }] }),
 });
 
 interface ReceiptRow {

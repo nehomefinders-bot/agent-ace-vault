@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/reset-password")({
   component: ResetPage,
-  head: () => ({ meta: [{ title: "Set new password — Apex Realty OS" }] }),
+  head: () => ({ meta: [{ title: "Set new password — Agent Business Tracker" }] }),
 });
 
 function ResetPage() {
@@ -39,8 +39,8 @@ function ResetPage() {
             <Building2 className="h-5 w-5" />
           </div>
           <div>
-            <div className="font-display font-bold text-lg leading-none">Apex</div>
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground mt-1">Realty OS</div>
+            <div className="font-display font-bold text-base leading-none">Agent</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">Business Tracker</div>
           </div>
         </Link>
         <div className="bg-card border border-border rounded-2xl p-8 shadow-card">
