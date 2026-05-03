@@ -29,10 +29,10 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Agent Tracker OS — Business tracker for brokers & agents" },
+      { title: "Agent Business Tracker — Business tracker for brokers & agents" },
       { name: "description", content: "QuickBooks for real estate. Track deals, commissions, invoices, expenses, mileage and clients in one cockpit." },
-      { property: "og:title", content: "Agent Tracker OS — Business tracker for brokers & agents" },
-      { name: "twitter:title", content: "Agent Tracker OS — Business tracker for brokers & agents" },
+      { property: "og:title", content: "Agent Business Tracker — Business tracker for brokers & agents" },
+      { name: "twitter:title", content: "Agent Business Tracker — Business tracker for brokers & agents" },
       { property: "og:description", content: "QuickBooks for real estate. Track deals, commissions, invoices, expenses, mileage and clients in one cockpit." },
       { name: "twitter:description", content: "QuickBooks for real estate. Track deals, commissions, invoices, expenses, mileage and clients in one cockpit." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/1d29e18f-a478-4c8d-b62b-0a4afcdf8c1d" },
