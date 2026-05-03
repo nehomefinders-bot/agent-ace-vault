@@ -1,2 +1,2 @@
-export { formatMoney, formatMoneyCents } from "./mock-data";
+export { formatMoney, formatMoneyCents, useBooks } from "@/hooks/use-books";
 export * from "./books-data";

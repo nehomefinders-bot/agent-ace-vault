@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
-import { accounts, transactions, formatMoney, type AccountKind } from "@/lib/books-helpers";
+import { useState } from "react";
+import { useBooks } from "@/hooks/use-books";
+import { formatMoney } from "@/hooks/use-books";
+import type { AccountKind } from "@/lib/books-data";
 
 export const Route = createFileRoute("/books/categories")({
   component: CategoriesPage,
@@ -9,10 +12,13 @@ export const Route = createFileRoute("/books/categories")({
 const order: AccountKind[] = ["Income", "Expense", "Asset", "Liability", "Equity"];
 
 function CategoriesPage() {
+  const { accounts, transactions, addAccount } = useBooks();
+  const [showNew, setShowNew] = useState(false);
+
   const totals = new Map<string, number>();
   for (const t of transactions) {
-    totals.set(t.debitAccountId, (totals.get(t.debitAccountId) ?? 0) + t.amount);
-    totals.set(t.creditAccountId, (totals.get(t.creditAccountId) ?? 0) + t.amount);
+    totals.set(t.debitAccountId, (totals.get(t.debitAccountId) ?? 0) + Number(t.amount));
+    totals.set(t.creditAccountId, (totals.get(t.creditAccountId) ?? 0) + Number(t.amount));
   }
 
   return (
@@ -22,10 +28,15 @@ function CategoriesPage() {
           Your chart of accounts. These are the buckets every dollar gets sorted into for tax time.
           Tax line shows where each one lands on Schedule C.
         </p>
-        <button className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium shrink-0 ml-4">
+        <button
+          onClick={() => setShowNew((v) => !v)}
+          className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium shrink-0 ml-4"
+        >
           <Plus className="h-4 w-4" /> New category
         </button>
       </div>
+
+      {showNew && <NewAccountForm onDone={() => setShowNew(false)} onSubmit={addAccount} />}
 
       {order.map((kind) => {
         const list = accounts.filter((a) => a.kind === kind);
@@ -61,6 +72,50 @@ function CategoriesPage() {
           </section>
         );
       })}
+    </div>
+  );
+}
+
+function NewAccountForm({
+  onDone,
+  onSubmit,
+}: {
+  onDone: () => void;
+  onSubmit: (a: { code: string; name: string; kind: AccountKind; taxLine?: string; description?: string }) => Promise<void>;
+}) {
+  const [code, setCode] = useState("");
+  const [name, setName] = useState("");
+  const [kind, setKind] = useState<AccountKind>("Expense");
+  const [taxLine, setTaxLine] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    if (!code || !name) return;
+    setSaving(true);
+    try {
+      await onSubmit({ code, name, kind, taxLine: taxLine || undefined });
+      onDone();
+    } finally { setSaving(false); }
+  };
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-5 shadow-card grid grid-cols-1 md:grid-cols-5 gap-3">
+      <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Code (e.g. 6500)"
+        className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
+      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name"
+        className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm md:col-span-2" />
+      <select value={kind} onChange={(e) => setKind(e.target.value as AccountKind)}
+        className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm">
+        {order.map((k) => <option key={k} value={k}>{k}</option>)}
+      </select>
+      <input value={taxLine} onChange={(e) => setTaxLine(e.target.value)} placeholder="Tax line (optional)"
+        className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
+      <div className="md:col-span-5 flex justify-end gap-2">
+        <button onClick={onDone} className="px-3 py-2 text-sm text-muted-foreground">Cancel</button>
+        <button onClick={save} disabled={saving} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50">
+          {saving ? "Saving…" : "Add category"}
+        </button>
+      </div>
     </div>
   );
 }

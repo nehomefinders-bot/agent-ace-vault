@@ -1,5 +1,6 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts, useRouterState } from "@tanstack/react-router";
 import { AppSidebar } from "@/components/app-sidebar";
+import { BooksProvider } from "@/hooks/use-books";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -66,11 +67,13 @@ function RootComponent() {
     );
   }
   return (
-    <div className="flex min-h-dvh w-full bg-background">
-      <AppSidebar />
-      <main className="flex-1 min-w-0">
-        <Outlet />
-      </main>
-    </div>
+    <BooksProvider>
+      <div className="flex min-h-dvh w-full bg-background">
+        <AppSidebar />
+        <main className="flex-1 min-w-0">
+          <Outlet />
+        </main>
+      </div>
+    </BooksProvider>
   );
 }

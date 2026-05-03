@@ -50,6 +50,63 @@ export type Database = {
         }
         Relationships: []
       }
+      deals: {
+        Row: {
+          address: string
+          agent_split_pct: number
+          brokerage_split_pct: number
+          client_name: string | null
+          close_date: string | null
+          created_at: string
+          gross_commission: number
+          id: string
+          notes: string | null
+          referral_pct: number
+          referral_to: string | null
+          sale_price: number
+          side: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          agent_split_pct?: number
+          brokerage_split_pct?: number
+          client_name?: string | null
+          close_date?: string | null
+          created_at?: string
+          gross_commission?: number
+          id?: string
+          notes?: string | null
+          referral_pct?: number
+          referral_to?: string | null
+          sale_price?: number
+          side?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          agent_split_pct?: number
+          brokerage_split_pct?: number
+          client_name?: string | null
+          close_date?: string | null
+          created_at?: string
+          gross_commission?: number
+          id?: string
+          notes?: string | null
+          referral_pct?: number
+          referral_to?: string | null
+          sale_price?: number
+          side?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mileage_trips: {
         Row: {
           created_at: string
@@ -240,7 +297,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      seed_default_accounts: { Args: { _user_id: string }; Returns: undefined }
     }
     Enums: {
       account_kind: "Income" | "Expense" | "Asset" | "Liability" | "Equity"

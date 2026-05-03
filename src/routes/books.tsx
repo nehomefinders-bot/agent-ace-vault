@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { BookOpen, ListOrdered, Tags, HandCoins, FileBarChart, Wallet } from "lucide-react";
-import { ownerLoanLedger, profitAndLoss, formatMoney } from "@/lib/books-helpers";
+import { BookOpen, ListOrdered, Tags, HandCoins, FileBarChart, Wallet, Calculator } from "lucide-react";
+import { useBooks, formatMoney } from "@/hooks/use-books";
+import { ownerLoanLedger, profitAndLoss } from "@/lib/books-data";
 
 export const Route = createFileRoute("/books")({
   component: BooksLayout,
@@ -14,12 +15,14 @@ const tabs = [
   { to: "/books/categories", label: "Categories", icon: Tags, exact: false as boolean },
   { to: "/books/owner-loan", label: "Owner Loan", icon: HandCoins, exact: false as boolean },
   { to: "/books/reports", label: "Reports", icon: FileBarChart, exact: false as boolean },
+  { to: "/books/taxes", label: "Tax Estimator", icon: Calculator, exact: false as boolean },
 ] as const;
 
 function BooksLayout() {
   const path = useRouterState({ select: (r) => r.location.pathname });
-  const { balance } = ownerLoanLedger();
-  const pl = profitAndLoss();
+  const { accounts, transactions, loading } = useBooks();
+  const { balance } = ownerLoanLedger(accounts, transactions);
+  const pl = profitAndLoss(accounts, transactions);
 
   return (
     <div className="p-8 max-w-[1400px] mx-auto">
@@ -59,7 +62,11 @@ function BooksLayout() {
         })}
       </div>
 
-      <Outlet />
+      {loading && accounts.length === 0 ? (
+        <div className="text-sm text-muted-foreground py-12 text-center">Loading your books…</div>
+      ) : (
+        <Outlet />
+      )}
     </div>
   );
 }
