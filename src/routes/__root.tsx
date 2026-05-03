@@ -32,8 +32,17 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Apex Realty OS — Business tracker for brokers & agents" },
       { name: "description", content: "QuickBooks for real estate. Track deals, commissions, invoices, expenses, mileage and clients in one cockpit." },
+      { property: "og:title", content: "Apex Realty OS — Books, commissions & mileage for agents" },
+      { property: "og:description", content: "The all-in-one business cockpit for real estate agents and small brokerages." },
+      { property: "og:image", content: "/og-image.jpg" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "/og-image.jpg" },
     ],
-    links: [{ rel: "stylesheet", href: appCss },
+    links: [
+      { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "apple-touch-icon", href: "/favicon.png" },
+      { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" },
@@ -58,7 +67,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const path = useRouterState({ select: (s) => s.location.pathname });
-  const bare = path === "/auth" || path === "/landing";
+  const bare = path === "/auth" || path === "/landing" || path === "/forgot-password" || path === "/reset-password" || path === "/privacy" || path === "/terms";
   if (bare) {
     return (
       <div className="min-h-dvh w-full bg-background">
