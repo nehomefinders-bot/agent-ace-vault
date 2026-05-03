@@ -8,7 +8,7 @@ import { formatMoneyCents } from "@/hooks/use-books";
 
 export const Route = createFileRoute("/mileage")({
   component: Mileage,
-  head: () => ({ meta: [{ title: "Mileage — Apex Realty OS" }] }),
+  head: () => ({ meta: [{ title: "Mileage — Agent Business Tracker" }] }),
 });
 
 const irsRate = 0.67;

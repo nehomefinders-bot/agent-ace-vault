@@ -5,9 +5,9 @@ export const Route = createFileRoute("/landing")({
   component: Landing,
   head: () => ({
     meta: [
-      { title: "Apex Realty OS — QuickBooks built for real estate agents" },
+      { title: "Agent Business Tracker — QuickBooks built for real estate agents" },
       { name: "description", content: "Track commissions, expenses, mileage and owner loans in one place. Tax-ready Schedule C reports built for agents and brokers." },
-      { property: "og:title", content: "Apex Realty OS — QuickBooks for real estate agents" },
+      { property: "og:title", content: "Agent Business Tracker — QuickBooks for real estate agents" },
       { property: "og:description", content: "All-in-one books, mileage and client tracking for agents. Tax-ready in one click." },
     ],
   }),
@@ -72,8 +72,8 @@ function Landing() {
               <Building2 className="h-5 w-5" />
             </div>
             <div>
-              <div className="font-display font-bold text-lg leading-none">Apex</div>
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">Realty OS</div>
+              <div className="font-display font-bold text-base leading-none">Agent</div>
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">Business Tracker</div>
             </div>
           </Link>
           <div className="flex items-center gap-2">
@@ -176,7 +176,7 @@ function Landing() {
 
       <footer className="border-t border-border mt-12">
         <div className="max-w-6xl mx-auto px-6 py-8 text-xs text-muted-foreground flex justify-between">
-          <div>© {new Date().getFullYear()} Apex Realty OS</div>
+          <div>© {new Date().getFullYear()} Agent Business Tracker</div>
           <div className="flex gap-4">
             <Link to="/auth">Sign in</Link>
             <Link to="/help">Help</Link>

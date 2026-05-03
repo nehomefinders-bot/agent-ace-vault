@@ -8,7 +8,7 @@ import { formatMoney } from "@/hooks/use-books";
 
 export const Route = createFileRoute("/deals")({
   component: DealsPage,
-  head: () => ({ meta: [{ title: "Deals & Commissions — Apex Realty OS" }] }),
+  head: () => ({ meta: [{ title: "Deals & Commissions — Agent Business Tracker" }] }),
 });
 
 interface Deal {

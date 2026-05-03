@@ -5,7 +5,7 @@ import { invoices, formatMoney } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/invoices")({
   component: Invoices,
-  head: () => ({ meta: [{ title: "Invoices — Apex Realty OS" }] }),
+  head: () => ({ meta: [{ title: "Invoices — Agent Business Tracker" }] }),
 });
 
 const tone: Record<string, "success" | "warning" | "danger" | "muted"> = {

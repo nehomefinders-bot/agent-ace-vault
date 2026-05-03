@@ -5,7 +5,7 @@ import { deals, formatMoney, type DealStage } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/pipeline")({
   component: Pipeline,
-  head: () => ({ meta: [{ title: "Pipeline — Apex Realty OS" }] }),
+  head: () => ({ meta: [{ title: "Pipeline — Agent Business Tracker" }] }),
 });
 
 const stages: DealStage[] = ["Lead", "Under Contract", "Closing", "Closed"];

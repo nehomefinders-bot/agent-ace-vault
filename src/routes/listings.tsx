@@ -5,7 +5,7 @@ import { listings, formatMoney } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/listings")({
   component: Listings,
-  head: () => ({ meta: [{ title: "Listings — Apex Realty OS" }] }),
+  head: () => ({ meta: [{ title: "Listings — Agent Business Tracker" }] }),
 });
 
 const tone: Record<string, "success" | "warning" | "muted"> = {

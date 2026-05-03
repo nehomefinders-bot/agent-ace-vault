@@ -5,7 +5,7 @@ import { expenses, formatMoneyCents } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/expenses")({
   component: Expenses,
-  head: () => ({ meta: [{ title: "Expenses — Apex Realty OS" }] }),
+  head: () => ({ meta: [{ title: "Expenses — Agent Business Tracker" }] }),
 });
 
 function Expenses() {

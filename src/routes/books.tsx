@@ -5,7 +5,7 @@ import { ownerLoanLedger, profitAndLoss } from "@/lib/books-data";
 
 export const Route = createFileRoute("/books")({
   component: BooksLayout,
-  head: () => ({ meta: [{ title: "Books — Apex Realty OS" }] }),
+  head: () => ({ meta: [{ title: "Books — Agent Business Tracker" }] }),
 });
 
 const tabs = [

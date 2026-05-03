@@ -4,8 +4,8 @@ export const Route = createFileRoute("/terms")({
   component: TermsPage,
   head: () => ({
     meta: [
-      { title: "Terms of Service — Apex Realty OS" },
-      { name: "description", content: "Terms governing use of Apex Realty OS." },
+      { title: "Terms of Service — Agent Business Tracker" },
+      { name: "description", content: "Terms governing use of Agent Business Tracker." },
     ],
   }),
 });
@@ -20,7 +20,7 @@ function TermsPage() {
       <div className="space-y-6 text-sm leading-relaxed">
         <section>
           <h2 className="font-display text-xl font-bold mb-2">1. Acceptance</h2>
-          <p>By creating an account or using Apex Realty OS ("the Service"), you agree to these Terms. If you don't agree, don't use the Service.</p>
+          <p>By creating an account or using Agent Business Tracker ("the Service"), you agree to these Terms. If you don't agree, don't use the Service.</p>
         </section>
         <section>
           <h2 className="font-display text-xl font-bold mb-2">2. Your account</h2>
@@ -56,7 +56,7 @@ function TermsPage() {
         </section>
         <section>
           <h2 className="font-display text-xl font-bold mb-2">10. Contact</h2>
-          <p>Questions? Email <a href="mailto:support@apexrealtyos.com" className="underline">support@apexrealtyos.com</a>.</p>
+          <p>Questions? Email <a href="mailto:livingandlearningwithjackie@gmail.com" className="underline">livingandlearningwithjackie@gmail.com</a>.</p>
         </section>
       </div>
     </div>

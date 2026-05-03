@@ -5,7 +5,7 @@ import { clients } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/clients")({
   component: Clients,
-  head: () => ({ meta: [{ title: "Clients — Apex Realty OS" }] }),
+  head: () => ({ meta: [{ title: "Clients — Agent Business Tracker" }] }),
 });
 
 const tone: Record<string, "success" | "warning" | "primary" | "muted"> = {

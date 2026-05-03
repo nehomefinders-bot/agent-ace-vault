@@ -7,7 +7,7 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
   head: () => ({
     meta: [
-      { title: "Dashboard — Apex Realty OS" },
+      { title: "Dashboard — Agent Business Tracker" },
       { name: "description", content: "YTD commission, pipeline, invoices, expenses — at a glance." },
     ],
   }),

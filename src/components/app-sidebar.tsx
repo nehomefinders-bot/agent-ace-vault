@@ -48,8 +48,8 @@ export function AppSidebar() {
             <Building2 className="h-5 w-5" />
           </div>
           <div>
-            <div className="font-display font-bold text-lg leading-none">Apex</div>
-            <div className="text-[11px] uppercase tracking-wider opacity-60 mt-1">Realty OS</div>
+            <div className="font-display font-bold text-base leading-none">Agent</div>
+            <div className="text-[10px] uppercase tracking-wider opacity-60 mt-1">Business Tracker</div>
           </div>
         </div>
       </div>

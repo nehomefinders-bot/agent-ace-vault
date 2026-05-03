@@ -7,7 +7,7 @@ import {
 
 export const Route = createFileRoute("/help")({
   component: HelpPage,
-  head: () => ({ meta: [{ title: "How-to — Apex Realty OS" }] }),
+  head: () => ({ meta: [{ title: "How-to — Agent Business Tracker" }] }),
 });
 
 type Article = {
@@ -297,7 +297,7 @@ function HelpPage() {
           <div>
             <h3 className="font-display font-bold text-lg">Still stuck?</h3>
             <p className="text-sm opacity-80 mt-1">
-              Email <span className="underline">support@apexrealtyos.com</span> with a screenshot — typical reply under
+              Email <span className="underline">livingandlearningwithjackie@gmail.com</span> with a screenshot — typical reply under
               4 business hours.
             </p>
           </div>

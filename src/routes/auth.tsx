@@ -7,8 +7,8 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
   head: () => ({
     meta: [
-      { title: "Sign in — Apex Realty OS" },
-      { name: "description", content: "Sign in or create your Apex Realty OS account to track commissions, expenses and mileage." },
+      { title: "Sign in — Agent Business Tracker" },
+      { name: "description", content: "Sign in or create your Agent Business Tracker account to track commissions, expenses and mileage." },
     ],
   }),
 });
@@ -58,8 +58,8 @@ function AuthPage() {
             <Building2 className="h-5 w-5" />
           </div>
           <div>
-            <div className="font-display font-bold text-lg leading-none">Apex</div>
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground mt-1">Realty OS</div>
+            <div className="font-display font-bold text-base leading-none">Agent</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">Business Tracker</div>
           </div>
         </Link>
 

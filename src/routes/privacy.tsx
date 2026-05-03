@@ -4,8 +4,8 @@ export const Route = createFileRoute("/privacy")({
   component: PrivacyPage,
   head: () => ({
     meta: [
-      { title: "Privacy Policy — Apex Realty OS" },
-      { name: "description", content: "How Apex Realty OS collects, uses, and protects your information." },
+      { title: "Privacy Policy — Agent Business Tracker" },
+      { name: "description", content: "How Agent Business Tracker collects, uses, and protects your information." },
     ],
   }),
 });
@@ -36,11 +36,11 @@ function PrivacyPage() {
         </section>
         <section>
           <h2 className="font-display text-xl font-bold mb-2">5. Your rights</h2>
-          <p>You can export or delete your data at any time by contacting <a href="mailto:support@apexrealtyos.com" className="underline">support@apexrealtyos.com</a>. You can also delete your account, which permanently removes all associated records.</p>
+          <p>You can export or delete your data at any time by contacting <a href="mailto:livingandlearningwithjackie@gmail.com" className="underline">livingandlearningwithjackie@gmail.com</a>. You can also delete your account, which permanently removes all associated records.</p>
         </section>
         <section>
           <h2 className="font-display text-xl font-bold mb-2">6. Contact</h2>
-          <p>Questions? Email <a href="mailto:support@apexrealtyos.com" className="underline">support@apexrealtyos.com</a>.</p>
+          <p>Questions? Email <a href="mailto:livingandlearningwithjackie@gmail.com" className="underline">livingandlearningwithjackie@gmail.com</a>.</p>
         </section>
       </div>
     </div>
