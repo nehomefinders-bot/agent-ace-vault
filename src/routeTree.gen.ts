@@ -37,6 +37,7 @@ import { Route as BooksOwnerLoanRouteImport } from './routes/books.owner-loan'
 import { Route as BooksCategoriesRouteImport } from './routes/books.categories'
 import { Route as BooksAccountsRouteImport } from './routes/books.accounts'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicPaymentsApplyTaxCodesRouteImport } from './routes/api/public/payments/apply-tax-codes'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -179,6 +180,12 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicPaymentsApplyTaxCodesRoute =
+  ApiPublicPaymentsApplyTaxCodesRouteImport.update({
+    id: '/api/public/payments/apply-tax-codes',
+    path: '/api/public/payments/apply-tax-codes',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -208,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/books/taxes': typeof BooksTaxesRoute
   '/books/transactions': typeof BooksTransactionsRoute
   '/books/': typeof BooksIndexRoute
+  '/api/public/payments/apply-tax-codes': typeof ApiPublicPaymentsApplyTaxCodesRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -237,6 +245,7 @@ export interface FileRoutesByTo {
   '/books/taxes': typeof BooksTaxesRoute
   '/books/transactions': typeof BooksTransactionsRoute
   '/books': typeof BooksIndexRoute
+  '/api/public/payments/apply-tax-codes': typeof ApiPublicPaymentsApplyTaxCodesRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
@@ -268,6 +277,7 @@ export interface FileRoutesById {
   '/books/taxes': typeof BooksTaxesRoute
   '/books/transactions': typeof BooksTransactionsRoute
   '/books/': typeof BooksIndexRoute
+  '/api/public/payments/apply-tax-codes': typeof ApiPublicPaymentsApplyTaxCodesRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
@@ -300,6 +310,7 @@ export interface FileRouteTypes {
     | '/books/taxes'
     | '/books/transactions'
     | '/books/'
+    | '/api/public/payments/apply-tax-codes'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -329,6 +340,7 @@ export interface FileRouteTypes {
     | '/books/taxes'
     | '/books/transactions'
     | '/books'
+    | '/api/public/payments/apply-tax-codes'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
@@ -359,6 +371,7 @@ export interface FileRouteTypes {
     | '/books/taxes'
     | '/books/transactions'
     | '/books/'
+    | '/api/public/payments/apply-tax-codes'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -383,6 +396,7 @@ export interface RootRouteChildren {
   ReceiptsRoute: typeof ReceiptsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermsRoute: typeof TermsRoute
+  ApiPublicPaymentsApplyTaxCodesRoute: typeof ApiPublicPaymentsApplyTaxCodesRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -584,6 +598,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payments/apply-tax-codes': {
+      id: '/api/public/payments/apply-tax-codes'
+      path: '/api/public/payments/apply-tax-codes'
+      fullPath: '/api/public/payments/apply-tax-codes'
+      preLoaderRoute: typeof ApiPublicPaymentsApplyTaxCodesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -630,8 +651,18 @@ const rootRouteChildren: RootRouteChildren = {
   ReceiptsRoute: ReceiptsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TermsRoute: TermsRoute,
+  ApiPublicPaymentsApplyTaxCodesRoute: ApiPublicPaymentsApplyTaxCodesRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
