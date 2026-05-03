@@ -32,7 +32,12 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       mode: "subscription",
       success_url: data.returnUrl,
       cancel_url: data.cancelUrl ?? data.returnUrl,
-      ...(customerId ? { customer: customerId } : { customer_creation: "always" as any }),
+      ...(customerId
+        ? { customer: customerId, customer_update: { address: "auto", name: "auto" } }
+        : { customer_creation: "always" as any }),
+      automatic_tax: { enabled: true },
+      tax_id_collection: { enabled: true },
+      billing_address_collection: "required",
       subscription_data: {
         trial_period_days: 14,
         metadata: { userId },
