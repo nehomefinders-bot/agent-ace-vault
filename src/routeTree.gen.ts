@@ -9,8 +9,56 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ReceiptsRouteImport } from './routes/receipts'
+import { Route as PipelineRouteImport } from './routes/pipeline'
+import { Route as MileageRouteImport } from './routes/mileage'
+import { Route as ListingsRouteImport } from './routes/listings'
+import { Route as InvoicesRouteImport } from './routes/invoices'
+import { Route as ExpensesRouteImport } from './routes/expenses'
+import { Route as DocumentsRouteImport } from './routes/documents'
+import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ReceiptsRoute = ReceiptsRouteImport.update({
+  id: '/receipts',
+  path: '/receipts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PipelineRoute = PipelineRouteImport.update({
+  id: '/pipeline',
+  path: '/pipeline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MileageRoute = MileageRouteImport.update({
+  id: '/mileage',
+  path: '/mileage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListingsRoute = ListingsRouteImport.update({
+  id: '/listings',
+  path: '/listings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvoicesRoute = InvoicesRouteImport.update({
+  id: '/invoices',
+  path: '/invoices',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExpensesRoute = ExpensesRouteImport.update({
+  id: '/expenses',
+  path: '/expenses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocumentsRoute = DocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientsRoute = ClientsRouteImport.update({
+  id: '/clients',
+  path: '/clients',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +67,144 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/clients': typeof ClientsRoute
+  '/documents': typeof DocumentsRoute
+  '/expenses': typeof ExpensesRoute
+  '/invoices': typeof InvoicesRoute
+  '/listings': typeof ListingsRoute
+  '/mileage': typeof MileageRoute
+  '/pipeline': typeof PipelineRoute
+  '/receipts': typeof ReceiptsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/clients': typeof ClientsRoute
+  '/documents': typeof DocumentsRoute
+  '/expenses': typeof ExpensesRoute
+  '/invoices': typeof InvoicesRoute
+  '/listings': typeof ListingsRoute
+  '/mileage': typeof MileageRoute
+  '/pipeline': typeof PipelineRoute
+  '/receipts': typeof ReceiptsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/clients': typeof ClientsRoute
+  '/documents': typeof DocumentsRoute
+  '/expenses': typeof ExpensesRoute
+  '/invoices': typeof InvoicesRoute
+  '/listings': typeof ListingsRoute
+  '/mileage': typeof MileageRoute
+  '/pipeline': typeof PipelineRoute
+  '/receipts': typeof ReceiptsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/clients'
+    | '/documents'
+    | '/expenses'
+    | '/invoices'
+    | '/listings'
+    | '/mileage'
+    | '/pipeline'
+    | '/receipts'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/clients'
+    | '/documents'
+    | '/expenses'
+    | '/invoices'
+    | '/listings'
+    | '/mileage'
+    | '/pipeline'
+    | '/receipts'
+  id:
+    | '__root__'
+    | '/'
+    | '/clients'
+    | '/documents'
+    | '/expenses'
+    | '/invoices'
+    | '/listings'
+    | '/mileage'
+    | '/pipeline'
+    | '/receipts'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ClientsRoute: typeof ClientsRoute
+  DocumentsRoute: typeof DocumentsRoute
+  ExpensesRoute: typeof ExpensesRoute
+  InvoicesRoute: typeof InvoicesRoute
+  ListingsRoute: typeof ListingsRoute
+  MileageRoute: typeof MileageRoute
+  PipelineRoute: typeof PipelineRoute
+  ReceiptsRoute: typeof ReceiptsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/receipts': {
+      id: '/receipts'
+      path: '/receipts'
+      fullPath: '/receipts'
+      preLoaderRoute: typeof ReceiptsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pipeline': {
+      id: '/pipeline'
+      path: '/pipeline'
+      fullPath: '/pipeline'
+      preLoaderRoute: typeof PipelineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mileage': {
+      id: '/mileage'
+      path: '/mileage'
+      fullPath: '/mileage'
+      preLoaderRoute: typeof MileageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/listings': {
+      id: '/listings'
+      path: '/listings'
+      fullPath: '/listings'
+      preLoaderRoute: typeof ListingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invoices': {
+      id: '/invoices'
+      path: '/invoices'
+      fullPath: '/invoices'
+      preLoaderRoute: typeof InvoicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/expenses': {
+      id: '/expenses'
+      path: '/expenses'
+      fullPath: '/expenses'
+      preLoaderRoute: typeof ExpensesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/documents': {
+      id: '/documents'
+      path: '/documents'
+      fullPath: '/documents'
+      preLoaderRoute: typeof DocumentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clients': {
+      id: '/clients'
+      path: '/clients'
+      fullPath: '/clients'
+      preLoaderRoute: typeof ClientsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +217,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ClientsRoute: ClientsRoute,
+  DocumentsRoute: DocumentsRoute,
+  ExpensesRoute: ExpensesRoute,
+  InvoicesRoute: InvoicesRoute,
+  ListingsRoute: ListingsRoute,
+  MileageRoute: MileageRoute,
+  PipelineRoute: PipelineRoute,
+  ReceiptsRoute: ReceiptsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
