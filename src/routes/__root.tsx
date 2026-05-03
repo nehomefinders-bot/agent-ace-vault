@@ -56,6 +56,15 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  const path = typeof window !== "undefined" ? window.location.pathname : "";
+  const bare = path === "/auth" || path === "/landing";
+  if (bare) {
+    return (
+      <div className="min-h-dvh w-full bg-background">
+        <Outlet />
+      </div>
+    );
+  }
   return (
     <div className="flex min-h-dvh w-full bg-background">
       <AppSidebar />

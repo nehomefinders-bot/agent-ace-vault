@@ -13,12 +13,14 @@ import { Route as ReceiptsRouteImport } from './routes/receipts'
 import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as MileageRouteImport } from './routes/mileage'
 import { Route as ListingsRouteImport } from './routes/listings'
+import { Route as LandingRouteImport } from './routes/landing'
 import { Route as InvoicesRouteImport } from './routes/invoices'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as ExpensesRouteImport } from './routes/expenses'
 import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as BooksRouteImport } from './routes/books'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BooksIndexRouteImport } from './routes/books.index'
 import { Route as BooksTransactionsRouteImport } from './routes/books.transactions'
@@ -45,6 +47,11 @@ const MileageRoute = MileageRouteImport.update({
 const ListingsRoute = ListingsRouteImport.update({
   id: '/listings',
   path: '/listings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LandingRoute = LandingRouteImport.update({
+  id: '/landing',
+  path: '/landing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InvoicesRoute = InvoicesRouteImport.update({
@@ -75,6 +82,11 @@ const ClientsRoute = ClientsRouteImport.update({
 const BooksRoute = BooksRouteImport.update({
   id: '/books',
   path: '/books',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -115,12 +127,14 @@ const BooksAccountsRoute = BooksAccountsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/books': typeof BooksRouteWithChildren
   '/clients': typeof ClientsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
   '/help': typeof HelpRoute
   '/invoices': typeof InvoicesRoute
+  '/landing': typeof LandingRoute
   '/listings': typeof ListingsRoute
   '/mileage': typeof MileageRoute
   '/pipeline': typeof PipelineRoute
@@ -134,11 +148,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/clients': typeof ClientsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
   '/help': typeof HelpRoute
   '/invoices': typeof InvoicesRoute
+  '/landing': typeof LandingRoute
   '/listings': typeof ListingsRoute
   '/mileage': typeof MileageRoute
   '/pipeline': typeof PipelineRoute
@@ -153,12 +169,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/books': typeof BooksRouteWithChildren
   '/clients': typeof ClientsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
   '/help': typeof HelpRoute
   '/invoices': typeof InvoicesRoute
+  '/landing': typeof LandingRoute
   '/listings': typeof ListingsRoute
   '/mileage': typeof MileageRoute
   '/pipeline': typeof PipelineRoute
@@ -174,12 +192,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/books'
     | '/clients'
     | '/documents'
     | '/expenses'
     | '/help'
     | '/invoices'
+    | '/landing'
     | '/listings'
     | '/mileage'
     | '/pipeline'
@@ -193,11 +213,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/clients'
     | '/documents'
     | '/expenses'
     | '/help'
     | '/invoices'
+    | '/landing'
     | '/listings'
     | '/mileage'
     | '/pipeline'
@@ -211,12 +233,14 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/auth'
     | '/books'
     | '/clients'
     | '/documents'
     | '/expenses'
     | '/help'
     | '/invoices'
+    | '/landing'
     | '/listings'
     | '/mileage'
     | '/pipeline'
@@ -231,12 +255,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   BooksRoute: typeof BooksRouteWithChildren
   ClientsRoute: typeof ClientsRoute
   DocumentsRoute: typeof DocumentsRoute
   ExpensesRoute: typeof ExpensesRoute
   HelpRoute: typeof HelpRoute
   InvoicesRoute: typeof InvoicesRoute
+  LandingRoute: typeof LandingRoute
   ListingsRoute: typeof ListingsRoute
   MileageRoute: typeof MileageRoute
   PipelineRoute: typeof PipelineRoute
@@ -271,6 +297,13 @@ declare module '@tanstack/react-router' {
       path: '/listings'
       fullPath: '/listings'
       preLoaderRoute: typeof ListingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/landing': {
+      id: '/landing'
+      path: '/landing'
+      fullPath: '/landing'
+      preLoaderRoute: typeof LandingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/invoices': {
@@ -313,6 +346,13 @@ declare module '@tanstack/react-router' {
       path: '/books'
       fullPath: '/books'
       preLoaderRoute: typeof BooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -389,12 +429,14 @@ const BooksRouteWithChildren = BooksRoute._addFileChildren(BooksRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   BooksRoute: BooksRouteWithChildren,
   ClientsRoute: ClientsRoute,
   DocumentsRoute: DocumentsRoute,
   ExpensesRoute: ExpensesRoute,
   HelpRoute: HelpRoute,
   InvoicesRoute: InvoicesRoute,
+  LandingRoute: LandingRoute,
   ListingsRoute: ListingsRoute,
   MileageRoute: MileageRoute,
   PipelineRoute: PipelineRoute,
