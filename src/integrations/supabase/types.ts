@@ -14,7 +14,165 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      accounts: {
+        Row: {
+          archived: boolean
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          kind: Database["public"]["Enums"]["account_kind"]
+          name: string
+          tax_line: string | null
+          user_id: string
+        }
+        Insert: {
+          archived?: boolean
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["account_kind"]
+          name: string
+          tax_line?: string | null
+          user_id: string
+        }
+        Update: {
+          archived?: boolean
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["account_kind"]
+          name?: string
+          tax_line?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mileage_trips: {
+        Row: {
+          created_at: string
+          date: string
+          ended_at: string | null
+          from_address: string | null
+          id: string
+          miles: number
+          mode: Database["public"]["Enums"]["mileage_mode"]
+          purpose: string | null
+          started_at: string | null
+          to_address: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          ended_at?: string | null
+          from_address?: string | null
+          id?: string
+          miles: number
+          mode?: Database["public"]["Enums"]["mileage_mode"]
+          purpose?: string | null
+          started_at?: string | null
+          to_address?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          ended_at?: string | null
+          from_address?: string | null
+          id?: string
+          miles?: number
+          mode?: Database["public"]["Enums"]["mileage_mode"]
+          purpose?: string | null
+          started_at?: string | null
+          to_address?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          credit_account_id: string
+          date: string
+          debit_account_id: string
+          id: string
+          memo: string
+          reference: string | null
+          tags: string[] | null
+          user_id: string
+          vendor: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          credit_account_id: string
+          date?: string
+          debit_account_id: string
+          id?: string
+          memo: string
+          reference?: string | null
+          tags?: string[] | null
+          user_id: string
+          vendor?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          credit_account_id?: string
+          date?: string
+          debit_account_id?: string
+          id?: string
+          memo?: string
+          reference?: string | null
+          tags?: string[] | null
+          user_id?: string
+          vendor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_credit_account_id_fkey"
+            columns: ["credit_account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_debit_account_id_fkey"
+            columns: ["debit_account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +181,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      account_kind: "Income" | "Expense" | "Asset" | "Liability" | "Equity"
+      mileage_mode: "live" | "address" | "manual"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +309,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      account_kind: ["Income", "Expense", "Asset", "Liability", "Equity"],
+      mileage_mode: ["live", "address", "manual"],
+    },
   },
 } as const
