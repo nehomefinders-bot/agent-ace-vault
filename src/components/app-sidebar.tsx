@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, TrendingUp, Home, Users, Receipt,
-  Wallet, Car, ScanLine, FolderOpen, Building2, BookOpen,
+  Wallet, Car, ScanLine, FolderOpen, Building2, BookOpen, LifeBuoy,
 } from "lucide-react";
 
 const sections = [
@@ -23,6 +23,12 @@ const sections = [
       { to: "/expenses", label: "Expenses", icon: Wallet },
       { to: "/mileage", label: "Mileage", icon: Car },
       { to: "/receipts", label: "Receipts", icon: ScanLine },
+    ],
+  },
+  {
+    label: "Support",
+    items: [
+      { to: "/help", label: "How-to", icon: LifeBuoy },
     ],
   },
 ] as const;
