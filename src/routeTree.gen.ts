@@ -9,13 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReceiptsRouteImport } from './routes/receipts'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as MileageRouteImport } from './routes/mileage'
 import { Route as ListingsRouteImport } from './routes/listings'
 import { Route as LandingRouteImport } from './routes/landing'
 import { Route as InvoicesRouteImport } from './routes/invoices'
 import { Route as HelpRouteImport } from './routes/help'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ExpensesRouteImport } from './routes/expenses'
 import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as DealsRouteImport } from './routes/deals'
@@ -31,9 +35,24 @@ import { Route as BooksOwnerLoanRouteImport } from './routes/books.owner-loan'
 import { Route as BooksCategoriesRouteImport } from './routes/books.categories'
 import { Route as BooksAccountsRouteImport } from './routes/books.accounts'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReceiptsRoute = ReceiptsRouteImport.update({
   id: '/receipts',
   path: '/receipts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PipelineRoute = PipelineRouteImport.update({
@@ -64,6 +83,11 @@ const InvoicesRoute = InvoicesRouteImport.update({
 const HelpRoute = HelpRouteImport.update({
   id: '/help',
   path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExpensesRoute = ExpensesRouteImport.update({
@@ -145,13 +169,17 @@ export interface FileRoutesByFullPath {
   '/deals': typeof DealsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/invoices': typeof InvoicesRoute
   '/landing': typeof LandingRoute
   '/listings': typeof ListingsRoute
   '/mileage': typeof MileageRoute
   '/pipeline': typeof PipelineRoute
+  '/privacy': typeof PrivacyRoute
   '/receipts': typeof ReceiptsRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/terms': typeof TermsRoute
   '/books/accounts': typeof BooksAccountsRoute
   '/books/categories': typeof BooksCategoriesRoute
   '/books/owner-loan': typeof BooksOwnerLoanRoute
@@ -167,13 +195,17 @@ export interface FileRoutesByTo {
   '/deals': typeof DealsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/invoices': typeof InvoicesRoute
   '/landing': typeof LandingRoute
   '/listings': typeof ListingsRoute
   '/mileage': typeof MileageRoute
   '/pipeline': typeof PipelineRoute
+  '/privacy': typeof PrivacyRoute
   '/receipts': typeof ReceiptsRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/terms': typeof TermsRoute
   '/books/accounts': typeof BooksAccountsRoute
   '/books/categories': typeof BooksCategoriesRoute
   '/books/owner-loan': typeof BooksOwnerLoanRoute
@@ -191,13 +223,17 @@ export interface FileRoutesById {
   '/deals': typeof DealsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/invoices': typeof InvoicesRoute
   '/landing': typeof LandingRoute
   '/listings': typeof ListingsRoute
   '/mileage': typeof MileageRoute
   '/pipeline': typeof PipelineRoute
+  '/privacy': typeof PrivacyRoute
   '/receipts': typeof ReceiptsRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/terms': typeof TermsRoute
   '/books/accounts': typeof BooksAccountsRoute
   '/books/categories': typeof BooksCategoriesRoute
   '/books/owner-loan': typeof BooksOwnerLoanRoute
@@ -216,13 +252,17 @@ export interface FileRouteTypes {
     | '/deals'
     | '/documents'
     | '/expenses'
+    | '/forgot-password'
     | '/help'
     | '/invoices'
     | '/landing'
     | '/listings'
     | '/mileage'
     | '/pipeline'
+    | '/privacy'
     | '/receipts'
+    | '/reset-password'
+    | '/terms'
     | '/books/accounts'
     | '/books/categories'
     | '/books/owner-loan'
@@ -238,13 +278,17 @@ export interface FileRouteTypes {
     | '/deals'
     | '/documents'
     | '/expenses'
+    | '/forgot-password'
     | '/help'
     | '/invoices'
     | '/landing'
     | '/listings'
     | '/mileage'
     | '/pipeline'
+    | '/privacy'
     | '/receipts'
+    | '/reset-password'
+    | '/terms'
     | '/books/accounts'
     | '/books/categories'
     | '/books/owner-loan'
@@ -261,13 +305,17 @@ export interface FileRouteTypes {
     | '/deals'
     | '/documents'
     | '/expenses'
+    | '/forgot-password'
     | '/help'
     | '/invoices'
     | '/landing'
     | '/listings'
     | '/mileage'
     | '/pipeline'
+    | '/privacy'
     | '/receipts'
+    | '/reset-password'
+    | '/terms'
     | '/books/accounts'
     | '/books/categories'
     | '/books/owner-loan'
@@ -285,22 +333,47 @@ export interface RootRouteChildren {
   DealsRoute: typeof DealsRoute
   DocumentsRoute: typeof DocumentsRoute
   ExpensesRoute: typeof ExpensesRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
   InvoicesRoute: typeof InvoicesRoute
   LandingRoute: typeof LandingRoute
   ListingsRoute: typeof ListingsRoute
   MileageRoute: typeof MileageRoute
   PipelineRoute: typeof PipelineRoute
+  PrivacyRoute: typeof PrivacyRoute
   ReceiptsRoute: typeof ReceiptsRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/receipts': {
       id: '/receipts'
       path: '/receipts'
       fullPath: '/receipts'
       preLoaderRoute: typeof ReceiptsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pipeline': {
@@ -343,6 +416,13 @@ declare module '@tanstack/react-router' {
       path: '/help'
       fullPath: '/help'
       preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/expenses': {
@@ -476,13 +556,17 @@ const rootRouteChildren: RootRouteChildren = {
   DealsRoute: DealsRoute,
   DocumentsRoute: DocumentsRoute,
   ExpensesRoute: ExpensesRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,
   InvoicesRoute: InvoicesRoute,
   LandingRoute: LandingRoute,
   ListingsRoute: ListingsRoute,
   MileageRoute: MileageRoute,
   PipelineRoute: PipelineRoute,
+  PrivacyRoute: PrivacyRoute,
   ReceiptsRoute: ReceiptsRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
