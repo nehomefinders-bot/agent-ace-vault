@@ -1,23 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Download, FileBarChart } from "lucide-react";
-import { profitAndLoss, formatMoney } from "@/lib/books-helpers";
+import { useBooks, formatMoney } from "@/hooks/use-books";
+import { profitAndLoss, type PLLine } from "@/lib/books-data";
 
 export const Route = createFileRoute("/books/reports")({
   component: ReportsPage,
 });
 
 function ReportsPage() {
-  const pl = profitAndLoss();
+  const { accounts, transactions } = useBooks();
+  const pl = profitAndLoss(accounts, transactions);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-display font-bold">Profit & Loss · 2025 YTD</h2>
+          <h2 className="text-lg font-display font-bold">Profit & Loss · {new Date().getFullYear()} YTD</h2>
           <p className="text-sm text-muted-foreground">Cash basis. Hand this to your CPA at tax time.</p>
         </div>
-        <button className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">
-          <Download className="h-4 w-4" /> Export PDF
+        <button onClick={() => window.print()} className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">
+          <Download className="h-4 w-4" /> Print / Save PDF
         </button>
       </div>
 
@@ -39,38 +41,29 @@ function ReportsPage() {
           </div>
         </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          { name: "Schedule C Worksheet", desc: "Expenses grouped by IRS line." },
-          { name: "Mileage Log", desc: "IRS-compliant business miles report." },
-          { name: "1099-NEC Summary", desc: "Vendors paid $600+ for the year." },
-        ].map((r) => (
-          <div key={r.name} className="bg-card border border-border rounded-2xl p-5 shadow-card hover:border-primary/40 transition-colors cursor-pointer">
-            <div className="font-display font-bold mb-1">{r.name}</div>
-            <div className="text-xs text-muted-foreground">{r.desc}</div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
 
-function Section({ title, lines, total }: { title: string; lines: { account: { id: string; code: string; name: string; taxLine?: string }; amount: number }[]; total: number }) {
+function Section({ title, lines, total }: { title: string; lines: PLLine[]; total: number }) {
   return (
     <div>
       <div className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-3">{title}</div>
-      <div className="space-y-1.5">
-        {lines.map((l) => (
-          <div key={l.account.id} className="flex items-baseline justify-between text-sm py-1.5 border-b border-border/50">
-            <div>
-              <span className="font-medium">{l.account.name}</span>
-              {l.account.taxLine && <span className="text-xs text-muted-foreground ml-2">· {l.account.taxLine}</span>}
+      {lines.length === 0 ? (
+        <div className="text-sm text-muted-foreground italic">No {title.toLowerCase()} recorded yet.</div>
+      ) : (
+        <div className="space-y-1.5">
+          {lines.map((l) => (
+            <div key={l.account.id} className="flex items-baseline justify-between text-sm py-1.5 border-b border-border/50">
+              <div>
+                <span className="font-medium">{l.account.name}</span>
+                {l.account.taxLine && <span className="text-xs text-muted-foreground ml-2">· {l.account.taxLine}</span>}
+              </div>
+              <span className="tabular-nums">{formatMoney(l.amount)}</span>
             </div>
-            <span className="tabular-nums">{formatMoney(l.amount)}</span>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
       <div className="flex items-baseline justify-between mt-3 pt-2 border-t border-foreground/20">
         <span className="font-display font-bold">Total {title}</span>
         <span className="font-display font-bold tabular-nums">{formatMoney(total)}</span>

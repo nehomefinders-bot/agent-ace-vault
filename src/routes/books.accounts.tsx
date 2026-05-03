@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Plus, Building2, CreditCard, PiggyBank, ArrowRightLeft, Wallet } from "lucide-react";
-import { accounts, accountBalance, transactions, accountById, formatMoney, formatMoneyCents } from "@/lib/books-helpers";
+import { useBooks, formatMoney, formatMoneyCents } from "@/hooks/use-books";
+import { accountBalance, type Account, type AccountKind } from "@/lib/books-data";
 
 export const Route = createFileRoute("/books/accounts")({
   component: AccountsPage,
@@ -15,15 +16,17 @@ const iconFor = (name: string) => {
 };
 
 function AccountsPage() {
+  const { accounts, transactions, addTransaction, addAccount } = useBooks();
   const [showTransfer, setShowTransfer] = useState(false);
+  const [showNew, setShowNew] = useState(false);
 
-  const cashAccts  = accounts.filter((a) => a.kind === "Asset" && a.id !== "1100");
-  const cardAccts  = accounts.filter((a) => a.kind === "Liability" && a.id !== "2100");
-  const ownerLoan  = accounts.find((a) => a.id === "2100")!;
+  const cashAccts  = accounts.filter((a) => a.kind === "Asset" && a.code !== "1100");
+  const cardAccts  = accounts.filter((a) => a.kind === "Liability" && a.code !== "2100");
+  const ownerLoan  = accounts.find((a) => a.code === "2100");
 
-  const totalCash  = cashAccts.reduce((s, a) => s + accountBalance(a.id), 0);
-  const totalDebt  = cardAccts.reduce((s, a) => s + accountBalance(a.id), 0);
-  const ownerOwed  = accountBalance(ownerLoan.id);
+  const totalCash  = cashAccts.reduce((s, a) => s + accountBalance(a.id, accounts, transactions), 0);
+  const totalDebt  = cardAccts.reduce((s, a) => s + accountBalance(a.id, accounts, transactions), 0);
+  const ownerOwed  = ownerLoan ? accountBalance(ownerLoan.id, accounts, transactions) : 0;
 
   return (
     <div className="space-y-8">
@@ -39,13 +42,30 @@ function AccountsPage() {
           >
             <ArrowRightLeft className="h-4 w-4" /> Transfer
           </button>
-          <button className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">
+          <button
+            onClick={() => setShowNew((v) => !v)}
+            className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium"
+          >
             <Plus className="h-4 w-4" /> Add account
           </button>
         </div>
       </div>
 
-      {showTransfer && <TransferForm onDone={() => setShowTransfer(false)} />}
+      {showNew && (
+        <NewAccountForm
+          onDone={() => setShowNew(false)}
+          onSubmit={(a) => addAccount(a)}
+        />
+      )}
+
+      {showTransfer && cashAccts.length > 0 && (
+        <TransferForm
+          cash={cashAccts}
+          cards={cardAccts}
+          onDone={() => setShowTransfer(false)}
+          onSubmit={addTransaction}
+        />
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Summary label="Cash on hand" value={formatMoney(totalCash)} sub={`${cashAccts.length} accounts`} tone="success" />
@@ -53,9 +73,11 @@ function AccountsPage() {
         <Summary label="Owed to officer" value={formatMoney(ownerOwed)} sub="Loan from Officer" tone="muted" />
       </div>
 
-      <Section title="Bank accounts" accts={cashAccts} positive />
-      <Section title="Credit cards" accts={cardAccts} positive={false} />
-      <Section title="Officer loan" accts={[ownerLoan]} positive={false} />
+      <Section title="Bank accounts" accts={cashAccts} accounts={accounts} transactions={transactions} positive />
+      <Section title="Credit cards" accts={cardAccts} accounts={accounts} transactions={transactions} positive={false} />
+      {ownerLoan && (
+        <Section title="Officer loan" accts={[ownerLoan]} accounts={accounts} transactions={transactions} positive={false} />
+      )}
     </div>
   );
 }
@@ -71,13 +93,21 @@ function Summary({ label, value, sub, tone }: { label: string; value: string; su
   );
 }
 
-function Section({ title, accts, positive }: { title: string; accts: typeof accounts; positive: boolean }) {
+function Section({
+  title, accts, accounts, transactions, positive,
+}: {
+  title: string;
+  accts: Account[];
+  accounts: Account[];
+  transactions: { id: string; debitAccountId: string; creditAccountId: string }[];
+  positive: boolean;
+}) {
   return (
     <section>
       <h2 className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground mb-3">{title}</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {accts.map((a) => {
-          const bal = accountBalance(a.id);
+          const bal = accountBalance(a.id, accounts, transactions as never);
           const txnCount = transactions.filter((t) => t.debitAccountId === a.id || t.creditAccountId === a.id).length;
           const Icon = iconFor(a.name);
           return (
@@ -106,16 +136,37 @@ function Section({ title, accts, positive }: { title: string; accts: typeof acco
   );
 }
 
-function TransferForm({ onDone }: { onDone: () => void }) {
-  const cash = accounts.filter((a) => a.kind === "Asset" && a.id !== "1100");
-  const cards = accounts.filter((a) => a.kind === "Liability" && a.id !== "2100");
+function TransferForm({
+  cash, cards, onDone, onSubmit,
+}: {
+  cash: Account[]; cards: Account[]; onDone: () => void;
+  onSubmit: (t: { date: string; memo: string; amount: number; debitAccountId: string; creditAccountId: string; vendor?: string }) => Promise<void>;
+}) {
   const [from, setFrom] = useState(cash[0]?.id ?? "");
   const [to, setTo] = useState(cards[0]?.id ?? cash[1]?.id ?? "");
   const [amount, setAmount] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const fromAcct = accountById(from);
-  const toAcct = accountById(to);
+  const fromAcct = cash.find((a) => a.id === from);
+  const toAcct = [...cards, ...cash].find((a) => a.id === to);
   const isCardPayment = toAcct?.kind === "Liability";
+
+  const save = async () => {
+    const amt = parseFloat(amount);
+    if (!amt || !from || !to) return;
+    setSaving(true);
+    try {
+      // Transfer journal: debit destination, credit source
+      await onSubmit({
+        date: new Date().toISOString().slice(0, 10),
+        memo: isCardPayment ? `Pay ${toAcct?.name}` : `Transfer to ${toAcct?.name}`,
+        amount: amt,
+        debitAccountId: to,
+        creditAccountId: from,
+      });
+      onDone();
+    } finally { setSaving(false); }
+  };
 
   return (
     <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
@@ -140,16 +191,57 @@ function TransferForm({ onDone }: { onDone: () => void }) {
             className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm tabular-nums" />
         </Field>
         <div className="flex items-end">
-          <button
-            onClick={onDone}
-            className="w-full bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium"
-          >
-            Record transfer
+          <button onClick={save} disabled={saving}
+            className="w-full bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50">
+            {saving ? "Saving…" : "Record transfer"}
           </button>
         </div>
       </div>
       <div className="text-xs text-muted-foreground mt-3">
         Journal: debit <span className="font-medium text-foreground">{toAcct?.name}</span>, credit <span className="font-medium text-foreground">{fromAcct?.name}</span>. No P&amp;L impact.
+      </div>
+    </div>
+  );
+}
+
+function NewAccountForm({
+  onDone,
+  onSubmit,
+}: {
+  onDone: () => void;
+  onSubmit: (a: { code: string; name: string; kind: AccountKind; description?: string }) => Promise<void>;
+}) {
+  const [code, setCode] = useState("");
+  const [name, setName] = useState("");
+  const [kind, setKind] = useState<AccountKind>("Asset");
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    if (!code || !name) return;
+    setSaving(true);
+    try { await onSubmit({ code, name, kind }); onDone(); }
+    finally { setSaving(false); }
+  };
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-5 shadow-card grid grid-cols-1 md:grid-cols-5 gap-3">
+      <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Code (e.g. 1012)"
+        className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
+      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Account name"
+        className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm md:col-span-2" />
+      <select value={kind} onChange={(e) => setKind(e.target.value as AccountKind)}
+        className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm">
+        <option value="Asset">Bank / Asset</option>
+        <option value="Liability">Credit card / Liability</option>
+        <option value="Income">Income</option>
+        <option value="Expense">Expense</option>
+        <option value="Equity">Equity</option>
+      </select>
+      <div className="flex justify-end gap-2 items-end">
+        <button onClick={onDone} className="px-3 py-2 text-sm text-muted-foreground">Cancel</button>
+        <button onClick={save} disabled={saving} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50">
+          {saving ? "Saving…" : "Add"}
+        </button>
       </div>
     </div>
   );
