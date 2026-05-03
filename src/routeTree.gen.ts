@@ -19,6 +19,11 @@ import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BooksIndexRouteImport } from './routes/books.index'
+import { Route as BooksTransactionsRouteImport } from './routes/books.transactions'
+import { Route as BooksReportsRouteImport } from './routes/books.reports'
+import { Route as BooksOwnerLoanRouteImport } from './routes/books.owner-loan'
+import { Route as BooksCategoriesRouteImport } from './routes/books.categories'
 
 const ReceiptsRoute = ReceiptsRouteImport.update({
   id: '/receipts',
@@ -70,10 +75,35 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BooksIndexRoute = BooksIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BooksRoute,
+} as any)
+const BooksTransactionsRoute = BooksTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
+  getParentRoute: () => BooksRoute,
+} as any)
+const BooksReportsRoute = BooksReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => BooksRoute,
+} as any)
+const BooksOwnerLoanRoute = BooksOwnerLoanRouteImport.update({
+  id: '/owner-loan',
+  path: '/owner-loan',
+  getParentRoute: () => BooksRoute,
+} as any)
+const BooksCategoriesRoute = BooksCategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => BooksRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/books': typeof BooksRoute
+  '/books': typeof BooksRouteWithChildren
   '/clients': typeof ClientsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
@@ -82,10 +112,14 @@ export interface FileRoutesByFullPath {
   '/mileage': typeof MileageRoute
   '/pipeline': typeof PipelineRoute
   '/receipts': typeof ReceiptsRoute
+  '/books/categories': typeof BooksCategoriesRoute
+  '/books/owner-loan': typeof BooksOwnerLoanRoute
+  '/books/reports': typeof BooksReportsRoute
+  '/books/transactions': typeof BooksTransactionsRoute
+  '/books/': typeof BooksIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/books': typeof BooksRoute
   '/clients': typeof ClientsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
@@ -94,11 +128,16 @@ export interface FileRoutesByTo {
   '/mileage': typeof MileageRoute
   '/pipeline': typeof PipelineRoute
   '/receipts': typeof ReceiptsRoute
+  '/books/categories': typeof BooksCategoriesRoute
+  '/books/owner-loan': typeof BooksOwnerLoanRoute
+  '/books/reports': typeof BooksReportsRoute
+  '/books/transactions': typeof BooksTransactionsRoute
+  '/books': typeof BooksIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/books': typeof BooksRoute
+  '/books': typeof BooksRouteWithChildren
   '/clients': typeof ClientsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
@@ -107,6 +146,11 @@ export interface FileRoutesById {
   '/mileage': typeof MileageRoute
   '/pipeline': typeof PipelineRoute
   '/receipts': typeof ReceiptsRoute
+  '/books/categories': typeof BooksCategoriesRoute
+  '/books/owner-loan': typeof BooksOwnerLoanRoute
+  '/books/reports': typeof BooksReportsRoute
+  '/books/transactions': typeof BooksTransactionsRoute
+  '/books/': typeof BooksIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,10 +165,14 @@ export interface FileRouteTypes {
     | '/mileage'
     | '/pipeline'
     | '/receipts'
+    | '/books/categories'
+    | '/books/owner-loan'
+    | '/books/reports'
+    | '/books/transactions'
+    | '/books/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/books'
     | '/clients'
     | '/documents'
     | '/expenses'
@@ -133,6 +181,11 @@ export interface FileRouteTypes {
     | '/mileage'
     | '/pipeline'
     | '/receipts'
+    | '/books/categories'
+    | '/books/owner-loan'
+    | '/books/reports'
+    | '/books/transactions'
+    | '/books'
   id:
     | '__root__'
     | '/'
@@ -145,11 +198,16 @@ export interface FileRouteTypes {
     | '/mileage'
     | '/pipeline'
     | '/receipts'
+    | '/books/categories'
+    | '/books/owner-loan'
+    | '/books/reports'
+    | '/books/transactions'
+    | '/books/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  BooksRoute: typeof BooksRoute
+  BooksRoute: typeof BooksRouteWithChildren
   ClientsRoute: typeof ClientsRoute
   DocumentsRoute: typeof DocumentsRoute
   ExpensesRoute: typeof ExpensesRoute
@@ -232,12 +290,65 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/books/': {
+      id: '/books/'
+      path: '/'
+      fullPath: '/books/'
+      preLoaderRoute: typeof BooksIndexRouteImport
+      parentRoute: typeof BooksRoute
+    }
+    '/books/transactions': {
+      id: '/books/transactions'
+      path: '/transactions'
+      fullPath: '/books/transactions'
+      preLoaderRoute: typeof BooksTransactionsRouteImport
+      parentRoute: typeof BooksRoute
+    }
+    '/books/reports': {
+      id: '/books/reports'
+      path: '/reports'
+      fullPath: '/books/reports'
+      preLoaderRoute: typeof BooksReportsRouteImport
+      parentRoute: typeof BooksRoute
+    }
+    '/books/owner-loan': {
+      id: '/books/owner-loan'
+      path: '/owner-loan'
+      fullPath: '/books/owner-loan'
+      preLoaderRoute: typeof BooksOwnerLoanRouteImport
+      parentRoute: typeof BooksRoute
+    }
+    '/books/categories': {
+      id: '/books/categories'
+      path: '/categories'
+      fullPath: '/books/categories'
+      preLoaderRoute: typeof BooksCategoriesRouteImport
+      parentRoute: typeof BooksRoute
+    }
   }
 }
 
+interface BooksRouteChildren {
+  BooksCategoriesRoute: typeof BooksCategoriesRoute
+  BooksOwnerLoanRoute: typeof BooksOwnerLoanRoute
+  BooksReportsRoute: typeof BooksReportsRoute
+  BooksTransactionsRoute: typeof BooksTransactionsRoute
+  BooksIndexRoute: typeof BooksIndexRoute
+}
+
+const BooksRouteChildren: BooksRouteChildren = {
+  BooksCategoriesRoute: BooksCategoriesRoute,
+  BooksOwnerLoanRoute: BooksOwnerLoanRoute,
+  BooksReportsRoute: BooksReportsRoute,
+  BooksTransactionsRoute: BooksTransactionsRoute,
+  BooksIndexRoute: BooksIndexRoute,
+}
+
+const BooksRouteWithChildren = BooksRoute._addFileChildren(BooksRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  BooksRoute: BooksRoute,
+  BooksRoute: BooksRouteWithChildren,
   ClientsRoute: ClientsRoute,
   DocumentsRoute: DocumentsRoute,
   ExpensesRoute: ExpensesRoute,

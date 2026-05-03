@@ -1,19 +1,30 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, TrendingUp, Home, Users, Receipt,
-  Wallet, Car, ScanLine, FolderOpen, Building2,
+  Wallet, Car, ScanLine, FolderOpen, Building2, BookOpen,
 } from "lucide-react";
 
-const nav = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/pipeline", label: "Pipeline", icon: TrendingUp },
-  { to: "/listings", label: "Listings", icon: Home },
-  { to: "/clients", label: "Clients", icon: Users },
-  { to: "/invoices", label: "Invoices", icon: Receipt },
-  { to: "/expenses", label: "Expenses", icon: Wallet },
-  { to: "/mileage", label: "Mileage", icon: Car },
-  { to: "/receipts", label: "Receipts", icon: ScanLine },
-  { to: "/documents", label: "Documents", icon: FolderOpen },
+const sections = [
+  {
+    label: "Business",
+    items: [
+      { to: "/", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/pipeline", label: "Pipeline", icon: TrendingUp },
+      { to: "/listings", label: "Listings", icon: Home },
+      { to: "/clients", label: "Clients", icon: Users },
+      { to: "/documents", label: "Documents", icon: FolderOpen },
+    ],
+  },
+  {
+    label: "Books",
+    items: [
+      { to: "/books", label: "Bookkeeping", icon: BookOpen },
+      { to: "/invoices", label: "Invoices", icon: Receipt },
+      { to: "/expenses", label: "Expenses", icon: Wallet },
+      { to: "/mileage", label: "Mileage", icon: Car },
+      { to: "/receipts", label: "Receipts", icon: ScanLine },
+    ],
+  },
 ] as const;
 
 export function AppSidebar() {
@@ -33,24 +44,31 @@ export function AppSidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 px-3 space-y-0.5">
-        {nav.map(({ to, label, icon: Icon }) => {
-          const active = path === to;
-          return (
-            <Link
-              key={to}
-              to={to}
-              className={`group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                active
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
-                  : "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              <span>{label}</span>
-            </Link>
-          );
-        })}
+      <nav className="flex-1 px-3 space-y-5">
+        {sections.map((section) => (
+          <div key={section.label}>
+            <div className="px-3 mb-1.5 text-[10px] uppercase tracking-[0.14em] opacity-50 font-medium">{section.label}</div>
+            <div className="space-y-0.5">
+              {section.items.map(({ to, label, icon: Icon }) => {
+                const active = to === "/" ? path === "/" : path === to || path.startsWith(to + "/");
+                return (
+                  <Link
+                    key={to}
+                    to={to}
+                    className={`group flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                      active
+                        ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
+                        : "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       <div className="m-3 p-4 rounded-xl bg-sidebar-accent/60 border border-sidebar-border">

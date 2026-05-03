@@ -8,11 +8,11 @@ export const Route = createFileRoute("/books")({
 });
 
 const tabs = [
-  { to: "/books", label: "Overview", icon: BookOpen, exact: true },
-  { to: "/books/transactions", label: "Transactions", icon: ListOrdered },
-  { to: "/books/categories", label: "Categories", icon: Tags },
-  { to: "/books/owner-loan", label: "Owner Loan", icon: HandCoins },
-  { to: "/books/reports", label: "Reports", icon: FileBarChart },
+  { to: "/books", label: "Overview", icon: BookOpen, exact: true as boolean },
+  { to: "/books/transactions", label: "Transactions", icon: ListOrdered, exact: false as boolean },
+  { to: "/books/categories", label: "Categories", icon: Tags, exact: false as boolean },
+  { to: "/books/owner-loan", label: "Owner Loan", icon: HandCoins, exact: false as boolean },
+  { to: "/books/reports", label: "Reports", icon: FileBarChart, exact: false as boolean },
 ] as const;
 
 function BooksLayout() {
