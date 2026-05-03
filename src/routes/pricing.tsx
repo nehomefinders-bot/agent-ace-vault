@@ -102,7 +102,7 @@ function PricingPage() {
         })}
       </div>
       <p className="text-center text-xs text-muted-foreground mt-8">
-        All plans are month-to-month or annual. No setup fees, no contracts. Cancel anytime from your billing page.
+        14-day free trial on all plans. Card required to start — no charge until day 15. Cancel anytime from your billing page.
       </p>
     </PageShell>
   );
