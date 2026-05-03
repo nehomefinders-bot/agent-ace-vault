@@ -49,7 +49,7 @@ function PricingPage() {
   return (
     <PageShell
       title="Pricing"
-      subtitle="Month-to-month. No contracts. Cancel anytime."
+      subtitle="Start with a 14-day free trial. Cancel anytime — no contracts."
     >
       <div className="flex justify-center mb-8">
         <div className="inline-flex items-center bg-muted rounded-full p-1">
@@ -87,7 +87,7 @@ function PricingPage() {
                   plan.popular ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"
                 }`}>
                 {busy === price.priceId && <Loader2 className="h-4 w-4 animate-spin" />}
-                {isCurrent ? "Current plan" : isActive ? "Switch plan" : "Start subscription"}
+                {isCurrent ? "Current plan" : isActive ? "Switch plan" : "Start 14-day free trial"}
               </button>
               <ul className="mt-6 space-y-2.5">
                 {plan.features.map((f) => (
