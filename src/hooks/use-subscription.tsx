@@ -53,7 +53,7 @@ export function useSubscription() {
   const periodEnd = subscription?.current_period_end ? new Date(subscription.current_period_end).getTime() : null;
   const isActive = !!subscription && (
     (["active", "trialing", "past_due"].includes(subscription.status) && (!periodEnd || periodEnd > now)) ||
-    (subscription.status === "canceled" && periodEnd && periodEnd > now)
+    (subscription.status === "canceled" && !!periodEnd && periodEnd > now)
   );
 
   return { subscription, loading, isActive, refetch };
