@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, TrendingUp, Home, Users, Receipt,
-  Wallet, Car, ScanLine, FolderOpen, Building2, BookOpen, LifeBuoy, LogOut, LogIn,
+  Wallet, Car, ScanLine, FolderOpen, Building2, BookOpen, LifeBuoy, LogOut, LogIn, Calculator,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -11,6 +11,7 @@ const sections = [
     items: [
       { to: "/", label: "Dashboard", icon: LayoutDashboard },
       { to: "/pipeline", label: "Pipeline", icon: TrendingUp },
+      { to: "/deals", label: "Deals & Commissions", icon: Calculator },
       { to: "/listings", label: "Listings", icon: Home },
       { to: "/clients", label: "Clients", icon: Users },
       { to: "/documents", label: "Documents", icon: FolderOpen },

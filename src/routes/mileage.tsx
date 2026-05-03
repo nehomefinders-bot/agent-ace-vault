@@ -1,28 +1,83 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Plus, Car, Play, Square, MapPin, Navigation, AlertCircle, Pencil } from "lucide-react";
+import { Plus, Car, Play, Square, MapPin, Navigation, AlertCircle, Pencil, Trash2 } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
-import { mileage as seed, irsRate, formatMoneyCents, type MileageEntry } from "@/lib/mock-data";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { formatMoneyCents } from "@/hooks/use-books";
 
 export const Route = createFileRoute("/mileage")({
   component: Mileage,
   head: () => ({ meta: [{ title: "Mileage — Apex Realty OS" }] }),
 });
 
+const irsRate = 0.67;
+
 type Mode = "live" | "route" | "manual";
 
+interface Trip {
+  id: string;
+  date: string;
+  miles: number;
+  from_address: string | null;
+  to_address: string | null;
+  purpose: string | null;
+  mode: "live" | "address" | "manual";
+}
+
+interface NewTrip {
+  miles: number;
+  from_address?: string;
+  to_address?: string;
+  purpose?: string;
+  mode: "live" | "address" | "manual";
+}
+
 function Mileage() {
-  const [trips, setTrips] = useState<MileageEntry[]>(seed);
+  const { user } = useAuth();
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<Mode>("live");
 
-  const totalMiles = trips.reduce((s, m) => s + m.miles, 0);
+  const reload = async () => {
+    if (!user) { setTrips([]); setLoading(false); return; }
+    setLoading(true);
+    const { data } = await supabase.from("mileage_trips").select("*").order("date", { ascending: false });
+    setTrips((data ?? []) as Trip[]);
+    setLoading(false);
+  };
+
+  useEffect(() => { reload(); /* eslint-disable-next-line */ }, [user]);
+
+  const totalMiles = trips.reduce((s, m) => s + Number(m.miles), 0);
   const deduction = totalMiles * irsRate;
 
-  const addTrip = (t: Omit<MileageEntry, "id" | "date">) => {
-    const id = `M-${Math.floor(Math.random() * 900 + 100)}`;
-    const date = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    setTrips((prev) => [{ id, date, ...t }, ...prev]);
+  const addTrip = async (t: NewTrip) => {
+    if (!user) return;
+    await supabase.from("mileage_trips").insert({
+      user_id: user.id,
+      date: new Date().toISOString().slice(0, 10),
+      miles: t.miles,
+      from_address: t.from_address ?? null,
+      to_address: t.to_address ?? null,
+      purpose: t.purpose ?? null,
+      mode: t.mode,
+    });
+    await reload();
   };
+
+  const deleteTrip = async (id: string) => {
+    await supabase.from("mileage_trips").delete().eq("id", id);
+    await reload();
+  };
+
+  if (!user) {
+    return (
+      <PageShell title="Mileage" subtitle="Sign in to log and track trips.">
+        <Link to="/auth" className="inline-flex bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium">Sign in</Link>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell
@@ -56,7 +111,6 @@ function Mileage() {
         </div>
       </div>
 
-      {/* Mode tabs */}
       <div className="flex gap-1 mb-5 border-b border-border">
         <ModeTab active={mode === "live"} onClick={() => setMode("live")} icon={Navigation} label="Live GPS" />
         <ModeTab active={mode === "route"} onClick={() => setMode("route")} icon={MapPin} label="Address to address" />
@@ -70,30 +124,42 @@ function Mileage() {
       </div>
 
       <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
-              <th className="text-left font-medium py-3 px-6">Date</th>
-              <th className="text-left font-medium py-3">From</th>
-              <th className="text-left font-medium py-3">To</th>
-              <th className="text-left font-medium py-3">Purpose</th>
-              <th className="text-right font-medium py-3">Miles</th>
-              <th className="text-right font-medium py-3 pr-6">Deduction</th>
-            </tr>
-          </thead>
-          <tbody>
-            {trips.map((m) => (
-              <tr key={m.id} className="border-t border-border hover:bg-muted/30">
-                <td className="py-4 px-6 text-muted-foreground text-xs">{m.date}</td>
-                <td className="py-4">{m.from}</td>
-                <td className="py-4">{m.to}</td>
-                <td className="py-4 text-muted-foreground">{m.purpose}</td>
-                <td className="py-4 text-right tabular-nums font-medium">{m.miles.toFixed(1)}</td>
-                <td className="py-4 pr-6 text-right tabular-nums font-medium text-success">{formatMoneyCents(m.miles * irsRate)}</td>
+        {loading ? (
+          <div className="p-8 text-sm text-muted-foreground text-center">Loading trips…</div>
+        ) : trips.length === 0 ? (
+          <div className="p-8 text-sm text-muted-foreground text-center">No trips logged yet.</div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
+                <th className="text-left font-medium py-3 px-6">Date</th>
+                <th className="text-left font-medium py-3">From</th>
+                <th className="text-left font-medium py-3">To</th>
+                <th className="text-left font-medium py-3">Purpose</th>
+                <th className="text-right font-medium py-3">Miles</th>
+                <th className="text-right font-medium py-3">Deduction</th>
+                <th className="w-10 pr-4"></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {trips.map((m) => (
+                <tr key={m.id} className="border-t border-border hover:bg-muted/30">
+                  <td className="py-4 px-6 text-muted-foreground text-xs tabular-nums">{m.date}</td>
+                  <td className="py-4">{m.from_address ?? "—"}</td>
+                  <td className="py-4">{m.to_address ?? "—"}</td>
+                  <td className="py-4 text-muted-foreground">{m.purpose ?? "—"}</td>
+                  <td className="py-4 text-right tabular-nums font-medium">{Number(m.miles).toFixed(1)}</td>
+                  <td className="py-4 text-right tabular-nums font-medium text-success">{formatMoneyCents(Number(m.miles) * irsRate)}</td>
+                  <td className="py-4 pr-4">
+                    <button onClick={() => { if (confirm("Delete this trip?")) deleteTrip(m.id); }} className="text-muted-foreground hover:text-destructive">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </PageShell>
   );
@@ -112,11 +178,9 @@ function ModeTab({ active, onClick, icon: Icon, label }: { active: boolean; onCl
   );
 }
 
-// ---------- Live GPS tracker ----------
-
 type Status = "idle" | "running" | "stopped";
 
-function LiveTracker({ onSave }: { onSave: (t: Omit<MileageEntry, "id" | "date">) => void }) {
+function LiveTracker({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
   const [status, setStatus] = useState<Status>("idle");
   const [miles, setMiles] = useState(0);
   const [seconds, setSeconds] = useState(0);
@@ -130,29 +194,18 @@ function LiveTracker({ onSave }: { onSave: (t: Omit<MileageEntry, "id" | "date">
   const startedAt = useRef<number>(0);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => {
-    return () => {
-      if (watchId.current !== null) navigator.geolocation.clearWatch(watchId.current);
-      if (tickRef.current) clearInterval(tickRef.current);
-    };
+  useEffect(() => () => {
+    if (watchId.current !== null) navigator.geolocation.clearWatch(watchId.current);
+    if (tickRef.current) clearInterval(tickRef.current);
   }, []);
 
   const start = () => {
     setError(null);
-    if (!("geolocation" in navigator)) {
-      setError("Your browser doesn't support geolocation.");
-      return;
-    }
-    setMiles(0);
-    setSeconds(0);
-    lastPos.current = null;
+    if (!("geolocation" in navigator)) { setError("Your browser doesn't support geolocation."); return; }
+    setMiles(0); setSeconds(0); lastPos.current = null;
     startedAt.current = Date.now();
     setStatus("running");
-
-    tickRef.current = setInterval(() => {
-      setSeconds(Math.floor((Date.now() - startedAt.current) / 1000));
-    }, 1000);
-
+    tickRef.current = setInterval(() => setSeconds(Math.floor((Date.now() - startedAt.current) / 1000)), 1000);
     watchId.current = navigator.geolocation.watchPosition(
       (pos) => {
         if (lastPos.current) {
@@ -160,7 +213,6 @@ function LiveTracker({ onSave }: { onSave: (t: Omit<MileageEntry, "id" | "date">
             lastPos.current.coords.latitude, lastPos.current.coords.longitude,
             pos.coords.latitude, pos.coords.longitude,
           );
-          // Filter GPS jitter: ignore tiny moves and unrealistic jumps
           if (d > 0.005 && d < 5) setMiles((m) => m + d);
         }
         lastPos.current = pos;
@@ -173,20 +225,18 @@ function LiveTracker({ onSave }: { onSave: (t: Omit<MileageEntry, "id" | "date">
   const stop = () => {
     if (watchId.current !== null) navigator.geolocation.clearWatch(watchId.current);
     if (tickRef.current) clearInterval(tickRef.current);
-    watchId.current = null;
-    tickRef.current = null;
+    watchId.current = null; tickRef.current = null;
     setStatus("stopped");
   };
 
-  const save = () => {
-    onSave({
-      from: from || "Start location",
-      to: to || "End location",
+  const save = async () => {
+    await onSave({
+      from_address: from || "Start location",
+      to_address: to || "End location",
       miles: Number(miles.toFixed(2)),
-      purpose,
+      purpose, mode: "live",
     });
-    setStatus("idle");
-    setMiles(0); setSeconds(0); setFrom(""); setTo("");
+    setStatus("idle"); setMiles(0); setSeconds(0); setFrom(""); setTo("");
   };
 
   const discard = () => { setStatus("idle"); setMiles(0); setSeconds(0); };
@@ -251,16 +301,12 @@ function LiveTracker({ onSave }: { onSave: (t: Omit<MileageEntry, "id" | "date">
         For true background tracking (closed app, locked phone), you'll need the native mobile app — coming next.
       </div>
 
-      <style>{`
-        .input { width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); font-size: 0.875rem; }
-      `}</style>
+      <style>{`.input { width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); font-size: 0.875rem; }`}</style>
     </div>
   );
 }
 
-// ---------- Address-to-address ----------
-
-function RouteCalc({ onSave }: { onSave: (t: Omit<MileageEntry, "id" | "date">) => void }) {
+function RouteCalc({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [purpose, setPurpose] = useState("Showing");
@@ -270,7 +316,6 @@ function RouteCalc({ onSave }: { onSave: (t: Omit<MileageEntry, "id" | "date">) 
   const calc = () => {
     if (!from || !to) return;
     setLoading(true);
-    // Demo: pseudo-random distance based on input length until a maps API is wired up.
     setTimeout(() => {
       const seed = (from + to).split("").reduce((s, c) => s + c.charCodeAt(0), 0);
       const est = ((seed % 230) / 10) + 1.2;
@@ -279,9 +324,9 @@ function RouteCalc({ onSave }: { onSave: (t: Omit<MileageEntry, "id" | "date">) 
     }, 600);
   };
 
-  const save = () => {
+  const save = async () => {
     if (miles == null) return;
-    onSave({ from, to, miles, purpose });
+    await onSave({ from_address: from, to_address: to, miles, purpose, mode: "address" });
     setFrom(""); setTo(""); setMiles(null);
   };
 
@@ -322,25 +367,21 @@ function RouteCalc({ onSave }: { onSave: (t: Omit<MileageEntry, "id" | "date">) 
         and we'll switch this to real driving distance via the Distance Matrix API.
       </div>
 
-      <style>{`
-        .input { width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); font-size: 0.875rem; }
-      `}</style>
+      <style>{`.input { width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); font-size: 0.875rem; }`}</style>
     </div>
   );
 }
 
-// ---------- Manual ----------
-
-function ManualEntry({ onSave }: { onSave: (t: Omit<MileageEntry, "id" | "date">) => void }) {
+function ManualEntry({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [miles, setMiles] = useState("");
   const [purpose, setPurpose] = useState("Showing");
 
-  const save = () => {
+  const save = async () => {
     const m = parseFloat(miles);
     if (!from || !to || !m) return;
-    onSave({ from, to, miles: m, purpose });
+    await onSave({ from_address: from, to_address: to, miles: m, purpose, mode: "manual" });
     setFrom(""); setTo(""); setMiles("");
   };
 
@@ -359,9 +400,7 @@ function ManualEntry({ onSave }: { onSave: (t: Omit<MileageEntry, "id" | "date">
           <button onClick={save} className="w-full bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">Add trip</button>
         </div>
       </div>
-      <style>{`
-        .input { width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); font-size: 0.875rem; }
-      `}</style>
+      <style>{`.input { width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); font-size: 0.875rem; }`}</style>
     </div>
   );
 }
@@ -375,10 +414,8 @@ function Field({ label, children, className }: { label: string; children: React.
   );
 }
 
-// ---------- math ----------
-
 function haversineMiles(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 3958.8; // miles
+  const R = 3958.8;
   const toRad = (d: number) => (d * Math.PI) / 180;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
