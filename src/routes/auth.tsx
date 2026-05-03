@@ -97,12 +97,22 @@ function AuthPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            {mode === "signin" ? (
-              <>New here? <button onClick={() => setMode("signup")} className="text-foreground font-medium hover:underline">Create an account</button></>
-            ) : (
-              <>Already have an account? <button onClick={() => setMode("signin")} className="text-foreground font-medium hover:underline">Sign in</button></>
+          <div className="mt-6 text-center text-sm text-muted-foreground space-y-2">
+            <div>
+              {mode === "signin" ? (
+                <>New here? <button onClick={() => setMode("signup")} className="text-foreground font-medium hover:underline">Create an account</button></>
+              ) : (
+                <>Already have an account? <button onClick={() => setMode("signin")} className="text-foreground font-medium hover:underline">Sign in</button></>
+              )}
+            </div>
+            {mode === "signin" && (
+              <div>
+                <Link to="/forgot-password" className="text-xs text-muted-foreground hover:text-foreground">Forgot your password?</Link>
+              </div>
             )}
+          </div>
+          <div className="mt-4 text-center text-[11px] text-muted-foreground">
+            By continuing you agree to our <Link to="/terms" className="underline hover:text-foreground">Terms</Link> and <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>.
           </div>
         </div>
 
