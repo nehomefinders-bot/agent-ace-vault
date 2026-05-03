@@ -14,6 +14,7 @@ import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as MileageRouteImport } from './routes/mileage'
 import { Route as ListingsRouteImport } from './routes/listings'
 import { Route as InvoicesRouteImport } from './routes/invoices'
+import { Route as HelpRouteImport } from './routes/help'
 import { Route as ExpensesRouteImport } from './routes/expenses'
 import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as ClientsRouteImport } from './routes/clients'
@@ -49,6 +50,11 @@ const ListingsRoute = ListingsRouteImport.update({
 const InvoicesRoute = InvoicesRouteImport.update({
   id: '/invoices',
   path: '/invoices',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExpensesRoute = ExpensesRouteImport.update({
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/clients': typeof ClientsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
+  '/help': typeof HelpRoute
   '/invoices': typeof InvoicesRoute
   '/listings': typeof ListingsRoute
   '/mileage': typeof MileageRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/clients': typeof ClientsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
+  '/help': typeof HelpRoute
   '/invoices': typeof InvoicesRoute
   '/listings': typeof ListingsRoute
   '/mileage': typeof MileageRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/clients': typeof ClientsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
+  '/help': typeof HelpRoute
   '/invoices': typeof InvoicesRoute
   '/listings': typeof ListingsRoute
   '/mileage': typeof MileageRoute
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/clients'
     | '/documents'
     | '/expenses'
+    | '/help'
     | '/invoices'
     | '/listings'
     | '/mileage'
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
     | '/clients'
     | '/documents'
     | '/expenses'
+    | '/help'
     | '/invoices'
     | '/listings'
     | '/mileage'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/clients'
     | '/documents'
     | '/expenses'
+    | '/help'
     | '/invoices'
     | '/listings'
     | '/mileage'
@@ -223,6 +235,7 @@ export interface RootRouteChildren {
   ClientsRoute: typeof ClientsRoute
   DocumentsRoute: typeof DocumentsRoute
   ExpensesRoute: typeof ExpensesRoute
+  HelpRoute: typeof HelpRoute
   InvoicesRoute: typeof InvoicesRoute
   ListingsRoute: typeof ListingsRoute
   MileageRoute: typeof MileageRoute
@@ -265,6 +278,13 @@ declare module '@tanstack/react-router' {
       path: '/invoices'
       fullPath: '/invoices'
       preLoaderRoute: typeof InvoicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/expenses': {
@@ -373,6 +393,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClientsRoute: ClientsRoute,
   DocumentsRoute: DocumentsRoute,
   ExpensesRoute: ExpensesRoute,
+  HelpRoute: HelpRoute,
   InvoicesRoute: InvoicesRoute,
   ListingsRoute: ListingsRoute,
   MileageRoute: MileageRoute,
