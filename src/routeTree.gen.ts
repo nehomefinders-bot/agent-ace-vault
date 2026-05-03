@@ -13,6 +13,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReceiptsRouteImport } from './routes/receipts'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as MileageRouteImport } from './routes/mileage'
 import { Route as ListingsRouteImport } from './routes/listings'
@@ -25,6 +26,7 @@ import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as DealsRouteImport } from './routes/deals'
 import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as BooksRouteImport } from './routes/books'
+import { Route as BillingRouteImport } from './routes/billing'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BooksIndexRouteImport } from './routes/books.index'
@@ -34,6 +36,7 @@ import { Route as BooksReportsRouteImport } from './routes/books.reports'
 import { Route as BooksOwnerLoanRouteImport } from './routes/books.owner-loan'
 import { Route as BooksCategoriesRouteImport } from './routes/books.categories'
 import { Route as BooksAccountsRouteImport } from './routes/books.accounts'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -53,6 +56,11 @@ const ReceiptsRoute = ReceiptsRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PipelineRoute = PipelineRouteImport.update({
@@ -115,6 +123,11 @@ const BooksRoute = BooksRouteImport.update({
   path: '/books',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BillingRoute = BillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -160,10 +173,17 @@ const BooksAccountsRoute = BooksAccountsRouteImport.update({
   path: '/accounts',
   getParentRoute: () => BooksRoute,
 } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/billing': typeof BillingRoute
   '/books': typeof BooksRouteWithChildren
   '/clients': typeof ClientsRoute
   '/deals': typeof DealsRoute
@@ -176,6 +196,7 @@ export interface FileRoutesByFullPath {
   '/listings': typeof ListingsRoute
   '/mileage': typeof MileageRoute
   '/pipeline': typeof PipelineRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -187,10 +208,12 @@ export interface FileRoutesByFullPath {
   '/books/taxes': typeof BooksTaxesRoute
   '/books/transactions': typeof BooksTransactionsRoute
   '/books/': typeof BooksIndexRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/billing': typeof BillingRoute
   '/clients': typeof ClientsRoute
   '/deals': typeof DealsRoute
   '/documents': typeof DocumentsRoute
@@ -202,6 +225,7 @@ export interface FileRoutesByTo {
   '/listings': typeof ListingsRoute
   '/mileage': typeof MileageRoute
   '/pipeline': typeof PipelineRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -213,11 +237,13 @@ export interface FileRoutesByTo {
   '/books/taxes': typeof BooksTaxesRoute
   '/books/transactions': typeof BooksTransactionsRoute
   '/books': typeof BooksIndexRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/billing': typeof BillingRoute
   '/books': typeof BooksRouteWithChildren
   '/clients': typeof ClientsRoute
   '/deals': typeof DealsRoute
@@ -230,6 +256,7 @@ export interface FileRoutesById {
   '/listings': typeof ListingsRoute
   '/mileage': typeof MileageRoute
   '/pipeline': typeof PipelineRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -241,12 +268,14 @@ export interface FileRoutesById {
   '/books/taxes': typeof BooksTaxesRoute
   '/books/transactions': typeof BooksTransactionsRoute
   '/books/': typeof BooksIndexRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/billing'
     | '/books'
     | '/clients'
     | '/deals'
@@ -259,6 +288,7 @@ export interface FileRouteTypes {
     | '/listings'
     | '/mileage'
     | '/pipeline'
+    | '/pricing'
     | '/privacy'
     | '/receipts'
     | '/reset-password'
@@ -270,10 +300,12 @@ export interface FileRouteTypes {
     | '/books/taxes'
     | '/books/transactions'
     | '/books/'
+    | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/billing'
     | '/clients'
     | '/deals'
     | '/documents'
@@ -285,6 +317,7 @@ export interface FileRouteTypes {
     | '/listings'
     | '/mileage'
     | '/pipeline'
+    | '/pricing'
     | '/privacy'
     | '/receipts'
     | '/reset-password'
@@ -296,10 +329,12 @@ export interface FileRouteTypes {
     | '/books/taxes'
     | '/books/transactions'
     | '/books'
+    | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
     | '/auth'
+    | '/billing'
     | '/books'
     | '/clients'
     | '/deals'
@@ -312,6 +347,7 @@ export interface FileRouteTypes {
     | '/listings'
     | '/mileage'
     | '/pipeline'
+    | '/pricing'
     | '/privacy'
     | '/receipts'
     | '/reset-password'
@@ -323,11 +359,13 @@ export interface FileRouteTypes {
     | '/books/taxes'
     | '/books/transactions'
     | '/books/'
+    | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  BillingRoute: typeof BillingRoute
   BooksRoute: typeof BooksRouteWithChildren
   ClientsRoute: typeof ClientsRoute
   DealsRoute: typeof DealsRoute
@@ -340,10 +378,12 @@ export interface RootRouteChildren {
   ListingsRoute: typeof ListingsRoute
   MileageRoute: typeof MileageRoute
   PipelineRoute: typeof PipelineRoute
+  PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ReceiptsRoute: typeof ReceiptsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermsRoute: typeof TermsRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -374,6 +414,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pipeline': {
@@ -460,6 +507,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BooksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/billing': {
+      id: '/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof BillingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -523,6 +577,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BooksAccountsRouteImport
       parentRoute: typeof BooksRoute
     }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -551,6 +612,7 @@ const BooksRouteWithChildren = BooksRoute._addFileChildren(BooksRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  BillingRoute: BillingRoute,
   BooksRoute: BooksRouteWithChildren,
   ClientsRoute: ClientsRoute,
   DealsRoute: DealsRoute,
@@ -563,20 +625,13 @@ const rootRouteChildren: RootRouteChildren = {
   ListingsRoute: ListingsRoute,
   MileageRoute: MileageRoute,
   PipelineRoute: PipelineRoute,
+  PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ReceiptsRoute: ReceiptsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TermsRoute: TermsRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

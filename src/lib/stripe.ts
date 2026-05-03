@@ -10,7 +10,17 @@ export function getStripeEnvironment(): StripeEnv {
   return "sandbox";
 }
 
-export const PLANS = [
+export interface Plan {
+  id: string;
+  name: string;
+  tagline: string;
+  monthly: { priceId: string; amount: number };
+  yearly: { priceId: string; amount: number };
+  popular?: boolean;
+  features: string[];
+}
+
+export const PLANS: Plan[] = [
   {
     id: "solo_agent",
     name: "Solo Agent",
