@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { BookOpen, ListOrdered, Tags, HandCoins, FileBarChart } from "lucide-react";
+import { BookOpen, ListOrdered, Tags, HandCoins, FileBarChart, Wallet } from "lucide-react";
 import { ownerLoanLedger, profitAndLoss, formatMoney } from "@/lib/books-helpers";
 
 export const Route = createFileRoute("/books")({
@@ -9,6 +9,7 @@ export const Route = createFileRoute("/books")({
 
 const tabs = [
   { to: "/books", label: "Overview", icon: BookOpen, exact: true as boolean },
+  { to: "/books/accounts", label: "Accounts", icon: Wallet, exact: false as boolean },
   { to: "/books/transactions", label: "Transactions", icon: ListOrdered, exact: false as boolean },
   { to: "/books/categories", label: "Categories", icon: Tags, exact: false as boolean },
   { to: "/books/owner-loan", label: "Owner Loan", icon: HandCoins, exact: false as boolean },

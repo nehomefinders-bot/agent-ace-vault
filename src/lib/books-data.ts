@@ -41,12 +41,16 @@ export const accounts: Account[] = [
   { id: "6160", code: "6160", name: "Gifts (capped $25/client)",   kind: "Expense", taxLine: "Schedule C — Line 27a" },
   { id: "6999", code: "6999", name: "Other Business Expenses",     kind: "Expense", taxLine: "Schedule C — Line 27a" },
 
-  // Assets
-  { id: "1010", code: "1010", name: "Business Checking",           kind: "Asset" },
-  { id: "1020", code: "1020", name: "Stripe Clearing",             kind: "Asset" },
+  // Assets — Bank accounts
+  { id: "1010", code: "1010", name: "Chase Business Checking",     kind: "Asset", description: "Primary operating account" },
+  { id: "1011", code: "1011", name: "BofA Business Checking",      kind: "Asset", description: "Secondary operating account" },
+  { id: "1015", code: "1015", name: "Business Savings",            kind: "Asset", description: "Tax & reserves" },
+  { id: "1020", code: "1020", name: "Stripe Clearing",             kind: "Asset", description: "Funds in transit from Stripe" },
   { id: "1100", code: "1100", name: "Accounts Receivable",         kind: "Asset" },
 
-  // Liabilities — Officer loan
+  // Liabilities — Credit cards & officer loan
+  { id: "2010", code: "2010", name: "Amex Business Platinum",      kind: "Liability", description: "Business credit card" },
+  { id: "2020", code: "2020", name: "Chase Ink Business",          kind: "Liability", description: "Business credit card" },
   { id: "2100", code: "2100", name: "Loan from Officer",           kind: "Liability", description: "Money you've lent the company that hasn't been paid back" },
 
   // Equity
@@ -103,7 +107,42 @@ export const transactions: Transaction[] = [
 
   // Mileage deduction (non-cash, accrues to officer loan as effective owed reimbursement)
   { id: "T-2200", date: "2025-10-31", memo: "Oct mileage — 63.9 mi @ $0.67", amount: 42.81, debitAccountId: "6021", creditAccountId: "2100", vendor: "Self", tags: ["mileage"] },
+
+  // Multi-account activity — Amex card spend (liability increases)
+  { id: "T-2199", date: "2025-10-29", memo: "Zillow Premier Agent", amount: 380.00, debitAccountId: "6010", creditAccountId: "2010", vendor: "Zillow" },
+  { id: "T-2198", date: "2025-10-27", memo: "Gas — Shell", amount: 62.40, debitAccountId: "6020", creditAccountId: "2010", vendor: "Shell" },
+  { id: "T-2197", date: "2025-10-23", memo: "Client closing gift", amount: 24.00, debitAccountId: "6160", creditAccountId: "2010", vendor: "Williams Sonoma" },
+
+  // Chase Ink card spend
+  { id: "T-2196", date: "2025-10-26", memo: "Staging — Oakwood", amount: 1450.00, debitAccountId: "6120", creditAccountId: "2020", vendor: "StagePro" },
+  { id: "T-2195", date: "2025-10-19", memo: "E&O insurance", amount: 312.00, debitAccountId: "6060", creditAccountId: "2020", vendor: "Pearl Ins." },
+
+  // Card payments (transfers — pay down liability from checking)
+  { id: "T-2194", date: "2025-10-28", memo: "Amex payment", amount: 466.40, debitAccountId: "2010", creditAccountId: "1010", vendor: "Amex" },
+  { id: "T-2193", date: "2025-10-25", memo: "Chase Ink payment", amount: 1762.00, debitAccountId: "2020", creditAccountId: "1011", vendor: "Chase" },
+
+  // BofA checking — secondary account activity
+  { id: "T-2192", date: "2025-10-18", memo: "Closing — referral fee deposit", amount: 5400.00, debitAccountId: "1011", creditAccountId: "4010", vendor: "Coastal Realty" },
+  { id: "T-2191", date: "2025-10-12", memo: "Telephone & internet", amount: 142.50, debitAccountId: "6140", creditAccountId: "1011", vendor: "Verizon" },
+
+  // Transfer to savings (tax reserve)
+  { id: "T-2190", date: "2025-10-31", memo: "Tax reserve transfer (25%)", amount: 9000.00, debitAccountId: "1015", creditAccountId: "1010", vendor: "Self" },
 ];
+
+// Account balance: signed by account kind.
+// Asset: debits increase, credits decrease.
+// Liability/Equity/Income: credits increase, debits decrease.
+export function accountBalance(accountId: string): number {
+  const acct = accountById(accountId);
+  if (!acct) return 0;
+  let bal = 0;
+  for (const t of transactions) {
+    if (t.debitAccountId === accountId) bal += t.amount;
+    if (t.creditAccountId === accountId) bal -= t.amount;
+  }
+  if (acct.kind === "Liability" || acct.kind === "Equity" || acct.kind === "Income") return -bal;
+  return bal; // Asset, Expense
+}
 
 export interface OwnerLoanEntry {
   id: string;
