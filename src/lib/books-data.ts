@@ -41,12 +41,16 @@ export const accounts: Account[] = [
   { id: "6160", code: "6160", name: "Gifts (capped $25/client)",   kind: "Expense", taxLine: "Schedule C — Line 27a" },
   { id: "6999", code: "6999", name: "Other Business Expenses",     kind: "Expense", taxLine: "Schedule C — Line 27a" },
 
-  // Assets
-  { id: "1010", code: "1010", name: "Business Checking",           kind: "Asset" },
-  { id: "1020", code: "1020", name: "Stripe Clearing",             kind: "Asset" },
+  // Assets — Bank accounts
+  { id: "1010", code: "1010", name: "Chase Business Checking",     kind: "Asset", description: "Primary operating account" },
+  { id: "1011", code: "1011", name: "BofA Business Checking",      kind: "Asset", description: "Secondary operating account" },
+  { id: "1015", code: "1015", name: "Business Savings",            kind: "Asset", description: "Tax & reserves" },
+  { id: "1020", code: "1020", name: "Stripe Clearing",             kind: "Asset", description: "Funds in transit from Stripe" },
   { id: "1100", code: "1100", name: "Accounts Receivable",         kind: "Asset" },
 
-  // Liabilities — Officer loan
+  // Liabilities — Credit cards & officer loan
+  { id: "2010", code: "2010", name: "Amex Business Platinum",      kind: "Liability", description: "Business credit card" },
+  { id: "2020", code: "2020", name: "Chase Ink Business",          kind: "Liability", description: "Business credit card" },
   { id: "2100", code: "2100", name: "Loan from Officer",           kind: "Liability", description: "Money you've lent the company that hasn't been paid back" },
 
   // Equity
