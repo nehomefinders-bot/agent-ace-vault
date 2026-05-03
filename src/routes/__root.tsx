@@ -1,4 +1,4 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, Link, createRootRoute, HeadContent, Scripts, useRouterState } from "@tanstack/react-router";
 import { AppSidebar } from "@/components/app-sidebar";
 import appCss from "../styles.css?url";
 
@@ -56,7 +56,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  const path = typeof window !== "undefined" ? window.location.pathname : "";
+  const path = useRouterState({ select: (s) => s.location.pathname });
   const bare = path === "/auth" || path === "/landing";
   if (bare) {
     return (
