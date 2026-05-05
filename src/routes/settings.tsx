@@ -330,6 +330,9 @@ function SettingsPage() {
           </div>
         </Section>
 
+        {/* API keys */}
+        <ApiKeysSection />
+
         {/* Data */}
         <Section icon={<Download className="h-4 w-4" />} title="Your data"
           desc="Download a JSON copy of everything we store for you.">
