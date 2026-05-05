@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Loader2, Plug, RefreshCw, Upload, Download, Copy, Check } from "lucide-react";
+import { Loader2, Plug, RefreshCw, Upload, Download, Copy, Check, AlertTriangle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { getGhlStatus, saveGhlSettings, pullAllFromGhl, pushAllToGhl } from "@/utils/ghl.functions";
-import { AsyncSection, withTimeout } from "@/components/async-section";
+import { withTimeout } from "@/components/async-section";
 
 type Status = Awaited<ReturnType<typeof getGhlStatus>>;
 
