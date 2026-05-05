@@ -98,11 +98,57 @@ export function GhlIntegrationSection() {
         </p>
       </div>
 
-      {loading ? (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+      <AsyncSection loading={loading} error={loadError} onRetry={refresh} label="GoHighLevel status">
+        <div className="space-y-5">
+          {!status?.tokenConfigured && (
+            <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+              GHL_PRIVATE_TOKEN is not configured on the server.
+            </div>
+          )}
+          <GhlBody
+            status={status}
+            locationId={locationId}
+            setLocationId={setLocationId}
+            enabled={enabled}
+            setEnabled={setEnabled}
+            busy={busy}
+            onSave={onSave}
+            onPull={onPull}
+            onPush={onPush}
+            refresh={refresh}
+            webhookUrl={webhookUrl}
+            copied={copied}
+            copyWebhook={copyWebhook}
+          />
         </div>
-      ) : (
+      </AsyncSection>
+    </section>
+  );
+}
+
+type BodyProps = {
+  status: Status | null;
+  locationId: string;
+  setLocationId: (v: string) => void;
+  enabled: boolean;
+  setEnabled: (v: boolean) => void;
+  busy: "" | "save" | "pull" | "push";
+  onSave: () => void;
+  onPull: () => void;
+  onPush: () => void;
+  refresh: () => void;
+  webhookUrl: string;
+  copied: boolean;
+  copyWebhook: () => void;
+};
+
+function GhlBody({
+  status, locationId, setLocationId, enabled, setEnabled, busy,
+  onSave, onPull, onPush, refresh, webhookUrl, copied, copyWebhook,
+}: BodyProps) {
+  return (
+    <>
+
         <div className="space-y-5">
           {!status?.tokenConfigured && (
             <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
