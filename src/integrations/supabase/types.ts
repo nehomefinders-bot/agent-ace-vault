@@ -86,6 +86,69 @@ export type Database = {
         }
         Relationships: []
       }
+      clients: {
+        Row: {
+          address: string | null
+          city: string | null
+          company: string | null
+          country: string | null
+          created_at: string
+          email: string | null
+          ghl_contact_id: string | null
+          id: string
+          last_synced_at: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          postal_code: string | null
+          source: string
+          state: string | null
+          tags: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          company?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          ghl_contact_id?: string | null
+          id?: string
+          last_synced_at?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          source?: string
+          state?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          company?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          ghl_contact_id?: string | null
+          id?: string
+          last_synced_at?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          source?: string
+          state?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       deals: {
         Row: {
           address: string
@@ -139,6 +202,84 @@ export type Database = {
           side?: string
           status?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      integration_settings: {
+        Row: {
+          config: Json
+          created_at: string
+          enabled: boolean
+          id: string
+          last_full_sync_at: string | null
+          location_id: string | null
+          provider: string
+          updated_at: string
+          user_id: string
+          webhook_secret: string | null
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_full_sync_at?: string | null
+          location_id?: string | null
+          provider: string
+          updated_at?: string
+          user_id: string
+          webhook_secret?: string | null
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_full_sync_at?: string | null
+          location_id?: string | null
+          provider?: string
+          updated_at?: string
+          user_id?: string
+          webhook_secret?: string | null
+        }
+        Relationships: []
+      }
+      integration_sync_log: {
+        Row: {
+          created_at: string
+          direction: string
+          entity_id: string | null
+          entity_type: string
+          error: string | null
+          id: string
+          payload: Json | null
+          provider: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          direction: string
+          entity_id?: string | null
+          entity_type: string
+          error?: string | null
+          id?: string
+          payload?: Json | null
+          provider: string
+          status: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          direction?: string
+          entity_id?: string | null
+          entity_type?: string
+          error?: string | null
+          id?: string
+          payload?: Json | null
+          provider?: string
+          status?: string
           user_id?: string
         }
         Relationships: []
