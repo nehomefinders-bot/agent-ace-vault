@@ -10,6 +10,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ApiKeysSection } from "@/components/api-keys-section";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
@@ -328,6 +329,9 @@ function SettingsPage() {
             <Link to="/pricing" className="btn-secondary">View plans</Link>
           </div>
         </Section>
+
+        {/* API keys */}
+        <ApiKeysSection />
 
         {/* Data */}
         <Section icon={<Download className="h-4 w-4" />} title="Your data"
