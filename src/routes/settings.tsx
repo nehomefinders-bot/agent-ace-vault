@@ -102,6 +102,15 @@ function SettingsPage() {
     if (!authLoading && !user) nav({ to: "/auth" });
   }, [authLoading, user, nav]);
 
+  // Safety net: if auth hangs for 10s, surface an actionable fallback
+  // instead of an infinite spinner.
+  useEffect(() => {
+    if (!authLoading) return;
+    const t = setTimeout(() => setAuthTimedOut(true), 10000);
+    return () => clearTimeout(t);
+  }, [authLoading]);
+
+
   // load profile
   useEffect(() => {
     if (!user) return;
