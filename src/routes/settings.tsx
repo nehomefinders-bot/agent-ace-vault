@@ -258,9 +258,29 @@ function SettingsPage() {
   if (authLoading || !user) {
     return (
       <PageShell title="Settings">
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-        </div>
+        {authTimedOut ? (
+          <div className="max-w-xl mx-auto rounded-2xl border border-destructive/40 bg-destructive/5 p-6 mt-8">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-6 w-6 text-destructive shrink-0" />
+              <div className="flex-1">
+                <h2 className="font-display text-lg font-bold">Taking longer than usual</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  We couldn't confirm your session. Please reload the page or sign in again.
+                </p>
+                <div className="flex gap-2 mt-4">
+                  <button onClick={() => window.location.reload()} className="btn-primary inline-flex items-center">
+                    <RefreshCw className="h-4 w-4 mr-2" /> Reload
+                  </button>
+                  <Link to="/auth" className="btn-secondary">Sign in</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
+        )}
       </PageShell>
     );
   }
