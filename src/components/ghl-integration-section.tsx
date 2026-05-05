@@ -30,15 +30,13 @@ export function GhlIntegrationSection() {
       setLocationId(s.settings?.location_id ?? "");
       setEnabled(s.settings?.enabled ?? true);
     } catch (e: any) {
-      const msg = e?.message ?? "Could not load integration status";
-      setLoadError(msg);
+      setLoadError(e?.message ?? "Could not load integration status");
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
-
 
   const webhookUrl =
     typeof window !== "undefined" && status?.settings?.webhook_secret
@@ -49,7 +47,7 @@ export function GhlIntegrationSection() {
     if (!locationId.trim()) return toast.error("Location ID is required");
     setBusy("save");
     try {
-      await save({ data: { locationId: locationId.trim(), enabled } });
+      await withTimeout(save({ data: { locationId: locationId.trim(), enabled } }), 15000, "save");
       toast.success("GoHighLevel settings saved");
       await refresh();
     } catch (e: any) {
@@ -60,7 +58,7 @@ export function GhlIntegrationSection() {
   async function onPull() {
     setBusy("pull");
     try {
-      const r = await pull({ data: undefined });
+      const r = await withTimeout(pull({ data: undefined }), 60000, "pull");
       toast.success(`Pulled from GHL — ${r.imported} new, ${r.updated} updated`);
       await refresh();
     } catch (e: any) {
@@ -71,7 +69,7 @@ export function GhlIntegrationSection() {
   async function onPush() {
     setBusy("push");
     try {
-      const r = await push({ data: undefined });
+      const r = await withTimeout(push({ data: undefined }), 60000, "push");
       toast.success(`Pushed to GHL — ${r.pushed} synced, ${r.failed} failed`);
       await refresh();
     } catch (e: any) {
@@ -99,56 +97,6 @@ export function GhlIntegrationSection() {
       </div>
 
       <AsyncSection loading={loading} error={loadError} onRetry={refresh} label="GoHighLevel status">
-        <div className="space-y-5">
-          {!status?.tokenConfigured && (
-            <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-              GHL_PRIVATE_TOKEN is not configured on the server.
-            </div>
-          )}
-          <GhlBody
-            status={status}
-            locationId={locationId}
-            setLocationId={setLocationId}
-            enabled={enabled}
-            setEnabled={setEnabled}
-            busy={busy}
-            onSave={onSave}
-            onPull={onPull}
-            onPush={onPush}
-            refresh={refresh}
-            webhookUrl={webhookUrl}
-            copied={copied}
-            copyWebhook={copyWebhook}
-          />
-        </div>
-      </AsyncSection>
-    </section>
-  );
-}
-
-type BodyProps = {
-  status: Status | null;
-  locationId: string;
-  setLocationId: (v: string) => void;
-  enabled: boolean;
-  setEnabled: (v: boolean) => void;
-  busy: "" | "save" | "pull" | "push";
-  onSave: () => void;
-  onPull: () => void;
-  onPush: () => void;
-  refresh: () => void;
-  webhookUrl: string;
-  copied: boolean;
-  copyWebhook: () => void;
-};
-
-function GhlBody({
-  status, locationId, setLocationId, enabled, setEnabled, busy,
-  onSave, onPull, onPush, refresh, webhookUrl, copied, copyWebhook,
-}: BodyProps) {
-  return (
-    <>
-
         <div className="space-y-5">
           {!status?.tokenConfigured && (
             <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
@@ -245,7 +193,7 @@ function GhlBody({
             </>
           )}
         </div>
-      )}
+      </AsyncSection>
     </section>
   );
 }
