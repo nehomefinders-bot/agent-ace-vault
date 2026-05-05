@@ -2,7 +2,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, TrendingUp, Home, Users, Receipt,
   Wallet, Car, ScanLine, FolderOpen, Building2, BookOpen, LifeBuoy, LogOut, LogIn, Calculator,
-  CreditCard, Sparkles,
+  CreditCard, Sparkles, Settings,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -33,6 +33,7 @@ const sections = [
   {
     label: "Account",
     items: [
+      { to: "/settings", label: "Settings", icon: Settings },
       { to: "/billing", label: "Billing", icon: CreditCard },
       { to: "/pricing", label: "Plans", icon: Sparkles },
       { to: "/help", label: "How-to", icon: LifeBuoy },
