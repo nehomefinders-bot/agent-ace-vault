@@ -79,7 +79,7 @@ export function ApiKeysSection() {
     if (!confirmRevoke) return;
     setRevoking(true);
     try {
-      await revokeApiKey({ data: { id: confirmRevoke.id } });
+      await revokeKey({ data: { id: confirmRevoke.id } });
       toast.success("Key revoked");
       setConfirmRevoke(null);
       await load();
