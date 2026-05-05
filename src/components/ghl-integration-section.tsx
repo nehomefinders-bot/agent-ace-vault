@@ -96,8 +96,28 @@ export function GhlIntegrationSection() {
         </p>
       </div>
 
-      <AsyncSection loading={loading} error={loadError} onRetry={refresh} label="GoHighLevel status">
-        <div className="space-y-5">
+      <div className="space-y-5">
+        {loading && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading GoHighLevel status…
+          </div>
+        )}
+        {loadError && (
+          <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 flex items-start gap-2">
+            <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0 text-sm">
+              <div className="font-medium">Couldn't load GoHighLevel status</div>
+              <div className="text-muted-foreground text-xs mt-0.5 break-words">{loadError}</div>
+              <div className="text-muted-foreground text-xs mt-1">
+                You can still enter your Location ID below and save it.
+              </div>
+            </div>
+            <button onClick={refresh} className="btn-secondary text-xs" type="button">
+              <RefreshCw className="h-3.5 w-3.5 mr-1" /> Retry
+            </button>
+          </div>
+        )}
+        <div className="hidden">{/* preserve original block below */}</div>
           {!status?.tokenConfigured && (
             <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
               GHL_PRIVATE_TOKEN is not configured on the server.
