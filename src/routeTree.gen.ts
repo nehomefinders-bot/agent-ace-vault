@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReceiptsRouteImport } from './routes/receipts'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -42,6 +43,11 @@ import { Route as ApiPublicPaymentsApplyTaxCodesRouteImport } from './routes/api
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -207,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/books/accounts': typeof BooksAccountsRoute
   '/books/categories': typeof BooksCategoriesRoute
@@ -237,6 +244,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/books/accounts': typeof BooksAccountsRoute
   '/books/categories': typeof BooksCategoriesRoute
@@ -269,6 +277,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/books/accounts': typeof BooksAccountsRoute
   '/books/categories': typeof BooksCategoriesRoute
@@ -302,6 +311,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/receipts'
     | '/reset-password'
+    | '/settings'
     | '/terms'
     | '/books/accounts'
     | '/books/categories'
@@ -332,6 +342,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/receipts'
     | '/reset-password'
+    | '/settings'
     | '/terms'
     | '/books/accounts'
     | '/books/categories'
@@ -363,6 +374,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/receipts'
     | '/reset-password'
+    | '/settings'
     | '/terms'
     | '/books/accounts'
     | '/books/categories'
@@ -395,6 +407,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ReceiptsRoute: typeof ReceiptsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SettingsRoute: typeof SettingsRoute
   TermsRoute: typeof TermsRoute
   ApiPublicPaymentsApplyTaxCodesRoute: typeof ApiPublicPaymentsApplyTaxCodesRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -407,6 +420,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -650,6 +670,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ReceiptsRoute: ReceiptsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SettingsRoute: SettingsRoute,
   TermsRoute: TermsRoute,
   ApiPublicPaymentsApplyTaxCodesRoute: ApiPublicPaymentsApplyTaxCodesRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
@@ -657,12 +678,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
