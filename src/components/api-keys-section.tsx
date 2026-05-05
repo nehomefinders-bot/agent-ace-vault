@@ -56,7 +56,7 @@ export function ApiKeysSection() {
     setCreating(true);
     try {
       const days = expiry === "never" ? null : Number(expiry);
-      const { token } = await createApiKey({ data: { name: name.trim(), expiresInDays: days } });
+      const { token } = await createKey({ data: { name: name.trim(), expiresInDays: days } });
       setNewToken(token);
       setName("");
       setExpiry("never");
