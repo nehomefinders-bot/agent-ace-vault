@@ -142,57 +142,56 @@ export function ApiKeysSection() {
       )}
 
       {/* List */}
-      {loading ? (
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-        </div>
-      ) : keys.length === 0 ? (
-        <div className="text-sm text-muted-foreground text-center py-8 border border-dashed border-border rounded-xl">
-          No API keys yet.
-        </div>
-      ) : (
-        <div className="divide-y divide-border border border-border rounded-xl overflow-hidden">
-          {keys.map((k) => {
-            const expired = k.expires_at && new Date(k.expires_at).getTime() < Date.now();
-            const status = k.revoked_at ? "revoked" : expired ? "expired" : "active";
-            const tone =
-              status === "active" ? "bg-success/10 text-success"
-              : status === "expired" ? "bg-secondary/20 text-secondary-foreground"
-              : "bg-destructive/10 text-destructive";
-            return (
-              <div key={k.id} className="flex items-center gap-4 p-3.5 bg-background">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm truncate">{k.name}</span>
-                    <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-medium ${tone}`}>
-                      {status}
-                    </span>
+      <AsyncSection loading={loading} error={loadError} onRetry={load} label="API keys">
+        {keys.length === 0 ? (
+          <div className="text-sm text-muted-foreground text-center py-8 border border-dashed border-border rounded-xl">
+            No API keys yet.
+          </div>
+        ) : (
+          <div className="divide-y divide-border border border-border rounded-xl overflow-hidden">
+            {keys.map((k) => {
+              const expired = k.expires_at && new Date(k.expires_at).getTime() < Date.now();
+              const status = k.revoked_at ? "revoked" : expired ? "expired" : "active";
+              const tone =
+                status === "active" ? "bg-success/10 text-success"
+                : status === "expired" ? "bg-secondary/20 text-secondary-foreground"
+                : "bg-destructive/10 text-destructive";
+              return (
+                <div key={k.id} className="flex items-center gap-4 p-3.5 bg-background">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm truncate">{k.name}</span>
+                      <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-medium ${tone}`}>
+                        {status}
+                      </span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-0.5 font-mono">
+                      {k.token_prefix}…••••
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Created {new Date(k.created_at).toLocaleDateString()}
+                      {" · "}
+                      {k.last_used_at
+                        ? `Last used ${new Date(k.last_used_at).toLocaleDateString()}`
+                        : "Never used"}
+                      {k.expires_at && ` · Expires ${new Date(k.expires_at).toLocaleDateString()}`}
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-0.5 font-mono">
-                    {k.token_prefix}…••••
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    Created {new Date(k.created_at).toLocaleDateString()}
-                    {" · "}
-                    {k.last_used_at
-                      ? `Last used ${new Date(k.last_used_at).toLocaleDateString()}`
-                      : "Never used"}
-                    {k.expires_at && ` · Expires ${new Date(k.expires_at).toLocaleDateString()}`}
-                  </div>
+                  {status === "active" && (
+                    <button
+                      onClick={() => setConfirmRevoke(k)}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border border-border hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" /> Revoke
+                    </button>
+                  )}
                 </div>
-                {status === "active" && (
-                  <button
-                    onClick={() => setConfirmRevoke(k)}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border border-border hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" /> Revoke
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </AsyncSection>
+
 
       <AlertDialog open={!!confirmRevoke} onOpenChange={(o) => !o && setConfirmRevoke(null)}>
         <AlertDialogContent>
