@@ -40,14 +40,23 @@ export function useSubscription() {
 
   useEffect(() => {
     if (!user) return;
-    const channel = supabase
-      .channel(`sub-${user.id}`)
-      .on("postgres_changes",
-        { event: "*", schema: "public", table: "subscriptions", filter: `user_id=eq.${user.id}` },
-        () => refetch())
-      .subscribe();
+    // Build the channel and register ALL .on() listeners BEFORE calling
+    // .subscribe(). Supabase Realtime forbids adding postgres_changes
+    // callbacks after subscribe() and will throw otherwise.
+    const channel = supabase.channel(`sub-${user.id}-${Math.random().toString(36).slice(2, 8)}`);
+    channel.on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "subscriptions", filter: `user_id=eq.${user.id}` },
+      () => { refetch(); },
+    );
+    channel.subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [user, refetch]);
+    // Intentionally depend only on user.id — refetch is stable enough via
+    // useCallback and including it caused the channel to be re-created
+    // and re-subscribed in a way that triggered "cannot add callbacks
+    // after subscribe()" under StrictMode double-invocation.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const now = Date.now();
   const periodEnd = subscription?.current_period_end ? new Date(subscription.current_period_end).getTime() : null;
