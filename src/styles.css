@@ -170,3 +170,21 @@
   }
   .btn-secondary:hover { background-color: var(--color-muted); }
 }
+
+@layer components {
+  .glass {
+    background-color: color-mix(in oklab, var(--color-card) 65%, transparent);
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    border: 1px solid color-mix(in oklab, var(--color-border) 60%, transparent);
+    box-shadow:
+      0 1px 0 0 color-mix(in oklab, white 6%, transparent) inset,
+      0 10px 30px -12px color-mix(in oklab, black 25%, transparent);
+  }
+  .row-hover-blue {
+    transition: background-color 150ms ease;
+  }
+  .row-hover-blue:hover {
+    background-color: color-mix(in oklab, oklch(0.72 0.14 240) 12%, transparent);
+  }
+}
