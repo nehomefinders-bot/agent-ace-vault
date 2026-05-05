@@ -1,6 +1,6 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2, User as UserIcon, Lock, Palette, Download, ShieldAlert, Mail, CreditCard } from "lucide-react";
+import { AlertTriangle, Loader2, RefreshCw, User as UserIcon, Lock, Palette, Download, ShieldAlert, Mail, CreditCard } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
