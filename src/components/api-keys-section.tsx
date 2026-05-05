@@ -147,56 +147,72 @@ export function ApiKeysSection() {
         </div>
       )}
 
+      {/* Inline status banners — never block the create form above */}
+      {loadError && (
+        <div className="mb-3 rounded-lg border border-destructive/40 bg-destructive/5 p-3 flex items-start gap-2">
+          <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0 text-sm">
+            <div className="font-medium">Couldn't load your API keys</div>
+            <div className="text-muted-foreground text-xs mt-0.5 break-words">{loadError}</div>
+          </div>
+          <button onClick={load} className="btn-secondary text-xs" type="button">
+            <RefreshCw className="h-3.5 w-3.5 mr-1" /> Retry
+          </button>
+        </div>
+      )}
+
       {/* List */}
-      <AsyncSection loading={loading} error={loadError} onRetry={load} label="API keys">
-        {keys.length === 0 ? (
-          <div className="text-sm text-muted-foreground text-center py-8 border border-dashed border-border rounded-xl">
-            No API keys yet.
-          </div>
-        ) : (
-          <div className="divide-y divide-border border border-border rounded-xl overflow-hidden">
-            {keys.map((k) => {
-              const expired = k.expires_at && new Date(k.expires_at).getTime() < Date.now();
-              const status = k.revoked_at ? "revoked" : expired ? "expired" : "active";
-              const tone =
-                status === "active" ? "bg-success/10 text-success"
-                : status === "expired" ? "bg-secondary/20 text-secondary-foreground"
-                : "bg-destructive/10 text-destructive";
-              return (
-                <div key={k.id} className="flex items-center gap-4 p-3.5 bg-background">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm truncate">{k.name}</span>
-                      <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-medium ${tone}`}>
-                        {status}
-                      </span>
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-0.5 font-mono">
-                      {k.token_prefix}…••••
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      Created {new Date(k.created_at).toLocaleDateString()}
-                      {" · "}
-                      {k.last_used_at
-                        ? `Last used ${new Date(k.last_used_at).toLocaleDateString()}`
-                        : "Never used"}
-                      {k.expires_at && ` · Expires ${new Date(k.expires_at).toLocaleDateString()}`}
-                    </div>
+      {loading ? (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
+          <Loader2 className="h-4 w-4 animate-spin" /> Loading API keys…
+        </div>
+      ) : keys.length === 0 ? (
+        <div className="text-sm text-muted-foreground text-center py-8 border border-dashed border-border rounded-xl">
+          {loadError ? "No keys to display." : "No API keys yet."}
+        </div>
+      ) : (
+        <div className="divide-y divide-border border border-border rounded-xl overflow-hidden">
+          {keys.map((k) => {
+            const expired = k.expires_at && new Date(k.expires_at).getTime() < Date.now();
+            const status = k.revoked_at ? "revoked" : expired ? "expired" : "active";
+            const tone =
+              status === "active" ? "bg-success/10 text-success"
+              : status === "expired" ? "bg-secondary/20 text-secondary-foreground"
+              : "bg-destructive/10 text-destructive";
+            return (
+              <div key={k.id} className="flex items-center gap-4 p-3.5 bg-background">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-sm truncate">{k.name}</span>
+                    <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-medium ${tone}`}>
+                      {status}
+                    </span>
                   </div>
-                  {status === "active" && (
-                    <button
-                      onClick={() => setConfirmRevoke(k)}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border border-border hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" /> Revoke
-                    </button>
-                  )}
+                  <div className="text-xs text-muted-foreground mt-0.5 font-mono">
+                    {k.token_prefix}…••••
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Created {new Date(k.created_at).toLocaleDateString()}
+                    {" · "}
+                    {k.last_used_at
+                      ? `Last used ${new Date(k.last_used_at).toLocaleDateString()}`
+                      : "Never used"}
+                    {k.expires_at && ` · Expires ${new Date(k.expires_at).toLocaleDateString()}`}
+                  </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </AsyncSection>
+                {status === "active" && (
+                  <button
+                    onClick={() => setConfirmRevoke(k)}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border border-border hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" /> Revoke
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
 
       <AlertDialog open={!!confirmRevoke} onOpenChange={(o) => !o && setConfirmRevoke(null)}>
