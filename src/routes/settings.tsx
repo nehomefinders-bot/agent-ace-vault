@@ -15,6 +15,7 @@ import { GhlIntegrationSection } from "@/components/ghl-integration-section";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
+  errorComponent: SettingsErrorFallback,
   head: () => ({
     meta: [
       { title: "Settings — Agent Business Tracker" },
@@ -22,6 +23,35 @@ export const Route = createFileRoute("/settings")({
     ],
   }),
 });
+
+function SettingsErrorFallback({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  return (
+    <PageShell title="Settings">
+      <div className="max-w-xl mx-auto rounded-2xl border border-destructive/40 bg-destructive/5 p-6 mt-8">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="h-6 w-6 text-destructive shrink-0" />
+          <div className="flex-1 min-w-0">
+            <h2 className="font-display text-lg font-bold">Settings couldn't load</h2>
+            <p className="text-sm text-muted-foreground mt-1 break-words">
+              {error?.message || "An unexpected error occurred while loading your settings."}
+            </p>
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => { router.invalidate(); reset(); }}
+                className="btn-primary inline-flex items-center"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" /> Retry
+              </button>
+              <Link to="/" className="btn-secondary">Go home</Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </PageShell>
+  );
+}
+
 
 type Theme = "light" | "dark" | "system";
 
