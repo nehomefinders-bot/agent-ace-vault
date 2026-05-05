@@ -35,7 +35,7 @@ function KpiCard({
 }) {
   const toneCls = deltaTone === "success" ? "text-success" : deltaTone === "danger" ? "text-destructive" : "text-muted-foreground";
   return (
-    <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
+    <div className="glass rounded-2xl p-6">
       <div className="flex items-start justify-between mb-4">
         <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{label}</span>
         <div className="h-8 w-8 rounded-lg bg-secondary/20 flex items-center justify-center">
@@ -78,7 +78,7 @@ function Dashboard() {
 
       {/* Pipeline + Invoices */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
-        <section className="xl:col-span-2 bg-card border border-border rounded-2xl shadow-card overflow-hidden">
+        <section className="xl:col-span-2 glass rounded-2xl overflow-hidden">
           <header className="flex items-center justify-between px-6 py-5 border-b border-border">
             <div>
               <h2 className="text-lg font-bold">Deals Pipeline</h2>
@@ -101,7 +101,7 @@ function Dashboard() {
               </thead>
               <tbody>
                 {deals.slice(0, 6).map((d) => (
-                  <tr key={d.id} className="border-t border-border hover:bg-muted/30">
+                  <tr key={d.id} className="border-t border-border row-hover-blue">
                     <td className="py-4 px-6 font-medium">{d.property}</td>
                     <td className="py-4 text-muted-foreground">{d.client}</td>
                     <td className="py-4 text-right tabular-nums font-medium">{formatMoney(d.value)}</td>
