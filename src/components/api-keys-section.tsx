@@ -20,6 +20,10 @@ interface ApiKeyRow {
 }
 
 export function ApiKeysSection() {
+  const fetchKeys = useServerFn(listApiKeys);
+  const createKey = useServerFn(createApiKey);
+  const revokeKey = useServerFn(revokeApiKey);
+
   const [keys, setKeys] = useState<ApiKeyRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -35,10 +39,11 @@ export function ApiKeysSection() {
     setLoading(true);
     setLoadError(null);
     try {
-      const { keys } = await withTimeout(listApiKeys(), 15000, "API keys");
+      const { keys } = await withTimeout(fetchKeys(), 15000, "API keys");
       setKeys(keys as ApiKeyRow[]);
     } catch (e) {
       setLoadError(e instanceof Error ? e.message : "Failed to load API keys");
+      setKeys([]);
     } finally {
       setLoading(false);
     }
