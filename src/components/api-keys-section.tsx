@@ -21,6 +21,7 @@ interface ApiKeyRow {
 export function ApiKeysSection() {
   const [keys, setKeys] = useState<ApiKeyRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [expiry, setExpiry] = useState<string>("never");
   const [creating, setCreating] = useState(false);
@@ -31,16 +32,18 @@ export function ApiKeysSection() {
 
   async function load() {
     setLoading(true);
+    setLoadError(null);
     try {
-      const { keys } = await listApiKeys();
+      const { keys } = await withTimeout(listApiKeys(), 15000, "API keys");
       setKeys(keys as ApiKeyRow[]);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to load API keys");
+      setLoadError(e instanceof Error ? e.message : "Failed to load API keys");
     } finally {
       setLoading(false);
     }
   }
   useEffect(() => { load(); }, []);
+
 
   async function create() {
     if (!name.trim()) return toast.error("Name your key first");
