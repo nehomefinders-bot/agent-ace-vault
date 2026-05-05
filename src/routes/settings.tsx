@@ -68,6 +68,7 @@ function SettingsPage() {
   const { user, loading: authLoading, signOut } = useAuth();
   const nav = useNavigate();
   const { subscription, isActive } = useSubscription();
+  const [authTimedOut, setAuthTimedOut] = useState(false);
 
   // profile
   const [displayName, setDisplayName] = useState("");
