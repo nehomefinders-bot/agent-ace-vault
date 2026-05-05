@@ -11,6 +11,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ApiKeysSection } from "@/components/api-keys-section";
+import { GhlIntegrationSection } from "@/components/ghl-integration-section";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
@@ -329,6 +330,9 @@ function SettingsPage() {
             <Link to="/pricing" className="btn-secondary">View plans</Link>
           </div>
         </Section>
+
+        {/* Integrations */}
+        <GhlIntegrationSection />
 
         {/* API keys */}
         <ApiKeysSection />

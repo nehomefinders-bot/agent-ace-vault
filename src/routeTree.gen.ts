@@ -39,6 +39,7 @@ import { Route as BooksCategoriesRouteImport } from './routes/books.categories'
 import { Route as BooksAccountsRouteImport } from './routes/books.accounts'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicPaymentsApplyTaxCodesRouteImport } from './routes/api/public/payments/apply-tax-codes'
+import { Route as ApiPublicGhlWebhookRouteImport } from './routes/api/public/ghl.webhook'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -192,6 +193,11 @@ const ApiPublicPaymentsApplyTaxCodesRoute =
     path: '/api/public/payments/apply-tax-codes',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicGhlWebhookRoute = ApiPublicGhlWebhookRouteImport.update({
+  id: '/api/public/ghl/webhook',
+  path: '/api/public/ghl/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -222,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/books/taxes': typeof BooksTaxesRoute
   '/books/transactions': typeof BooksTransactionsRoute
   '/books/': typeof BooksIndexRoute
+  '/api/public/ghl/webhook': typeof ApiPublicGhlWebhookRoute
   '/api/public/payments/apply-tax-codes': typeof ApiPublicPaymentsApplyTaxCodesRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -253,6 +260,7 @@ export interface FileRoutesByTo {
   '/books/taxes': typeof BooksTaxesRoute
   '/books/transactions': typeof BooksTransactionsRoute
   '/books': typeof BooksIndexRoute
+  '/api/public/ghl/webhook': typeof ApiPublicGhlWebhookRoute
   '/api/public/payments/apply-tax-codes': typeof ApiPublicPaymentsApplyTaxCodesRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -286,6 +294,7 @@ export interface FileRoutesById {
   '/books/taxes': typeof BooksTaxesRoute
   '/books/transactions': typeof BooksTransactionsRoute
   '/books/': typeof BooksIndexRoute
+  '/api/public/ghl/webhook': typeof ApiPublicGhlWebhookRoute
   '/api/public/payments/apply-tax-codes': typeof ApiPublicPaymentsApplyTaxCodesRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -320,6 +329,7 @@ export interface FileRouteTypes {
     | '/books/taxes'
     | '/books/transactions'
     | '/books/'
+    | '/api/public/ghl/webhook'
     | '/api/public/payments/apply-tax-codes'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -351,6 +361,7 @@ export interface FileRouteTypes {
     | '/books/taxes'
     | '/books/transactions'
     | '/books'
+    | '/api/public/ghl/webhook'
     | '/api/public/payments/apply-tax-codes'
     | '/api/public/payments/webhook'
   id:
@@ -383,6 +394,7 @@ export interface FileRouteTypes {
     | '/books/taxes'
     | '/books/transactions'
     | '/books/'
+    | '/api/public/ghl/webhook'
     | '/api/public/payments/apply-tax-codes'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
@@ -409,6 +421,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SettingsRoute: typeof SettingsRoute
   TermsRoute: typeof TermsRoute
+  ApiPublicGhlWebhookRoute: typeof ApiPublicGhlWebhookRoute
   ApiPublicPaymentsApplyTaxCodesRoute: typeof ApiPublicPaymentsApplyTaxCodesRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
@@ -625,6 +638,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsApplyTaxCodesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/ghl/webhook': {
+      id: '/api/public/ghl/webhook'
+      path: '/api/public/ghl/webhook'
+      fullPath: '/api/public/ghl/webhook'
+      preLoaderRoute: typeof ApiPublicGhlWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -672,6 +692,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SettingsRoute: SettingsRoute,
   TermsRoute: TermsRoute,
+  ApiPublicGhlWebhookRoute: ApiPublicGhlWebhookRoute,
   ApiPublicPaymentsApplyTaxCodesRoute: ApiPublicPaymentsApplyTaxCodesRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
