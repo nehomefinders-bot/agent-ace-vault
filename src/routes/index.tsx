@@ -114,7 +114,7 @@ function Dashboard() {
           </div>
         </section>
 
-        <section className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
+        <section className="glass rounded-2xl overflow-hidden">
           <header className="flex items-center justify-between px-6 py-5 border-b border-border">
             <div>
               <h2 className="text-lg font-bold">Recent Invoices</h2>
@@ -140,7 +140,7 @@ function Dashboard() {
       </div>
 
       {/* Expenses feed */}
-      <section className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
+      <section className="glass rounded-2xl overflow-hidden">
         <header className="flex items-center justify-between px-6 py-5 border-b border-border">
           <div>
             <h2 className="text-lg font-bold">Recent Expenses</h2>
