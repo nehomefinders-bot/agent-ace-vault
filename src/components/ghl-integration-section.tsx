@@ -15,26 +15,30 @@ export function GhlIntegrationSection() {
 
   const [status, setStatus] = useState<Status | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [locationId, setLocationId] = useState("");
   const [enabled, setEnabled] = useState(true);
   const [busy, setBusy] = useState<"" | "save" | "pull" | "push">("");
   const [copied, setCopied] = useState(false);
 
   async function refresh() {
+    setLoading(true);
+    setLoadError(null);
     try {
-      setLoading(true);
-      const s = await fetchStatus();
+      const s = await withTimeout(fetchStatus(), 15000, "GHL status");
       setStatus(s);
       setLocationId(s.settings?.location_id ?? "");
       setEnabled(s.settings?.enabled ?? true);
     } catch (e: any) {
-      toast.error(e?.message ?? "Could not load integration status");
+      const msg = e?.message ?? "Could not load integration status";
+      setLoadError(msg);
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+
 
   const webhookUrl =
     typeof window !== "undefined" && status?.settings?.webhook_secret
