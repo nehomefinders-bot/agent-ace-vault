@@ -213,7 +213,7 @@ export function GhlIntegrationSection() {
             </>
           )}
         </div>
-      </AsyncSection>
+      </div>
     </section>
   );
 }
