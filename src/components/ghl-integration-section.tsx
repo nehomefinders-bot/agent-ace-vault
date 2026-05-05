@@ -117,7 +117,7 @@ export function GhlIntegrationSection() {
             </button>
           </div>
         )}
-        <div className="hidden">{/* preserve original block below */}</div>
+        
           {!status?.tokenConfigured && (
             <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
               GHL_PRIVATE_TOKEN is not configured on the server.
