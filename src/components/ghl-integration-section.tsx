@@ -3,6 +3,7 @@ import { Loader2, Plug, RefreshCw, Upload, Download, Copy, Check } from "lucide-
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { getGhlStatus, saveGhlSettings, pullAllFromGhl, pushAllToGhl } from "@/utils/ghl.functions";
+import { AsyncSection, withTimeout } from "@/components/async-section";
 
 type Status = Awaited<ReturnType<typeof getGhlStatus>>;
 
@@ -14,20 +15,22 @@ export function GhlIntegrationSection() {
 
   const [status, setStatus] = useState<Status | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [locationId, setLocationId] = useState("");
   const [enabled, setEnabled] = useState(true);
   const [busy, setBusy] = useState<"" | "save" | "pull" | "push">("");
   const [copied, setCopied] = useState(false);
 
   async function refresh() {
+    setLoading(true);
+    setLoadError(null);
     try {
-      setLoading(true);
-      const s = await fetchStatus();
+      const s = await withTimeout(fetchStatus(), 15000, "GHL status");
       setStatus(s);
       setLocationId(s.settings?.location_id ?? "");
       setEnabled(s.settings?.enabled ?? true);
     } catch (e: any) {
-      toast.error(e?.message ?? "Could not load integration status");
+      setLoadError(e?.message ?? "Could not load integration status");
     } finally {
       setLoading(false);
     }
@@ -44,7 +47,7 @@ export function GhlIntegrationSection() {
     if (!locationId.trim()) return toast.error("Location ID is required");
     setBusy("save");
     try {
-      await save({ data: { locationId: locationId.trim(), enabled } });
+      await withTimeout(save({ data: { locationId: locationId.trim(), enabled } }), 15000, "save");
       toast.success("GoHighLevel settings saved");
       await refresh();
     } catch (e: any) {
@@ -55,7 +58,7 @@ export function GhlIntegrationSection() {
   async function onPull() {
     setBusy("pull");
     try {
-      const r = await pull({ data: undefined });
+      const r = await withTimeout(pull({ data: undefined }), 60000, "pull");
       toast.success(`Pulled from GHL — ${r.imported} new, ${r.updated} updated`);
       await refresh();
     } catch (e: any) {
@@ -66,7 +69,7 @@ export function GhlIntegrationSection() {
   async function onPush() {
     setBusy("push");
     try {
-      const r = await push({ data: undefined });
+      const r = await withTimeout(push({ data: undefined }), 60000, "push");
       toast.success(`Pushed to GHL — ${r.pushed} synced, ${r.failed} failed`);
       await refresh();
     } catch (e: any) {
@@ -93,11 +96,7 @@ export function GhlIntegrationSection() {
         </p>
       </div>
 
-      {loading ? (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading…
-        </div>
-      ) : (
+      <AsyncSection loading={loading} error={loadError} onRetry={refresh} label="GoHighLevel status">
         <div className="space-y-5">
           {!status?.tokenConfigured && (
             <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
@@ -194,7 +193,7 @@ export function GhlIntegrationSection() {
             </>
           )}
         </div>
-      )}
+      </AsyncSection>
     </section>
   );
 }
