@@ -87,6 +87,22 @@ function AuthPage() {
             {mode === "signin" ? "Sign in to your books, mileage and clients." : "Start tracking commissions and write-offs in minutes."}
           </p>
 
+          <button
+            type="button"
+            onClick={signInWithGoogle}
+            disabled={loading}
+            className="w-full mb-3 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-border bg-background text-sm font-medium hover:bg-muted disabled:opacity-60"
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="#EA4335" d="M12 11v3.2h5.5c-.2 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.6 14.6 2.7 12 2.7 6.9 2.7 2.8 6.8 2.8 12s4.1 9.3 9.2 9.3c5.3 0 8.8-3.7 8.8-9 0-.6-.1-1.1-.2-1.6H12z"/>
+            </svg>
+            Continue with Google
+          </button>
+          <div className="relative my-3 text-center text-[10px] uppercase tracking-wider text-muted-foreground">
+            <span className="bg-card px-2 relative z-10">or with email</span>
+            <div className="absolute inset-x-0 top-1/2 border-t border-border -z-0" />
+          </div>
+
           <form onSubmit={onSubmit} className="space-y-3">
             {mode === "signup" && (
               <Field label="Name">
