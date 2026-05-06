@@ -3,10 +3,11 @@ import { Lock, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 
-// Routes that are always accessible (no auth/sub gating done here — auth gate is separate)
-const PUBLIC_PATHS = ["/", "/landing", "/auth", "/forgot-password", "/reset-password", "/terms", "/privacy"];
+// Routes that are always accessible without auth or active subscription.
+// NOTE: "/" is the dashboard (auth-required) and is intentionally NOT here.
+const PUBLIC_PATHS = ["/landing", "/auth", "/forgot-password", "/reset-password", "/terms", "/privacy"];
 // Account-management routes that signed-in users may reach without an active subscription
-const ACCOUNT_PATHS = ["/pricing", "/billing", "/help"];
+const ACCOUNT_PATHS = ["/pricing", "/billing", "/help", "/settings"];
 
 export function PaywallGate({ children }: { children: React.ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
