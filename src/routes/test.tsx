@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, XCircle, Loader2, Play, Trash2, Sparkles, AlertTriangle, ExternalLink } from "lucide-react";
 import { PageShell, StatusPill } from "@/components/page-shell";
 import { useAuth } from "@/hooks/use-auth";
@@ -42,6 +43,8 @@ function TestPage() {
   const nav = useNavigate();
   const { subscription, isActive, loading: subLoading, refetch } = useSubscription();
   const [busy, setBusy] = useState<string | null>(null);
+  const seedFn = useServerFn(seedTestSubscription);
+  const clearFn = useServerFn(clearTestSubscription);
   const [steps, setSteps] = useState<Step[]>(
     WALKTHROUGH.map((s) => ({ ...s, status: "pending" }))
   );
@@ -70,7 +73,7 @@ function TestPage() {
   async function activate() {
     setBusy("seed");
     try {
-      await seedTestSubscription();
+      await seedFn();
       toast.success("Team plan activated (sandbox).");
       await new Promise((r) => setTimeout(r, 400));
       await refetch();
@@ -84,7 +87,7 @@ function TestPage() {
   async function clear() {
     setBusy("clear");
     try {
-      await clearTestSubscription();
+      await clearFn();
       toast.success("Test subscription cleared.");
       await refetch();
     } catch (e) {
@@ -102,7 +105,7 @@ function TestPage() {
     // 1. Activate
     setSteps((prev) => prev.map((s) => (s.key === "activate" ? { ...s, status: "running" } : s)));
     try {
-      await seedTestSubscription();
+      await seedFn();
       await refetch();
     } catch (e) {
       toast.error("Activation failed");
