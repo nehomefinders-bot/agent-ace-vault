@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/tasks")({
   head: () => ({
