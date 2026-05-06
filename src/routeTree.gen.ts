@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestRouteImport } from './routes/test'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReceiptsRouteImport } from './routes/receipts'
@@ -50,6 +51,11 @@ const TestRoute = TestRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TasksRoute = TasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -226,6 +232,7 @@ export interface FileRoutesByFullPath {
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
+  '/tasks': typeof TasksRoute
   '/terms': typeof TermsRoute
   '/test': typeof TestRoute
   '/books/accounts': typeof BooksAccountsRoute
@@ -259,6 +266,7 @@ export interface FileRoutesByTo {
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
+  '/tasks': typeof TasksRoute
   '/terms': typeof TermsRoute
   '/test': typeof TestRoute
   '/books/accounts': typeof BooksAccountsRoute
@@ -294,6 +302,7 @@ export interface FileRoutesById {
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
+  '/tasks': typeof TasksRoute
   '/terms': typeof TermsRoute
   '/test': typeof TestRoute
   '/books/accounts': typeof BooksAccountsRoute
@@ -330,6 +339,7 @@ export interface FileRouteTypes {
     | '/receipts'
     | '/reset-password'
     | '/settings'
+    | '/tasks'
     | '/terms'
     | '/test'
     | '/books/accounts'
@@ -363,6 +373,7 @@ export interface FileRouteTypes {
     | '/receipts'
     | '/reset-password'
     | '/settings'
+    | '/tasks'
     | '/terms'
     | '/test'
     | '/books/accounts'
@@ -397,6 +408,7 @@ export interface FileRouteTypes {
     | '/receipts'
     | '/reset-password'
     | '/settings'
+    | '/tasks'
     | '/terms'
     | '/test'
     | '/books/accounts'
@@ -432,6 +444,7 @@ export interface RootRouteChildren {
   ReceiptsRoute: typeof ReceiptsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SettingsRoute: typeof SettingsRoute
+  TasksRoute: typeof TasksRoute
   TermsRoute: typeof TermsRoute
   TestRoute: typeof TestRoute
   ApiPublicGhlWebhookRoute: typeof ApiPublicGhlWebhookRoute
@@ -453,6 +466,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tasks': {
+      id: '/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof TasksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -711,6 +731,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReceiptsRoute: ReceiptsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SettingsRoute: SettingsRoute,
+  TasksRoute: TasksRoute,
   TermsRoute: TermsRoute,
   TestRoute: TestRoute,
   ApiPublicGhlWebhookRoute: ApiPublicGhlWebhookRoute,
