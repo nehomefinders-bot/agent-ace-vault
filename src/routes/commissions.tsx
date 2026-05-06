@@ -1,8 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { Plus, Download, Search } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { Plus, Download, Search, Loader2 } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { formatMoney } from "@/lib/mock-data";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
@@ -25,16 +28,6 @@ interface CommissionRow {
   deductions: number;
   status: "Paid" | "Pending";
 }
-
-const initialRows: CommissionRow[] = [
-  { id: "C-2041", property: "Oakwood Residence, 412 Oakwood Dr", closingDate: "2025-12-15", salePrice: 750000, gci: 22500, brokerSplit: 70, deductions: 850, status: "Pending" },
-  { id: "C-2040", property: "Downtown Loft 4B, 88 Market St", closingDate: "2025-11-30", salePrice: 1200000, gci: 36000, brokerSplit: 75, deductions: 1200, status: "Pending" },
-  { id: "C-2039", property: "Elm Street Townhouse, 219 Elm St", closingDate: "2025-10-22", salePrice: 580000, gci: 17400, brokerSplit: 70, deductions: 600, status: "Paid" },
-  { id: "C-2038", property: "Harbor View Condo, 7 Harbor Ln #14", closingDate: "2025-12-05", salePrice: 920000, gci: 27600, brokerSplit: 72, deductions: 950, status: "Pending" },
-  { id: "C-2037", property: "Sunset Ridge Villa, 1140 Ridge Way", closingDate: "2025-12-01", salePrice: 1850000, gci: 55500, brokerSplit: 80, deductions: 2100, status: "Pending" },
-  { id: "C-2036", property: "Maple Grove House, 56 Maple Grove", closingDate: "2025-09-18", salePrice: 465000, gci: 13950, brokerSplit: 65, deductions: 420, status: "Paid" },
-  { id: "C-2035", property: "Cedar Park Bungalow, 304 Cedar Park", closingDate: "2025-08-30", salePrice: 612000, gci: 18360, brokerSplit: 70, deductions: 540, status: "Paid" },
-];
 
 function netCommission(r: CommissionRow): number {
   return r.gci * (r.brokerSplit / 100) - r.deductions;
