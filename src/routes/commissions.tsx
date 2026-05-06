@@ -52,13 +52,15 @@ function StatusBadge({ status }: { status: "Paid" | "Pending" }) {
   );
 }
 
-function AddCommissionDialog({ onAdd }: { onAdd: (row: CommissionRow) => void }) {
+function AddCommissionDialog({ onAdded }: { onAdded: () => void }) {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [property, setProperty] = useState("");
   const [salePrice, setSalePrice] = useState("");
   const [commissionPct, setCommissionPct] = useState("3");
   const [brokerSplit, setBrokerSplit] = useState("70");
   const [deductions, setDeductions] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const sale = parseFloat(salePrice) || 0;
   const cPct = parseFloat(commissionPct) || 0;
@@ -72,21 +74,29 @@ function AddCommissionDialog({ onAdd }: { onAdd: (row: CommissionRow) => void })
     setBrokerSplit("70"); setDeductions("");
   };
 
-  const submit = () => {
-    if (!property.trim() || sale <= 0) return;
-    onAdd({
-      id: `C-${Math.floor(2042 + Math.random() * 900)}`,
-      property: property.trim(),
-      closingDate: new Date().toISOString().slice(0, 10),
-      salePrice: sale,
-      gci,
-      brokerSplit: bSplit,
-      deductions: ded,
-      status: "Pending",
+  const submit = async () => {
+    if (!user || !property.trim() || sale <= 0) return;
+    setSaving(true);
+    const { error } = await supabase.from("deals").insert({
+      user_id: user.id,
+      address: property.trim(),
+      side: "buy",
+      status: "closed",
+      sale_price: sale,
+      gross_commission: gci,
+      agent_split_pct: bSplit,
+      brokerage_split_pct: 100 - bSplit,
+      close_date: new Date().toISOString().slice(0, 10),
+      notes: ded > 0 ? `Deductions: ${ded}` : null,
     });
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Commission saved");
     reset();
     setOpen(false);
+    onAdded();
   };
+
 
   return (
     <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) reset(); }}>
