@@ -231,6 +231,4 @@ function Dashboard() {
       </section>
     </PageShell>
   );
-    </PageShell>
-  );
 }
