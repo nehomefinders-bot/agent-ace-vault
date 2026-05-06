@@ -55,10 +55,29 @@ function KpiCard({
 }
 
 function Dashboard() {
+  const { user } = useAuth();
+  const [deals, setDeals] = useState<DashDeal[]>([]);
+  const [expenses, setExpenses] = useState<DashExpense[]>([]);
+
+  useEffect(() => {
+    if (!user) { setDeals([]); setExpenses([]); return; }
+    (async () => {
+      const [d, e] = await Promise.all([
+        supabase.from("deals").select("id,address,client_name,sale_price,status,close_date").order("created_at", { ascending: false }).limit(6),
+        supabase.from("expenses").select("id,vendor,category,amount,date,receipt_path").order("date", { ascending: false }).limit(5),
+      ]);
+      setDeals((d.data ?? []) as DashDeal[]);
+      setExpenses((e.data ?? []) as DashExpense[]);
+    })();
+  }, [user]);
+
+  const activeDeals = deals.filter((d) => d.status !== "closed" && d.status !== "dead").length;
+  const pipelineValue = deals.filter((d) => d.status !== "closed" && d.status !== "dead").reduce((s, d) => s + Number(d.sale_price), 0);
+
   return (
     <PageShell
       title="Dashboard"
-      subtitle="Welcome back, Eleanor. Here's how your business is tracking."
+      subtitle="Welcome back. Here's how your business is tracking."
       actions={
         <>
           <div className="relative hidden md:block">
@@ -68,18 +87,18 @@ function Dashboard() {
               className="pl-9 pr-4 py-2.5 rounded-lg border border-border bg-card text-sm w-64 focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
-          <button className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium hover:opacity-90">
+          <Link to="/deals" className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium hover:opacity-90 min-h-11 md:min-h-0">
             <Plus className="h-4 w-4" /> New Deal
-          </button>
+          </Link>
         </>
       }
     >
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         <KpiCard label="YTD Commission" value={formatMoney(kpis.ytdCommission)} delta="+12.5% vs last year" deltaTone="success" icon={TrendingUp} />
-        <KpiCard label="Pipeline Value" value={formatMoney(kpis.pipelineValue)} delta={`${deals.filter(d => d.stage !== "Closed").length} active deals`} icon={DollarSign} />
+        <KpiCard label="Pipeline Value" value={formatMoney(pipelineValue || kpis.pipelineValue)} delta={`${activeDeals} active deals`} icon={DollarSign} />
         <KpiCard label="Outstanding Commissions" value={formatMoney(kpis.outstandingInvoices)} delta={`${invoices.filter(i => i.status === "Overdue").length} overdue`} deltaTone="danger" icon={AlertCircle} />
-        <KpiCard label="Deals Closed (MTD)" value={String(kpis.closedDealsMTD)} delta={`Avg ${formatMoney(kpis.avgDealSize)}`} deltaTone="success" icon={CheckCircle2} />
+        <KpiCard label="Deals Closed (MTD)" value={String(deals.filter((d) => d.status === "closed").length || kpis.closedDealsMTD)} delta={`Avg ${formatMoney(kpis.avgDealSize)}`} deltaTone="success" icon={CheckCircle2} />
       </div>
 
       {/* Pipeline + Commissions */}
@@ -94,49 +113,57 @@ function Dashboard() {
               View all <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </header>
-          {/* Mobile: card view */}
-          <ul className="md:hidden divide-y divide-border">
-            {deals.slice(0, 6).map((d) => (
-              <li key={d.id} className="px-4 py-4">
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <div className="min-w-0">
-                    <div className="font-medium text-sm truncate">{d.property}</div>
-                    <div className="text-xs text-muted-foreground truncate">{d.client}</div>
-                  </div>
-                  <div className="tabular-nums font-semibold text-sm shrink-0">{formatMoney(d.value)}</div>
-                </div>
-                <div className="flex items-center justify-between gap-2">
-                  <StatusPill tone={stageTone[d.stage]}>{d.stage}</StatusPill>
-                  <span className="text-[11px] text-muted-foreground truncate">{d.lastActivity}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-          {/* Desktop: table */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
-                  <th className="text-left font-medium py-3 px-6">Property</th>
-                  <th className="text-left font-medium py-3">Client</th>
-                  <th className="text-right font-medium py-3">Value</th>
-                  <th className="text-left font-medium py-3 pl-6">Stage</th>
-                  <th className="text-left font-medium py-3 pr-6">Activity</th>
-                </tr>
-              </thead>
-              <tbody>
-                {deals.slice(0, 6).map((d) => (
-                  <tr key={d.id} className="border-t border-border row-hover-blue">
-                    <td className="py-4 px-6 font-medium">{d.property}</td>
-                    <td className="py-4 text-muted-foreground">{d.client}</td>
-                    <td className="py-4 text-right tabular-nums font-medium">{formatMoney(d.value)}</td>
-                    <td className="py-4 pl-6"><StatusPill tone={stageTone[d.stage]}>{d.stage}</StatusPill></td>
-                    <td className="py-4 pr-6 text-muted-foreground text-xs">{d.lastActivity}</td>
-                  </tr>
+          {deals.length === 0 ? (
+            <div className="px-6 py-10 text-center text-sm text-muted-foreground">
+              No deals yet. <Link to="/deals" className="text-primary font-medium">Add your first deal →</Link>
+            </div>
+          ) : (
+            <>
+              {/* Mobile: card view */}
+              <ul className="md:hidden divide-y divide-border">
+                {deals.map((d) => (
+                  <li key={d.id} className="px-4 py-4">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="min-w-0">
+                        <div className="font-medium text-sm truncate">{d.address}</div>
+                        {d.client_name && <div className="text-xs text-muted-foreground truncate">{d.client_name}</div>}
+                      </div>
+                      <div className="tabular-nums font-semibold text-sm shrink-0">{formatMoney(Number(d.sale_price))}</div>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <StatusPill tone={stageTone[d.status] ?? "muted"}>{stageLabel[d.status] ?? d.status}</StatusPill>
+                      {d.close_date && <span className="text-[11px] text-muted-foreground truncate">{d.close_date}</span>}
+                    </div>
+                  </li>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </ul>
+              {/* Desktop: table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
+                      <th className="text-left font-medium py-3 px-6">Property</th>
+                      <th className="text-left font-medium py-3">Client</th>
+                      <th className="text-right font-medium py-3">Value</th>
+                      <th className="text-left font-medium py-3 pl-6">Stage</th>
+                      <th className="text-left font-medium py-3 pr-6">Close</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {deals.map((d) => (
+                      <tr key={d.id} className="border-t border-border row-hover-blue">
+                        <td className="py-4 px-6 font-medium">{d.address}</td>
+                        <td className="py-4 text-muted-foreground">{d.client_name ?? "—"}</td>
+                        <td className="py-4 text-right tabular-nums font-medium">{formatMoney(Number(d.sale_price))}</td>
+                        <td className="py-4 pl-6"><StatusPill tone={stageTone[d.status] ?? "muted"}>{stageLabel[d.status] ?? d.status}</StatusPill></td>
+                        <td className="py-4 pr-6 text-muted-foreground text-xs">{d.close_date ?? "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </section>
 
         <section className="glass rounded-2xl overflow-hidden">
@@ -173,29 +200,37 @@ function Dashboard() {
           </div>
           <Link to="/expenses" className="text-xs text-primary font-medium hover:underline">View all</Link>
         </header>
-        <ul className="divide-y divide-border">
-          {expenses.slice(0, 5).map((e) => (
-            <li key={e.id} className="px-6 py-4 grid grid-cols-12 items-center gap-4">
-              <div className="col-span-5 flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
-                  {e.category.slice(0, 2).toUpperCase()}
+        {expenses.length === 0 ? (
+          <div className="px-6 py-10 text-center text-sm text-muted-foreground">
+            No expenses yet. <Link to="/expenses" className="text-primary font-medium">Log your first →</Link>
+          </div>
+        ) : (
+          <ul className="divide-y divide-border">
+            {expenses.map((e) => (
+              <li key={e.id} className="px-6 py-4 grid grid-cols-12 items-center gap-4">
+                <div className="col-span-5 flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
+                    {e.category.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-medium text-sm truncate">{e.vendor}</div>
+                    <div className="text-xs text-muted-foreground">{e.category}</div>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <div className="font-medium text-sm truncate">{e.vendor}</div>
-                  <div className="text-xs text-muted-foreground">{e.category}{e.deal ? ` · ${e.deal}` : ""}</div>
+                <div className="col-span-3 text-xs text-muted-foreground">{e.date}</div>
+                <div className="col-span-2">
+                  {e.receipt_path
+                    ? <StatusPill tone="success">Receipt</StatusPill>
+                    : <StatusPill tone="warning">Missing</StatusPill>}
                 </div>
-              </div>
-              <div className="col-span-3 text-xs text-muted-foreground">{e.date}</div>
-              <div className="col-span-2">
-                {e.hasReceipt
-                  ? <StatusPill tone="success">Receipt</StatusPill>
-                  : <StatusPill tone="warning">Missing</StatusPill>}
-              </div>
-              <div className="col-span-2 text-right tabular-nums font-medium text-sm">{formatMoneyCents(e.amount)}</div>
-            </li>
-          ))}
-        </ul>
+                <div className="col-span-2 text-right tabular-nums font-medium text-sm">{formatMoney(Number(e.amount))}</div>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
+    </PageShell>
+  );
     </PageShell>
   );
 }
