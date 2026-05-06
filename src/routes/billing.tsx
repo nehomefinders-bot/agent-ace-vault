@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { cancelSubscription, createPortalSession, resumeSubscription } from "@/utils/payments.functions";
 import { getStripeEnvironment, PLANS } from "@/lib/stripe";
+import { PaymentTestBanner } from "@/components/payment-test-banner";
 import { toast } from "sonner";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -80,9 +81,10 @@ function BillingPage() {
 
   return (
     <PageShell title="Billing" subtitle="Manage your subscription, payment method and invoices.">
+      <PaymentTestBanner />
       {welcome && (
         <div className="mb-5 bg-success/10 border border-success/30 text-success rounded-xl px-4 py-3 text-sm flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4" /> Welcome aboard! Your subscription is being activated.
+          <CheckCircle2 className="h-4 w-4" /> Welcome aboard! Your subscription is being activated. This may take a few seconds…
         </div>
       )}
 
