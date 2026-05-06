@@ -17,6 +17,7 @@ const sections = [
       { to: "/deals", label: "Deals & Commissions", icon: Calculator },
       { to: "/listings", label: "Listings", icon: Home },
       { to: "/clients", label: "Clients", icon: Users },
+      { to: "/tasks", label: "Tasks", icon: ListTodo },
       { to: "/documents", label: "Documents", icon: FolderOpen },
     ],
   },
