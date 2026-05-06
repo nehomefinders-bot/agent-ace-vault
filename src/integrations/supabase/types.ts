@@ -206,6 +206,87 @@ export type Database = {
         }
         Relationships: []
       }
+      documents: {
+        Row: {
+          created_at: string
+          deal_id: string | null
+          file_path: string
+          folder: string
+          id: string
+          mime_type: string | null
+          name: string
+          size_bytes: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deal_id?: string | null
+          file_path: string
+          folder?: string
+          id?: string
+          mime_type?: string | null
+          name: string
+          size_bytes?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deal_id?: string | null
+          file_path?: string
+          folder?: string
+          id?: string
+          mime_type?: string | null
+          name?: string
+          size_bytes?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          date: string
+          deal_id: string | null
+          id: string
+          notes: string | null
+          receipt_path: string | null
+          updated_at: string
+          user_id: string
+          vendor: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          date?: string
+          deal_id?: string | null
+          id?: string
+          notes?: string | null
+          receipt_path?: string | null
+          updated_at?: string
+          user_id: string
+          vendor: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          date?: string
+          deal_id?: string | null
+          id?: string
+          notes?: string | null
+          receipt_path?: string | null
+          updated_at?: string
+          user_id?: string
+          vendor?: string
+        }
+        Relationships: []
+      }
       integration_settings: {
         Row: {
           config: Json
@@ -280,6 +361,48 @@ export type Database = {
           payload?: Json | null
           provider?: string
           status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      listings: {
+        Row: {
+          address: string
+          baths: number | null
+          beds: number | null
+          created_at: string
+          id: string
+          list_price: number
+          notes: string | null
+          sqft: number | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          baths?: number | null
+          beds?: number | null
+          created_at?: string
+          id?: string
+          list_price?: number
+          notes?: string | null
+          sqft?: number | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          baths?: number | null
+          beds?: number | null
+          created_at?: string
+          id?: string
+          list_price?: number
+          notes?: string | null
+          sqft?: number | null
+          status?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
