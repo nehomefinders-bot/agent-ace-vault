@@ -1,7 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import { Plus, Download, Search } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { formatMoney } from "@/lib/mock-data";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/commissions")({
   component: Commissions,
