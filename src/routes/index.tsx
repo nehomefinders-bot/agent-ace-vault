@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { ArrowUpRight, TrendingUp, DollarSign, AlertCircle, CheckCircle2, Plus, Search } from "lucide-react";
 import { PageShell, StatusPill } from "@/components/page-shell";
-import { deals, invoices, expenses, kpis, formatMoney, formatMoneyCents } from "@/lib/mock-data";
+import { invoices, kpis, formatMoney, formatMoneyCents } from "@/lib/mock-data";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
@@ -13,11 +16,14 @@ export const Route = createFileRoute("/")({
   }),
 });
 
+interface DashDeal { id: string; address: string; client_name: string | null; sale_price: number; status: string; close_date: string | null; }
+interface DashExpense { id: string; vendor: string; category: string; amount: number; date: string; receipt_path: string | null; }
+
+const stageLabel: Record<string, string> = {
+  closed: "Closed", closing: "Closing", under_contract: "Under Contract", pending: "Lead", dead: "Dead",
+};
 const stageTone: Record<string, "success" | "warning" | "primary" | "muted"> = {
-  Closed: "success",
-  Closing: "primary",
-  "Under Contract": "warning",
-  Lead: "muted",
+  closed: "success", closing: "primary", under_contract: "warning", pending: "muted", dead: "muted",
 };
 
 const statusTone: Record<string, "success" | "warning" | "danger" | "muted"> = {
