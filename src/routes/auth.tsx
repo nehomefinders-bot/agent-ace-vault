@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { Building2, Mail, Lock, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
@@ -46,6 +47,21 @@ function AuthPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
+      setLoading(false);
+    }
+  }
+
+  async function signInWithGoogle() {
+    setError(null); setInfo(null); setLoading(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) throw result.error;
+      if (result.redirected) return; // browser will navigate away
+      nav({ to: "/" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Google sign-in failed");
       setLoading(false);
     }
   }
