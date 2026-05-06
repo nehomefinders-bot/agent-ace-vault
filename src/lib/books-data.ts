@@ -93,16 +93,21 @@ export function profitAndLoss(
   transactions: Transaction[],
   year = new Date().getFullYear(),
 ): PLReport {
-  const inYear = transactions.filter((t) => t.date.startsWith(String(year)));
+  const accountById = new Map(accounts.map((account) => [account.id, account] as const));
+  const inYear = transactions.filter((t) => typeof t.date === "string" && t.date.startsWith(String(year)));
   const sumByKind = (kind: AccountKind, side: "creditAccountId" | "debitAccountId") => {
     const map = new Map<string, number>();
     for (const t of inYear) {
-      const acct = accounts.find((a) => a.id === t[side]);
+      const acct = accountById.get(t[side]);
       if (acct?.kind !== kind) continue;
       map.set(acct.id, (map.get(acct.id) ?? 0) + Number(t.amount));
     }
     return Array.from(map.entries())
-      .map(([id, amount]) => ({ account: accounts.find((a) => a.id === id)!, amount }))
+      .map(([id, amount]) => {
+        const account = accountById.get(id);
+        return account ? { account, amount } : null;
+      })
+      .filter((line): line is PLLine => line !== null)
       .sort((a, b) => b.amount - a.amount);
   };
   const income = sumByKind("Income", "creditAccountId");

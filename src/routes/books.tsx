@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { BookOpen, ListOrdered, Tags, HandCoins, FileBarChart, Wallet, Calculator } from "lucide-react";
-import { useBooks, formatMoney } from "@/hooks/use-books";
+import { BooksProvider, useBooks, formatMoney } from "@/hooks/use-books";
 import { ownerLoanLedger, profitAndLoss } from "@/lib/books-data";
 
 export const Route = createFileRoute("/books")({
@@ -19,6 +19,14 @@ const tabs = [
 ] as const;
 
 function BooksLayout() {
+  return (
+    <BooksProvider>
+      <BooksLayoutContent />
+    </BooksProvider>
+  );
+}
+
+function BooksLayoutContent() {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const { accounts, transactions, loading } = useBooks();
   const { balance } = ownerLoanLedger(accounts, transactions);

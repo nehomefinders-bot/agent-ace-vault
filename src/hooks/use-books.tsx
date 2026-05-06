@@ -35,6 +35,49 @@ interface NewAccount {
 
 const Ctx = createContext<BooksCtx | null>(null);
 
+function isAccountKind(value: unknown): value is AccountKind {
+  return value === "Income" || value === "Expense" || value === "Asset" || value === "Liability" || value === "Equity";
+}
+
+function normalizeAccountRow(row: Record<string, unknown>): Account | null {
+  const id = typeof row.id === "string" ? row.id : "";
+  const code = typeof row.code === "string" ? row.code : "";
+  const name = typeof row.name === "string" ? row.name : "";
+  const kind = isAccountKind(row.kind) ? row.kind : null;
+  if (!id || !code || !name || !kind) return null;
+
+  return {
+    id,
+    code,
+    name,
+    kind,
+    taxLine: typeof row.tax_line === "string" ? row.tax_line : null,
+    description: typeof row.description === "string" ? row.description : null,
+  };
+}
+
+function normalizeTransactionRow(row: Record<string, unknown>): Transaction | null {
+  const id = typeof row.id === "string" ? row.id : "";
+  const date = typeof row.date === "string" ? row.date : "";
+  const memo = typeof row.memo === "string" ? row.memo : "";
+  const debitAccountId = typeof row.debit_account_id === "string" ? row.debit_account_id : "";
+  const creditAccountId = typeof row.credit_account_id === "string" ? row.credit_account_id : "";
+  const amount = Number(row.amount);
+  if (!id || !date || !memo || !debitAccountId || !creditAccountId || !Number.isFinite(amount)) return null;
+
+  return {
+    id,
+    date,
+    memo,
+    amount,
+    debitAccountId,
+    creditAccountId,
+    vendor: typeof row.vendor === "string" ? row.vendor : null,
+    reference: typeof row.reference === "string" ? row.reference : null,
+    tags: Array.isArray(row.tags) ? row.tags.filter((tag): tag is string => typeof tag === "string") : null,
+  };
+}
+
 export function BooksProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -42,22 +85,35 @@ export function BooksProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const reload = useCallback(async () => {
-    if (!user) { setAccounts([]); setTransactions([]); setLoading(false); return; }
+    if (!user) {
+      setAccounts([]);
+      setTransactions([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
-    const [{ data: a }, { data: t }] = await Promise.all([
-      supabase.from("accounts").select("*").eq("archived", false).order("code"),
-      supabase.from("transactions").select("*").order("date", { ascending: false }),
-    ]);
-    setAccounts((a ?? []).map((r) => ({
-      id: r.id, code: r.code, name: r.name, kind: r.kind as AccountKind,
-      taxLine: r.tax_line, description: r.description,
-    })));
-    setTransactions((t ?? []).map((r) => ({
-      id: r.id, date: r.date, memo: r.memo, amount: Number(r.amount),
-      debitAccountId: r.debit_account_id, creditAccountId: r.credit_account_id,
-      vendor: r.vendor, reference: r.reference, tags: r.tags,
-    })));
-    setLoading(false);
+    try {
+      const [{ data: accountRows, error: accountError }, { data: transactionRows, error: transactionError }] = await Promise.all([
+        supabase.from("accounts").select("*").eq("archived", false).order("code"),
+        supabase.from("transactions").select("*").order("date", { ascending: false }),
+      ]);
+
+      if (accountError) console.error("Failed to load accounts", accountError);
+      if (transactionError) console.error("Failed to load transactions", transactionError);
+
+      setAccounts((accountRows ?? [])
+        .map((row) => normalizeAccountRow(row as Record<string, unknown>))
+        .filter((row): row is Account => row !== null));
+      setTransactions((transactionRows ?? [])
+        .map((row) => normalizeTransactionRow(row as Record<string, unknown>))
+        .filter((row): row is Transaction => row !== null));
+    } catch (error) {
+      console.error("Failed to reload books", error);
+      setAccounts([]);
+      setTransactions([]);
+    } finally {
+      setLoading(false);
+    }
   }, [user]);
 
   useEffect(() => { reload(); }, [reload]);
