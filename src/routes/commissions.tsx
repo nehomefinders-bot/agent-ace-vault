@@ -1,8 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { Plus, Download, Search } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { Plus, Download, Search, Loader2 } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { formatMoney } from "@/lib/mock-data";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
@@ -25,16 +28,6 @@ interface CommissionRow {
   deductions: number;
   status: "Paid" | "Pending";
 }
-
-const initialRows: CommissionRow[] = [
-  { id: "C-2041", property: "Oakwood Residence, 412 Oakwood Dr", closingDate: "2025-12-15", salePrice: 750000, gci: 22500, brokerSplit: 70, deductions: 850, status: "Pending" },
-  { id: "C-2040", property: "Downtown Loft 4B, 88 Market St", closingDate: "2025-11-30", salePrice: 1200000, gci: 36000, brokerSplit: 75, deductions: 1200, status: "Pending" },
-  { id: "C-2039", property: "Elm Street Townhouse, 219 Elm St", closingDate: "2025-10-22", salePrice: 580000, gci: 17400, brokerSplit: 70, deductions: 600, status: "Paid" },
-  { id: "C-2038", property: "Harbor View Condo, 7 Harbor Ln #14", closingDate: "2025-12-05", salePrice: 920000, gci: 27600, brokerSplit: 72, deductions: 950, status: "Pending" },
-  { id: "C-2037", property: "Sunset Ridge Villa, 1140 Ridge Way", closingDate: "2025-12-01", salePrice: 1850000, gci: 55500, brokerSplit: 80, deductions: 2100, status: "Pending" },
-  { id: "C-2036", property: "Maple Grove House, 56 Maple Grove", closingDate: "2025-09-18", salePrice: 465000, gci: 13950, brokerSplit: 65, deductions: 420, status: "Paid" },
-  { id: "C-2035", property: "Cedar Park Bungalow, 304 Cedar Park", closingDate: "2025-08-30", salePrice: 612000, gci: 18360, brokerSplit: 70, deductions: 540, status: "Paid" },
-];
 
 function netCommission(r: CommissionRow): number {
   return r.gci * (r.brokerSplit / 100) - r.deductions;
@@ -59,13 +52,15 @@ function StatusBadge({ status }: { status: "Paid" | "Pending" }) {
   );
 }
 
-function AddCommissionDialog({ onAdd }: { onAdd: (row: CommissionRow) => void }) {
+function AddCommissionDialog({ onAdded }: { onAdded: () => void }) {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [property, setProperty] = useState("");
   const [salePrice, setSalePrice] = useState("");
   const [commissionPct, setCommissionPct] = useState("3");
   const [brokerSplit, setBrokerSplit] = useState("70");
   const [deductions, setDeductions] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const sale = parseFloat(salePrice) || 0;
   const cPct = parseFloat(commissionPct) || 0;
@@ -79,21 +74,29 @@ function AddCommissionDialog({ onAdd }: { onAdd: (row: CommissionRow) => void })
     setBrokerSplit("70"); setDeductions("");
   };
 
-  const submit = () => {
-    if (!property.trim() || sale <= 0) return;
-    onAdd({
-      id: `C-${Math.floor(2042 + Math.random() * 900)}`,
-      property: property.trim(),
-      closingDate: new Date().toISOString().slice(0, 10),
-      salePrice: sale,
-      gci,
-      brokerSplit: bSplit,
-      deductions: ded,
-      status: "Pending",
+  const submit = async () => {
+    if (!user || !property.trim() || sale <= 0) return;
+    setSaving(true);
+    const { error } = await supabase.from("deals").insert({
+      user_id: user.id,
+      address: property.trim(),
+      side: "buy",
+      status: "closed",
+      sale_price: sale,
+      gross_commission: gci,
+      agent_split_pct: bSplit,
+      brokerage_split_pct: 100 - bSplit,
+      close_date: new Date().toISOString().slice(0, 10),
+      notes: ded > 0 ? `Deductions: ${ded}` : null,
     });
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Commission saved");
     reset();
     setOpen(false);
+    onAdded();
   };
+
 
   return (
     <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) reset(); }}>
@@ -176,12 +179,43 @@ function AddCommissionDialog({ onAdd }: { onAdd: (row: CommissionRow) => void })
 }
 
 function Commissions() {
-  const [rows, setRows] = useState<CommissionRow[]>(initialRows);
+  const { user, loading: authLoading } = useAuth();
+  const [rows, setRows] = useState<CommissionRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  async function load() {
+    if (!user) { setRows([]); setLoading(false); return; }
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("deals")
+      .select("id,address,close_date,sale_price,gross_commission,agent_split_pct,status,notes,created_at")
+      .eq("status", "closed")
+      .order("close_date", { ascending: false, nullsFirst: false });
+    if (error) toast.error(error.message);
+    setRows((data ?? []).map((d: any) => {
+      const m = d.notes?.match(/Deductions:\s*([\d.]+)/);
+      return {
+        id: d.id.slice(0, 8),
+        property: d.address,
+        closingDate: d.close_date ?? d.created_at?.slice(0, 10) ?? "",
+        salePrice: Number(d.sale_price),
+        gci: Number(d.gross_commission),
+        brokerSplit: Number(d.agent_split_pct),
+        deductions: m ? parseFloat(m[1]) : 0,
+        status: "Paid" as const,
+      };
+    }));
+    setLoading(false);
+  }
+  useEffect(() => { if (!authLoading) load(); /* eslint-disable-next-line */ }, [user, authLoading]);
 
   const totalGci = useMemo(() => rows.reduce((s, r) => s + r.gci, 0), [rows]);
   const totalNet = useMemo(() => rows.reduce((s, r) => s + netCommission(r), 0), [rows]);
   const paidNet = useMemo(() => rows.filter(r => r.status === "Paid").reduce((s, r) => s + netCommission(r), 0), [rows]);
   const pendingNet = useMemo(() => rows.filter(r => r.status === "Pending").reduce((s, r) => s + netCommission(r), 0), [rows]);
+
+  if (authLoading) return <PageShell title="Commissions"><div className="flex justify-center py-20"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div></PageShell>;
+  if (!user) return <PageShell title="Commissions" subtitle="Sign in to view commissions."><Link to="/auth" className="inline-flex bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium">Sign in</Link></PageShell>;
 
   return (
     <PageShell
@@ -192,10 +226,12 @@ function Commissions() {
           <button className="inline-flex items-center gap-2 border border-border bg-card px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-muted/50">
             <Download className="h-4 w-4" /> Export
           </button>
-          <AddCommissionDialog onAdd={(row) => setRows((prev) => [row, ...prev])} />
+          <AddCommissionDialog onAdded={load} />
         </>
       }
     >
+      {loading && <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>}
+
       {/* Summary KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-6">
         <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
