@@ -88,7 +88,26 @@ function Dashboard() {
               View all <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </header>
-          <div className="overflow-x-auto">
+          {/* Mobile: card view */}
+          <ul className="md:hidden divide-y divide-border">
+            {deals.slice(0, 6).map((d) => (
+              <li key={d.id} className="px-4 py-4">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="min-w-0">
+                    <div className="font-medium text-sm truncate">{d.property}</div>
+                    <div className="text-xs text-muted-foreground truncate">{d.client}</div>
+                  </div>
+                  <div className="tabular-nums font-semibold text-sm shrink-0">{formatMoney(d.value)}</div>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <StatusPill tone={stageTone[d.stage]}>{d.stage}</StatusPill>
+                  <span className="text-[11px] text-muted-foreground truncate">{d.lastActivity}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {/* Desktop: table */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
