@@ -97,13 +97,13 @@ async function clearTestSubscriptionDirect(userId: string, environment: StripeEn
 }
 
 async function seedTestSubscriptionRpc(environment: StripeEnv) {
-  const { data, error } = await supabase.rpc("seed_test_subscription", { environment });
+  const { data, error } = await (supabase.rpc as any)("seed_test_subscription", { environment });
   if (error) throw error;
-  return data as SubscriptionRow;
+  return data as unknown as SubscriptionRow;
 }
 
 async function clearTestSubscriptionRpc(environment: StripeEnv) {
-  const { error } = await supabase.rpc("clear_test_subscription", { environment });
+  const { error } = await (supabase.rpc as any)("clear_test_subscription", { environment });
   if (error) throw error;
 }
 
@@ -114,7 +114,7 @@ export async function seedTestSubscription(environment: StripeEnv = getStripeEnv
   try {
     subscription = await seedTestSubscriptionDirect(user.id, environment);
   } catch (error) {
-    if (!isPermissionError(error)) throw error;
+    if (!isPermissionError(error as { code?: string; message?: string } | null)) throw error;
     subscription = await seedTestSubscriptionRpc(environment);
   }
 
@@ -133,7 +133,7 @@ export async function clearTestSubscription(environment: StripeEnv = getStripeEn
   try {
     await clearTestSubscriptionDirect(user.id, environment);
   } catch (error) {
-    if (!isPermissionError(error)) throw error;
+    if (!isPermissionError(error as { code?: string; message?: string } | null)) throw error;
     await clearTestSubscriptionRpc(environment);
   }
 
