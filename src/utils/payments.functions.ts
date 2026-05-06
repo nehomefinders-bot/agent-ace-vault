@@ -67,21 +67,22 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     const session = await stripe.checkout.sessions.create({
       line_items: [{ price: stripePrice.id, quantity: 1 }],
       mode: "subscription",
-      ui_mode: "embedded" as any,
+      ui_mode: "embedded",
       return_url: data.returnUrl,
       ...(customerId
         ? { customer: customerId }
         : customerEmail
         ? { customer_email: customerEmail }
         : {}),
-      managed_payments: { enabled: true } as any,
+      // Full compliance handling — Stripe handles tax + fraud + disputes + support
+      managed_payments: { enabled: true },
       subscription_data: {
         trial_period_days: 14,
         metadata: { userId },
       },
       metadata: { userId, lovable_price_id: data.priceId, managed_payments: "true" },
       allow_promotion_codes: true,
-    });
+    } as any);
 
     return { clientSecret: (session as any).client_secret as string };
   });
