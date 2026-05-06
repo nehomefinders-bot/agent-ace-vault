@@ -2,7 +2,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, TrendingUp, Home, Users, Receipt,
   Wallet, Car, ScanLine, FolderOpen, Building2, BookOpen, LifeBuoy, LogOut, LogIn, Calculator,
-  CreditCard, Sparkles, Settings,
+  CreditCard, Sparkles, Settings, ListTodo,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
