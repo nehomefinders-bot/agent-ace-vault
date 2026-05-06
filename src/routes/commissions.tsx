@@ -179,12 +179,43 @@ function AddCommissionDialog({ onAdded }: { onAdded: () => void }) {
 }
 
 function Commissions() {
-  const [rows, setRows] = useState<CommissionRow[]>(initialRows);
+  const { user, loading: authLoading } = useAuth();
+  const [rows, setRows] = useState<CommissionRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  async function load() {
+    if (!user) { setRows([]); setLoading(false); return; }
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("deals")
+      .select("id,address,close_date,sale_price,gross_commission,agent_split_pct,status,notes,created_at")
+      .eq("status", "closed")
+      .order("close_date", { ascending: false, nullsFirst: false });
+    if (error) toast.error(error.message);
+    setRows((data ?? []).map((d: any) => {
+      const m = d.notes?.match(/Deductions:\s*([\d.]+)/);
+      return {
+        id: d.id.slice(0, 8),
+        property: d.address,
+        closingDate: d.close_date ?? d.created_at?.slice(0, 10) ?? "",
+        salePrice: Number(d.sale_price),
+        gci: Number(d.gross_commission),
+        brokerSplit: Number(d.agent_split_pct),
+        deductions: m ? parseFloat(m[1]) : 0,
+        status: "Paid" as const,
+      };
+    }));
+    setLoading(false);
+  }
+  useEffect(() => { if (!authLoading) load(); /* eslint-disable-next-line */ }, [user, authLoading]);
 
   const totalGci = useMemo(() => rows.reduce((s, r) => s + r.gci, 0), [rows]);
   const totalNet = useMemo(() => rows.reduce((s, r) => s + netCommission(r), 0), [rows]);
   const paidNet = useMemo(() => rows.filter(r => r.status === "Paid").reduce((s, r) => s + netCommission(r), 0), [rows]);
   const pendingNet = useMemo(() => rows.filter(r => r.status === "Pending").reduce((s, r) => s + netCommission(r), 0), [rows]);
+
+  if (authLoading) return <PageShell title="Commissions"><div className="flex justify-center py-20"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div></PageShell>;
+  if (!user) return <PageShell title="Commissions" subtitle="Sign in to view commissions."><Link to="/auth" className="inline-flex bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium">Sign in</Link></PageShell>;
 
   return (
     <PageShell
@@ -195,10 +226,12 @@ function Commissions() {
           <button className="inline-flex items-center gap-2 border border-border bg-card px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-muted/50">
             <Download className="h-4 w-4" /> Export
           </button>
-          <AddCommissionDialog onAdd={(row) => setRows((prev) => [row, ...prev])} />
+          <AddCommissionDialog onAdded={load} />
         </>
       }
     >
+      {loading && <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>}
+
       {/* Summary KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-6">
         <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
