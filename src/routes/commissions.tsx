@@ -1,7 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import { Plus, Download, Search } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { formatMoney } from "@/lib/mock-data";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/commissions")({
   component: Commissions,
@@ -19,7 +26,7 @@ interface CommissionRow {
   status: "Paid" | "Pending";
 }
 
-const rows: CommissionRow[] = [
+const initialRows: CommissionRow[] = [
   { id: "C-2041", property: "Oakwood Residence, 412 Oakwood Dr", closingDate: "2025-12-15", salePrice: 750000, gci: 22500, brokerSplit: 70, deductions: 850, status: "Pending" },
   { id: "C-2040", property: "Downtown Loft 4B, 88 Market St", closingDate: "2025-11-30", salePrice: 1200000, gci: 36000, brokerSplit: 75, deductions: 1200, status: "Pending" },
   { id: "C-2039", property: "Elm Street Townhouse, 219 Elm St", closingDate: "2025-10-22", salePrice: 580000, gci: 17400, brokerSplit: 70, deductions: 600, status: "Paid" },
@@ -52,11 +59,129 @@ function StatusBadge({ status }: { status: "Paid" | "Pending" }) {
   );
 }
 
+function AddCommissionDialog({ onAdd }: { onAdd: (row: CommissionRow) => void }) {
+  const [open, setOpen] = useState(false);
+  const [property, setProperty] = useState("");
+  const [salePrice, setSalePrice] = useState("");
+  const [commissionPct, setCommissionPct] = useState("3");
+  const [brokerSplit, setBrokerSplit] = useState("70");
+  const [deductions, setDeductions] = useState("");
+
+  const sale = parseFloat(salePrice) || 0;
+  const cPct = parseFloat(commissionPct) || 0;
+  const bSplit = parseFloat(brokerSplit) || 0;
+  const ded = parseFloat(deductions) || 0;
+  const gci = sale * (cPct / 100);
+  const net = gci * (bSplit / 100) - ded;
+
+  const reset = () => {
+    setProperty(""); setSalePrice(""); setCommissionPct("3");
+    setBrokerSplit("70"); setDeductions("");
+  };
+
+  const submit = () => {
+    if (!property.trim() || sale <= 0) return;
+    onAdd({
+      id: `C-${Math.floor(2042 + Math.random() * 900)}`,
+      property: property.trim(),
+      closingDate: new Date().toISOString().slice(0, 10),
+      salePrice: sale,
+      gci,
+      brokerSplit: bSplit,
+      deductions: ded,
+      status: "Pending",
+    });
+    reset();
+    setOpen(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) reset(); }}>
+      <DialogTrigger asChild>
+        <button className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium hover:opacity-90">
+          <Plus className="h-4 w-4" /> Add Commission
+        </button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Add Commission</DialogTitle>
+          <DialogDescription>
+            Enter closing details. GCI and Net are calculated as you type.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid gap-4 py-2">
+          <div className="grid gap-1.5">
+            <Label htmlFor="prop">Property Name</Label>
+            <Input id="prop" placeholder="e.g. Oakwood Residence, 412 Oakwood Dr"
+              value={property} onChange={(e) => setProperty(e.target.value)} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-1.5">
+              <Label htmlFor="price">Sale Price ($)</Label>
+              <Input id="price" type="number" min="0" placeholder="750000"
+                value={salePrice} onChange={(e) => setSalePrice(e.target.value)} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="cpct">Commission %</Label>
+              <Input id="cpct" type="number" min="0" step="0.1" placeholder="3"
+                value={commissionPct} onChange={(e) => setCommissionPct(e.target.value)} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-1.5">
+              <Label htmlFor="split">Broker Split %</Label>
+              <Input id="split" type="number" min="0" max="100" step="1" placeholder="70"
+                value={brokerSplit} onChange={(e) => setBrokerSplit(e.target.value)} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="ded">Flat Deductions ($)</Label>
+              <Input id="ded" type="number" min="0" placeholder="TC fees, etc."
+                value={deductions} onChange={(e) => setDeductions(e.target.value)} />
+            </div>
+          </div>
+
+          {/* Live calculation */}
+          <div className="mt-2 rounded-xl border border-border bg-muted/40 p-4 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">GCI (Sale × Commission %)</span>
+              <span className="tabular-nums font-medium">{formatMoney(gci)}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Agent share (× {bSplit || 0}%)</span>
+              <span className="tabular-nums font-medium">{formatMoney(gci * (bSplit / 100))}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Deductions</span>
+              <span className="tabular-nums text-destructive">−{formatMoney(ded)}</span>
+            </div>
+            <div className="border-t border-border pt-2 flex items-center justify-between">
+              <span className="text-sm font-medium">Estimated Net Commission</span>
+              <span className={`tabular-nums font-bold text-lg font-display ${net >= 0 ? "text-success" : "text-destructive"}`}>
+                {formatMoney(net)}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={!property.trim() || sale <= 0}>Save Commission</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function Commissions() {
-  const totalGci = rows.reduce((s, r) => s + r.gci, 0);
-  const totalNet = rows.reduce((s, r) => s + netCommission(r), 0);
-  const paidNet = rows.filter(r => r.status === "Paid").reduce((s, r) => s + netCommission(r), 0);
-  const pendingNet = rows.filter(r => r.status === "Pending").reduce((s, r) => s + netCommission(r), 0);
+  const [rows, setRows] = useState<CommissionRow[]>(initialRows);
+
+  const totalGci = useMemo(() => rows.reduce((s, r) => s + r.gci, 0), [rows]);
+  const totalNet = useMemo(() => rows.reduce((s, r) => s + netCommission(r), 0), [rows]);
+  const paidNet = useMemo(() => rows.filter(r => r.status === "Paid").reduce((s, r) => s + netCommission(r), 0), [rows]);
+  const pendingNet = useMemo(() => rows.filter(r => r.status === "Pending").reduce((s, r) => s + netCommission(r), 0), [rows]);
 
   return (
     <PageShell
@@ -67,9 +192,7 @@ function Commissions() {
           <button className="inline-flex items-center gap-2 border border-border bg-card px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-muted/50">
             <Download className="h-4 w-4" /> Export
           </button>
-          <button className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium hover:opacity-90">
-            <Plus className="h-4 w-4" /> New Commission
-          </button>
+          <AddCommissionDialog onAdd={(row) => setRows((prev) => [row, ...prev])} />
         </>
       }
     >
