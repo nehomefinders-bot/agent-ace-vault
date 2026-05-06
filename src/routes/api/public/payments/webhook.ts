@@ -71,6 +71,22 @@ async function handleSubscriptionDeleted(subscription: any, env: StripeEnv) {
     .eq("environment", env);
 }
 
+async function handleInvoiceEvent(invoice: any, env: StripeEnv, type: string) {
+  // Renewals (`invoice.payment_succeeded`) and failures (`invoice.payment_failed`)
+  // both arrive bundled with a subscription id when they relate to one. Stripe
+  // also fires `customer.subscription.updated` so we mostly just log here, but
+  // we proactively bump status on payment_failed to surface dunning quickly.
+  const subscriptionId = invoice.subscription || invoice.parent?.subscription_details?.subscription;
+  if (!subscriptionId) return;
+  if (type === "invoice.payment_failed") {
+    await getSupabase()
+      .from("subscriptions")
+      .update({ status: "past_due", updated_at: new Date().toISOString() })
+      .eq("stripe_subscription_id", subscriptionId)
+      .eq("environment", env);
+  }
+}
+
 async function handleWebhook(req: Request, env: StripeEnv) {
   const event = await verifyWebhook(req, env);
   switch (event.type) {
@@ -80,6 +96,14 @@ async function handleWebhook(req: Request, env: StripeEnv) {
       await handleSubscriptionUpdated(event.data.object, env); break;
     case "customer.subscription.deleted":
       await handleSubscriptionDeleted(event.data.object, env); break;
+    case "checkout.session.completed":
+      // Subscription mode: customer.subscription.created handles the row already.
+      // Just log so we have a trail.
+      console.log("checkout.session.completed", (event.data.object as any).id);
+      break;
+    case "invoice.payment_succeeded":
+    case "invoice.payment_failed":
+      await handleInvoiceEvent(event.data.object, env, event.type); break;
     default:
       console.log("Unhandled event:", event.type);
   }

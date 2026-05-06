@@ -1,13 +1,25 @@
+import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
 import type { StripeEnv } from "./stripe.server";
 
-export function getStripeEnvironment(): StripeEnv {
-  if (typeof window === "undefined") return "sandbox";
-  const host = window.location.hostname;
-  // Treat lovable.app published domain as live; preview/dev as sandbox
-  if (host.endsWith(".lovable.app") && !host.includes("id-preview") && !host.includes("-dev.")) {
-    return "live";
+const clientToken = import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN as string | undefined;
+
+let stripePromise: Promise<StripeJs | null> | null = null;
+export function getStripe(): Promise<StripeJs | null> {
+  if (!stripePromise) {
+    if (!clientToken) throw new Error("Payments are not configured (missing VITE_PAYMENTS_CLIENT_TOKEN)");
+    stripePromise = loadStripe(clientToken);
   }
+  return stripePromise;
+}
+
+export function getStripeEnvironment(): StripeEnv {
+  // Derive from the publishable key prefix — the source of truth.
+  if (clientToken?.startsWith("pk_live_")) return "live";
   return "sandbox";
+}
+
+export function isTestMode(): boolean {
+  return getStripeEnvironment() === "sandbox";
 }
 
 export interface Plan {

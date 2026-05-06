@@ -1,34 +1,51 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Lock, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 
-// Routes that are always accessible (no auth/sub gating done here — auth gate is separate)
-const PUBLIC_PATHS = ["/", "/landing", "/auth", "/forgot-password", "/reset-password", "/terms", "/privacy"];
+// Routes that are always accessible without auth or active subscription.
+// NOTE: "/" is the dashboard (auth-required) and is intentionally NOT here.
+const PUBLIC_PATHS = ["/landing", "/auth", "/forgot-password", "/reset-password", "/terms", "/privacy"];
 // Account-management routes that signed-in users may reach without an active subscription
-const ACCOUNT_PATHS = ["/pricing", "/billing", "/help"];
+const ACCOUNT_PATHS = ["/pricing", "/billing", "/help", "/settings"];
 
 export function PaywallGate({ children }: { children: React.ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const { user, loading: authLoading } = useAuth();
   const { isActive, loading: subLoading } = useSubscription();
+  const nav = useNavigate();
+
+  // Send unauthenticated users away from any non-public app route to /landing.
+  useEffect(() => {
+    if (authLoading) return;
+    if (user) return;
+    if (PUBLIC_PATHS.includes(path)) return;
+    nav({ to: "/landing" });
+  }, [authLoading, user, path, nav]);
 
   // Public pages: pass through.
   if (PUBLIC_PATHS.includes(path)) return <>{children}</>;
 
-  // Not signed in → let the page decide (most app pages will redirect to /auth themselves).
-  if (!user) return <>{children}</>;
-
-  // Account-management routes always reachable for signed-in users.
-  if (ACCOUNT_PATHS.some(p => path === p || path.startsWith(p + "/"))) return <>{children}</>;
-
-  if (authLoading || subLoading) {
+  if (authLoading || (user && subLoading)) {
     return (
       <div className="min-h-dvh flex items-center justify-center">
         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
       </div>
     );
   }
+
+  // Not signed in — about to redirect; show a spinner instead of leaking gated content.
+  if (!user) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // Account-management routes always reachable for signed-in users.
+  if (ACCOUNT_PATHS.some(p => path === p || path.startsWith(p + "/"))) return <>{children}</>;
 
   if (isActive) return <>{children}</>;
 
