@@ -2,10 +2,12 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Check, Loader2, Sparkles } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
-import { PLANS, getStripeEnvironment } from "@/lib/stripe";
+import { PLANS, getStripeEnvironment, isTestMode } from "@/lib/stripe";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
-import { createCheckoutSession, createPortalSession } from "@/utils/payments.functions";
+import { createPortalSession } from "@/utils/payments.functions";
+import { EmbeddedCheckoutModal } from "@/components/embedded-checkout-modal";
+import { PaymentTestBanner } from "@/components/payment-test-banner";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/pricing")({
@@ -19,6 +21,7 @@ export const Route = createFileRoute("/pricing")({
 function PricingPage() {
   const [interval, setInterval] = useState<"monthly" | "yearly">("monthly");
   const [busy, setBusy] = useState<string | null>(null);
+  const [checkoutPriceId, setCheckoutPriceId] = useState<string | null>(null);
   const { user } = useAuth();
   const { subscription, isActive } = useSubscription();
   const navigate = useNavigate();
@@ -32,13 +35,11 @@ function PricingPage() {
         const { url } = await createPortalSession({
           data: { environment: getStripeEnvironment(), returnUrl: `${window.location.origin}/billing` },
         });
-        window.location.href = url;
+        window.open(url, "_blank");
         return;
       }
-      const { url } = await createCheckoutSession({
-        data: { priceId, environment: getStripeEnvironment(), returnUrl: `${window.location.origin}/billing?welcome=1` },
-      });
-      window.location.href = url;
+      // New subscriber → embedded checkout modal
+      setCheckoutPriceId(priceId);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not start checkout");
     } finally {
@@ -51,6 +52,7 @@ function PricingPage() {
       title="Pricing"
       subtitle="Start with a 14-day free trial. Cancel anytime — no contracts."
     >
+      <PaymentTestBanner />
       <div className="flex justify-center mb-8">
         <div className="inline-flex items-center bg-muted rounded-full p-1">
           <button onClick={() => setInterval("monthly")}
@@ -103,7 +105,15 @@ function PricingPage() {
       </div>
       <p className="text-center text-xs text-muted-foreground mt-8">
         14-day free trial on all plans. Card required to start — no charge until day 15. Cancel anytime from your billing page.
+        {isTestMode() && " Currently in test mode — no real charges."}
       </p>
+
+      <EmbeddedCheckoutModal
+        priceId={checkoutPriceId}
+        open={!!checkoutPriceId}
+        onClose={() => setCheckoutPriceId(null)}
+        returnUrl={`${typeof window !== "undefined" ? window.location.origin : ""}/billing?welcome=1`}
+      />
     </PageShell>
   );
 }
