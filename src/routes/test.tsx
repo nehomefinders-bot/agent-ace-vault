@@ -1,10 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, XCircle, Loader2, Play, Trash2, Sparkles, AlertTriangle, ExternalLink } from "lucide-react";
 import { PageShell, StatusPill } from "@/components/page-shell";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
+import { getStripeEnvironment } from "@/lib/stripe";
 import { seedTestSubscription, clearTestSubscription } from "@/utils/test-bypass.functions";
 import { toast } from "sonner";
 
@@ -43,8 +43,6 @@ function TestPage() {
   const nav = useNavigate();
   const { subscription, isActive, loading: subLoading, refetch } = useSubscription();
   const [busy, setBusy] = useState<string | null>(null);
-  const seedFn = useServerFn(seedTestSubscription);
-  const clearFn = useServerFn(clearTestSubscription);
   const [steps, setSteps] = useState<Step[]>(
     WALKTHROUGH.map((s) => ({ ...s, status: "pending" }))
   );
@@ -56,6 +54,21 @@ function TestPage() {
     if (!authLoading && !user) nav({ to: "/auth" });
   }, [authLoading, user, nav]);
 
+  async function activateTestPlan() {
+    if (!user) throw new Error("Please sign in again.");
+
+    const result = await seedTestSubscription(getStripeEnvironment());
+    await refetch();
+    return result;
+  }
+
+  async function clearTestPlan() {
+    if (!user) throw new Error("Please sign in again.");
+
+    await clearTestSubscription(getStripeEnvironment());
+    await refetch();
+  }
+
   if (liveHost) {
     return (
       <PageShell title="Test Console" subtitle="Disabled on the live site.">
@@ -63,7 +76,7 @@ function TestPage() {
           <AlertTriangle className="h-10 w-10 text-warning mx-auto mb-3" />
           <h3 className="font-display text-lg font-bold mb-1">Not available here</h3>
           <p className="text-sm text-muted-foreground">
-            The /test route only runs on preview/sandbox environments.
+            The /test route only runs on preview/staging environments.
           </p>
         </div>
       </PageShell>
@@ -73,10 +86,8 @@ function TestPage() {
   async function activate() {
     setBusy("seed");
     try {
-      await seedFn();
-      toast.success("Team plan activated (sandbox).");
-      await new Promise((r) => setTimeout(r, 400));
-      await refetch();
+      await activateTestPlan();
+      toast.success("Team plan activated.");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not activate");
     } finally {
@@ -87,9 +98,8 @@ function TestPage() {
   async function clear() {
     setBusy("clear");
     try {
-      await clearFn();
+      await clearTestPlan();
       toast.success("Test subscription cleared.");
-      await refetch();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not clear");
     } finally {
@@ -104,8 +114,7 @@ function TestPage() {
 
     // 1. Activate Team plan
     try {
-      await seedFn();
-      await refetch();
+      await activateTestPlan();
       toast.success("Team plan activated — starting walkthrough");
     } catch (e) {
       toast.error("Activation failed");
@@ -155,7 +164,7 @@ function TestPage() {
   return (
     <PageShell
       title="Test Console"
-      subtitle="One-click sandbox setup with the highest plan activated. Preview/sandbox only."
+      subtitle="One-click Supabase-backed setup with the highest plan activated. Preview and staging only."
     >
       {/* Status bar */}
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 shadow-card">
@@ -183,7 +192,7 @@ function TestPage() {
           </div>
           <div>
             <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Env</div>
-            <StatusPill tone="primary">sandbox</StatusPill>
+            <StatusPill tone="primary">{getStripeEnvironment()}</StatusPill>
           </div>
         </div>
       </div>
@@ -300,9 +309,10 @@ function TestPage() {
       <div className="mt-6 text-xs text-muted-foreground bg-muted/40 border border-border rounded-lg px-4 py-3">
         <strong className="text-foreground">Note:</strong> This page seeds a real{" "}
         <code className="font-mono">subscriptions</code> row with{" "}
-        <code className="font-mono">environment = sandbox</code> and{" "}
-        <code className="font-mono">price_id = team_yearly</code>. It is automatically disabled on
-        the published live domain.
+        <code className="font-mono">environment = {getStripeEnvironment()}</code> and{" "}
+        <code className="font-mono">price_id = team_yearly</code>. It uses a real Supabase write
+        path, so the active state should appear immediately after activation. It is automatically
+        disabled on the published live domain.
       </div>
     </PageShell>
   );

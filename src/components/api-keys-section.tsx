@@ -34,6 +34,7 @@ export function ApiKeysSection() {
   const [copied, setCopied] = useState(false);
   const [confirmRevoke, setConfirmRevoke] = useState<ApiKeyRow | null>(null);
   const [revoking, setRevoking] = useState(false);
+  const safeKeys = Array.isArray(keys) ? keys : [];
 
   async function load() {
     setLoading(true);
@@ -166,13 +167,13 @@ export function ApiKeysSection() {
         <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
           <Loader2 className="h-4 w-4 animate-spin" /> Loading API keys…
         </div>
-      ) : keys.length === 0 ? (
+      ) : safeKeys.length === 0 ? (
         <div className="text-sm text-muted-foreground text-center py-8 border border-dashed border-border rounded-xl">
           {loadError ? "No keys to display." : "No API keys yet."}
         </div>
       ) : (
         <div className="divide-y divide-border border border-border rounded-xl overflow-hidden">
-          {keys.map((k) => {
+          {safeKeys.map((k) => {
             const expired = k.expires_at && new Date(k.expires_at).getTime() < Date.now();
             const status = k.revoked_at ? "revoked" : expired ? "expired" : "active";
             const tone =

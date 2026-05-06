@@ -20,6 +20,7 @@ export function GhlIntegrationSection() {
   const [enabled, setEnabled] = useState(true);
   const [busy, setBusy] = useState<"" | "save" | "pull" | "push">("");
   const [copied, setCopied] = useState(false);
+  const recentLogs = Array.isArray(status?.recentLogs) ? status.recentLogs : [];
 
   async function refresh() {
     setLoading(true);
@@ -191,11 +192,11 @@ export function GhlIntegrationSection() {
                 </p>
               </div>
 
-              {status.recentLogs.length > 0 && (
+              {recentLogs.length > 0 && (
                 <div>
                   <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">Recent activity</div>
                   <ul className="text-xs space-y-1 max-h-48 overflow-auto">
-                    {status.recentLogs.map((l: any) => (
+                    {recentLogs.map((l: any) => (
                       <li key={l.id} className="flex items-center gap-2">
                         <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase ${
                           l.status === "ok" ? "bg-green-500/10 text-green-600" :
