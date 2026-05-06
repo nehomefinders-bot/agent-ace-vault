@@ -1,8 +1,9 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard, TrendingUp, Home, Users, Receipt,
   Wallet, Car, ScanLine, FolderOpen, Building2, BookOpen, LifeBuoy, LogOut, LogIn, Calculator,
-  CreditCard, Sparkles, Settings, ListTodo,
+  CreditCard, Sparkles, Settings, ListTodo, Menu, X,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -47,6 +48,20 @@ export function AppSidebar() {
   const nav = useNavigate();
   const { user, signOut } = useAuth();
   const { subscription, isActive } = useSubscription();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Close drawer on route change
+  useEffect(() => { setMobileOpen(false); }, [path]);
+
+  // Lock body scroll when drawer open
+  useEffect(() => {
+    if (mobileOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => { document.body.style.overflow = prev; };
+    }
+  }, [mobileOpen]);
+
   const currentPlan = subscription
     ? PLANS.find(p => p.monthly.priceId === subscription.price_id || p.yearly.priceId === subscription.price_id)
     : null;
@@ -55,9 +70,9 @@ export function AppSidebar() {
     : subscription?.status === "trialing" ? `${currentPlan?.name ?? "Trial"} (trial)`
     : currentPlan?.name ?? "Active";
 
-  return (
-    <aside className="w-64 shrink-0 bg-sidebar text-sidebar-foreground flex flex-col min-h-dvh sticky top-0">
-      <div className="px-6 pt-7 pb-8">
+  const sidebarContent = (
+    <>
+      <div className="px-6 pt-7 pb-8 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="h-9 w-9 rounded-xl bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground">
             <Building2 className="h-5 w-5" />
@@ -67,9 +82,17 @@ export function AppSidebar() {
             <div className="text-[10px] uppercase tracking-wider opacity-60 mt-1">Business Tracker</div>
           </div>
         </div>
+        <button
+          type="button"
+          onClick={() => setMobileOpen(false)}
+          aria-label="Close menu"
+          className="lg:hidden h-11 w-11 -mr-2 inline-flex items-center justify-center rounded-lg hover:bg-sidebar-accent text-sidebar-foreground"
+        >
+          <X className="h-5 w-5" />
+        </button>
       </div>
 
-      <nav className="flex-1 px-3 space-y-5">
+      <nav className="flex-1 px-3 space-y-5 overflow-y-auto">
         {sections.map((section) => (
           <div key={section.label}>
             <div className="px-3 mb-1.5 text-[10px] uppercase tracking-[0.14em] opacity-50 font-medium">{section.label}</div>
@@ -80,13 +103,13 @@ export function AppSidebar() {
                   <Link
                     key={to}
                     to={to}
-                    className={`group flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    className={`group flex items-center gap-3 px-3 py-3 lg:py-2 rounded-lg text-sm transition-colors min-h-11 ${
                       active
                         ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
                         : "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                     }`}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-4 w-4 shrink-0" />
                     <span>{label}</span>
                   </Link>
                 );
@@ -106,17 +129,60 @@ export function AppSidebar() {
             <div className="text-xs opacity-60 truncate mb-2">{user.email}</div>
             <button
               onClick={async () => { await signOut(); nav({ to: "/landing" }); }}
-              className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium border border-sidebar-border hover:bg-sidebar-accent"
+              className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 min-h-11 rounded-lg text-xs font-medium border border-sidebar-border hover:bg-sidebar-accent"
             >
               <LogOut className="h-3.5 w-3.5" /> Sign out
             </button>
           </div>
         ) : (
-          <Link to="/auth" className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-sidebar-primary text-sidebar-primary-foreground">
+          <Link to="/auth" className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 min-h-11 rounded-lg text-xs font-medium bg-sidebar-primary text-sidebar-primary-foreground">
             <LogIn className="h-3.5 w-3.5" /> Sign in
           </Link>
         )}
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile top bar with hamburger */}
+      <div className="lg:hidden sticky top-0 z-30 flex items-center gap-3 px-4 h-14 bg-sidebar text-sidebar-foreground border-b border-sidebar-border">
+        <button
+          type="button"
+          onClick={() => setMobileOpen(true)}
+          aria-label="Open menu"
+          aria-expanded={mobileOpen}
+          className="h-11 w-11 -ml-2 inline-flex items-center justify-center rounded-lg hover:bg-sidebar-accent"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <div className="flex items-center gap-2">
+          <div className="h-7 w-7 rounded-lg bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground">
+            <Building2 className="h-4 w-4" />
+          </div>
+          <span className="font-display font-bold text-sm">Agent</span>
+        </div>
+      </div>
+
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex w-64 shrink-0 bg-sidebar text-sidebar-foreground flex-col min-h-dvh sticky top-0">
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          <button
+            type="button"
+            aria-label="Close menu"
+            onClick={() => setMobileOpen(false)}
+            className="absolute inset-0 bg-black/50"
+          />
+          <aside className="relative w-72 max-w-[85%] bg-sidebar text-sidebar-foreground flex flex-col h-full shadow-xl animate-in slide-in-from-left">
+            {sidebarContent}
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

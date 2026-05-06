@@ -232,7 +232,52 @@ function Commissions() {
           </div>
         </header>
 
-        <div className="overflow-x-auto">
+        {/* Mobile: card view */}
+        <ul className="md:hidden divide-y divide-border">
+          {rows.map((r) => {
+            const net = netCommission(r);
+            return (
+              <li key={r.id} className="px-4 py-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="font-medium text-sm">{r.property}</div>
+                    <div className="text-xs text-muted-foreground font-mono mt-0.5">{r.id} · {formatDate(r.closingDate)}</div>
+                  </div>
+                  <StatusBadge status={r.status} />
+                </div>
+                <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+                  <div className="flex justify-between col-span-2 sm:col-span-1">
+                    <dt className="text-muted-foreground">Sale Price</dt>
+                    <dd className="tabular-nums">{formatMoney(r.salePrice)}</dd>
+                  </div>
+                  <div className="flex justify-between col-span-2 sm:col-span-1">
+                    <dt className="text-muted-foreground">GCI</dt>
+                    <dd className="tabular-nums font-medium">{formatMoney(r.gci)}</dd>
+                  </div>
+                  <div className="flex justify-between col-span-2 sm:col-span-1">
+                    <dt className="text-muted-foreground">Broker Split</dt>
+                    <dd className="tabular-nums">{r.brokerSplit}%</dd>
+                  </div>
+                  <div className="flex justify-between col-span-2 sm:col-span-1">
+                    <dt className="text-muted-foreground">Deductions</dt>
+                    <dd className="tabular-nums text-destructive">−{formatMoney(r.deductions)}</dd>
+                  </div>
+                </dl>
+                <div className="flex items-center justify-between border-t border-border pt-3">
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground">Net</span>
+                  <span className="tabular-nums font-bold text-base font-display">{formatMoney(net)}</span>
+                </div>
+              </li>
+            );
+          })}
+          <li className="px-4 py-4 bg-muted/30 flex items-center justify-between">
+            <span className="text-sm font-medium">Net Total</span>
+            <span className="tabular-nums font-bold">{formatMoney(totalNet)}</span>
+          </li>
+        </ul>
+
+        {/* Desktop: table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">

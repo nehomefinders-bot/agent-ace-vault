@@ -565,15 +565,7 @@ export type Database = {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
       }
-      clear_test_subscription: {
-        Args: { environment: string }
-        Returns: undefined
-      }
       seed_default_accounts: { Args: { _user_id: string }; Returns: undefined }
-      seed_test_subscription: {
-        Args: { environment: string }
-        Returns: Database["public"]["Tables"]["subscriptions"]["Row"]
-      }
     }
     Enums: {
       account_kind: "Income" | "Expense" | "Asset" | "Liability" | "Equity"
