@@ -43,6 +43,8 @@ function TestPage() {
   const nav = useNavigate();
   const { subscription, isActive, loading: subLoading, refetch } = useSubscription();
   const [busy, setBusy] = useState<string | null>(null);
+  const seedFn = useServerFn(seedTestSubscription);
+  const clearFn = useServerFn(clearTestSubscription);
   const [steps, setSteps] = useState<Step[]>(
     WALKTHROUGH.map((s) => ({ ...s, status: "pending" }))
   );
