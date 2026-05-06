@@ -19,12 +19,12 @@ import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as MileageRouteImport } from './routes/mileage'
 import { Route as ListingsRouteImport } from './routes/listings'
 import { Route as LandingRouteImport } from './routes/landing'
-import { Route as InvoicesRouteImport } from './routes/invoices'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ExpensesRouteImport } from './routes/expenses'
 import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as DealsRouteImport } from './routes/deals'
+import { Route as CommissionsRouteImport } from './routes/commissions'
 import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as BillingRouteImport } from './routes/billing'
@@ -91,11 +91,6 @@ const LandingRoute = LandingRouteImport.update({
   path: '/landing',
   getParentRoute: () => rootRouteImport,
 } as any)
-const InvoicesRoute = InvoicesRouteImport.update({
-  id: '/invoices',
-  path: '/invoices',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const HelpRoute = HelpRouteImport.update({
   id: '/help',
   path: '/help',
@@ -119,6 +114,11 @@ const DocumentsRoute = DocumentsRouteImport.update({
 const DealsRoute = DealsRouteImport.update({
   id: '/deals',
   path: '/deals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommissionsRoute = CommissionsRouteImport.update({
+  id: '/commissions',
+  path: '/commissions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClientsRoute = ClientsRouteImport.update({
@@ -205,12 +205,12 @@ export interface FileRoutesByFullPath {
   '/billing': typeof BillingRoute
   '/books': typeof BooksRouteWithChildren
   '/clients': typeof ClientsRoute
+  '/commissions': typeof CommissionsRoute
   '/deals': typeof DealsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
-  '/invoices': typeof InvoicesRoute
   '/landing': typeof LandingRoute
   '/listings': typeof ListingsRoute
   '/mileage': typeof MileageRoute
@@ -237,12 +237,12 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/billing': typeof BillingRoute
   '/clients': typeof ClientsRoute
+  '/commissions': typeof CommissionsRoute
   '/deals': typeof DealsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
-  '/invoices': typeof InvoicesRoute
   '/landing': typeof LandingRoute
   '/listings': typeof ListingsRoute
   '/mileage': typeof MileageRoute
@@ -271,12 +271,12 @@ export interface FileRoutesById {
   '/billing': typeof BillingRoute
   '/books': typeof BooksRouteWithChildren
   '/clients': typeof ClientsRoute
+  '/commissions': typeof CommissionsRoute
   '/deals': typeof DealsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
-  '/invoices': typeof InvoicesRoute
   '/landing': typeof LandingRoute
   '/listings': typeof ListingsRoute
   '/mileage': typeof MileageRoute
@@ -306,12 +306,12 @@ export interface FileRouteTypes {
     | '/billing'
     | '/books'
     | '/clients'
+    | '/commissions'
     | '/deals'
     | '/documents'
     | '/expenses'
     | '/forgot-password'
     | '/help'
-    | '/invoices'
     | '/landing'
     | '/listings'
     | '/mileage'
@@ -338,12 +338,12 @@ export interface FileRouteTypes {
     | '/auth'
     | '/billing'
     | '/clients'
+    | '/commissions'
     | '/deals'
     | '/documents'
     | '/expenses'
     | '/forgot-password'
     | '/help'
-    | '/invoices'
     | '/landing'
     | '/listings'
     | '/mileage'
@@ -371,12 +371,12 @@ export interface FileRouteTypes {
     | '/billing'
     | '/books'
     | '/clients'
+    | '/commissions'
     | '/deals'
     | '/documents'
     | '/expenses'
     | '/forgot-password'
     | '/help'
-    | '/invoices'
     | '/landing'
     | '/listings'
     | '/mileage'
@@ -405,12 +405,12 @@ export interface RootRouteChildren {
   BillingRoute: typeof BillingRoute
   BooksRoute: typeof BooksRouteWithChildren
   ClientsRoute: typeof ClientsRoute
+  CommissionsRoute: typeof CommissionsRoute
   DealsRoute: typeof DealsRoute
   DocumentsRoute: typeof DocumentsRoute
   ExpensesRoute: typeof ExpensesRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
-  InvoicesRoute: typeof InvoicesRoute
   LandingRoute: typeof LandingRoute
   ListingsRoute: typeof ListingsRoute
   MileageRoute: typeof MileageRoute
@@ -498,13 +498,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LandingRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/invoices': {
-      id: '/invoices'
-      path: '/invoices'
-      fullPath: '/invoices'
-      preLoaderRoute: typeof InvoicesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/help': {
       id: '/help'
       path: '/help'
@@ -538,6 +531,13 @@ declare module '@tanstack/react-router' {
       path: '/deals'
       fullPath: '/deals'
       preLoaderRoute: typeof DealsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/commissions': {
+      id: '/commissions'
+      path: '/commissions'
+      fullPath: '/commissions'
+      preLoaderRoute: typeof CommissionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/clients': {
@@ -676,12 +676,12 @@ const rootRouteChildren: RootRouteChildren = {
   BillingRoute: BillingRoute,
   BooksRoute: BooksRouteWithChildren,
   ClientsRoute: ClientsRoute,
+  CommissionsRoute: CommissionsRoute,
   DealsRoute: DealsRoute,
   DocumentsRoute: DocumentsRoute,
   ExpensesRoute: ExpensesRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,
-  InvoicesRoute: InvoicesRoute,
   LandingRoute: LandingRoute,
   ListingsRoute: ListingsRoute,
   MileageRoute: MileageRoute,
@@ -699,3 +699,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

@@ -72,11 +72,11 @@ function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         <KpiCard label="YTD Commission" value={formatMoney(kpis.ytdCommission)} delta="+12.5% vs last year" deltaTone="success" icon={TrendingUp} />
         <KpiCard label="Pipeline Value" value={formatMoney(kpis.pipelineValue)} delta={`${deals.filter(d => d.stage !== "Closed").length} active deals`} icon={DollarSign} />
-        <KpiCard label="Outstanding Invoices" value={formatMoney(kpis.outstandingInvoices)} delta={`${invoices.filter(i => i.status === "Overdue").length} overdue`} deltaTone="danger" icon={AlertCircle} />
+        <KpiCard label="Outstanding Commissions" value={formatMoney(kpis.outstandingInvoices)} delta={`${invoices.filter(i => i.status === "Overdue").length} overdue`} deltaTone="danger" icon={AlertCircle} />
         <KpiCard label="Deals Closed (MTD)" value={String(kpis.closedDealsMTD)} delta={`Avg ${formatMoney(kpis.avgDealSize)}`} deltaTone="success" icon={CheckCircle2} />
       </div>
 
-      {/* Pipeline + Invoices */}
+      {/* Pipeline + Commissions */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
         <section className="xl:col-span-2 glass rounded-2xl overflow-hidden">
           <header className="flex items-center justify-between px-6 py-5 border-b border-border">
@@ -117,10 +117,10 @@ function Dashboard() {
         <section className="glass rounded-2xl overflow-hidden">
           <header className="flex items-center justify-between px-6 py-5 border-b border-border">
             <div>
-              <h2 className="text-lg font-bold">Recent Invoices</h2>
+              <h2 className="text-lg font-bold">Recent Commissions</h2>
               <p className="text-xs text-muted-foreground mt-0.5">Stripe-ready</p>
             </div>
-            <Link to="/invoices" className="text-xs text-primary font-medium hover:underline">View all</Link>
+            <Link to="/commissions" className="text-xs text-primary font-medium hover:underline">View all</Link>
           </header>
           <ul className="divide-y divide-border">
             {invoices.slice(0, 5).map((inv) => (
