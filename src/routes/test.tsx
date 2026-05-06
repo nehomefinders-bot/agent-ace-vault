@@ -102,18 +102,19 @@ function TestPage() {
     setAutoRunning(true);
     setSteps(WALKTHROUGH.map((s) => ({ ...s, status: "pending" })));
 
-    // 1. Activate
-    setSteps((prev) => prev.map((s) => (s.key === "activate" ? { ...s, status: "running" } : s)));
+    // 1. Activate Team plan
     try {
       await seedFn();
       await refetch();
+      toast.success("Team plan activated — starting walkthrough");
     } catch (e) {
       toast.error("Activation failed");
       setAutoRunning(false);
       return;
     }
 
-    // 2. Walk pages — fetch HTML to confirm route renders without 5xx.
+    // 2. Walk pages — fetch HTML to confirm route renders, then visibly
+    //    navigate so the user sees each page render with the active plan.
     for (const step of WALKTHROUGH) {
       setSteps((prev) => prev.map((s) => (s.key === step.key ? { ...s, status: "running" } : s)));
       try {
@@ -126,6 +127,11 @@ function TestPage() {
               : s,
           ),
         );
+        if (ok) {
+          // Visibly navigate so the user can see each page load.
+          await nav({ to: step.path });
+          await new Promise((r) => setTimeout(r, 900));
+        }
       } catch (err) {
         setSteps((prev) =>
           prev.map((s) =>
@@ -135,9 +141,10 @@ function TestPage() {
           ),
         );
       }
-      await new Promise((r) => setTimeout(r, 200));
     }
 
+    // 3. Return to test console and report.
+    await nav({ to: "/test" });
     setAutoRunning(false);
     toast.success("Automatic walkthrough complete.");
   }
