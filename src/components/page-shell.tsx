@@ -12,13 +12,13 @@ export function PageShell({
   children: ReactNode;
 }) {
   return (
-    <div className="p-8 max-w-[1400px] mx-auto">
-      <header className="flex items-start justify-between mb-8 gap-6">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-[1400px] mx-auto">
+      <header className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-6 sm:mb-8 gap-4 sm:gap-6">
         <div>
-          <h1 className="text-3xl font-bold">{title}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">{title}</h1>
           {subtitle && <p className="text-muted-foreground mt-1.5 text-sm">{subtitle}</p>}
         </div>
-        {actions && <div className="flex items-center gap-3">{actions}</div>}
+        {actions && <div className="flex flex-wrap items-center gap-2 sm:gap-3">{actions}</div>}
       </header>
       {children}
     </div>
