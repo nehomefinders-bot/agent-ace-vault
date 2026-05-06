@@ -73,7 +73,7 @@ function TestPage() {
   async function activate() {
     setBusy("seed");
     try {
-      await seedTestSubscription();
+      await seedFn();
       toast.success("Team plan activated (sandbox).");
       await new Promise((r) => setTimeout(r, 400));
       await refetch();
@@ -87,7 +87,7 @@ function TestPage() {
   async function clear() {
     setBusy("clear");
     try {
-      await clearTestSubscription();
+      await clearFn();
       toast.success("Test subscription cleared.");
       await refetch();
     } catch (e) {
@@ -105,7 +105,7 @@ function TestPage() {
     // 1. Activate
     setSteps((prev) => prev.map((s) => (s.key === "activate" ? { ...s, status: "running" } : s)));
     try {
-      await seedTestSubscription();
+      await seedFn();
       await refetch();
     } catch (e) {
       toast.error("Activation failed");
