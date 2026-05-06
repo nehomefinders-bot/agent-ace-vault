@@ -21,6 +21,7 @@ export interface Transaction {
   vendor?: string | null;
   reference?: string | null;
   tags?: string[] | null;
+  cleared?: boolean;
 }
 
 export function classifyTxn(

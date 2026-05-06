@@ -12,6 +12,7 @@ interface BooksCtx {
   reload: () => Promise<void>;
   addTransaction: (t: NewTxn) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
+  setCleared: (id: string, cleared: boolean) => Promise<void>;
   addAccount: (a: NewAccount) => Promise<void>;
 }
 
@@ -75,6 +76,7 @@ function normalizeTransactionRow(row: Record<string, unknown>): Transaction | nu
     vendor: typeof row.vendor === "string" ? row.vendor : null,
     reference: typeof row.reference === "string" ? row.reference : null,
     tags: Array.isArray(row.tags) ? row.tags.filter((tag): tag is string => typeof tag === "string") : null,
+    cleared: typeof row.cleared === "boolean" ? row.cleared : false,
   };
 }
 
@@ -144,6 +146,15 @@ export function BooksProvider({ children }: { children: ReactNode }) {
     await reload();
   }, [reload]);
 
+  const setCleared = useCallback(async (id: string, cleared: boolean) => {
+    setTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, cleared } : t)));
+    const { error } = await supabase.from("transactions").update({ cleared }).eq("id", id);
+    if (error) {
+      console.error("Failed to update cleared status", error);
+      await reload();
+    }
+  }, [reload]);
+
   const addAccount = useCallback(async (a: NewAccount) => {
     if (!user) throw new Error("Not signed in");
     const { error } = await supabase.from("accounts").insert({
@@ -158,8 +169,8 @@ export function BooksProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<BooksCtx>(() => ({
     loading, accounts, transactions, accountById, accountByCode,
-    reload, addTransaction, deleteTransaction, addAccount,
-  }), [loading, accounts, transactions, accountById, accountByCode, reload, addTransaction, deleteTransaction, addAccount]);
+    reload, addTransaction, deleteTransaction, setCleared, addAccount,
+  }), [loading, accounts, transactions, accountById, accountByCode, reload, addTransaction, deleteTransaction, setCleared, addAccount]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
