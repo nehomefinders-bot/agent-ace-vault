@@ -372,6 +372,7 @@ export type Database = {
           beds: number | null
           created_at: string
           id: string
+          image_paths: string[]
           list_price: number
           notes: string | null
           sqft: number | null
@@ -385,6 +386,7 @@ export type Database = {
           beds?: number | null
           created_at?: string
           id?: string
+          image_paths?: string[]
           list_price?: number
           notes?: string | null
           sqft?: number | null
@@ -398,6 +400,7 @@ export type Database = {
           beds?: number | null
           created_at?: string
           id?: string
+          image_paths?: string[]
           list_price?: number
           notes?: string | null
           sqft?: number | null
@@ -625,6 +628,7 @@ export type Database = {
       transactions: {
         Row: {
           amount: number
+          cleared: boolean
           created_at: string
           credit_account_id: string
           date: string
@@ -638,6 +642,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          cleared?: boolean
           created_at?: string
           credit_account_id: string
           date?: string
@@ -651,6 +656,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          cleared?: boolean
           created_at?: string
           credit_account_id?: string
           date?: string
