@@ -24,7 +24,7 @@ const sections = [
     label: "Books",
     items: [
       { to: "/books", label: "Bookkeeping", icon: BookOpen },
-      { to: "/invoices", label: "Invoices", icon: Receipt },
+      { to: "/commissions", label: "Commissions", icon: Receipt },
       { to: "/expenses", label: "Expenses", icon: Wallet },
       { to: "/mileage", label: "Mileage", icon: Car },
       { to: "/receipts", label: "Receipts", icon: ScanLine },

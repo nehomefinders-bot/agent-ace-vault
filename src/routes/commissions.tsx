@@ -3,26 +3,26 @@ import { Plus, Zap } from "lucide-react";
 import { PageShell, StatusPill } from "@/components/page-shell";
 import { invoices, formatMoney } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/invoices")({
-  component: Invoices,
-  head: () => ({ meta: [{ title: "Invoices — Agent Business Tracker" }] }),
+export const Route = createFileRoute("/commissions")({
+  component: Commissions,
+  head: () => ({ meta: [{ title: "Commissions — Agent Business Tracker" }] }),
 });
 
 const tone: Record<string, "success" | "warning" | "danger" | "muted"> = {
   Paid: "success", Pending: "warning", Overdue: "danger", Draft: "muted",
 };
 
-function Invoices() {
+function Commissions() {
   const total = invoices.reduce((s, i) => s + i.amount, 0);
   const outstanding = invoices.filter(i => i.status !== "Paid").reduce((s, i) => s + i.amount, 0);
 
   return (
     <PageShell
-      title="Invoices"
-      subtitle="Bill clients and accept card or ACH payments via Stripe."
+      title="Commissions"
+      subtitle="Track commission payouts and accept card or ACH payments via Stripe."
       actions={
         <button className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">
-          <Plus className="h-4 w-4" /> New Invoice
+          <Plus className="h-4 w-4" /> New Commission
         </button>
       }
     >
@@ -50,7 +50,7 @@ function Invoices() {
         <table className="w-full text-sm">
           <thead>
             <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
-              <th className="text-left font-medium py-3 px-6">Invoice</th>
+              <th className="text-left font-medium py-3 px-6">Commission</th>
               <th className="text-left font-medium py-3">Client</th>
               <th className="text-left font-medium py-3">Description</th>
               <th className="text-right font-medium py-3">Amount</th>
