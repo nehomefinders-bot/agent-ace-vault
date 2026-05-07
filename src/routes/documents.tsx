@@ -36,7 +36,7 @@ function Documents() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState("");
-  const [folder, setFolder] = useState("General");
+  const [folder, setFolder] = useState("Miscellaneous");
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
