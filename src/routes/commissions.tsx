@@ -536,6 +536,14 @@ function Commissions() {
         </div>
       </div>
 
+      <BulkStatusBar
+        count={selected.size}
+        itemLabel="commissions"
+        options={[{ value: "Paid", label: "Paid" }, { value: "Pending", label: "Pending" }]}
+        onApply={bulkUpdateStatus}
+        onClear={() => setSelected(new Set())}
+      />
+
       <section className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
         <header className="flex items-center justify-between gap-4 px-6 py-5 border-b border-border">
           <div>
