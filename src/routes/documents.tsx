@@ -71,7 +71,7 @@ function Documents() {
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Uploaded");
-    setName(""); setFolder("General"); setFile(null);
+    setName(""); setFolder("Miscellaneous"); setFile(null);
     if (fileRef.current) fileRef.current.value = "";
     setOpen(false);
     load();
