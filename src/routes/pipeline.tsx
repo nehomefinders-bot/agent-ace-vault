@@ -52,6 +52,7 @@ function Pipeline() {
   const [updatingDealId, setUpdatingDealId] = useState<string | null>(null);
 
   const [property, setProperty] = useState("");
+  const [clientName, setClientName] = useState("");
   const [stage, setStage] = useState<Stage>("pending");
   const [closeDate, setCloseDate] = useState("");
   const [salePrice, setSalePrice] = useState("");
