@@ -334,6 +334,30 @@ function Commissions() {
     if (error) { setRows(prev); toast.error(error.message); }
   }
 
+  const toggleOne = (id: string) =>
+    setSelected((cur) => { const n = new Set(cur); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const toggleAll = () =>
+    setSelected((cur) => cur.size === rows.length ? new Set() : new Set(rows.map((r) => r.dealId)));
+
+  async function bulkUpdateStatus(status: string) {
+    const targets = rows.filter((r) => selected.has(r.dealId));
+    if (!targets.length) return;
+    const newStatus = status as "Paid" | "Pending";
+    const prev = rows;
+    setRows((cur) => cur.map((r) => (selected.has(r.dealId) ? { ...r, status: newStatus } : r)));
+    const updates = targets.map((r) => {
+      const parts: string[] = [];
+      if (r.deductions > 0) parts.push(`Deductions: ${r.deductions}`);
+      parts.push(`Status: ${newStatus}`);
+      return supabase.from("deals").update({ notes: parts.join(" | ") }).eq("id", r.dealId);
+    });
+    const results = await Promise.all(updates);
+    const failed = results.find((r) => r.error);
+    if (failed?.error) { setRows(prev); toast.error(failed.error.message); return; }
+    toast.success(`Updated ${targets.length} commission${targets.length > 1 ? "s" : ""}`);
+    setSelected(new Set());
+  }
+
   useEffect(() => {
     if (!authLoading) void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
