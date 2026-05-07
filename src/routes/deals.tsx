@@ -56,12 +56,14 @@ function DealsPage() {
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [editing, setEditing] = useState<Deal | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const reload = async () => {
     if (!user) { setDeals([]); setLoading(false); return; }
     setLoading(true);
     const { data } = await supabase.from("deals").select("*").order("created_at", { ascending: false });
     setDeals((data ?? []) as Deal[]);
+    setSelected(new Set());
     setLoading(false);
   };
   useEffect(() => { reload(); /* eslint-disable-next-line */ }, [user]);
@@ -76,6 +78,22 @@ function DealsPage() {
     setDeals((cur) => cur.map((d) => (d.id === id ? { ...d, status } : d)));
     const { error } = await supabase.from("deals").update({ status }).eq("id", id);
     if (error) setDeals(prev);
+  };
+
+  const toggleOne = (id: string) =>
+    setSelected((cur) => { const n = new Set(cur); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const toggleAll = () =>
+    setSelected((cur) => cur.size === deals.length ? new Set() : new Set(deals.map((d) => d.id)));
+
+  const bulkUpdateStatus = async (status: string) => {
+    const ids = Array.from(selected);
+    if (!ids.length) return;
+    const prev = deals;
+    setDeals((cur) => cur.map((d) => (selected.has(d.id) ? { ...d, status } : d)));
+    const { error } = await supabase.from("deals").update({ status }).in("id", ids);
+    if (error) { setDeals(prev); toast.error(error.message); return; }
+    toast.success(`Updated ${ids.length} deal${ids.length > 1 ? "s" : ""}`);
+    setSelected(new Set());
   };
 
   const closed = deals.filter((d) => d.status === "closed");
