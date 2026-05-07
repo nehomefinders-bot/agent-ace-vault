@@ -239,6 +239,8 @@ function DealsPage() {
                     <td className="pl-6 py-4">
                       <Checkbox checked={isSel} onCheckedChange={() => toggleOne(d.id)} aria-label="Select deal" />
                     </td>
+                    <td className="py-4">
+                      <div className="font-medium">{d.address}</div>
                       <div className="text-xs text-muted-foreground">
                         {d.client_name && <>{d.client_name} · </>}
                         {d.side} side
