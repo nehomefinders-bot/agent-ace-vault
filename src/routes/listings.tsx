@@ -30,7 +30,8 @@ interface Listing {
   image_paths: string[] | null;
 }
 
-const tone: Record<string, "success" | "warning" | "muted"> = { Active: "success", Pending: "warning", Sold: "muted" };
+const tone: Record<string, "success" | "warning" | "muted"> = { Active: "success", Pending: "warning", Sold: "muted", "Not on MLS": "muted" };
+const STATUS_OPTIONS = ["Active", "Pending", "Sold", "Not on MLS"] as const;
 
 const BUCKET = "listing-images";
 const MAX_FILE_MB = 8;
