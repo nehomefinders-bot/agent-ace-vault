@@ -134,7 +134,11 @@ function Listings() {
             return (
               <div key={l.id} className={`bg-card border rounded-2xl shadow-card overflow-hidden group ${isSel ? "border-primary ring-2 ring-primary/30" : "border-border"}`}>
                 <div className="aspect-[16/10] bg-gradient-to-br from-primary/80 to-primary relative">
-                  {cover && (
+                  <div className={`absolute top-3 right-12 z-10 transition ${isSel ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+                    <div className="bg-white/90 backdrop-blur rounded-md p-0.5">
+                      <Checkbox checked={isSel} onCheckedChange={() => toggleOne(l.id)} aria-label="Select listing" />
+                    </div>
+                  </div>
                     <img
                       src={publicUrl(cover)}
                       alt={l.address}
