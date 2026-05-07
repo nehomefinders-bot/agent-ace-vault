@@ -80,9 +80,9 @@ function RootComponent() {
           <Outlet />
         </div>
       ) : (
-        <div className="flex min-h-dvh w-full bg-background">
+        <div className="flex min-h-dvh w-full flex-col lg:flex-row bg-background">
           <AppSidebar />
-          <main className="flex-1 min-w-0">
+          <main className="flex-1 min-w-0 w-full">
             <PaywallGate>
               <Outlet />
             </PaywallGate>

@@ -146,7 +146,7 @@ export function AppSidebar() {
   return (
     <>
       {/* Mobile top bar with hamburger */}
-      <div className="lg:hidden sticky top-0 z-30 flex items-center gap-3 px-4 h-14 bg-sidebar text-sidebar-foreground border-b border-sidebar-border">
+      <div className="lg:hidden sticky top-0 z-30 flex w-full items-center gap-3 px-4 h-14 bg-sidebar text-sidebar-foreground border-b border-sidebar-border">
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
