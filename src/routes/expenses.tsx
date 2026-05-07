@@ -91,7 +91,7 @@ function Expenses() {
           const { error } = await supabase.from("expenses").insert({
             user_id: user.id,
             ...created.row,
-          });
+          } as never);
           if (error) throw error;
           toast.success("Expense logged");
           await load();
@@ -111,7 +111,7 @@ function Expenses() {
           if (!editing) return;
           const result = await saveExpenseRow(user!.id, input, editing.receipt_path);
           if (result.error) throw result.error;
-          const { error } = await supabase.from("expenses").update(result.row).eq("id", editing.id);
+          const { error } = await supabase.from("expenses").update(result.row as never).eq("id", editing.id);
           if (error) throw error;
           setEditing(null);
           toast.success("Expense updated");
