@@ -236,10 +236,10 @@ function DealsPage() {
                 const isSel = selected.has(d.id);
                 return (
                   <tr key={d.id} className={`border-t border-border hover:bg-muted/30 ${isSel ? "bg-primary/5" : ""}`}>
-                    <td className="pl-6 py-4">
+                    <td className="pl-6 pr-2 py-4">
                       <Checkbox checked={isSel} onCheckedChange={() => toggleOne(d.id)} aria-label="Select deal" />
                     </td>
-                    <td className="py-4">
+                    <td className="py-4 pl-2">
                       <div className="font-medium">{d.address}</div>
                       <div className="text-xs text-muted-foreground">
                         {d.client_name && <>{d.client_name} · </>}
