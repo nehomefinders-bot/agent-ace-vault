@@ -67,6 +67,13 @@ function Listings() {
     load();
   }
 
+  async function updateStatus(id: string, status: string) {
+    const prev = rows;
+    setRows((cur) => cur.map((r) => (r.id === id ? { ...r, status } : r)));
+    const { error } = await supabase.from("listings").update({ status }).eq("id", id);
+    if (error) { setRows(prev); toast.error(error.message); }
+  }
+
   if (authLoading) return <PageShell title="Listings"><div className="flex justify-center py-20"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div></PageShell>;
   if (!user) return <PageShell title="Listings" subtitle="Sign in to manage listings."><Link to="/auth" className="inline-flex bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium">Sign in</Link></PageShell>;
 
