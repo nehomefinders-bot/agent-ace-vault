@@ -631,7 +631,7 @@ function Commissions() {
                     <td className="py-4 text-right tabular-nums text-muted-foreground">{r.brokerSplit}%</td>
                     <td className="py-4 text-right tabular-nums text-destructive">-{formatMoney(r.deductions)}</td>
                     <td className="py-4 text-right tabular-nums font-semibold">{formatMoney(net)}</td>
-                    <td className="py-4 px-6"><StatusBadge status={r.status} /></td>
+                    <td className="py-4 px-6"><StatusBadge status={r.status} onChange={(v) => toggleStatus(r, v)} /></td>
                     <td className="py-4 pr-6">
                       <div className="flex items-center justify-end gap-1">
                         <button
