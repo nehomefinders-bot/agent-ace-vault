@@ -91,7 +91,7 @@ function Expenses() {
           const { error } = await supabase.from("expenses").insert({
             user_id: user.id,
             ...created.row,
-          });
+          } as never);
           if (error) throw error;
           toast.success("Expense logged");
           await load();
