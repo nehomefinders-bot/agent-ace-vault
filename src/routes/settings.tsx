@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ApiKeysSection } from "@/components/api-keys-section";
 import { GhlIntegrationSection } from "@/components/ghl-integration-section";
+import { applyTheme, getStoredTheme, type Theme } from "@/lib/theme";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
@@ -50,18 +51,6 @@ function SettingsErrorFallback({ error, reset }: { error: Error; reset: () => vo
       </div>
     </PageShell>
   );
-}
-
-
-type Theme = "light" | "dark" | "system";
-
-function applyTheme(theme: Theme) {
-  if (typeof document === "undefined") return;
-  const root = document.documentElement;
-  const isDark =
-    theme === "dark" ||
-    (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  root.classList.toggle("dark", isDark);
 }
 
 function SettingsPage() {
@@ -129,7 +118,7 @@ function SettingsPage() {
   // load preferences (local-only)
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const t = (localStorage.getItem("theme") as Theme | null) ?? "system";
+    const t = getStoredTheme();
     setTheme(t);
     applyTheme(t);
     setMarketingEmails(localStorage.getItem("notif:marketing") !== "false");

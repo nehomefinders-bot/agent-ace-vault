@@ -135,7 +135,7 @@ function BillingPage() {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{subscription.cancel_at_period_end ? "Ends" : "Renews"}</div>
                 <div className="font-medium">

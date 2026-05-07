@@ -291,7 +291,7 @@ function TestPage() {
           <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
             Jump to page
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {WALKTHROUGH.map((s) => (
               <Link
                 key={s.key}

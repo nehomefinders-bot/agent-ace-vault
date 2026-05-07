@@ -147,7 +147,7 @@ function TasksPage() {
                 <Label htmlFor="desc">Description</Label>
                 <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="Optional notes" />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label>Priority</Label>
                   <Select value={priority} onValueChange={(v) => setPriority(v as Priority)}>

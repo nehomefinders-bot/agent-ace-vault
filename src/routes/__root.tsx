@@ -1,6 +1,8 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts, useRouterState } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { PaywallGate } from "@/components/paywall-gate";
+import { applyTheme, createThemeSync, getStoredTheme, getThemeBootstrapScript } from "@/lib/theme";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -54,8 +56,11 @@ export const Route = createRootRoute({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head><HeadContent /></head>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: getThemeBootstrapScript() }} />
+      </head>
       <body>
         {children}
         <Scripts />
@@ -67,21 +72,32 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const bare = path === "/auth" || path === "/landing";
-  if (bare) {
-    return (
-      <div className="min-h-dvh w-full bg-background">
-        <Outlet />
-      </div>
-    );
-  }
   return (
-    <div className="flex min-h-dvh w-full bg-background">
-      <AppSidebar />
-      <main className="flex-1 min-w-0">
-        <PaywallGate>
+    <>
+      <ThemeBridge />
+      {bare ? (
+        <div className="min-h-dvh w-full bg-background">
           <Outlet />
-        </PaywallGate>
-      </main>
-    </div>
+        </div>
+      ) : (
+        <div className="flex min-h-dvh w-full bg-background">
+          <AppSidebar />
+          <main className="flex-1 min-w-0">
+            <PaywallGate>
+              <Outlet />
+            </PaywallGate>
+          </main>
+        </div>
+      )}
+    </>
   );
+}
+
+function ThemeBridge() {
+  useEffect(() => {
+    applyTheme(getStoredTheme());
+    return createThemeSync();
+  }, []);
+
+  return null;
 }

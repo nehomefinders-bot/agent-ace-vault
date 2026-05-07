@@ -98,7 +98,8 @@ function TransactionsPage() {
         {rows.length === 0 ? (
           <div className="p-10 text-sm text-muted-foreground text-center">No transactions yet â€” add your first one.</div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[760px] text-sm">
             <thead>
               <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
                 <th className="text-left font-medium py-3 px-6">Date</th>
@@ -165,6 +166,7 @@ function TransactionsPage() {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

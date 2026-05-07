@@ -163,7 +163,8 @@ function Mileage() {
         ) : trips.length === 0 ? (
           <div className="p-8 text-sm text-muted-foreground text-center">No trips logged yet.</div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[760px] text-sm">
             <thead>
               <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
                 <th className="text-left font-medium py-3 px-6">Date</th>
@@ -198,6 +199,7 @@ function Mileage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </PageShell>

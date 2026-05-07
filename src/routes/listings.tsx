@@ -246,7 +246,7 @@ function NewListingDialog({
           <Input id="addr" autoFocus required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="412 Oakwood Dr, Austin TX" />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="lp">List Price *</Label>
             <Input id="lp" type="number" min="0" required value={price} onChange={(e) => setPrice(e.target.value)} placeholder="750000" className="tabular-nums" />
@@ -264,7 +264,7 @@ function NewListingDialog({
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="space-y-1.5"><Label htmlFor="bd">Beds</Label><Input id="bd" type="number" min="0" value={beds} onChange={(e) => setBeds(e.target.value)} /></div>
           <div className="space-y-1.5"><Label htmlFor="ba">Baths</Label><Input id="ba" type="number" min="0" step="0.5" value={baths} onChange={(e) => setBaths(e.target.value)} /></div>
           <div className="space-y-1.5"><Label htmlFor="sf">Sqft</Label><Input id="sf" type="number" min="0" value={sqft} onChange={(e) => setSqft(e.target.value)} /></div>
@@ -304,7 +304,7 @@ function NewListingDialog({
           </div>
 
           {images.length > 0 && (
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mt-3">
               {images.map((img) => (
                 <div key={img.id} className="relative group aspect-square rounded-lg overflow-hidden border border-border bg-muted">
                   <img src={img.preview} alt="" className="w-full h-full object-cover" />

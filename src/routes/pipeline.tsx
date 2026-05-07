@@ -112,7 +112,7 @@ function Pipeline() {
                 <Label htmlFor="prop">Property *</Label>
                 <Input id="prop" autoFocus required placeholder="123 Main St" value={property} onChange={(e) => setProperty(e.target.value)} />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label>Stage</Label>
                   <Select value={stage} onValueChange={(v) => setStage(v as Stage)}>

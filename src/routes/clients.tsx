@@ -147,7 +147,8 @@ function Clients() {
             No clients yet. Add one or pull from GHL in Settings → GoHighLevel.
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[720px] text-sm">
             <thead>
               <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
                 <th className="text-left font-medium py-3 px-6">Name</th>
@@ -209,6 +210,7 @@ function Clients() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 

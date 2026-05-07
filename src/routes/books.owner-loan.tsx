@@ -47,7 +47,7 @@ function OwnerLoanPage() {
         }}
       />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
           <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground mb-2">
             <ArrowUpRight className="h-3.5 w-3.5 text-success" /> You advanced
@@ -69,7 +69,8 @@ function OwnerLoanPage() {
         {entries.length === 0 ? (
           <div className="p-8 text-sm text-muted-foreground text-center">No officer-loan activity yet.</div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[700px] text-sm">
             <thead>
               <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
                 <th className="text-left font-medium py-3 px-6">Date</th>
@@ -128,6 +129,7 @@ function OwnerLoanPage() {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

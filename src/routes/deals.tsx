@@ -178,7 +178,8 @@ function DealsPage() {
             <div className="text-sm text-muted-foreground">No deals yet. Add your first one to start tracking commissions.</div>
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[920px] text-sm">
             <thead>
               <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
                 <th className="text-left font-medium py-3 px-6">Property</th>
@@ -240,6 +241,7 @@ function DealsPage() {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </PageShell>

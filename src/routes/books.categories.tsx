@@ -67,7 +67,8 @@ function CategoriesPage() {
           <section key={kind}>
             <h2 className="text-xs font-display font-bold uppercase tracking-wider text-muted-foreground mb-3">{kind}</h2>
             <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto">
+              <table className="w-full min-w-[700px] text-sm">
                 <thead>
                   <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
                     <th className="text-left font-medium py-2.5 px-6 w-20">Code</th>
@@ -113,6 +114,7 @@ function CategoriesPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           </section>
         );

@@ -298,7 +298,7 @@ function ExpenseDialog({
             <Label htmlFor="ve">Vendor *</Label>
             <Input id="ve" autoFocus required value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Staples, Shell, Zillow Adsâ€¦" />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Category</Label>
               <Select value={category} onValueChange={setCategory}>
