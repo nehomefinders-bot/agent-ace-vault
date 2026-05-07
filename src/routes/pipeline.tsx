@@ -129,6 +129,7 @@ function Pipeline() {
 
     toast.success("Opportunity added");
     setProperty("");
+    setClientName("");
     setSalePrice("");
     setCloseDate("");
     setStage("pending");
