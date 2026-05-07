@@ -283,6 +283,7 @@ function Commissions() {
       const sale = Number(d.sale_price);
       const gci = Number(d.gross_commission);
       const commissionPct = sale > 0 ? (gci / sale) * 100 : 0;
+      const status: "Paid" | "Pending" = /Status:\s*Pending/i.test(d.notes ?? "") ? "Pending" : "Paid";
       return {
         dealId: d.id,
         shortId: d.id.slice(0, 8),
@@ -294,10 +295,20 @@ function Commissions() {
         commissionPct,
         brokerSplit: Number(d.agent_split_pct),
         deductions: m ? parseFloat(m[1]) : 0,
-        status: "Paid" as const,
+        status,
       };
     }));
     setLoading(false);
+  }
+
+  async function toggleStatus(r: CommissionRow, status: "Paid" | "Pending") {
+    const prev = rows;
+    setRows((cur) => cur.map((x) => (x.dealId === r.dealId ? { ...x, status } : x)));
+    const parts: string[] = [];
+    if (r.deductions > 0) parts.push(`Deductions: ${r.deductions}`);
+    parts.push(`Status: ${status}`);
+    const { error } = await supabase.from("deals").update({ notes: parts.join(" | ") }).eq("id", r.dealId);
+    if (error) { setRows(prev); toast.error(error.message); }
   }
 
   useEffect(() => {
