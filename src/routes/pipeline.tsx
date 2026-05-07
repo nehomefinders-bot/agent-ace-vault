@@ -52,6 +52,7 @@ function Pipeline() {
   const [updatingDealId, setUpdatingDealId] = useState<string | null>(null);
 
   const [property, setProperty] = useState("");
+  const [clientName, setClientName] = useState("");
   const [stage, setStage] = useState<Stage>("pending");
   const [closeDate, setCloseDate] = useState("");
   const [salePrice, setSalePrice] = useState("");
@@ -112,6 +113,7 @@ function Pipeline() {
     const { error } = await supabase.from("deals").insert({
       user_id: user.id,
       address: property.trim(),
+      client_name: clientName.trim() || null,
       side: "buy",
       status: stage,
       sale_price: sale,
@@ -127,6 +129,7 @@ function Pipeline() {
 
     toast.success("Opportunity added");
     setProperty("");
+    setClientName("");
     setSalePrice("");
     setCloseDate("");
     setStage("pending");
@@ -179,6 +182,15 @@ function Pipeline() {
                     placeholder="123 Main St"
                     value={property}
                     onChange={(e) => setProperty(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="client">Name</Label>
+                  <Input
+                    id="client"
+                    placeholder="Name of the Client"
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
                   />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
