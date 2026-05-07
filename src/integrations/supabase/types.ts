@@ -152,6 +152,7 @@ export type Database = {
       deals: {
         Row: {
           address: string
+          agent_name: string | null
           agent_split_pct: number
           brokerage_split_pct: number
           client_name: string | null
@@ -170,6 +171,7 @@ export type Database = {
         }
         Insert: {
           address: string
+          agent_name?: string | null
           agent_split_pct?: number
           brokerage_split_pct?: number
           client_name?: string | null
@@ -188,6 +190,7 @@ export type Database = {
         }
         Update: {
           address?: string
+          agent_name?: string | null
           agent_split_pct?: number
           brokerage_split_pct?: number
           client_name?: string | null
