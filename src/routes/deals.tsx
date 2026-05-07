@@ -218,10 +218,10 @@ function DealsPage() {
           <table className="w-full min-w-[960px] text-sm">
             <thead>
               <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
-                <th className="w-10 pl-6 py-3">
+                <th className="w-12 pl-6 pr-2 py-3">
                   <Checkbox checked={selected.size === deals.length && deals.length > 0} onCheckedChange={toggleAll} aria-label="Select all" />
                 </th>
-                <th className="text-left font-medium py-3">Property</th>
+                <th className="text-left font-medium py-3 pl-2">Property</th>
                 <th className="text-left font-medium py-3">Status</th>
                 <th className="text-right font-medium py-3">Sale price</th>
                 <th className="text-right font-medium py-3">Gross comm.</th>
