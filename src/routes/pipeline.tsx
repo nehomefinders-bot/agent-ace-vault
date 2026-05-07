@@ -113,6 +113,7 @@ function Pipeline() {
     const { error } = await supabase.from("deals").insert({
       user_id: user.id,
       address: property.trim(),
+      client_name: clientName.trim() || null,
       side: "buy",
       status: stage,
       sale_price: sale,
