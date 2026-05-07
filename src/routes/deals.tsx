@@ -212,11 +212,18 @@ function DealsPage() {
                       </div>
                     </td>
                     <td className="py-4">
-                      <span className={`text-xs px-2 py-0.5 rounded-md font-medium ${
-                        d.status === "closed" ? "bg-success/10 text-success" :
-                        d.status === "dead" ? "bg-muted text-muted-foreground" :
-                        "bg-primary/10 text-primary"
-                      }`}>{d.status.replace("_", " ")}</span>
+                      <Select value={d.status} onValueChange={(v) => updateStatus(d.id, v)}>
+                        <SelectTrigger className={`h-7 w-[140px] text-xs border-0 px-2 ${
+                          d.status === "closed" ? "bg-success/10 text-success" :
+                          d.status === "dead" ? "bg-muted text-muted-foreground" :
+                          "bg-primary/10 text-primary"
+                        }`}>
+                          <SelectValue>{d.status.replace("_", " ")}</SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {STATUSES.map((s) => <SelectItem key={s} value={s}>{s.replace("_", " ")}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
                     </td>
                     <td className="py-4 text-right tabular-nums">{formatMoney(Number(d.sale_price))}</td>
                     <td className="py-4 text-right tabular-nums">{formatMoney(Number(d.gross_commission))}</td>
