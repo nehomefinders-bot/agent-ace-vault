@@ -119,11 +119,20 @@ function Listings() {
           <div className="text-sm text-muted-foreground mt-1">Add your first listing to get started.</div>
         </div>
       ) : (
+        <>
+        <BulkStatusBar
+          count={selected.size}
+          itemLabel="listings"
+          options={[{ value: "Active", label: "Active" }, { value: "Pending", label: "Pending" }, { value: "Sold", label: "Sold" }]}
+          onApply={bulkUpdateStatus}
+          onClear={() => setSelected(new Set())}
+        />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {rows.map((l) => {
             const cover = l.image_paths?.[0];
+            const isSel = selected.has(l.id);
             return (
-              <div key={l.id} className="bg-card border border-border rounded-2xl shadow-card overflow-hidden group">
+              <div key={l.id} className={`bg-card border rounded-2xl shadow-card overflow-hidden group ${isSel ? "border-primary ring-2 ring-primary/30" : "border-border"}`}>
                 <div className="aspect-[16/10] bg-gradient-to-br from-primary/80 to-primary relative">
                   {cover && (
                     <img
