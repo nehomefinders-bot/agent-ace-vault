@@ -26,7 +26,7 @@ interface Doc {
   created_at: string;
 }
 
-const FOLDERS = ["General", "Contracts", "Disclosures", "Listings", "Closing", "Marketing"];
+const FOLDERS = ["Miscellaneous", "Contracts", "Disclosures", "Listings", "Closing", "Marketing"];
 
 function Documents() {
   const { user, loading: authLoading } = useAuth();
@@ -36,7 +36,7 @@ function Documents() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState("");
-  const [folder, setFolder] = useState("General");
+  const [folder, setFolder] = useState("Miscellaneous");
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -71,7 +71,7 @@ function Documents() {
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Uploaded");
-    setName(""); setFolder("General"); setFile(null);
+    setName(""); setFolder("Miscellaneous"); setFile(null);
     if (fileRef.current) fileRef.current.value = "";
     setOpen(false);
     load();
