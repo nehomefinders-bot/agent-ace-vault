@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDownLeft, ArrowUpRight, HandCoins } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, HandCoins, Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { BooksTransactionDialog, type BooksTransactionDraft } from "@/components/books-transaction-dialog";
 import { useBooks, formatMoney, formatMoneyCents } from "@/hooks/use-books";
 import { ownerLoanLedger } from "@/lib/books-data";
 
@@ -8,10 +10,11 @@ export const Route = createFileRoute("/books/owner-loan")({
 });
 
 function OwnerLoanPage() {
-  const { accounts, transactions } = useBooks();
+  const { accounts, transactions, updateTransaction, deleteTransaction } = useBooks();
   const { entries, balance } = ownerLoanLedger(accounts, transactions);
-  const totalAdvances = entries.filter(e => e.direction === "advance").reduce((s, e) => s + e.amount, 0);
-  const totalRepayments = entries.filter(e => e.direction === "repayment").reduce((s, e) => s + e.amount, 0);
+  const totalAdvances = entries.filter((e) => e.direction === "advance").reduce((s, e) => s + e.amount, 0);
+  const totalRepayments = entries.filter((e) => e.direction === "repayment").reduce((s, e) => s + e.amount, 0);
+  const [editing, setEditing] = useState<{ id: string; draft: BooksTransactionDraft } | null>(null);
 
   return (
     <div className="space-y-6">
@@ -28,6 +31,21 @@ function OwnerLoanPage() {
           and choose Loan from Officer as the "Paid from" account.
         </div>
       </div>
+
+      <BooksTransactionDialog
+        open={!!editing}
+        onOpenChange={(open) => {
+          if (!open) setEditing(null);
+        }}
+        title="Edit owner loan entry"
+        accounts={accounts}
+        initialValue={editing?.draft}
+        onSubmit={async (draft) => {
+          if (!editing) return;
+          await updateTransaction(editing.id, draft);
+          setEditing(null);
+        }}
+      />
 
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
@@ -57,34 +75,79 @@ function OwnerLoanPage() {
                 <th className="text-left font-medium py-3 px-6">Date</th>
                 <th className="text-left font-medium py-3">Memo</th>
                 <th className="text-left font-medium py-3">Type</th>
-                <th className="text-right font-medium py-3 pr-6">Amount</th>
+                <th className="text-right font-medium py-3">Amount</th>
+                <th className="w-20 pr-6"></th>
               </tr>
             </thead>
             <tbody>
-              {entries.map((e) => (
-                <tr key={e.id} className="border-t border-border hover:bg-muted/30">
-                  <td className="py-3 px-6 text-xs text-muted-foreground tabular-nums w-28">{e.date}</td>
-                  <td className="py-3 font-medium">{e.memo}</td>
-                  <td className="py-3">
-                    {e.direction === "advance" ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-success/10 text-success text-xs font-medium">
-                        <ArrowUpRight className="h-3 w-3" /> Advance
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-destructive/10 text-destructive text-xs font-medium">
-                        <ArrowDownLeft className="h-3 w-3" /> Repayment
-                      </span>
-                    )}
-                  </td>
-                  <td className={`py-3 pr-6 text-right tabular-nums font-semibold ${e.direction === "advance" ? "text-success" : ""}`}>
-                    {e.direction === "advance" ? "+" : "−"}{formatMoneyCents(e.amount)}
-                  </td>
-                </tr>
-              ))}
+              {entries.map((e) => {
+                const txn = transactions.find((t) => t.id === e.txnId);
+                if (!txn) return null;
+                return (
+                  <tr key={e.id} className="border-t border-border hover:bg-muted/30">
+                    <td className="py-3 px-6 text-xs text-muted-foreground tabular-nums w-28">{e.date}</td>
+                    <td className="py-3 font-medium">{e.memo}</td>
+                    <td className="py-3">
+                      {e.direction === "advance" ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-success/10 text-success text-xs font-medium">
+                          <ArrowUpRight className="h-3 w-3" /> Advance
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-destructive/10 text-destructive text-xs font-medium">
+                          <ArrowDownLeft className="h-3 w-3" /> Repayment
+                        </span>
+                      )}
+                    </td>
+                    <td className={`py-3 text-right tabular-nums font-semibold ${e.direction === "advance" ? "text-success" : ""}`}>
+                      {e.direction === "advance" ? "+" : "−"}{formatMoneyCents(e.amount)}
+                    </td>
+                    <td className="py-3 pr-6">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => setEditing({ id: txn.id, draft: txnToDraft(txn) })}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                          aria-label="Edit entry"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm("Delete this entry?")) {
+                              deleteTransaction(txn.id).catch((error) => console.error(error));
+                            }
+                          }}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
+                          aria-label="Delete entry"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
       </div>
     </div>
   );
+}
+
+function txnToDraft(t: {
+  date: string;
+  memo: string;
+  amount: number;
+  debitAccountId: string;
+  creditAccountId: string;
+  vendor?: string | null;
+}): BooksTransactionDraft {
+  return {
+    date: t.date,
+    memo: t.memo,
+    amount: Number(t.amount),
+    debitAccountId: t.debitAccountId,
+    creditAccountId: t.creditAccountId,
+    vendor: t.vendor ?? undefined,
+  };
 }

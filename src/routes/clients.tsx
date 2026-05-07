@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Plus, Mail, Phone, RefreshCw, Loader2, Check, AlertCircle, Trash2 } from "lucide-react";
+import { Plus, Mail, Phone, RefreshCw, Loader2, Check, AlertCircle, Pencil, Trash2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { PageShell } from "@/components/page-shell";
 import { useAuth } from "@/hooks/use-auth";
@@ -196,6 +196,9 @@ function Clients() {
                         className="p-2 rounded-md hover:bg-muted text-muted-foreground"
                       >
                         {syncing === c.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                      </button>
+                      <button onClick={() => openEdit(c)} title="Edit" className="p-2 rounded-md hover:bg-muted text-muted-foreground">
+                        <Pencil className="h-4 w-4" />
                       </button>
                       <button onClick={() => remove(c)} title="Delete" className="p-2 rounded-md hover:bg-muted text-destructive">
                         <Trash2 className="h-4 w-4" />

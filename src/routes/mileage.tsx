@@ -1,14 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Plus, Car, Play, Square, MapPin, Navigation, AlertCircle, Pencil, Trash2 } from "lucide-react";
+import { AlertCircle, Pencil, Plus, Car, Play, Square, MapPin, Navigation, Trash2 } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatMoneyCents } from "@/hooks/use-books";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/mileage")({
   component: Mileage,
-  head: () => ({ meta: [{ title: "Mileage — Agent Business Tracker" }] }),
+  head: () => ({ meta: [{ title: "Mileage â€” Agent Business Tracker" }] }),
 });
 
 const irsRate = 0.67;
@@ -26,6 +31,7 @@ interface Trip {
 }
 
 interface NewTrip {
+  date?: string;
   miles: number;
   from_address?: string;
   to_address?: string;
@@ -38,6 +44,7 @@ function Mileage() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<Mode>("live");
+  const [editing, setEditing] = useState<Trip | null>(null);
 
   const reload = async () => {
     if (!user) { setTrips([]); setLoading(false); return; }
@@ -56,13 +63,25 @@ function Mileage() {
     if (!user) return;
     await supabase.from("mileage_trips").insert({
       user_id: user.id,
-      date: new Date().toISOString().slice(0, 10),
+      date: t.date ?? new Date().toISOString().slice(0, 10),
       miles: t.miles,
       from_address: t.from_address ?? null,
       to_address: t.to_address ?? null,
       purpose: t.purpose ?? null,
       mode: t.mode,
     });
+    await reload();
+  };
+
+  const updateTrip = async (id: string, t: NewTrip) => {
+    await supabase.from("mileage_trips").update({
+      date: t.date ?? new Date().toISOString().slice(0, 10),
+      miles: t.miles,
+      from_address: t.from_address ?? null,
+      to_address: t.to_address ?? null,
+      purpose: t.purpose ?? null,
+      mode: t.mode,
+    }).eq("id", id);
     await reload();
   };
 
@@ -92,6 +111,21 @@ function Mileage() {
         </button>
       }
     >
+      <TripDialog
+        open={!!editing}
+        onOpenChange={(open) => {
+          if (!open) setEditing(null);
+        }}
+        title="Edit Trip"
+        submitLabel="Save trip"
+        initial={editing ? tripToForm(editing) : undefined}
+        onSubmit={async (input) => {
+          if (!editing) return;
+          await updateTrip(editing.id, input);
+          setEditing(null);
+        }}
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
         <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
           <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Total miles</div>
@@ -125,7 +159,7 @@ function Mileage() {
 
       <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
         {loading ? (
-          <div className="p-8 text-sm text-muted-foreground text-center">Loading trips…</div>
+          <div className="p-8 text-sm text-muted-foreground text-center">Loading tripsâ€¦</div>
         ) : trips.length === 0 ? (
           <div className="p-8 text-sm text-muted-foreground text-center">No trips logged yet.</div>
         ) : (
@@ -138,22 +172,27 @@ function Mileage() {
                 <th className="text-left font-medium py-3">Purpose</th>
                 <th className="text-right font-medium py-3">Miles</th>
                 <th className="text-right font-medium py-3">Deduction</th>
-                <th className="w-10 pr-4"></th>
+                <th className="w-20 pr-4"></th>
               </tr>
             </thead>
             <tbody>
               {trips.map((m) => (
                 <tr key={m.id} className="border-t border-border hover:bg-muted/30">
                   <td className="py-4 px-6 text-muted-foreground text-xs tabular-nums">{m.date}</td>
-                  <td className="py-4">{m.from_address ?? "—"}</td>
-                  <td className="py-4">{m.to_address ?? "—"}</td>
-                  <td className="py-4 text-muted-foreground">{m.purpose ?? "—"}</td>
+                  <td className="py-4">{m.from_address ?? "â€”"}</td>
+                  <td className="py-4">{m.to_address ?? "â€”"}</td>
+                  <td className="py-4 text-muted-foreground">{m.purpose ?? "â€”"}</td>
                   <td className="py-4 text-right tabular-nums font-medium">{Number(m.miles).toFixed(1)}</td>
                   <td className="py-4 text-right tabular-nums font-medium text-success">{formatMoneyCents(Number(m.miles) * irsRate)}</td>
                   <td className="py-4 pr-4">
-                    <button onClick={() => { if (confirm("Delete this trip?")) deleteTrip(m.id); }} className="text-muted-foreground hover:text-destructive">
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    <div className="flex items-center justify-end gap-1">
+                      <button onClick={() => setEditing(m)} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Edit trip">
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                      <button onClick={() => { if (confirm("Delete this trip?")) deleteTrip(m.id); }} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive" aria-label="Delete trip">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -162,6 +201,97 @@ function Mileage() {
         )}
       </div>
     </PageShell>
+  );
+}
+
+function TripDialog({
+  open,
+  onOpenChange,
+  title,
+  submitLabel,
+  initial,
+  onSubmit,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  submitLabel: string;
+  initial?: TripFormValues;
+  onSubmit: (input: NewTrip) => Promise<void>;
+}) {
+  const [date, setDate] = useState(initial?.date ?? new Date().toISOString().slice(0, 10));
+  const [from, setFrom] = useState(initial?.from_address ?? "");
+  const [to, setTo] = useState(initial?.to_address ?? "");
+  const [miles, setMiles] = useState(initial?.miles ?? "");
+  const [purpose, setPurpose] = useState(initial?.purpose ?? "Showing");
+  const [mode, setMode] = useState<NewTrip["mode"]>(initial?.mode ?? "manual");
+
+  useEffect(() => {
+    if (!open) return;
+    setDate(initial?.date ?? new Date().toISOString().slice(0, 10));
+    setFrom(initial?.from_address ?? "");
+    setTo(initial?.to_address ?? "");
+    setMiles(initial?.miles ?? "");
+    setPurpose(initial?.purpose ?? "Showing");
+    setMode(initial?.mode ?? "manual");
+  }, [open, initial]);
+
+  const save = async () => {
+    const m = parseFloat(miles);
+    if (!from || !to || !m) return;
+    await onSubmit({ date, from_address: from, to_address: to, miles: m, purpose, mode });
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-xl">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 py-2">
+          <Field label="Date">
+            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          </Field>
+          <Field label="Mode">
+            <Select value={mode} onValueChange={(v) => setMode(v as NewTrip["mode"])}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="live">Live</SelectItem>
+                <SelectItem value="address">Address</SelectItem>
+                <SelectItem value="manual">Manual</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="From address">
+            <Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Office" />
+          </Field>
+          <Field label="To address">
+            <Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="123 Oak St" />
+          </Field>
+          <Field label="Miles">
+            <Input value={miles} onChange={(e) => setMiles(e.target.value)} placeholder="0.0" inputMode="decimal" className="tabular-nums" />
+          </Field>
+          <Field label="Purpose">
+            <Select value={purpose} onValueChange={setPurpose}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Showing">Showing</SelectItem>
+                <SelectItem value="Listing visit">Listing visit</SelectItem>
+                <SelectItem value="Closing">Closing</SelectItem>
+                <SelectItem value="Inspection">Inspection</SelectItem>
+                <SelectItem value="Client meeting">Client meeting</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={save}>{submitLabel}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -255,7 +385,7 @@ function LiveTracker({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
           </div>
           <div>
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{
-              status === "idle" ? "Ready" : status === "running" ? "Recording…" : "Stopped"
+              status === "idle" ? "Ready" : status === "running" ? "Recordingâ€¦" : "Stopped"
             }</div>
             <div className="text-4xl font-bold tabular-nums font-display">{miles.toFixed(2)} <span className="text-base font-normal text-muted-foreground">mi</span></div>
             <div className="text-xs text-muted-foreground mt-0.5 tabular-nums">{mm}:{ss} elapsed</div>
@@ -276,12 +406,20 @@ function LiveTracker({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
 
       {status === "stopped" && (
         <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-3">
-          <Field label="From"><input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Office" className="input" /></Field>
-          <Field label="To"><input value={to} onChange={(e) => setTo(e.target.value)} placeholder="123 Oak St" className="input" /></Field>
+          <Field label="From"><Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Office" /></Field>
+          <Field label="To"><Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="123 Oak St" /></Field>
           <Field label="Purpose">
-            <select value={purpose} onChange={(e) => setPurpose(e.target.value)} className="input">
-              <option>Showing</option><option>Listing visit</option><option>Closing</option><option>Inspection</option><option>Client meeting</option><option>Other</option>
-            </select>
+            <Select value={purpose} onValueChange={setPurpose}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Showing">Showing</SelectItem>
+                <SelectItem value="Listing visit">Listing visit</SelectItem>
+                <SelectItem value="Closing">Closing</SelectItem>
+                <SelectItem value="Inspection">Inspection</SelectItem>
+                <SelectItem value="Client meeting">Client meeting</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
           </Field>
           <div className="flex items-end gap-2">
             <button onClick={save} className="flex-1 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">Save trip</button>
@@ -298,10 +436,8 @@ function LiveTracker({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
 
       <div className="mt-5 text-xs text-muted-foreground bg-muted/40 rounded-lg p-3">
         <strong className="text-foreground">Heads up:</strong> the browser only tracks while this tab is open and the screen is on.
-        For true background tracking (closed app, locked phone), you'll need the native mobile app — coming next.
+        For true background tracking (closed app, locked phone), you'll need the native mobile app â€” coming next.
       </div>
-
-      <style>{`.input { width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); font-size: 0.875rem; }`}</style>
     </div>
   );
 }
@@ -334,14 +470,14 @@ function RouteCalc({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
     <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
         <Field label="From address" className="md:col-span-2">
-          <input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="123 Office Park, Mill Valley CA" className="input" />
+          <Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="123 Office Park, Mill Valley CA" />
         </Field>
         <Field label="To address" className="md:col-span-2">
-          <input value={to} onChange={(e) => setTo(e.target.value)} placeholder="88 Bay Street, San Francisco CA" className="input" />
+          <Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="88 Bay Street, San Francisco CA" />
         </Field>
         <div className="flex items-end">
           <button onClick={calc} disabled={!from || !to || loading} className="w-full bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50">
-            {loading ? "Calculating…" : "Calculate"}
+            {loading ? "Calculatingâ€¦" : "Calculate"}
           </button>
         </div>
       </div>
@@ -354,9 +490,17 @@ function RouteCalc({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
             <div className="text-xs text-success tabular-nums mt-0.5">{formatMoneyCents(miles * irsRate)} deduction</div>
           </div>
           <Field label="Purpose">
-            <select value={purpose} onChange={(e) => setPurpose(e.target.value)} className="input min-w-[180px]">
-              <option>Showing</option><option>Listing visit</option><option>Closing</option><option>Inspection</option><option>Client meeting</option><option>Other</option>
-            </select>
+            <Select value={purpose} onValueChange={setPurpose}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Showing">Showing</SelectItem>
+                <SelectItem value="Listing visit">Listing visit</SelectItem>
+                <SelectItem value="Closing">Closing</SelectItem>
+                <SelectItem value="Inspection">Inspection</SelectItem>
+                <SelectItem value="Client meeting">Client meeting</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
           </Field>
           <button onClick={save} className="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-medium">Save trip</button>
         </div>
@@ -366,8 +510,6 @@ function RouteCalc({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
         <strong className="text-foreground">Demo mode:</strong> distances are estimated locally. Connect a Google Maps or Mapbox API key
         and we'll switch this to real driving distance via the Distance Matrix API.
       </div>
-
-      <style>{`.input { width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); font-size: 0.875rem; }`}</style>
     </div>
   );
 }
@@ -388,19 +530,26 @@ function ManualEntry({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
   return (
     <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-        <Field label="From"><input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Office" className="input" /></Field>
-        <Field label="To"><input value={to} onChange={(e) => setTo(e.target.value)} placeholder="123 Oak St" className="input" /></Field>
-        <Field label="Miles"><input value={miles} onChange={(e) => setMiles(e.target.value)} placeholder="0.0" inputMode="decimal" className="input tabular-nums" /></Field>
+        <Field label="From"><Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Office" /></Field>
+        <Field label="To"><Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="123 Oak St" /></Field>
+        <Field label="Miles"><Input value={miles} onChange={(e) => setMiles(e.target.value)} placeholder="0.0" inputMode="decimal" className="tabular-nums" /></Field>
         <Field label="Purpose">
-          <select value={purpose} onChange={(e) => setPurpose(e.target.value)} className="input">
-            <option>Showing</option><option>Listing visit</option><option>Closing</option><option>Inspection</option><option>Client meeting</option><option>Other</option>
-          </select>
+          <Select value={purpose} onValueChange={setPurpose}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Showing">Showing</SelectItem>
+              <SelectItem value="Listing visit">Listing visit</SelectItem>
+              <SelectItem value="Closing">Closing</SelectItem>
+              <SelectItem value="Inspection">Inspection</SelectItem>
+              <SelectItem value="Client meeting">Client meeting</SelectItem>
+              <SelectItem value="Other">Other</SelectItem>
+            </SelectContent>
+          </Select>
         </Field>
         <div className="flex items-end">
           <button onClick={save} className="w-full bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">Add trip</button>
         </div>
       </div>
-      <style>{`.input { width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); font-size: 0.875rem; }`}</style>
     </div>
   );
 }
@@ -412,6 +561,26 @@ function Field({ label, children, className }: { label: string; children: React.
       {children}
     </label>
   );
+}
+
+type TripFormValues = {
+  date: string;
+  from_address: string;
+  to_address: string;
+  miles: string;
+  purpose: string;
+  mode: NewTrip["mode"];
+};
+
+function tripToForm(trip: Trip): TripFormValues {
+  return {
+    date: trip.date,
+    from_address: trip.from_address ?? "",
+    to_address: trip.to_address ?? "",
+    miles: String(trip.miles ?? ""),
+    purpose: trip.purpose ?? "Showing",
+    mode: trip.mode,
+  };
 }
 
 function haversineMiles(lat1: number, lon1: number, lat2: number, lon2: number): number {

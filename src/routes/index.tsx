@@ -1,23 +1,39 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, TrendingUp, DollarSign, AlertCircle, CheckCircle2, Plus, Search } from "lucide-react";
+import { ArrowUpRight, TrendingUp, DollarSign, AlertCircle, CheckCircle2, Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { PageShell, StatusPill } from "@/components/page-shell";
-import { invoices, kpis, formatMoney, formatMoneyCents } from "@/lib/mock-data";
+import { invoices, kpis, formatMoney } from "@/lib/mock-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
   head: () => ({
     meta: [
-      { title: "Dashboard — Agent Business Tracker" },
-      { name: "description", content: "YTD commission, pipeline, invoices, expenses — at a glance." },
+      { title: "Dashboard â€” Agent Business Tracker" },
+      { name: "description", content: "YTD commission, pipeline, invoices, expenses â€” at a glance." },
     ],
   }),
 });
 
-interface DashDeal { id: string; address: string; client_name: string | null; sale_price: number; status: string; close_date: string | null; }
-interface DashExpense { id: string; vendor: string; category: string; amount: number; date: string; receipt_path: string | null; }
+interface DashDeal {
+  id: string;
+  address: string;
+  client_name: string | null;
+  sale_price: number;
+  status: string;
+  close_date: string | null;
+}
+
+interface DashExpense {
+  id: string;
+  vendor: string;
+  category: string;
+  amount: number;
+  date: string;
+  receipt_path: string | null;
+}
 
 const stageLabel: Record<string, string> = {
   closed: "Closed", closing: "Closing", under_contract: "Under Contract", pending: "Lead", dead: "Dead",
@@ -74,6 +90,24 @@ function Dashboard() {
   const activeDeals = deals.filter((d) => d.status !== "closed" && d.status !== "dead").length;
   const pipelineValue = deals.filter((d) => d.status !== "closed" && d.status !== "dead").reduce((s, d) => s + Number(d.sale_price), 0);
 
+  const deleteDeal = async (dealId: string) => {
+    const { error } = await supabase.from("deals").delete().eq("id", dealId);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setDeals((current) => current.filter((item) => item.id !== dealId));
+  };
+
+  const deleteExpense = async (expenseId: string) => {
+    const { error } = await supabase.from("expenses").delete().eq("id", expenseId);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setExpenses((current) => current.filter((item) => item.id !== expenseId));
+  };
+
   return (
     <PageShell
       title="Dashboard"
@@ -83,7 +117,7 @@ function Dashboard() {
           <div className="relative hidden md:block">
             <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
-              placeholder="Search deals, clients…"
+              placeholder="Search deals, clientsâ€¦"
               className="pl-9 pr-4 py-2.5 rounded-lg border border-border bg-card text-sm w-64 focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -93,7 +127,6 @@ function Dashboard() {
         </>
       }
     >
-      {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         <KpiCard label="YTD Commission" value={formatMoney(kpis.ytdCommission)} delta="+12.5% vs last year" deltaTone="success" icon={TrendingUp} />
         <KpiCard label="Pipeline Value" value={formatMoney(pipelineValue || kpis.pipelineValue)} delta={`${activeDeals} active deals`} icon={DollarSign} />
@@ -101,7 +134,6 @@ function Dashboard() {
         <KpiCard label="Deals Closed (MTD)" value={String(deals.filter((d) => d.status === "closed").length || kpis.closedDealsMTD)} delta={`Avg ${formatMoney(kpis.avgDealSize)}`} deltaTone="success" icon={CheckCircle2} />
       </div>
 
-      {/* Pipeline + Commissions */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
         <section className="xl:col-span-2 glass rounded-2xl overflow-hidden">
           <header className="flex items-center justify-between px-6 py-5 border-b border-border">
@@ -115,11 +147,10 @@ function Dashboard() {
           </header>
           {deals.length === 0 ? (
             <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-              No deals yet. <Link to="/deals" className="text-primary font-medium">Add your first deal →</Link>
+              No deals yet. <Link to="/deals" className="text-primary font-medium">Add your first deal â†’</Link>
             </div>
           ) : (
             <>
-              {/* Mobile: card view */}
               <ul className="md:hidden divide-y divide-border">
                 {deals.map((d) => (
                   <li key={d.id} className="px-4 py-4">
@@ -134,10 +165,29 @@ function Dashboard() {
                       <StatusPill tone={stageTone[d.status] ?? "muted"}>{stageLabel[d.status] ?? d.status}</StatusPill>
                       {d.close_date && <span className="text-[11px] text-muted-foreground truncate">{d.close_date}</span>}
                     </div>
+                    <div className="mt-3 flex items-center justify-end gap-1">
+                      <Link
+                        to="/deals"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                        aria-label="Edit deal"
+                        title="Edit deal"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Link>
+                      <button
+                        onClick={() => {
+                          if (confirm("Delete this deal?")) void deleteDeal(d.id);
+                        }}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
+                        aria-label="Delete deal"
+                        title="Delete deal"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </li>
                 ))}
               </ul>
-              {/* Desktop: table */}
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -147,16 +197,39 @@ function Dashboard() {
                       <th className="text-right font-medium py-3">Value</th>
                       <th className="text-left font-medium py-3 pl-6">Stage</th>
                       <th className="text-left font-medium py-3 pr-6">Close</th>
+                      <th className="w-20 pr-6"></th>
                     </tr>
                   </thead>
                   <tbody>
                     {deals.map((d) => (
                       <tr key={d.id} className="border-t border-border row-hover-blue">
                         <td className="py-4 px-6 font-medium">{d.address}</td>
-                        <td className="py-4 text-muted-foreground">{d.client_name ?? "—"}</td>
+                        <td className="py-4 text-muted-foreground">{d.client_name ?? "â€”"}</td>
                         <td className="py-4 text-right tabular-nums font-medium">{formatMoney(Number(d.sale_price))}</td>
                         <td className="py-4 pl-6"><StatusPill tone={stageTone[d.status] ?? "muted"}>{stageLabel[d.status] ?? d.status}</StatusPill></td>
-                        <td className="py-4 pr-6 text-muted-foreground text-xs">{d.close_date ?? "—"}</td>
+                        <td className="py-4 pr-6 text-muted-foreground text-xs">{d.close_date ?? "â€”"}</td>
+                        <td className="py-4 pr-6">
+                          <div className="flex items-center justify-end gap-1">
+                            <Link
+                              to="/deals"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                              aria-label="Edit deal"
+                              title="Edit deal"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Link>
+                            <button
+                              onClick={() => {
+                                if (confirm("Delete this deal?")) void deleteDeal(d.id);
+                              }}
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
+                              aria-label="Delete deal"
+                              title="Delete deal"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -179,7 +252,7 @@ function Dashboard() {
               <li key={inv.id} className="px-6 py-4 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <div className="font-medium text-sm truncate">{inv.id}</div>
-                  <div className="text-xs text-muted-foreground truncate">{inv.client} · {inv.description}</div>
+                  <div className="text-xs text-muted-foreground truncate">{inv.client} â· {inv.description}</div>
                 </div>
                 <div className="text-right shrink-0">
                   <div className="tabular-nums font-medium text-sm">{formatMoney(inv.amount)}</div>
@@ -191,7 +264,6 @@ function Dashboard() {
         </section>
       </div>
 
-      {/* Expenses feed */}
       <section className="glass rounded-2xl overflow-hidden">
         <header className="flex items-center justify-between px-6 py-5 border-b border-border">
           <div>
@@ -202,7 +274,7 @@ function Dashboard() {
         </header>
         {expenses.length === 0 ? (
           <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-            No expenses yet. <Link to="/expenses" className="text-primary font-medium">Log your first →</Link>
+            No expenses yet. <Link to="/expenses" className="text-primary font-medium">Log your first â†’</Link>
           </div>
         ) : (
           <ul className="divide-y divide-border">
@@ -223,7 +295,29 @@ function Dashboard() {
                     ? <StatusPill tone="success">Receipt</StatusPill>
                     : <StatusPill tone="warning">Missing</StatusPill>}
                 </div>
-                <div className="col-span-2 text-right tabular-nums font-medium text-sm">{formatMoney(Number(e.amount))}</div>
+                <div className="col-span-2 text-right">
+                  <div className="tabular-nums font-medium text-sm">{formatMoney(Number(e.amount))}</div>
+                  <div className="mt-2 inline-flex gap-1">
+                    <Link
+                      to="/expenses"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                      aria-label="Edit expense"
+                      title="Edit expense"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Link>
+                    <button
+                      onClick={() => {
+                        if (confirm("Delete this expense?")) void deleteExpense(e.id);
+                      }}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
+                      aria-label="Delete expense"
+                      title="Delete expense"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
               </li>
             ))}
           </ul>

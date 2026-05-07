@@ -1,26 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Plus, TrendingUp, TrendingDown, Wallet, Trash2, Loader2 } from "lucide-react";
-import { useBooks, formatMoneyCents, formatMoney } from "@/hooks/use-books";
-import { classifyTxn } from "@/lib/books-data";
+import { Loader2, Pencil, Plus, TrendingDown, TrendingUp, Trash2, Wallet } from "lucide-react";
+import { toast } from "sonner";
+import { BooksTransactionDialog, type BooksTransactionDraft } from "@/components/books-transaction-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { toast } from "sonner";
+import { useBooks, formatMoneyCents, formatMoney } from "@/hooks/use-books";
+import { classifyTxn } from "@/lib/books-data";
 
 export const Route = createFileRoute("/books/")({
   component: BooksOverview,
 });
 
 function BooksOverview() {
-  const { accounts, transactions, accountById, addTransaction, deleteTransaction, setCleared } = useBooks();
+  const { accounts, transactions, accountById, addTransaction, updateTransaction, deleteTransaction, setCleared } = useBooks();
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<{ id: string; draft: BooksTransactionDraft } | null>(null);
 
-  // Current month range
   const now = new Date();
   const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   const monthly = useMemo(
@@ -48,7 +49,6 @@ function BooksOverview() {
 
   return (
     <div>
-      {/* Summary cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <SummaryCard
           label="Net Profit"
@@ -73,7 +73,6 @@ function BooksOverview() {
         />
       </div>
 
-      {/* Ledger header + add button */}
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="font-display font-bold text-lg">Transaction Ledger</h2>
@@ -93,7 +92,21 @@ function BooksOverview() {
         </Dialog>
       </div>
 
-      {/* Ledger */}
+      <BooksTransactionDialog
+        open={!!editing}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) setEditing(null);
+        }}
+        title="Edit transaction"
+        accounts={accounts}
+        initialValue={editing?.draft}
+        onSubmit={async (draft) => {
+          if (!editing) return;
+          await updateTransaction(editing.id, draft);
+          setEditing(null);
+        }}
+      />
+
       <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
         {ledger.length === 0 ? (
           <div className="p-12 text-sm text-muted-foreground text-center">
@@ -101,7 +114,6 @@ function BooksOverview() {
           </div>
         ) : (
           <>
-            {/* Desktop table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -112,7 +124,7 @@ function BooksOverview() {
                     <th className="text-left font-semibold py-3 px-4 w-24">Type</th>
                     <th className="text-right font-semibold py-3 px-4 w-32">Amount</th>
                     <th className="text-center font-semibold py-3 px-4 w-20">Cleared</th>
-                    <th className="w-10"></th>
+                    <th className="w-20"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -156,7 +168,7 @@ function BooksOverview() {
                             isIncome ? "text-success" : "text-foreground"
                           }`}
                         >
-                          {isIncome ? "+" : "−"}
+                          {isIncome ? "+" : "-"}
                           {formatMoneyCents(Number(t.amount))}
                         </td>
                         <td className="py-3 px-4 text-center">
@@ -167,17 +179,26 @@ function BooksOverview() {
                           />
                         </td>
                         <td className="py-3 pr-4">
-                          <button
-                            onClick={() => {
-                              if (confirm("Delete this transaction?")) {
-                                deleteTransaction(t.id).catch((e) => toast.error(e.message));
-                              }
-                            }}
-                            className="text-muted-foreground hover:text-destructive"
-                            aria-label="Delete"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => setEditing({ id: t.id, draft: transactionToDraft(t) })}
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                              aria-label="Edit"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm("Delete this transaction?")) {
+                                  deleteTransaction(t.id).catch((e) => toast.error(e.message));
+                                }
+                              }}
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
+                              aria-label="Delete"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -186,7 +207,6 @@ function BooksOverview() {
               </table>
             </div>
 
-            {/* Mobile cards */}
             <div className="md:hidden divide-y divide-border">
               {ledger.map((t, i) => {
                 const debit = accountById(t.debitAccountId);
@@ -213,7 +233,7 @@ function BooksOverview() {
                         <div className="text-xs text-muted-foreground mt-0.5">{category.name}</div>
                       </div>
                       <div className={`text-right tabular-nums font-semibold ${isIncome ? "text-success" : ""}`}>
-                        {isIncome ? "+" : "−"}
+                        {isIncome ? "+" : "-"}
                         {formatMoneyCents(Number(t.amount))}
                       </div>
                     </div>
@@ -225,17 +245,26 @@ function BooksOverview() {
                         />
                         Cleared
                       </label>
-                      <button
-                        onClick={() => {
-                          if (confirm("Delete this transaction?")) {
-                            deleteTransaction(t.id).catch((e) => toast.error(e.message));
-                          }
-                        }}
-                        className="text-muted-foreground hover:text-destructive p-2 -mr-2"
-                        aria-label="Delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="inline-flex items-center gap-1">
+                        <button
+                          onClick={() => setEditing({ id: t.id, draft: transactionToDraft(t) })}
+                          className="text-muted-foreground hover:text-foreground p-2 -mr-1"
+                          aria-label="Edit"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm("Delete this transaction?")) {
+                              deleteTransaction(t.id).catch((e) => toast.error(e.message));
+                            }
+                          }}
+                          className="text-muted-foreground hover:text-destructive p-2 -mr-2"
+                          aria-label="Delete"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -246,6 +275,24 @@ function BooksOverview() {
       </div>
     </div>
   );
+}
+
+function transactionToDraft(t: {
+  date: string;
+  memo: string;
+  amount: number;
+  debitAccountId: string;
+  creditAccountId: string;
+  vendor?: string | null;
+}): BooksTransactionDraft {
+  return {
+    date: t.date,
+    memo: t.memo,
+    amount: Number(t.amount),
+    debitAccountId: t.debitAccountId,
+    creditAccountId: t.creditAccountId,
+    vendor: t.vendor ?? undefined,
+  };
 }
 
 function SummaryCard({
@@ -296,7 +343,6 @@ function AddTransactionModal({
   const catOptions = type === "income" ? incomeAccounts : expenseAccounts;
   const acctOptions = [...assetAccounts, ...liabAccounts];
 
-  // Default the dropdowns when type changes / when accounts arrive
   const effCategory = category || catOptions[0]?.id || "";
   const effAccount = account || acctOptions[0]?.id || "";
 
@@ -397,7 +443,7 @@ function AddTransactionModal({
             required
             value={memo}
             onChange={(e) => setMemo(e.target.value)}
-            placeholder="e.g. Zillow Premier Agent — March"
+            placeholder="e.g. Zillow Premier Agent â€” March"
             rows={2}
           />
         </div>
@@ -405,7 +451,7 @@ function AddTransactionModal({
         <DialogFooter>
           <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
           <Button type="submit" disabled={saving}>
-            {saving ? <><Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> Saving…</> : "Save Transaction"}
+            {saving ? "Savingâ€¦" : "Save Transaction"}
           </Button>
         </DialogFooter>
       </form>

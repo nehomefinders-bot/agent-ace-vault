@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Plus, Search, ArrowRight, Trash2 } from "lucide-react";
+import { ArrowRight, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { BooksTransactionDialog, type BooksTransactionDraft } from "@/components/books-transaction-dialog";
 import { useBooks, formatMoneyCents } from "@/hooks/use-books";
 import { classifyTxn } from "@/lib/books-data";
 
@@ -9,10 +11,11 @@ export const Route = createFileRoute("/books/transactions")({
 });
 
 function TransactionsPage() {
-  const { accounts, transactions, accountById, addTransaction, deleteTransaction } = useBooks();
+  const { accounts, transactions, accountById, addTransaction, updateTransaction, deleteTransaction } = useBooks();
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string>("all");
   const [showAdd, setShowAdd] = useState(false);
+  const [editing, setEditing] = useState<{ id: string; draft: BooksTransactionDraft } | null>(null);
 
   const rows = useMemo(() => {
     return [...transactions]
@@ -37,7 +40,7 @@ function TransactionsPage() {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search memo or vendor…"
+            placeholder="Search memo or vendorâ€¦"
             className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-card text-sm"
           />
         </div>
@@ -76,9 +79,24 @@ function TransactionsPage() {
         />
       )}
 
+      <BooksTransactionDialog
+        open={!!editing}
+        onOpenChange={(open) => {
+          if (!open) setEditing(null);
+        }}
+        title="Edit transaction"
+        accounts={accounts}
+        initialValue={editing?.draft}
+        onSubmit={async (draft) => {
+          if (!editing) return;
+          await updateTransaction(editing.id, draft);
+          setEditing(null);
+        }}
+      />
+
       <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
         {rows.length === 0 ? (
-          <div className="p-10 text-sm text-muted-foreground text-center">No transactions yet — add your first one.</div>
+          <div className="p-10 text-sm text-muted-foreground text-center">No transactions yet â€” add your first one.</div>
         ) : (
           <table className="w-full text-sm">
             <thead>
@@ -87,8 +105,8 @@ function TransactionsPage() {
                 <th className="text-left font-medium py-3">Memo / Vendor</th>
                 <th className="text-left font-medium py-3">Category</th>
                 <th className="text-left font-medium py-3">Paid by / Into</th>
-                <th className="text-right font-medium py-3 pr-6">Amount</th>
-                <th className="w-10"></th>
+                <th className="text-right font-medium py-3 pr-2">Amount</th>
+                <th className="w-20 pr-6"></th>
               </tr>
             </thead>
             <tbody>
@@ -121,12 +139,26 @@ function TransactionsPage() {
                       {isIncome ? "+" : "−"}{formatMoneyCents(Number(t.amount))}
                     </td>
                     <td className="py-4 pr-6">
-                      <button
-                        onClick={() => { if (confirm("Delete this transaction?")) deleteTransaction(t.id); }}
-                        className="text-muted-foreground hover:text-destructive"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => setEditing({ id: t.id, draft: transactionToDraft(t) })}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                          aria-label="Edit transaction"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm("Delete this transaction?")) {
+                              deleteTransaction(t.id).catch((error) => toast.error(error.message));
+                            }
+                          }}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
+                          aria-label="Delete transaction"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -137,6 +169,24 @@ function TransactionsPage() {
       </div>
     </div>
   );
+}
+
+function transactionToDraft(t: {
+  date: string;
+  memo: string;
+  amount: number;
+  debitAccountId: string;
+  creditAccountId: string;
+  vendor?: string | null;
+}): BooksTransactionDraft {
+  return {
+    date: t.date,
+    memo: t.memo,
+    amount: Number(t.amount),
+    debitAccountId: t.debitAccountId,
+    creditAccountId: t.creditAccountId,
+    vendor: t.vendor ?? undefined,
+  };
 }
 
 function AddTxnForm({
@@ -166,7 +216,6 @@ function AddTxnForm({
     try {
       let debit: string, credit: string;
       if (type === "income") {
-        // Money into bank: debit bank (paidFrom acts as deposit-into), credit income
         debit = paidFrom; credit = category;
       } else if (type === "expense") {
         debit = category; credit = paidFrom;
@@ -205,7 +254,7 @@ function AddTxnForm({
           className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm tabular-nums" />
         <button onClick={save} disabled={saving}
           className="bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50">
-          {saving ? "Saving…" : "Save"}
+          {saving ? "Savingâ€¦" : "Save"}
         </button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">

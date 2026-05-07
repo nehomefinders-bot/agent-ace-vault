@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useBooks } from "@/hooks/use-books";
-import { formatMoney } from "@/hooks/use-books";
-import type { AccountKind } from "@/lib/books-data";
+import { BooksAccountDialog, type BooksAccountDraft } from "@/components/books-account-dialog";
+import { useBooks, formatMoney } from "@/hooks/use-books";
+import type { Account, AccountKind } from "@/lib/books-data";
 
 export const Route = createFileRoute("/books/categories")({
   component: CategoriesPage,
@@ -12,8 +12,9 @@ export const Route = createFileRoute("/books/categories")({
 const order: AccountKind[] = ["Income", "Expense", "Asset", "Liability", "Equity"];
 
 function CategoriesPage() {
-  const { accounts, transactions, addAccount } = useBooks();
+  const { accounts, transactions, addAccount, updateAccount, removeAccount } = useBooks();
   const [showNew, setShowNew] = useState(false);
+  const [editing, setEditing] = useState<Account | null>(null);
 
   const totals = new Map<string, number>();
   for (const t of transactions) {
@@ -29,14 +30,35 @@ function CategoriesPage() {
           Tax line shows where each one lands on Schedule C.
         </p>
         <button
-          onClick={() => setShowNew((v) => !v)}
+          onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium shrink-0 ml-4"
         >
           <Plus className="h-4 w-4" /> New category
         </button>
       </div>
 
-      {showNew && <NewAccountForm onDone={() => setShowNew(false)} onSubmit={addAccount} />}
+      <BooksAccountDialog
+        open={showNew}
+        onOpenChange={setShowNew}
+        title="New category"
+        submitLabel="Add category"
+        onSubmit={addAccount}
+      />
+
+      <BooksAccountDialog
+        open={!!editing}
+        onOpenChange={(open) => {
+          if (!open) setEditing(null);
+        }}
+        title="Edit category"
+        submitLabel="Save category"
+        initialValue={editing ? accountToDraft(editing) : undefined}
+        onSubmit={async (draft: BooksAccountDraft) => {
+          if (!editing) return;
+          await updateAccount(editing.id, draft);
+          setEditing(null);
+        }}
+      />
 
       {order.map((kind) => {
         const list = accounts.filter((a) => a.kind === kind);
@@ -52,6 +74,7 @@ function CategoriesPage() {
                     <th className="text-left font-medium py-2.5">Name</th>
                     <th className="text-left font-medium py-2.5">Tax line</th>
                     <th className="text-right font-medium py-2.5 pr-6">YTD activity</th>
+                    <th className="w-20 pr-4"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -62,8 +85,30 @@ function CategoriesPage() {
                         {a.name}
                         {a.description && <div className="text-xs text-muted-foreground font-normal">{a.description}</div>}
                       </td>
-                      <td className="py-3 text-xs text-muted-foreground">{a.taxLine ?? "—"}</td>
+                      <td className="py-3 text-xs text-muted-foreground">{a.taxLine ?? "â€”"}</td>
                       <td className="py-3 pr-6 text-right tabular-nums">{formatMoney(totals.get(a.id) ?? 0)}</td>
+                      <td className="py-3 pr-4">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => setEditing(a)}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                            aria-label={`Edit ${a.name}`}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (confirm(`Delete ${a.name}?`)) {
+                                removeAccount(a.id).catch((error) => console.error(error));
+                              }
+                            }}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
+                            aria-label={`Delete ${a.name}`}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -76,46 +121,12 @@ function CategoriesPage() {
   );
 }
 
-function NewAccountForm({
-  onDone,
-  onSubmit,
-}: {
-  onDone: () => void;
-  onSubmit: (a: { code: string; name: string; kind: AccountKind; taxLine?: string; description?: string }) => Promise<void>;
-}) {
-  const [code, setCode] = useState("");
-  const [name, setName] = useState("");
-  const [kind, setKind] = useState<AccountKind>("Expense");
-  const [taxLine, setTaxLine] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  const save = async () => {
-    if (!code || !name) return;
-    setSaving(true);
-    try {
-      await onSubmit({ code, name, kind, taxLine: taxLine || undefined });
-      onDone();
-    } finally { setSaving(false); }
+function accountToDraft(account: Account): BooksAccountDraft {
+  return {
+    code: account.code,
+    name: account.name,
+    kind: account.kind,
+    taxLine: account.taxLine ?? undefined,
+    description: account.description ?? undefined,
   };
-
-  return (
-    <div className="bg-card border border-border rounded-2xl p-5 shadow-card grid grid-cols-1 md:grid-cols-5 gap-3">
-      <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Code (e.g. 6500)"
-        className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
-      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name"
-        className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm md:col-span-2" />
-      <select value={kind} onChange={(e) => setKind(e.target.value as AccountKind)}
-        className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm">
-        {order.map((k) => <option key={k} value={k}>{k}</option>)}
-      </select>
-      <input value={taxLine} onChange={(e) => setTaxLine(e.target.value)} placeholder="Tax line (optional)"
-        className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
-      <div className="md:col-span-5 flex justify-end gap-2">
-        <button onClick={onDone} className="px-3 py-2 text-sm text-muted-foreground">Cancel</button>
-        <button onClick={save} disabled={saving} className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50">
-          {saving ? "Saving…" : "Add category"}
-        </button>
-      </div>
-    </div>
-  );
 }

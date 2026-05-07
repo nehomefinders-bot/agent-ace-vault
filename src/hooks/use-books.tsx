@@ -11,9 +11,12 @@ interface BooksCtx {
   accountByCode: (code: string) => Account | undefined;
   reload: () => Promise<void>;
   addTransaction: (t: NewTxn) => Promise<void>;
+  updateTransaction: (id: string, t: NewTxn) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
   setCleared: (id: string, cleared: boolean) => Promise<void>;
   addAccount: (a: NewAccount) => Promise<void>;
+  updateAccount: (id: string, a: NewAccount) => Promise<void>;
+  removeAccount: (id: string) => Promise<void>;
 }
 
 interface NewTxn {
@@ -140,6 +143,22 @@ export function BooksProvider({ children }: { children: ReactNode }) {
     await reload();
   }, [user, reload]);
 
+  const updateTransaction = useCallback(async (id: string, t: NewTxn) => {
+    if (!user) throw new Error("Not signed in");
+    const { error } = await supabase.from("transactions").update({
+      date: t.date,
+      memo: t.memo,
+      amount: t.amount,
+      debit_account_id: t.debitAccountId,
+      credit_account_id: t.creditAccountId,
+      vendor: t.vendor ?? null,
+      reference: t.reference ?? null,
+      tags: t.tags ?? null,
+    }).eq("id", id);
+    if (error) throw error;
+    await reload();
+  }, [user, reload]);
+
   const deleteTransaction = useCallback(async (id: string) => {
     const { error } = await supabase.from("transactions").delete().eq("id", id);
     if (error) throw error;
@@ -167,10 +186,35 @@ export function BooksProvider({ children }: { children: ReactNode }) {
     await reload();
   }, [user, reload]);
 
+  const updateAccount = useCallback(async (id: string, a: NewAccount) => {
+    if (!user) throw new Error("Not signed in");
+    const { error } = await supabase.from("accounts").update({
+      code: a.code,
+      name: a.name,
+      kind: a.kind,
+      tax_line: a.taxLine ?? null,
+      description: a.description ?? null,
+    }).eq("id", id);
+    if (error) throw error;
+    await reload();
+  }, [user, reload]);
+
+  const removeAccount = useCallback(async (id: string) => {
+    const referenced = transactions.some((t) => t.debitAccountId === id || t.creditAccountId === id);
+    if (referenced) {
+      const { error } = await supabase.from("accounts").update({ archived: true }).eq("id", id);
+      if (error) throw error;
+    } else {
+      const { error } = await supabase.from("accounts").delete().eq("id", id);
+      if (error) throw error;
+    }
+    await reload();
+  }, [transactions, reload]);
+
   const value = useMemo<BooksCtx>(() => ({
     loading, accounts, transactions, accountById, accountByCode,
-    reload, addTransaction, deleteTransaction, setCleared, addAccount,
-  }), [loading, accounts, transactions, accountById, accountByCode, reload, addTransaction, deleteTransaction, setCleared, addAccount]);
+    reload, addTransaction, updateTransaction, deleteTransaction, setCleared, addAccount, updateAccount, removeAccount,
+  }), [loading, accounts, transactions, accountById, accountByCode, reload, addTransaction, updateTransaction, deleteTransaction, setCleared, addAccount, updateAccount, removeAccount]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

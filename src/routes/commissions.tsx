@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, Download, Loader2, Plus, Search } from "lucide-react";
+import { ChevronDown, Download, Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatMoney } from "@/lib/mock-data";
@@ -24,15 +24,26 @@ export const Route = createFileRoute("/commissions")({
 });
 
 interface CommissionRow {
-  id: string;
+  dealId: string;
+  shortId: string;
   property: string;
   agentName: string;
   closingDate: string;
   salePrice: number;
   gci: number;
+  commissionPct: number;
   brokerSplit: number;
   deductions: number;
   status: "Paid" | "Pending";
+}
+
+interface CommissionFormValues {
+  property: string;
+  agentName: string;
+  salePrice: string;
+  commissionPct: string;
+  brokerSplit: string;
+  deductions: string;
 }
 
 function netCommission(r: CommissionRow): number {
@@ -62,22 +73,40 @@ function StatusBadge({ status }: { status: "Paid" | "Pending" }) {
   );
 }
 
-function AddCommissionDialog({
-  onAdded,
+function CommissionDialog({
+  open,
+  onOpenChange,
+  title,
+  submitLabel,
   defaultAgentName,
+  initial,
+  onSubmit,
 }: {
-  onAdded: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  submitLabel: string;
   defaultAgentName: string;
+  initial?: CommissionFormValues;
+  onSubmit: (input: CommissionFormValues) => Promise<void>;
 }) {
-  const { user } = useAuth();
-  const [open, setOpen] = useState(false);
-  const [property, setProperty] = useState("");
-  const [agentName, setAgentName] = useState(defaultAgentName);
-  const [salePrice, setSalePrice] = useState("");
-  const [commissionPct, setCommissionPct] = useState("3");
-  const [brokerSplit, setBrokerSplit] = useState("70");
-  const [deductions, setDeductions] = useState("");
+  const [property, setProperty] = useState(initial?.property ?? "");
+  const [agentName, setAgentName] = useState(initial?.agentName ?? defaultAgentName);
+  const [salePrice, setSalePrice] = useState(initial?.salePrice ?? "");
+  const [commissionPct, setCommissionPct] = useState(initial?.commissionPct ?? "3");
+  const [brokerSplit, setBrokerSplit] = useState(initial?.brokerSplit ?? "70");
+  const [deductions, setDeductions] = useState(initial?.deductions ?? "");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    setProperty(initial?.property ?? "");
+    setAgentName(initial?.agentName ?? defaultAgentName);
+    setSalePrice(initial?.salePrice ?? "");
+    setCommissionPct(initial?.commissionPct ?? "3");
+    setBrokerSplit(initial?.brokerSplit ?? "70");
+    setDeductions(initial?.deductions ?? "");
+  }, [open, initial, defaultAgentName]);
 
   const sale = parseFloat(salePrice) || 0;
   const cPct = parseFloat(commissionPct) || 0;
@@ -86,65 +115,29 @@ function AddCommissionDialog({
   const gci = sale * (cPct / 100);
   const net = gci * (bSplit / 100) - ded;
 
-  useEffect(() => {
-    if (open) setAgentName(defaultAgentName);
-  }, [open, defaultAgentName]);
-
-  const reset = () => {
-    setProperty("");
-    setAgentName(defaultAgentName);
-    setSalePrice("");
-    setCommissionPct("3");
-    setBrokerSplit("70");
-    setDeductions("");
-  };
-
-  const submit = async () => {
-    if (!user || !property.trim() || sale <= 0) return;
+  const save = async () => {
+    if (!property.trim() || sale <= 0) return;
     setSaving(true);
     try {
-      const { error } = await supabase.from("deals").insert({
-        user_id: user.id,
-        address: property.trim(),
-        side: "buy",
-        status: "closed",
-        sale_price: sale,
-        gross_commission: gci,
-        agent_split_pct: bSplit,
-        brokerage_split_pct: 100 - bSplit,
-        close_date: new Date().toISOString().slice(0, 10),
-        agent_name: agentName.trim() || null,
-        notes: ded > 0 ? `Deductions: ${ded}` : null,
+      await onSubmit({
+        property: property.trim(),
+        agentName: agentName.trim(),
+        salePrice,
+        commissionPct,
+        brokerSplit,
+        deductions,
       });
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
-      toast.success("Commission saved");
-      reset();
-      setOpen(false);
-      onAdded();
+      onOpenChange(false);
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(nextOpen) => {
-        setOpen(nextOpen);
-        if (!nextOpen) reset();
-      }}
-    >
-      <DialogTrigger asChild>
-        <button className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium hover:opacity-90">
-          <Plus className="h-4 w-4" /> Add Commission
-        </button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add Commission</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
             Enter closing details. GCI and Net are calculated as you type.
           </DialogDescription>
@@ -247,9 +240,9 @@ function AddCommissionDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={submit} disabled={!property.trim() || sale <= 0}>
-            {saving ? "Saving..." : "Save Commission"}
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={save} disabled={!property.trim() || sale <= 0}>
+            {saving ? "Saving..." : submitLabel}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -261,6 +254,8 @@ function Commissions() {
   const { user, loading: authLoading } = useAuth();
   const [rows, setRows] = useState<CommissionRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [addOpen, setAddOpen] = useState(false);
+  const [editing, setEditing] = useState<CommissionRow | null>(null);
   const defaultAgentName = useMemo(() => {
     const displayName = user?.user_metadata?.display_name;
     if (typeof displayName === "string" && displayName.trim()) return displayName.trim();
@@ -285,13 +280,18 @@ function Commissions() {
 
     setRows((data ?? []).map((d: any) => {
       const m = d.notes?.match(/Deductions:\s*([\d.]+)/);
+      const sale = Number(d.sale_price);
+      const gci = Number(d.gross_commission);
+      const commissionPct = sale > 0 ? (gci / sale) * 100 : 0;
       return {
-        id: d.id.slice(0, 8),
+        dealId: d.id,
+        shortId: d.id.slice(0, 8),
         property: d.address,
         agentName: d.agent_name ?? "",
         closingDate: d.close_date ?? d.created_at?.slice(0, 10) ?? "",
-        salePrice: Number(d.sale_price),
-        gci: Number(d.gross_commission),
+        salePrice: sale,
+        gci,
+        commissionPct,
         brokerSplit: Number(d.agent_split_pct),
         deductions: m ? parseFloat(m[1]) : 0,
         status: "Paid" as const,
@@ -383,10 +383,76 @@ function Commissions() {
               <DropdownMenuItem onSelect={() => void handleExport("csv")}>Export CSV</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <AddCommissionDialog onAdded={load} defaultAgentName={defaultAgentName} />
+          <Button onClick={() => setAddOpen(true)} className="inline-flex items-center gap-2">
+            <Plus className="h-4 w-4" /> Add Commission
+          </Button>
         </>
       }
     >
+      <CommissionDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        title="Add Commission"
+        submitLabel="Save Commission"
+        defaultAgentName={defaultAgentName}
+        onSubmit={async (input) => {
+          if (!user) return;
+          const sale = parseFloat(input.salePrice) || 0;
+          const cPct = parseFloat(input.commissionPct) || 0;
+          const bSplit = parseFloat(input.brokerSplit) || 0;
+          const ded = parseFloat(input.deductions) || 0;
+          const gci = sale * (cPct / 100);
+          const { error } = await supabase.from("deals").insert({
+            user_id: user.id,
+            address: input.property.trim(),
+            side: "buy",
+            status: "closed",
+            sale_price: sale,
+            gross_commission: gci,
+            agent_split_pct: bSplit,
+            brokerage_split_pct: 100 - bSplit,
+            close_date: new Date().toISOString().slice(0, 10),
+            agent_name: input.agentName.trim() || null,
+            notes: ded > 0 ? `Deductions: ${ded}` : null,
+          });
+          if (error) throw error;
+          toast.success("Commission saved");
+          await load();
+        }}
+      />
+
+      <CommissionDialog
+        open={!!editing}
+        onOpenChange={(open) => {
+          if (!open) setEditing(null);
+        }}
+        title="Edit Commission"
+        submitLabel="Save Changes"
+        defaultAgentName={defaultAgentName}
+        initial={editing ? commissionToForm(editing) : undefined}
+        onSubmit={async (input) => {
+          if (!editing) return;
+          const sale = parseFloat(input.salePrice) || 0;
+          const cPct = parseFloat(input.commissionPct) || 0;
+          const bSplit = parseFloat(input.brokerSplit) || 0;
+          const ded = parseFloat(input.deductions) || 0;
+          const gci = sale * (cPct / 100);
+          const { error } = await supabase.from("deals").update({
+            address: input.property.trim(),
+            agent_name: input.agentName.trim() || null,
+            sale_price: sale,
+            gross_commission: gci,
+            agent_split_pct: bSplit,
+            brokerage_split_pct: 100 - bSplit,
+            notes: ded > 0 ? `Deductions: ${ded}` : null,
+          }).eq("id", editing.dealId);
+          if (error) throw error;
+          toast.success("Commission updated");
+          setEditing(null);
+          await load();
+        }}
+      />
+
       {loading && (
         <div className="flex justify-center py-8">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -431,13 +497,13 @@ function Commissions() {
           {rows.map((r) => {
             const net = netCommission(r);
             return (
-              <li key={r.id} className="px-4 py-4 space-y-3">
+              <li key={r.dealId} className="px-4 py-4 space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="font-medium text-sm">{r.property}</div>
                     <div className="text-xs text-muted-foreground mt-0.5">{r.agentName || "Unknown agent"}</div>
                     <div className="text-xs text-muted-foreground font-mono mt-0.5">
-                      {r.id} - {formatDate(r.closingDate)}
+                      {r.shortId} - {formatDate(r.closingDate)}
                     </div>
                   </div>
                   <StatusBadge status={r.status} />
@@ -468,6 +534,29 @@ function Commissions() {
                   <span className="text-xs uppercase tracking-wider text-muted-foreground">Net</span>
                   <span className="tabular-nums font-bold text-base font-display">{formatMoney(net)}</span>
                 </div>
+                <div className="flex items-center justify-end gap-1">
+                  <button
+                    onClick={() => setEditing(r)}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                    aria-label="Edit commission"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm("Delete this commission?")) {
+                        supabase.from("deals").delete().eq("id", r.dealId).then(({ error }) => {
+                          if (error) toast.error(error.message);
+                          else load();
+                        });
+                      }
+                    }}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
+                    aria-label="Delete commission"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </li>
             );
           })}
@@ -490,16 +579,17 @@ function Commissions() {
                 <th className="text-right font-medium py-3">Deductions</th>
                 <th className="text-right font-medium py-3">Net Commission</th>
                 <th className="text-left font-medium py-3 px-6">Status</th>
+                <th className="w-20 pr-6"></th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => {
                 const net = netCommission(r);
                 return (
-                  <tr key={r.id} className="border-t border-border hover:bg-muted/30 transition-colors">
+                  <tr key={r.dealId} className="border-t border-border hover:bg-muted/30 transition-colors">
                     <td className="py-4 px-6">
                       <div className="font-medium">{r.property}</div>
-                      <div className="text-xs text-muted-foreground font-mono mt-0.5">{r.id}</div>
+                      <div className="text-xs text-muted-foreground font-mono mt-0.5">{r.shortId}</div>
                     </td>
                     <td className="py-4">
                       <div className="font-medium">{r.agentName || "Unknown agent"}</div>
@@ -511,6 +601,31 @@ function Commissions() {
                     <td className="py-4 text-right tabular-nums text-destructive">-{formatMoney(r.deductions)}</td>
                     <td className="py-4 text-right tabular-nums font-semibold">{formatMoney(net)}</td>
                     <td className="py-4 px-6"><StatusBadge status={r.status} /></td>
+                    <td className="py-4 pr-6">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => setEditing(r)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                          aria-label="Edit commission"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm("Delete this commission?")) {
+                              supabase.from("deals").delete().eq("id", r.dealId).then(({ error }) => {
+                                if (error) toast.error(error.message);
+                                else load();
+                              });
+                            }
+                          }}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
+                          aria-label="Delete commission"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 );
               })}
@@ -523,6 +638,7 @@ function Commissions() {
                 <td className="py-3 text-right tabular-nums text-destructive">-{formatMoney(rows.reduce((sum, row) => sum + row.deductions, 0))}</td>
                 <td className="py-3 text-right tabular-nums font-bold">{formatMoney(totalNet)}</td>
                 <td className="py-3 px-6" />
+                <td />
               </tr>
             </tfoot>
           </table>
@@ -530,4 +646,15 @@ function Commissions() {
       </section>
     </PageShell>
   );
+}
+
+function commissionToForm(r: CommissionRow): CommissionFormValues {
+  return {
+    property: r.property,
+    agentName: r.agentName,
+    salePrice: String(r.salePrice),
+    commissionPct: String(r.commissionPct || 0),
+    brokerSplit: String(r.brokerSplit),
+    deductions: String(r.deductions),
+  };
 }
