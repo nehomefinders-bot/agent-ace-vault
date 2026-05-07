@@ -59,17 +59,36 @@ function formatDate(iso: string): string {
   });
 }
 
-function StatusBadge({ status }: { status: "Paid" | "Pending" }) {
+function StatusBadge({ status, onChange }: { status: "Paid" | "Pending"; onChange?: (v: "Paid" | "Pending") => void }) {
   const cls =
     status === "Paid"
       ? "bg-success/15 text-success ring-1 ring-inset ring-success/30"
       : "bg-warning/15 text-warning ring-1 ring-inset ring-warning/30";
 
+  if (!onChange) {
+    return (
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${cls}`}>
+        <span className={`h-1.5 w-1.5 rounded-full ${status === "Paid" ? "bg-success" : "bg-warning"}`} />
+        {status}
+      </span>
+    );
+  }
+
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${cls}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${status === "Paid" ? "bg-success" : "bg-warning"}`} />
-      {status}
-    </span>
+    <Select value={status} onValueChange={(v) => onChange(v as "Paid" | "Pending")}>
+      <SelectTrigger className={`h-7 w-[110px] px-2.5 text-xs font-medium border-0 rounded-full ${cls}`}>
+        <SelectValue>
+          <span className="inline-flex items-center gap-1.5">
+            <span className={`h-1.5 w-1.5 rounded-full ${status === "Paid" ? "bg-success" : "bg-warning"}`} />
+            {status}
+          </span>
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="Paid">Paid</SelectItem>
+        <SelectItem value="Pending">Pending</SelectItem>
+      </SelectContent>
+    </Select>
   );
 }
 
