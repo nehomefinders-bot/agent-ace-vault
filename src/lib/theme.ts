@@ -56,7 +56,7 @@ export function createThemeSync() {
   if ("addEventListener" in media) {
     media.addEventListener("change", onSystemChange);
   } else {
-    media.addListener(onSystemChange);
+    (media as MediaQueryList).addListener(onSystemChange);
   }
 
   return () => {
@@ -64,7 +64,7 @@ export function createThemeSync() {
     if ("removeEventListener" in media) {
       media.removeEventListener("change", onSystemChange);
     } else {
-      media.removeListener(onSystemChange);
+      (media as MediaQueryList).removeListener(onSystemChange);
     }
   };
 }
