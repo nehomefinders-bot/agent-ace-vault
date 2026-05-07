@@ -30,7 +30,8 @@ interface Listing {
   image_paths: string[] | null;
 }
 
-const tone: Record<string, "success" | "warning" | "muted"> = { Active: "success", Pending: "warning", Sold: "muted" };
+const tone: Record<string, "success" | "warning" | "muted"> = { Active: "success", Pending: "warning", Sold: "muted", "Not on MLS": "muted" };
+const STATUS_OPTIONS = ["Active", "Pending", "Sold", "Not on MLS"] as const;
 
 const BUCKET = "listing-images";
 const MAX_FILE_MB = 8;
@@ -123,7 +124,7 @@ function Listings() {
         <BulkStatusBar
           count={selected.size}
           itemLabel="listings"
-          options={[{ value: "Active", label: "Active" }, { value: "Pending", label: "Pending" }, { value: "Sold", label: "Sold" }]}
+          options={STATUS_OPTIONS.map((s) => ({ value: s, label: s }))}
           onApply={bulkUpdateStatus}
           onClear={() => setSelected(new Set())}
         />
@@ -157,9 +158,7 @@ function Listings() {
                         <SelectValue>{l.status}</SelectValue>
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="Pending">Pending</SelectItem>
-                        <SelectItem value="Sold">Sold</SelectItem>
+                        {STATUS_OPTIONS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
@@ -311,9 +310,7 @@ function NewListingDialog({
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Pending">Pending</SelectItem>
-                <SelectItem value="Sold">Sold</SelectItem>
+                {STATUS_OPTIONS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
