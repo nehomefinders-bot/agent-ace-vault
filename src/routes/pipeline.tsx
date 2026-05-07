@@ -184,6 +184,15 @@ function Pipeline() {
                     onChange={(e) => setProperty(e.target.value)}
                   />
                 </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="client">Name</Label>
+                  <Input
+                    id="client"
+                    placeholder="Name of the Client"
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                  />
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label>Stage</Label>
