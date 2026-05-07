@@ -443,7 +443,7 @@ function AddTransactionModal({
             required
             value={memo}
             onChange={(e) => setMemo(e.target.value)}
-            placeholder="e.g. Zillow Premier Agent â€” March"
+            placeholder="e.g. Zillow Premier Agent - March"
             rows={2}
           />
         </div>
@@ -451,7 +451,7 @@ function AddTransactionModal({
         <DialogFooter>
           <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
           <Button type="submit" disabled={saving}>
-            {saving ? "Savingâ€¦" : "Save Transaction"}
+            {saving ? "Saving..." : "Save Transaction"}
           </Button>
         </DialogFooter>
       </form>

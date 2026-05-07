@@ -40,7 +40,7 @@ function TransactionsPage() {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search memo or vendorâ€¦"
+            placeholder="Search memo or vendor..."
             className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-card text-sm"
           />
         </div>
@@ -96,7 +96,7 @@ function TransactionsPage() {
 
       <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
         {rows.length === 0 ? (
-          <div className="p-10 text-sm text-muted-foreground text-center">No transactions yet â€” add your first one.</div>
+          <div className="p-10 text-sm text-muted-foreground text-center">No transactions yet - add your first one.</div>
         ) : (
           <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-sm">
@@ -256,7 +256,7 @@ function AddTxnForm({
           className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm tabular-nums" />
         <button onClick={save} disabled={saving}
           className="bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50">
-          {saving ? "Savingâ€¦" : "Save"}
+          {saving ? "Saving..." : "Save"}
         </button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">

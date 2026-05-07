@@ -16,7 +16,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/deals")({
   component: DealsPage,
-  head: () => ({ meta: [{ title: "Deals & Commissions â€” Agent Business Tracker" }] }),
+  head: () => ({ meta: [{ title: "Deals & Commissions - Agent Business Tracker" }] }),
 });
 
 interface Deal {

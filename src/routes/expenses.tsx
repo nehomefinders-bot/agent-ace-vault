@@ -14,7 +14,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/expenses")({
   component: Expenses,
-  head: () => ({ meta: [{ title: "Expenses â€” Agent Business Tracker" }] }),
+  head: () => ({ meta: [{ title: "Expenses - Agent Business Tracker" }] }),
 });
 
 interface Expense {
@@ -296,7 +296,7 @@ function ExpenseDialog({
         <form onSubmit={save} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="ve">Vendor *</Label>
-            <Input id="ve" autoFocus required value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Staples, Shell, Zillow Adsâ€¦" />
+            <Input id="ve" autoFocus required value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Staples, Shell, Zillow Ads..." />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
@@ -327,7 +327,7 @@ function ExpenseDialog({
           </div>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit" disabled={saving || !vendor.trim()}>{saving ? "Savingâ€¦" : submitLabel}</Button>
+            <Button type="submit" disabled={saving || !vendor.trim()}>{saving ? "Saving..." : submitLabel}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

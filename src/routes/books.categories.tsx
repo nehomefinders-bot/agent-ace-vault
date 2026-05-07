@@ -86,7 +86,7 @@ function CategoriesPage() {
                         {a.name}
                         {a.description && <div className="text-xs text-muted-foreground font-normal">{a.description}</div>}
                       </td>
-                      <td className="py-3 text-xs text-muted-foreground">{a.taxLine ?? "â€”"}</td>
+                      <td className="py-3 text-xs text-muted-foreground">{a.taxLine ?? "N/A"}</td>
                       <td className="py-3 pr-6 text-right tabular-nums">{formatMoney(totals.get(a.id) ?? 0)}</td>
                       <td className="py-3 pr-4">
                         <div className="flex items-center justify-end gap-1">

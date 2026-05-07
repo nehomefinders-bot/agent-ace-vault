@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export const Route = createFileRoute("/mileage")({
   component: Mileage,
-  head: () => ({ meta: [{ title: "Mileage â€” Agent Business Tracker" }] }),
+  head: () => ({ meta: [{ title: "Mileage - Agent Business Tracker" }] }),
 });
 
 const irsRate = 0.67;
@@ -159,7 +159,7 @@ function Mileage() {
 
       <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
         {loading ? (
-          <div className="p-8 text-sm text-muted-foreground text-center">Loading tripsâ€¦</div>
+          <div className="p-8 text-sm text-muted-foreground text-center">Loading trips...</div>
         ) : trips.length === 0 ? (
           <div className="p-8 text-sm text-muted-foreground text-center">No trips logged yet.</div>
         ) : (
@@ -180,9 +180,9 @@ function Mileage() {
               {trips.map((m) => (
                 <tr key={m.id} className="border-t border-border hover:bg-muted/30">
                   <td className="py-4 px-6 text-muted-foreground text-xs tabular-nums">{m.date}</td>
-                  <td className="py-4">{m.from_address ?? "â€”"}</td>
-                  <td className="py-4">{m.to_address ?? "â€”"}</td>
-                  <td className="py-4 text-muted-foreground">{m.purpose ?? "â€”"}</td>
+                  <td className="py-4">{m.from_address ?? "N/A"}</td>
+                  <td className="py-4">{m.to_address ?? "N/A"}</td>
+                  <td className="py-4 text-muted-foreground">{m.purpose ?? "N/A"}</td>
                   <td className="py-4 text-right tabular-nums font-medium">{Number(m.miles).toFixed(1)}</td>
                   <td className="py-4 text-right tabular-nums font-medium text-success">{formatMoneyCents(Number(m.miles) * irsRate)}</td>
                   <td className="py-4 pr-4">
@@ -387,7 +387,7 @@ function LiveTracker({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
           </div>
           <div>
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{
-              status === "idle" ? "Ready" : status === "running" ? "Recordingâ€¦" : "Stopped"
+              status === "idle" ? "Ready" : status === "running" ? "Recording..." : "Stopped"
             }</div>
             <div className="text-4xl font-bold tabular-nums font-display">{miles.toFixed(2)} <span className="text-base font-normal text-muted-foreground">mi</span></div>
             <div className="text-xs text-muted-foreground mt-0.5 tabular-nums">{mm}:{ss} elapsed</div>
@@ -438,7 +438,7 @@ function LiveTracker({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
 
       <div className="mt-5 text-xs text-muted-foreground bg-muted/40 rounded-lg p-3">
         <strong className="text-foreground">Heads up:</strong> the browser only tracks while this tab is open and the screen is on.
-        For true background tracking (closed app, locked phone), you'll need the native mobile app â€” coming next.
+        For true background tracking (closed app, locked phone), you'll need the native mobile app - coming next.
       </div>
     </div>
   );
@@ -479,7 +479,7 @@ function RouteCalc({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
         </Field>
         <div className="flex items-end">
           <button onClick={calc} disabled={!from || !to || loading} className="w-full bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50">
-            {loading ? "Calculatingâ€¦" : "Calculate"}
+            {loading ? "Calculating..." : "Calculate"}
           </button>
         </div>
       </div>

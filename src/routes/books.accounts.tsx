@@ -34,7 +34,7 @@ function AccountsPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground max-w-2xl">
-          Every bank account and credit card lives here. Each transaction picks one as its "Paid from" â€” that's how
+          Every bank account and credit card lives here. Each transaction picks one as its "Paid from" - that's how
           balances stay accurate.
         </p>
         <div className="flex gap-2 shrink-0">
@@ -276,7 +276,7 @@ function TransferForm({
         <div className="flex items-end">
           <button onClick={save} disabled={saving}
             className="w-full bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50">
-            {saving ? "Savingâ€¦" : "Record transfer"}
+            {saving ? "Saving..." : "Record transfer"}
           </button>
         </div>
       </div>

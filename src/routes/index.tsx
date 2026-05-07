@@ -11,8 +11,8 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
   head: () => ({
     meta: [
-      { title: "Dashboard â€” Agent Business Tracker" },
-      { name: "description", content: "YTD commission, pipeline, invoices, expenses â€” at a glance." },
+      { title: "Dashboard - Agent Business Tracker" },
+      { name: "description", content: "YTD commission, pipeline, invoices, expenses - at a glance." },
     ],
   }),
 });
@@ -117,7 +117,7 @@ function Dashboard() {
           <div className="relative hidden md:block">
             <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
-              placeholder="Search deals, clientsâ€¦"
+              placeholder="Search deals, clients..."
               className="pl-9 pr-4 py-2.5 rounded-lg border border-border bg-card text-sm w-64 focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -147,7 +147,7 @@ function Dashboard() {
           </header>
           {deals.length === 0 ? (
             <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-              No deals yet. <Link to="/deals" className="text-primary font-medium">Add your first deal â†’</Link>
+              No deals yet. <Link to="/deals" className="text-primary font-medium">Add your first deal</Link>
             </div>
           ) : (
             <>
@@ -204,10 +204,10 @@ function Dashboard() {
                     {deals.map((d) => (
                       <tr key={d.id} className="border-t border-border row-hover-blue">
                         <td className="py-4 px-6 font-medium">{d.address}</td>
-                        <td className="py-4 text-muted-foreground">{d.client_name ?? "â€”"}</td>
+                        <td className="py-4 text-muted-foreground">{d.client_name ?? "N/A"}</td>
                         <td className="py-4 text-right tabular-nums font-medium">{formatMoney(Number(d.sale_price))}</td>
                         <td className="py-4 pl-6"><StatusPill tone={stageTone[d.status] ?? "muted"}>{stageLabel[d.status] ?? d.status}</StatusPill></td>
-                        <td className="py-4 pr-6 text-muted-foreground text-xs">{d.close_date ?? "â€”"}</td>
+                        <td className="py-4 pr-6 text-muted-foreground text-xs">{d.close_date ?? "N/A"}</td>
                         <td className="py-4 pr-6">
                           <div className="flex items-center justify-end gap-1">
                             <Link
@@ -252,7 +252,7 @@ function Dashboard() {
               <li key={inv.id} className="px-6 py-4 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <div className="font-medium text-sm truncate">{inv.id}</div>
-                  <div className="text-xs text-muted-foreground truncate">{inv.client} â· {inv.description}</div>
+                  <div className="text-xs text-muted-foreground truncate">{inv.client} - {inv.description}</div>
                 </div>
                 <div className="text-right shrink-0">
                   <div className="tabular-nums font-medium text-sm">{formatMoney(inv.amount)}</div>
@@ -274,7 +274,7 @@ function Dashboard() {
         </header>
         {expenses.length === 0 ? (
           <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-            No expenses yet. <Link to="/expenses" className="text-primary font-medium">Log your first â†’</Link>
+            No expenses yet. <Link to="/expenses" className="text-primary font-medium">Log your first expense</Link>
           </div>
         ) : (
           <ul className="divide-y divide-border">
