@@ -124,7 +124,7 @@ function Listings() {
         <BulkStatusBar
           count={selected.size}
           itemLabel="listings"
-          options={[{ value: "Active", label: "Active" }, { value: "Pending", label: "Pending" }, { value: "Sold", label: "Sold" }]}
+          options={STATUS_OPTIONS.map((s) => ({ value: s, label: s }))}
           onApply={bulkUpdateStatus}
           onClear={() => setSelected(new Set())}
         />
