@@ -68,6 +68,13 @@ function DealsPage() {
     await reload();
   };
 
+  const updateStatus = async (id: string, status: string) => {
+    const prev = deals;
+    setDeals((cur) => cur.map((d) => (d.id === id ? { ...d, status } : d)));
+    const { error } = await supabase.from("deals").update({ status }).eq("id", id);
+    if (error) setDeals(prev);
+  };
+
   const closed = deals.filter((d) => d.status === "closed");
   const pipeline = deals.filter((d) => d.status !== "closed" && d.status !== "dead");
 
