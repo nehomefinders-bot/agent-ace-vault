@@ -10,6 +10,9 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { BulkStatusBar } from "@/components/bulk-status-bar";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/deals")({
   component: DealsPage,
@@ -53,12 +56,14 @@ function DealsPage() {
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [editing, setEditing] = useState<Deal | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const reload = async () => {
     if (!user) { setDeals([]); setLoading(false); return; }
     setLoading(true);
     const { data } = await supabase.from("deals").select("*").order("created_at", { ascending: false });
     setDeals((data ?? []) as Deal[]);
+    setSelected(new Set());
     setLoading(false);
   };
   useEffect(() => { reload(); /* eslint-disable-next-line */ }, [user]);
@@ -73,6 +78,22 @@ function DealsPage() {
     setDeals((cur) => cur.map((d) => (d.id === id ? { ...d, status } : d)));
     const { error } = await supabase.from("deals").update({ status }).eq("id", id);
     if (error) setDeals(prev);
+  };
+
+  const toggleOne = (id: string) =>
+    setSelected((cur) => { const n = new Set(cur); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const toggleAll = () =>
+    setSelected((cur) => cur.size === deals.length ? new Set() : new Set(deals.map((d) => d.id)));
+
+  const bulkUpdateStatus = async (status: string) => {
+    const ids = Array.from(selected);
+    if (!ids.length) return;
+    const prev = deals;
+    setDeals((cur) => cur.map((d) => (selected.has(d.id) ? { ...d, status } : d)));
+    const { error } = await supabase.from("deals").update({ status }).in("id", ids);
+    if (error) { setDeals(prev); toast.error(error.message); return; }
+    toast.success(`Updated ${ids.length} deal${ids.length > 1 ? "s" : ""}`);
+    setSelected(new Set());
   };
 
   const closed = deals.filter((d) => d.status === "closed");
@@ -176,9 +197,17 @@ function DealsPage() {
         }}
       />
 
+      <BulkStatusBar
+        count={selected.size}
+        itemLabel="deals"
+        options={STATUSES.map((s) => ({ value: s, label: s.replace("_", " ") }))}
+        onApply={bulkUpdateStatus}
+        onClear={() => setSelected(new Set())}
+      />
+
       <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
         {loading ? (
-          <div className="p-8 text-sm text-muted-foreground text-center">Loadingâ€¦</div>
+          <div className="p-8 text-sm text-muted-foreground text-center">Loading…</div>
         ) : deals.length === 0 ? (
           <div className="p-12 text-center">
             <HomeIcon className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
@@ -186,10 +215,13 @@ function DealsPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-          <table className="w-full min-w-[920px] text-sm">
+          <table className="w-full min-w-[960px] text-sm">
             <thead>
               <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
-                <th className="text-left font-medium py-3 px-6">Property</th>
+                <th className="w-10 pl-6 py-3">
+                  <Checkbox checked={selected.size === deals.length && deals.length > 0} onCheckedChange={toggleAll} aria-label="Select all" />
+                </th>
+                <th className="text-left font-medium py-3">Property</th>
                 <th className="text-left font-medium py-3">Status</th>
                 <th className="text-right font-medium py-3">Sale price</th>
                 <th className="text-right font-medium py-3">Gross comm.</th>
@@ -201,9 +233,13 @@ function DealsPage() {
             <tbody>
               {deals.map((d) => {
                 const take = calcAgentTake(d);
+                const isSel = selected.has(d.id);
                 return (
-                  <tr key={d.id} className="border-t border-border hover:bg-muted/30">
-                    <td className="py-4 px-6">
+                  <tr key={d.id} className={`border-t border-border hover:bg-muted/30 ${isSel ? "bg-primary/5" : ""}`}>
+                    <td className="pl-6 py-4">
+                      <Checkbox checked={isSel} onCheckedChange={() => toggleOne(d.id)} aria-label="Select deal" />
+                    </td>
+                    <td className="py-4">
                       <div className="font-medium">{d.address}</div>
                       <div className="text-xs text-muted-foreground">
                         {d.client_name && <>{d.client_name} · </>}

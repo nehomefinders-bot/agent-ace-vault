@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { BulkStatusBar } from "@/components/bulk-status-bar";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/listings")({
@@ -43,6 +45,7 @@ function Listings() {
   const [rows, setRows] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   async function load() {
     if (!user) { setRows([]); setLoading(false); return; }
@@ -53,6 +56,7 @@ function Listings() {
       .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
     setRows((data ?? []) as Listing[]);
+    setSelected(new Set());
     setLoading(false);
   }
   useEffect(() => { if (!authLoading) load(); /* eslint-disable-next-line */ }, [user, authLoading]);
@@ -72,6 +76,20 @@ function Listings() {
     setRows((cur) => cur.map((r) => (r.id === id ? { ...r, status } : r)));
     const { error } = await supabase.from("listings").update({ status }).eq("id", id);
     if (error) { setRows(prev); toast.error(error.message); }
+  }
+
+  const toggleOne = (id: string) =>
+    setSelected((cur) => { const n = new Set(cur); n.has(id) ? n.delete(id) : n.add(id); return n; });
+
+  async function bulkUpdateStatus(status: string) {
+    const ids = Array.from(selected);
+    if (!ids.length) return;
+    const prev = rows;
+    setRows((cur) => cur.map((r) => (selected.has(r.id) ? { ...r, status } : r)));
+    const { error } = await supabase.from("listings").update({ status }).in("id", ids);
+    if (error) { setRows(prev); toast.error(error.message); return; }
+    toast.success(`Updated ${ids.length} listing${ids.length > 1 ? "s" : ""}`);
+    setSelected(new Set());
   }
 
   if (authLoading) return <PageShell title="Listings"><div className="flex justify-center py-20"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div></PageShell>;
@@ -101,12 +119,26 @@ function Listings() {
           <div className="text-sm text-muted-foreground mt-1">Add your first listing to get started.</div>
         </div>
       ) : (
+        <>
+        <BulkStatusBar
+          count={selected.size}
+          itemLabel="listings"
+          options={[{ value: "Active", label: "Active" }, { value: "Pending", label: "Pending" }, { value: "Sold", label: "Sold" }]}
+          onApply={bulkUpdateStatus}
+          onClear={() => setSelected(new Set())}
+        />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {rows.map((l) => {
             const cover = l.image_paths?.[0];
+            const isSel = selected.has(l.id);
             return (
-              <div key={l.id} className="bg-card border border-border rounded-2xl shadow-card overflow-hidden group">
+              <div key={l.id} className={`bg-card border rounded-2xl shadow-card overflow-hidden group ${isSel ? "border-primary ring-2 ring-primary/30" : "border-border"}`}>
                 <div className="aspect-[16/10] bg-gradient-to-br from-primary/80 to-primary relative">
+                  <div className={`absolute top-3 right-12 z-10 transition ${isSel ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+                    <div className="bg-white/90 backdrop-blur rounded-md p-0.5">
+                      <Checkbox checked={isSel} onCheckedChange={() => toggleOne(l.id)} aria-label="Select listing" />
+                    </div>
+                  </div>
                   {cover && (
                     <img
                       src={publicUrl(cover)}
@@ -153,6 +185,7 @@ function Listings() {
             );
           })}
         </div>
+        </>
       )}
     </PageShell>
   );

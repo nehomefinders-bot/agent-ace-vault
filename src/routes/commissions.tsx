@@ -13,6 +13,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { BulkStatusBar } from "@/components/bulk-status-bar";
 import { formatMoney } from "@/lib/mock-data";
 import { exportCommissionsCsv, exportCommissionsExcel, exportCommissionsPdf, type CommissionExportRow } from "@/lib/commission-exports";
 import { supabase } from "@/integrations/supabase/client";
@@ -276,6 +278,7 @@ function Commissions() {
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [editing, setEditing] = useState<CommissionRow | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const defaultAgentName = useMemo(() => {
     const displayName = user?.user_metadata?.display_name;
     if (typeof displayName === "string" && displayName.trim()) return displayName.trim();
@@ -329,6 +332,30 @@ function Commissions() {
     parts.push(`Status: ${status}`);
     const { error } = await supabase.from("deals").update({ notes: parts.join(" | ") }).eq("id", r.dealId);
     if (error) { setRows(prev); toast.error(error.message); }
+  }
+
+  const toggleOne = (id: string) =>
+    setSelected((cur) => { const n = new Set(cur); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const toggleAll = () =>
+    setSelected((cur) => cur.size === rows.length ? new Set() : new Set(rows.map((r) => r.dealId)));
+
+  async function bulkUpdateStatus(status: string) {
+    const targets = rows.filter((r) => selected.has(r.dealId));
+    if (!targets.length) return;
+    const newStatus = status as "Paid" | "Pending";
+    const prev = rows;
+    setRows((cur) => cur.map((r) => (selected.has(r.dealId) ? { ...r, status: newStatus } : r)));
+    const updates = targets.map((r) => {
+      const parts: string[] = [];
+      if (r.deductions > 0) parts.push(`Deductions: ${r.deductions}`);
+      parts.push(`Status: ${newStatus}`);
+      return supabase.from("deals").update({ notes: parts.join(" | ") }).eq("id", r.dealId);
+    });
+    const results = await Promise.all(updates);
+    const failed = results.find((r) => r.error);
+    if (failed?.error) { setRows(prev); toast.error(failed.error.message); return; }
+    toast.success(`Updated ${targets.length} commission${targets.length > 1 ? "s" : ""}`);
+    setSelected(new Set());
   }
 
   useEffect(() => {
@@ -509,6 +536,14 @@ function Commissions() {
         </div>
       </div>
 
+      <BulkStatusBar
+        count={selected.size}
+        itemLabel="commissions"
+        options={[{ value: "Paid", label: "Paid" }, { value: "Pending", label: "Pending" }]}
+        onApply={bulkUpdateStatus}
+        onClear={() => setSelected(new Set())}
+      />
+
       <section className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
         <header className="flex items-center justify-between gap-4 px-6 py-5 border-b border-border">
           <div>
@@ -601,7 +636,10 @@ function Commissions() {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
-                <th className="text-left font-medium py-3 px-6">Property Address</th>
+                <th className="w-10 pl-6 py-3">
+                  <Checkbox checked={selected.size === rows.length && rows.length > 0} onCheckedChange={toggleAll} aria-label="Select all" />
+                </th>
+                <th className="text-left font-medium py-3">Property Address</th>
                 <th className="text-left font-medium py-3">Agent Name</th>
                 <th className="text-left font-medium py-3">Closing Date</th>
                 <th className="text-right font-medium py-3">Sale Price</th>
@@ -616,9 +654,13 @@ function Commissions() {
             <tbody>
               {rows.map((r) => {
                 const net = netCommission(r);
+                const isSel = selected.has(r.dealId);
                 return (
-                  <tr key={r.dealId} className="border-t border-border hover:bg-muted/30 transition-colors">
-                    <td className="py-4 px-6">
+                  <tr key={r.dealId} className={`border-t border-border hover:bg-muted/30 transition-colors ${isSel ? "bg-primary/5" : ""}`}>
+                    <td className="pl-6 py-4">
+                      <Checkbox checked={isSel} onCheckedChange={() => toggleOne(r.dealId)} aria-label="Select commission" />
+                    </td>
+                    <td className="py-4">
                       <div className="font-medium">{r.property}</div>
                       <div className="text-xs text-muted-foreground font-mono mt-0.5">{r.shortId}</div>
                     </td>
