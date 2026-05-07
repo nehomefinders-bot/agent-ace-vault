@@ -139,6 +139,7 @@ function Listings() {
                       <Checkbox checked={isSel} onCheckedChange={() => toggleOne(l.id)} aria-label="Select listing" />
                     </div>
                   </div>
+                  {cover && (
                     <img
                       src={publicUrl(cover)}
                       alt={l.address}
