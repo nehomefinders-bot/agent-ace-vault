@@ -657,10 +657,10 @@ function Commissions() {
                 const isSel = selected.has(r.dealId);
                 return (
                   <tr key={r.dealId} className={`border-t border-border hover:bg-muted/30 transition-colors ${isSel ? "bg-primary/5" : ""}`}>
-                    <td className="pl-6 py-4">
+                    <td className="pl-6 pr-2 py-4">
                       <Checkbox checked={isSel} onCheckedChange={() => toggleOne(r.dealId)} aria-label="Select commission" />
                     </td>
-                    <td className="py-4">
+                    <td className="py-4 pl-2">
                       <div className="font-medium">{r.property}</div>
                       <div className="text-xs text-muted-foreground font-mono mt-0.5">{r.shortId}</div>
                     </td>
