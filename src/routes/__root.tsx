@@ -32,10 +32,10 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Agent Business Tracker — Business tracker for brokers & agents" },
+      { title: "Agent Business Tracker - Business tracker for brokers & agents" },
       { name: "description", content: "QuickBooks for real estate. Track deals, commissions, invoices, expenses, mileage and clients in one cockpit." },
-      { property: "og:title", content: "Agent Business Tracker — Business tracker for brokers & agents" },
-      { name: "twitter:title", content: "Agent Business Tracker — Business tracker for brokers & agents" },
+      { property: "og:title", content: "Agent Business Tracker - Business tracker for brokers & agents" },
+      { name: "twitter:title", content: "Agent Business Tracker - Business tracker for brokers & agents" },
       { property: "og:description", content: "QuickBooks for real estate. Track deals, commissions, invoices, expenses, mileage and clients in one cockpit." },
       { name: "twitter:description", content: "QuickBooks for real estate. Track deals, commissions, invoices, expenses, mileage and clients in one cockpit." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/1d29e18f-a478-4c8d-b62b-0a4afcdf8c1d" },
@@ -43,7 +43,8 @@ export const Route = createRootRoute({
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
     ],
-    links: [{ rel: "stylesheet", href: appCss },
+    links: [
+      { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" },
