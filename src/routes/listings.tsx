@@ -67,6 +67,13 @@ function Listings() {
     load();
   }
 
+  async function updateStatus(id: string, status: string) {
+    const prev = rows;
+    setRows((cur) => cur.map((r) => (r.id === id ? { ...r, status } : r)));
+    const { error } = await supabase.from("listings").update({ status }).eq("id", id);
+    if (error) { setRows(prev); toast.error(error.message); }
+  }
+
   if (authLoading) return <PageShell title="Listings"><div className="flex justify-center py-20"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div></PageShell>;
   if (!user) return <PageShell title="Listings" subtitle="Sign in to manage listings."><Link to="/auth" className="inline-flex bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium">Sign in</Link></PageShell>;
 
@@ -108,7 +115,22 @@ function Listings() {
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                   )}
-                  <div className="absolute top-3 left-3"><StatusPill tone={tone[l.status] ?? "muted"}>{l.status}</StatusPill></div>
+                  <div className="absolute top-3 left-3">
+                    <Select value={l.status} onValueChange={(v) => updateStatus(l.id, v)}>
+                      <SelectTrigger className={`h-7 px-2.5 text-xs font-medium border-0 rounded-full backdrop-blur ${
+                        l.status === "Active" ? "bg-success/90 text-white" :
+                        l.status === "Pending" ? "bg-warning/90 text-white" :
+                        "bg-black/60 text-white"
+                      }`} onClick={(e) => e.stopPropagation()}>
+                        <SelectValue>{l.status}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Pending">Pending</SelectItem>
+                        <SelectItem value="Sold">Sold</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                   {l.image_paths && l.image_paths.length > 1 && (
                     <div className="absolute bottom-3 left-3 bg-black/55 text-white text-[11px] font-medium rounded-md px-2 py-0.5">
                       +{l.image_paths.length - 1} photos

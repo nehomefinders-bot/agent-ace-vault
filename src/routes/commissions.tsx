@@ -12,6 +12,7 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatMoney } from "@/lib/mock-data";
 import { exportCommissionsCsv, exportCommissionsExcel, exportCommissionsPdf, type CommissionExportRow } from "@/lib/commission-exports";
 import { supabase } from "@/integrations/supabase/client";
@@ -59,17 +60,36 @@ function formatDate(iso: string): string {
   });
 }
 
-function StatusBadge({ status }: { status: "Paid" | "Pending" }) {
+function StatusBadge({ status, onChange }: { status: "Paid" | "Pending"; onChange?: (v: "Paid" | "Pending") => void }) {
   const cls =
     status === "Paid"
       ? "bg-success/15 text-success ring-1 ring-inset ring-success/30"
       : "bg-warning/15 text-warning ring-1 ring-inset ring-warning/30";
 
+  if (!onChange) {
+    return (
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${cls}`}>
+        <span className={`h-1.5 w-1.5 rounded-full ${status === "Paid" ? "bg-success" : "bg-warning"}`} />
+        {status}
+      </span>
+    );
+  }
+
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${cls}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${status === "Paid" ? "bg-success" : "bg-warning"}`} />
-      {status}
-    </span>
+    <Select value={status} onValueChange={(v) => onChange(v as "Paid" | "Pending")}>
+      <SelectTrigger className={`h-7 w-[110px] px-2.5 text-xs font-medium border-0 rounded-full ${cls}`}>
+        <SelectValue>
+          <span className="inline-flex items-center gap-1.5">
+            <span className={`h-1.5 w-1.5 rounded-full ${status === "Paid" ? "bg-success" : "bg-warning"}`} />
+            {status}
+          </span>
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="Paid">Paid</SelectItem>
+        <SelectItem value="Pending">Pending</SelectItem>
+      </SelectContent>
+    </Select>
   );
 }
 
@@ -283,6 +303,7 @@ function Commissions() {
       const sale = Number(d.sale_price);
       const gci = Number(d.gross_commission);
       const commissionPct = sale > 0 ? (gci / sale) * 100 : 0;
+      const status: "Paid" | "Pending" = /Status:\s*Pending/i.test(d.notes ?? "") ? "Pending" : "Paid";
       return {
         dealId: d.id,
         shortId: d.id.slice(0, 8),
@@ -294,10 +315,20 @@ function Commissions() {
         commissionPct,
         brokerSplit: Number(d.agent_split_pct),
         deductions: m ? parseFloat(m[1]) : 0,
-        status: "Paid" as const,
+        status,
       };
     }));
     setLoading(false);
+  }
+
+  async function toggleStatus(r: CommissionRow, status: "Paid" | "Pending") {
+    const prev = rows;
+    setRows((cur) => cur.map((x) => (x.dealId === r.dealId ? { ...x, status } : x)));
+    const parts: string[] = [];
+    if (r.deductions > 0) parts.push(`Deductions: ${r.deductions}`);
+    parts.push(`Status: ${status}`);
+    const { error } = await supabase.from("deals").update({ notes: parts.join(" | ") }).eq("id", r.dealId);
+    if (error) { setRows(prev); toast.error(error.message); }
   }
 
   useEffect(() => {
@@ -506,7 +537,7 @@ function Commissions() {
                       {r.shortId} - {formatDate(r.closingDate)}
                     </div>
                   </div>
-                  <StatusBadge status={r.status} />
+                  <StatusBadge status={r.status} onChange={(v) => toggleStatus(r, v)} />
                 </div>
                 <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
                   <div className="flex justify-between col-span-2 sm:col-span-1">
@@ -600,7 +631,7 @@ function Commissions() {
                     <td className="py-4 text-right tabular-nums text-muted-foreground">{r.brokerSplit}%</td>
                     <td className="py-4 text-right tabular-nums text-destructive">-{formatMoney(r.deductions)}</td>
                     <td className="py-4 text-right tabular-nums font-semibold">{formatMoney(net)}</td>
-                    <td className="py-4 px-6"><StatusBadge status={r.status} /></td>
+                    <td className="py-4 px-6"><StatusBadge status={r.status} onChange={(v) => toggleStatus(r, v)} /></td>
                     <td className="py-4 pr-6">
                       <div className="flex items-center justify-end gap-1">
                         <button
