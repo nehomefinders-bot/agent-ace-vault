@@ -45,6 +45,7 @@ function Listings() {
   const [rows, setRows] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   async function load() {
     if (!user) { setRows([]); setLoading(false); return; }
@@ -55,6 +56,7 @@ function Listings() {
       .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
     setRows((data ?? []) as Listing[]);
+    setSelected(new Set());
     setLoading(false);
   }
   useEffect(() => { if (!authLoading) load(); /* eslint-disable-next-line */ }, [user, authLoading]);
@@ -74,6 +76,20 @@ function Listings() {
     setRows((cur) => cur.map((r) => (r.id === id ? { ...r, status } : r)));
     const { error } = await supabase.from("listings").update({ status }).eq("id", id);
     if (error) { setRows(prev); toast.error(error.message); }
+  }
+
+  const toggleOne = (id: string) =>
+    setSelected((cur) => { const n = new Set(cur); n.has(id) ? n.delete(id) : n.add(id); return n; });
+
+  async function bulkUpdateStatus(status: string) {
+    const ids = Array.from(selected);
+    if (!ids.length) return;
+    const prev = rows;
+    setRows((cur) => cur.map((r) => (selected.has(r.id) ? { ...r, status } : r)));
+    const { error } = await supabase.from("listings").update({ status }).in("id", ids);
+    if (error) { setRows(prev); toast.error(error.message); return; }
+    toast.success(`Updated ${ids.length} listing${ids.length > 1 ? "s" : ""}`);
+    setSelected(new Set());
   }
 
   if (authLoading) return <PageShell title="Listings"><div className="flex justify-center py-20"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div></PageShell>;
