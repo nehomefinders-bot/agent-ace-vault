@@ -180,6 +180,7 @@ function Listings() {
             );
           })}
         </div>
+        </>
       )}
     </PageShell>
   );
