@@ -537,7 +537,7 @@ function Commissions() {
                       {r.shortId} - {formatDate(r.closingDate)}
                     </div>
                   </div>
-                  <StatusBadge status={r.status} />
+                  <StatusBadge status={r.status} onChange={(v) => toggleStatus(r, v)} />
                 </div>
                 <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
                   <div className="flex justify-between col-span-2 sm:col-span-1">
