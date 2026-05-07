@@ -197,9 +197,17 @@ function DealsPage() {
         }}
       />
 
+      <BulkStatusBar
+        count={selected.size}
+        itemLabel="deals"
+        options={STATUSES.map((s) => ({ value: s, label: s.replace("_", " ") }))}
+        onApply={bulkUpdateStatus}
+        onClear={() => setSelected(new Set())}
+      />
+
       <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
         {loading ? (
-          <div className="p-8 text-sm text-muted-foreground text-center">Loadingâ€¦</div>
+          <div className="p-8 text-sm text-muted-foreground text-center">Loading…</div>
         ) : deals.length === 0 ? (
           <div className="p-12 text-center">
             <HomeIcon className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
@@ -207,10 +215,13 @@ function DealsPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-          <table className="w-full min-w-[920px] text-sm">
+          <table className="w-full min-w-[960px] text-sm">
             <thead>
               <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
-                <th className="text-left font-medium py-3 px-6">Property</th>
+                <th className="w-10 pl-6 py-3">
+                  <Checkbox checked={selected.size === deals.length && deals.length > 0} onCheckedChange={toggleAll} aria-label="Select all" />
+                </th>
+                <th className="text-left font-medium py-3">Property</th>
                 <th className="text-left font-medium py-3">Status</th>
                 <th className="text-right font-medium py-3">Sale price</th>
                 <th className="text-right font-medium py-3">Gross comm.</th>
@@ -222,10 +233,12 @@ function DealsPage() {
             <tbody>
               {deals.map((d) => {
                 const take = calcAgentTake(d);
+                const isSel = selected.has(d.id);
                 return (
-                  <tr key={d.id} className="border-t border-border hover:bg-muted/30">
-                    <td className="py-4 px-6">
-                      <div className="font-medium">{d.address}</div>
+                  <tr key={d.id} className={`border-t border-border hover:bg-muted/30 ${isSel ? "bg-primary/5" : ""}`}>
+                    <td className="pl-6 py-4">
+                      <Checkbox checked={isSel} onCheckedChange={() => toggleOne(d.id)} aria-label="Select deal" />
+                    </td>
                       <div className="text-xs text-muted-foreground">
                         {d.client_name && <>{d.client_name} · </>}
                         {d.side} side
