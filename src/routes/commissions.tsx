@@ -278,6 +278,7 @@ function Commissions() {
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [editing, setEditing] = useState<CommissionRow | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const defaultAgentName = useMemo(() => {
     const displayName = user?.user_metadata?.display_name;
     if (typeof displayName === "string" && displayName.trim()) return displayName.trim();
