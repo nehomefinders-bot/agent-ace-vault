@@ -636,10 +636,10 @@ function Commissions() {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
-                <th className="w-10 pl-6 py-3">
+                <th className="w-12 pl-6 pr-2 py-3">
                   <Checkbox checked={selected.size === rows.length && rows.length > 0} onCheckedChange={toggleAll} aria-label="Select all" />
                 </th>
-                <th className="text-left font-medium py-3">Property Address</th>
+                <th className="text-left font-medium py-3 pl-2">Property Address</th>
                 <th className="text-left font-medium py-3">Agent Name</th>
                 <th className="text-left font-medium py-3">Closing Date</th>
                 <th className="text-right font-medium py-3">Sale Price</th>
@@ -657,10 +657,10 @@ function Commissions() {
                 const isSel = selected.has(r.dealId);
                 return (
                   <tr key={r.dealId} className={`border-t border-border hover:bg-muted/30 transition-colors ${isSel ? "bg-primary/5" : ""}`}>
-                    <td className="pl-6 py-4">
+                    <td className="pl-6 pr-2 py-4">
                       <Checkbox checked={isSel} onCheckedChange={() => toggleOne(r.dealId)} aria-label="Select commission" />
                     </td>
-                    <td className="py-4">
+                    <td className="py-4 pl-2">
                       <div className="font-medium">{r.property}</div>
                       <div className="text-xs text-muted-foreground font-mono mt-0.5">{r.shortId}</div>
                     </td>
