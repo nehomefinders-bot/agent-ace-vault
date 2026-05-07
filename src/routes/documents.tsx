@@ -26,7 +26,7 @@ interface Doc {
   created_at: string;
 }
 
-const FOLDERS = ["General", "Contracts", "Disclosures", "Listings", "Closing", "Marketing"];
+const FOLDERS = ["Miscellaneous", "Contracts", "Disclosures", "Listings", "Closing", "Marketing"];
 
 function Documents() {
   const { user, loading: authLoading } = useAuth();
