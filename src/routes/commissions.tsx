@@ -452,6 +452,32 @@ function Commissions() {
               <DropdownMenuItem onSelect={() => void handleExport("csv")}>Export CSV</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <ImportButton
+            table="deals"
+            userId={user!.id}
+            columns={COMMISSION_IMPORT_COLUMNS}
+            templateName="commissions-template"
+            entityLabel="commissions"
+            onImported={() => void load()}
+            transformRow={(r) => {
+              const sale = Number(r.sale_price) || 0;
+              const cPct = Number(r.commission_pct) || 0;
+              const bSplit = Number(r.broker_split_pct) || 0;
+              const ded = Number(r.deductions) || 0;
+              return {
+                address: r.address,
+                agent_name: r.agent_name ?? null,
+                side: "buy",
+                status: "closed",
+                sale_price: sale,
+                gross_commission: sale * (cPct / 100),
+                agent_split_pct: bSplit,
+                brokerage_split_pct: 100 - bSplit,
+                close_date: r.close_date ?? new Date().toISOString().slice(0, 10),
+                notes: ded > 0 ? `Deductions: ${ded}` : null,
+              };
+            }}
+          />
           <Button onClick={() => setAddOpen(true)} className="inline-flex items-center gap-2">
             <Plus className="h-4 w-4" /> Add Commission
           </Button>
