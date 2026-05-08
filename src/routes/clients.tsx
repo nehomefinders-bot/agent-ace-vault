@@ -44,7 +44,20 @@ function Clients() {
   const [editing, setEditing] = useState<Client | null>(null);
   const [syncing, setSyncing] = useState<string | null>(null);
 
-  const [form, setForm] = useState({ name: "", email: "", phone: "", company: "", notes: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    notes: "",
+    client_type: "" as "" | "buyer" | "seller",
+    timeline: "",
+    address: "",
+    pre_approved: "" as "" | "yes" | "no",
+    budget_min: "",
+    budget_max: "",
+    locality: "",
+  });
 
   async function load() {
     if (!user) return;
