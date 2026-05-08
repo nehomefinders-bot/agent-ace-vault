@@ -112,14 +112,25 @@ function Listings() {
       title="Listings"
       subtitle="Active inventory across your portfolio."
       actions={
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> New Listing</Button></DialogTrigger>
-          <NewListingDialog
+        <div className="flex flex-wrap items-center gap-2">
+          <ImportButton
+            table="listings"
             userId={user.id}
-            onClose={() => setOpen(false)}
-            onSaved={() => { setOpen(false); load(); }}
+            columns={LISTING_IMPORT_COLUMNS}
+            templateName="listings-template"
+            entityLabel="listings"
+            onImported={load}
+            transformRow={(r) => ({ ...r, image_paths: [] })}
           />
-        </Dialog>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> New Listing</Button></DialogTrigger>
+            <NewListingDialog
+              userId={user.id}
+              onClose={() => setOpen(false)}
+              onSaved={() => { setOpen(false); load(); }}
+            />
+          </Dialog>
+        </div>
       }
     >
       {loading ? (
