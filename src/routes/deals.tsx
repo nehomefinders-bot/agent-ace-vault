@@ -13,6 +13,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { BulkStatusBar } from "@/components/bulk-status-bar";
 import { toast } from "sonner";
+import { ImportButton, type ImportColumn } from "@/components/import-button";
+
+const DEAL_IMPORT_COLUMNS: ImportColumn[] = [
+  { key: "address", label: "Address", required: true, sample: "123 Main St" },
+  { key: "client_name", label: "Client Name", sample: "Jane Smith" },
+  { key: "side", label: "Side", enumValues: ["buy", "sell"], sample: "buy" },
+  { key: "sale_price", label: "Sale Price", type: "number", sample: 500000 },
+  { key: "gross_commission", label: "Gross Commission", type: "number", sample: 15000 },
+  { key: "agent_split_pct", label: "Agent Split %", type: "number", sample: 80 },
+  { key: "brokerage_split_pct", label: "Brokerage Split %", type: "number", sample: 20 },
+  { key: "referral_pct", label: "Referral %", type: "number", sample: 0 },
+  { key: "referral_to", label: "Referral To", sample: "" },
+  { key: "status", label: "Status", enumValues: ["pending", "under_contract", "closed", "dead"], sample: "pending" },
+  { key: "close_date", label: "Close Date", type: "date", sample: "2025-01-15" },
+  { key: "agent_name", label: "Agent Name", sample: "" },
+  { key: "notes", label: "Notes", sample: "" },
+];
 
 export const Route = createFileRoute("/deals")({
   component: DealsPage,
