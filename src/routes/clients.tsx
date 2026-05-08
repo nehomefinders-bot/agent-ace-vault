@@ -200,9 +200,29 @@ function Clients() {
       title="Clients"
       subtitle="Your CRM — synced two-way with GoHighLevel."
       actions={
-        <button onClick={openNew} className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">
-          <Plus className="h-4 w-4" /> Add Client
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <ImportButton
+            table="clients"
+            userId={user!.id}
+            columns={CLIENT_IMPORT_COLUMNS}
+            templateName="clients-template"
+            entityLabel="clients"
+            onImported={load}
+            transformRow={(r) => {
+              const isBuyer = r.client_type === "buyer";
+              return {
+                ...r,
+                address: !isBuyer ? r.address ?? null : null,
+                pre_approved: isBuyer ? r.pre_approved ?? null : null,
+                locality: isBuyer ? r.locality ?? null : null,
+                source: "import",
+              };
+            }}
+          />
+          <button onClick={openNew} className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">
+            <Plus className="h-4 w-4" /> Add Client
+          </button>
+        </div>
       }
     >
       <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
