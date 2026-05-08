@@ -78,14 +78,14 @@ export function AppSidebar() {
         : currentPlan?.name ?? "Active";
 
   const sidebarContent = (
-    <>
-      <div className="px-6 pt-7 pb-8 flex items-center justify-between">
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="px-5 pt-6 pb-6 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-xl bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground">
-            <Building2 className="h-5 w-5" />
+          <div className="h-8 w-8 rounded-xl bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground">
+            <Building2 className="h-4 w-4" />
           </div>
           <div>
-            <div className="font-display font-bold text-base leading-none">Agent</div>
+            <div className="font-display font-bold text-sm leading-none">Agent</div>
             <div className="text-[10px] uppercase tracking-wider text-sidebar-foreground/75 mt-1">Business Tracker</div>
           </div>
         </div>
@@ -99,10 +99,10 @@ export function AppSidebar() {
         </button>
       </div>
 
-      <nav className="flex-1 px-3 space-y-5 overflow-y-auto">
+      <nav className="flex-1 min-h-0 px-2.5 space-y-4 overflow-y-auto overscroll-contain">
         {sections.map((section) => (
           <div key={section.label}>
-            <div className="px-3 mb-1.5 text-[10px] uppercase tracking-[0.14em] text-sidebar-foreground/70 font-medium">
+            <div className="px-2.5 mb-1.5 text-[10px] uppercase tracking-[0.14em] text-sidebar-foreground/70 font-medium">
               {section.label}
             </div>
             <div className="space-y-0.5">
@@ -112,13 +112,13 @@ export function AppSidebar() {
                   <Link
                     key={to}
                     to={to}
-                    className={`group flex items-center gap-3 px-3 py-3 lg:py-2 rounded-lg text-sm transition-colors min-h-11 ${
+                    className={`group flex items-center gap-2.5 px-2.5 py-3 lg:py-2 rounded-lg text-sm transition-colors min-h-11 ${
                       active
                         ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
                         : "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                     }`}
                   >
-                    <Icon className="h-4 w-4 shrink-0" />
+                    <Icon className="h-3.5 w-3.5 shrink-0" />
                     <span>{label}</span>
                   </Link>
                 );
@@ -128,14 +128,14 @@ export function AppSidebar() {
         ))}
       </nav>
 
-      <div className="m-3 p-4 rounded-xl bg-sidebar-accent/60 border border-sidebar-border space-y-3">
+      <div className="m-3 p-4 rounded-xl bg-sidebar-accent/60 border border-sidebar-border space-y-3 shrink-0">
         <div>
           <div className="text-xs uppercase tracking-wider text-sidebar-foreground/75 mb-1">Plan</div>
           <div className="text-sm font-medium text-sidebar-foreground">{planLabel}</div>
         </div>
         {user ? (
           <div className="pt-2 border-t border-sidebar-border">
-            <div className="text-xs text-sidebar-foreground/75 truncate mb-2">{user.email}</div>
+            <div className="text-xs leading-4 text-sidebar-foreground/75 break-all mb-2">{user.email}</div>
             <button
               onClick={async () => {
                 await signOut();
@@ -155,7 +155,7 @@ export function AppSidebar() {
           </Link>
         )}
       </div>
-    </>
+    </div>
   );
 
   return (
@@ -188,7 +188,7 @@ export function AppSidebar() {
       </div>
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-64 shrink-0 bg-sidebar text-sidebar-foreground flex-col min-h-dvh sticky top-0">
+      <aside className="hidden lg:flex w-72 shrink-0 bg-sidebar text-sidebar-foreground flex-col h-dvh sticky top-0 overflow-hidden">
         {sidebarContent}
       </aside>
 
@@ -201,7 +201,7 @@ export function AppSidebar() {
             onClick={() => setMobileOpen(false)}
             className="absolute inset-0 bg-black/50"
           />
-          <aside className="relative w-72 max-w-[85%] bg-sidebar text-sidebar-foreground flex flex-col h-full shadow-xl animate-in slide-in-from-left">
+          <aside className="relative w-[min(18rem,85%)] bg-sidebar text-sidebar-foreground flex flex-col h-full shadow-xl animate-in slide-in-from-left overflow-hidden">
             {sidebarContent}
           </aside>
         </div>
