@@ -10,6 +10,21 @@ import { toast } from "sonner";
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
+import { ImportButton, type ImportColumn } from "@/components/import-button";
+
+const CLIENT_IMPORT_COLUMNS: ImportColumn[] = [
+  { key: "name", label: "Name", required: true, sample: "Jane Smith" },
+  { key: "email", label: "Email", sample: "jane@example.com" },
+  { key: "phone", label: "Phone", sample: "555-123-4567" },
+  { key: "client_type", label: "Type", enumValues: ["buyer", "seller"], sample: "buyer" },
+  { key: "timeline", label: "Timeline", sample: "1-3 months" },
+  { key: "address", label: "Property Address (sellers)", sample: "" },
+  { key: "pre_approved", label: "Pre Approved (buyers)", type: "boolean", sample: "yes" },
+  { key: "budget_min", label: "Budget Min", type: "number", sample: 200000 },
+  { key: "budget_max", label: "Budget Max", type: "number", sample: 400000 },
+  { key: "locality", label: "Town / Locality (buyers)", sample: "Brooklyn" },
+  { key: "notes", label: "Notes", sample: "" },
+];
 
 export const Route = createFileRoute("/clients")({
   component: Clients,
