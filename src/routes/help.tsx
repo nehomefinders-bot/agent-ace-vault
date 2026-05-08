@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   LifeBuoy, Search, BookOpen, Receipt, Wallet, Car, ScanLine,
@@ -7,7 +7,7 @@ import {
 
 export const Route = createFileRoute("/help")({
   component: HelpPage,
-  head: () => ({ meta: [{ title: "How-to — Agent Business Tracker" }] }),
+  head: () => ({ meta: [{ title: "How-to - Agent Business Tracker" }] }),
 });
 
 type Article = {
@@ -257,7 +257,7 @@ function HelpPage() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder='Search — try "invoice", "mileage", "1099"…'
+          placeholder='Search - try "invoice", "mileage", "1099"...'
           className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-card text-sm shadow-card focus:outline-none focus:ring-2 focus:ring-primary/30"
         />
       </div>
@@ -289,16 +289,22 @@ function HelpPage() {
         })}
       </div>
 
-      <div className="mt-10 bg-primary text-primary-foreground rounded-2xl p-6 shadow-card">
-        <div className="flex items-start gap-4">
-          <div className="h-10 w-10 rounded-xl bg-primary-foreground/15 flex items-center justify-center shrink-0">
+      <div className="mt-10 bg-primary text-primary-foreground rounded-2xl p-5 sm:p-6 shadow-card">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+          <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-primary-foreground/15 flex items-center justify-center shrink-0">
             <LifeBuoy className="h-5 w-5" />
           </div>
-          <div>
-            <h3 className="font-display font-bold text-lg">Still stuck?</h3>
-            <p className="text-sm opacity-80 mt-1">
-              Email <span className="underline">livingandlearningwithjackie@gmail.com</span> with a screenshot — typical reply under
-              4 business hours.
+          <div className="min-w-0">
+            <h3 className="font-display font-bold text-lg sm:text-xl">Still stuck?</h3>
+            <p className="text-sm sm:text-base opacity-80 mt-2 leading-6">
+              <span className="block">Email</span>
+              <a
+                href="mailto:livingandlearningwithjackie@gmail.com"
+                className="block break-all underline underline-offset-2"
+              >
+                livingandlearningwithjackie@gmail.com
+              </a>
+              <span className="block mt-1">with a screenshot - typical reply under 4 business hours.</span>
             </p>
           </div>
         </div>
@@ -345,3 +351,6 @@ function ArticleRow({ article }: { article: Article }) {
 }
 
 void Plus; void Download; void Wallet; void ArrowRightLeft;
+
+
+
