@@ -20,6 +20,17 @@ import { exportCommissionsCsv, exportCommissionsExcel, exportCommissionsPdf, typ
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { ImportButton, type ImportColumn } from "@/components/import-button";
+
+const COMMISSION_IMPORT_COLUMNS: ImportColumn[] = [
+  { key: "address", label: "Property", required: true, sample: "123 Main St" },
+  { key: "agent_name", label: "Agent Name", sample: "Jane Smith" },
+  { key: "sale_price", label: "Sale Price", type: "number", sample: 500000 },
+  { key: "commission_pct", label: "Commission %", type: "number", sample: 3 },
+  { key: "broker_split_pct", label: "Broker Split %", type: "number", sample: 80 },
+  { key: "deductions", label: "Deductions", type: "number", sample: 0 },
+  { key: "close_date", label: "Closing Date", type: "date", sample: "2025-01-15" },
+];
 
 export const Route = createFileRoute("/commissions")({
   component: Commissions,
