@@ -13,6 +13,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { BulkStatusBar } from "@/components/bulk-status-bar";
 import { toast } from "sonner";
+import { ImportButton, type ImportColumn } from "@/components/import-button";
+
+const DEAL_IMPORT_COLUMNS: ImportColumn[] = [
+  { key: "address", label: "Address", required: true, sample: "123 Main St" },
+  { key: "client_name", label: "Client Name", sample: "Jane Smith" },
+  { key: "side", label: "Side", enumValues: ["buy", "sell"], sample: "buy" },
+  { key: "sale_price", label: "Sale Price", type: "number", sample: 500000 },
+  { key: "gross_commission", label: "Gross Commission", type: "number", sample: 15000 },
+  { key: "agent_split_pct", label: "Agent Split %", type: "number", sample: 80 },
+  { key: "brokerage_split_pct", label: "Brokerage Split %", type: "number", sample: 20 },
+  { key: "referral_pct", label: "Referral %", type: "number", sample: 0 },
+  { key: "referral_to", label: "Referral To", sample: "" },
+  { key: "status", label: "Status", enumValues: ["pending", "under_contract", "closed", "dead"], sample: "pending" },
+  { key: "close_date", label: "Close Date", type: "date", sample: "2025-01-15" },
+  { key: "agent_name", label: "Agent Name", sample: "" },
+  { key: "notes", label: "Notes", sample: "" },
+];
 
 export const Route = createFileRoute("/deals")({
   component: DealsPage,
@@ -120,12 +137,22 @@ function DealsPage() {
       title="Deals & Commissions"
       subtitle="Track each transaction, splits, and what you actually take home."
       actions={
-        <button
-          onClick={() => setAddOpen(true)}
-          className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium"
-        >
-          <Plus className="h-4 w-4" /> New deal
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <ImportButton
+            table="deals"
+            userId={user.id}
+            columns={DEAL_IMPORT_COLUMNS}
+            templateName="deals-template"
+            entityLabel="deals"
+            onImported={reload}
+          />
+          <button
+            onClick={() => setAddOpen(true)}
+            className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium"
+          >
+            <Plus className="h-4 w-4" /> New deal
+          </button>
+        </div>
       }
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">

@@ -13,6 +13,17 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Checkbox } from "@/components/ui/checkbox";
 import { BulkStatusBar } from "@/components/bulk-status-bar";
 import { toast } from "sonner";
+import { ImportButton, type ImportColumn } from "@/components/import-button";
+
+const LISTING_IMPORT_COLUMNS: ImportColumn[] = [
+  { key: "address", label: "Address", required: true, sample: "123 Main St" },
+  { key: "list_price", label: "List Price", type: "number", sample: 500000 },
+  { key: "status", label: "Status", enumValues: ["Active", "Pending", "Sold", "Not on MLS"], sample: "Active" },
+  { key: "beds", label: "Beds", type: "number", sample: 3 },
+  { key: "baths", label: "Baths", type: "number", sample: 2 },
+  { key: "sqft", label: "Sqft", type: "number", sample: 1500 },
+  { key: "notes", label: "Notes", sample: "" },
+];
 
 export const Route = createFileRoute("/listings")({
   component: Listings,
@@ -101,14 +112,25 @@ function Listings() {
       title="Listings"
       subtitle="Active inventory across your portfolio."
       actions={
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> New Listing</Button></DialogTrigger>
-          <NewListingDialog
+        <div className="flex flex-wrap items-center gap-2">
+          <ImportButton
+            table="listings"
             userId={user.id}
-            onClose={() => setOpen(false)}
-            onSaved={() => { setOpen(false); load(); }}
+            columns={LISTING_IMPORT_COLUMNS}
+            templateName="listings-template"
+            entityLabel="listings"
+            onImported={load}
+            transformRow={(r) => ({ ...r, image_paths: [] })}
           />
-        </Dialog>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-1.5" /> New Listing</Button></DialogTrigger>
+            <NewListingDialog
+              userId={user.id}
+              onClose={() => setOpen(false)}
+              onSaved={() => { setOpen(false); load(); }}
+            />
+          </Dialog>
+        </div>
       }
     >
       {loading ? (
