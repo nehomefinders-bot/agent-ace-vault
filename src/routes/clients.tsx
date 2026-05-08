@@ -66,12 +66,27 @@ function Clients() {
     locality: "",
   });
 
+  const emptyForm = {
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    notes: "",
+    client_type: "" as "" | "buyer" | "seller",
+    timeline: "",
+    address: "",
+    pre_approved: "" as "" | "yes" | "no",
+    budget_min: "",
+    budget_max: "",
+    locality: "",
+  };
+
   async function load() {
     if (!user) return;
     setLoading(true);
     const { data, error } = await supabase
       .from("clients")
-      .select("id,name,email,phone,company,notes,ghl_contact_id,last_synced_at,source,updated_at")
+      .select("id,name,email,phone,company,notes,ghl_contact_id,last_synced_at,source,updated_at,client_type,timeline,address,pre_approved,budget_min,budget_max,locality")
       .order("updated_at", { ascending: false });
     if (error) toast.error(error.message);
     setRows((data ?? []) as Client[]);
@@ -82,7 +97,7 @@ function Clients() {
 
   function openNew() {
     setEditing(null);
-    setForm({ name: "", email: "", phone: "", company: "", notes: "" });
+    setForm(emptyForm);
     setOpen(true);
   }
   function openEdit(c: Client) {
@@ -93,6 +108,13 @@ function Clients() {
       phone: c.phone ?? "",
       company: c.company ?? "",
       notes: c.notes ?? "",
+      client_type: (c.client_type as "buyer" | "seller" | null) ?? "",
+      timeline: c.timeline ?? "",
+      address: c.address ?? "",
+      pre_approved: c.pre_approved === true ? "yes" : c.pre_approved === false ? "no" : "",
+      budget_min: c.budget_min != null ? String(c.budget_min) : "",
+      budget_max: c.budget_max != null ? String(c.budget_max) : "",
+      locality: c.locality ?? "",
     });
     setOpen(true);
   }
@@ -100,12 +122,21 @@ function Clients() {
   async function save() {
     if (!user) return;
     if (!form.name.trim()) return toast.error("Name is required");
+    if (!form.client_type) return toast.error("Please select Buyer or Seller");
+    const isBuyer = form.client_type === "buyer";
     const payload = {
       name: form.name.trim(),
       email: form.email.trim() || null,
       phone: form.phone.trim() || null,
       company: form.company.trim() || null,
       notes: form.notes.trim() || null,
+      client_type: form.client_type,
+      timeline: form.timeline.trim() || null,
+      address: !isBuyer ? (form.address.trim() || null) : null,
+      pre_approved: isBuyer ? (form.pre_approved === "yes" ? true : form.pre_approved === "no" ? false : null) : null,
+      budget_min: form.budget_min ? Number(form.budget_min) : null,
+      budget_max: form.budget_max ? Number(form.budget_max) : null,
+      locality: isBuyer ? (form.locality.trim() || null) : null,
     };
     if (editing) {
       const { error } = await supabase.from("clients").update(payload).eq("id", editing.id);
