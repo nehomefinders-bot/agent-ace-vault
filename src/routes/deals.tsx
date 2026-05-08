@@ -137,12 +137,22 @@ function DealsPage() {
       title="Deals & Commissions"
       subtitle="Track each transaction, splits, and what you actually take home."
       actions={
-        <button
-          onClick={() => setAddOpen(true)}
-          className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium"
-        >
-          <Plus className="h-4 w-4" /> New deal
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <ImportButton
+            table="deals"
+            userId={user.id}
+            columns={DEAL_IMPORT_COLUMNS}
+            templateName="deals-template"
+            entityLabel="deals"
+            onImported={reload}
+          />
+          <button
+            onClick={() => setAddOpen(true)}
+            className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium"
+          >
+            <Plus className="h-4 w-4" /> New deal
+          </button>
+        </div>
       }
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
