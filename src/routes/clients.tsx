@@ -32,6 +32,13 @@ type Client = {
   last_synced_at: string | null;
   source: string;
   updated_at: string;
+  client_type: string | null;
+  timeline: string | null;
+  address: string | null;
+  pre_approved: boolean | null;
+  budget_min: number | null;
+  budget_max: number | null;
+  locality: string | null;
 };
 
 function Clients() {
