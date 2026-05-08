@@ -266,7 +266,7 @@ function Clients() {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editing ? "Edit client" : "New client"}</DialogTitle>
           </DialogHeader>
@@ -275,8 +275,83 @@ function Clients() {
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
             <input className="input" placeholder="Email" value={form.email}
               onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
-            <input className="input" placeholder="Phone" value={form.phone}
+            <input className="input" placeholder="Phone Number" value={form.phone}
               onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} />
+
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Client type *</label>
+              <div className="grid grid-cols-2 gap-2">
+                {(["buyer", "seller"] as const).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, client_type: t }))}
+                    className={`px-4 py-2.5 rounded-lg border text-sm font-medium capitalize transition-colors ${
+                      form.client_type === t
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background border-input hover:bg-accent"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {form.client_type && (
+              <input
+                className="input"
+                placeholder={form.client_type === "buyer" ? "Timeline to buy (e.g. 1–3 months)" : "Timeline to sell (e.g. 1–3 months)"}
+                value={form.timeline}
+                onChange={(e) => setForm((f) => ({ ...f, timeline: e.target.value }))}
+              />
+            )}
+
+            {form.client_type === "seller" && (
+              <input className="input" placeholder="Property address" value={form.address}
+                onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} />
+            )}
+
+            {form.client_type === "buyer" && (
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Pre-approved?</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(["yes", "no"] as const).map((v) => (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, pre_approved: v }))}
+                      className={`px-4 py-2.5 rounded-lg border text-sm font-medium uppercase transition-colors ${
+                        form.pre_approved === v
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background border-input hover:bg-accent"
+                      }`}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {form.client_type && (
+              <div className="grid grid-cols-2 gap-2">
+                <input className="input" type="number" inputMode="numeric"
+                  placeholder={form.client_type === "buyer" ? "Budget min" : "Price range min"}
+                  value={form.budget_min}
+                  onChange={(e) => setForm((f) => ({ ...f, budget_min: e.target.value }))} />
+                <input className="input" type="number" inputMode="numeric"
+                  placeholder={form.client_type === "buyer" ? "Budget max" : "Price range max"}
+                  value={form.budget_max}
+                  onChange={(e) => setForm((f) => ({ ...f, budget_max: e.target.value }))} />
+              </div>
+            )}
+
+            {form.client_type === "buyer" && (
+              <input className="input" placeholder="Town / locality looking to buy in" value={form.locality}
+                onChange={(e) => setForm((f) => ({ ...f, locality: e.target.value }))} />
+            )}
+
             <input className="input" placeholder="Company" value={form.company}
               onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))} />
             <textarea className="input min-h-20" placeholder="Notes" value={form.notes}
