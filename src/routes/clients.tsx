@@ -364,8 +364,6 @@ function Clients() {
                 onChange={(e) => setForm((f) => ({ ...f, locality: e.target.value }))} />
             )}
 
-            <input className="input" placeholder="Company" value={form.company}
-              onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))} />
             <textarea className="input min-h-20" placeholder="Notes" value={form.notes}
               onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
           </div>
