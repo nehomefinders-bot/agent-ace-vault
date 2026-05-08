@@ -204,7 +204,7 @@ function Clients() {
               <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
                 <th className="text-left font-medium py-3 px-6">Name</th>
                 <th className="text-left font-medium py-3">Contact</th>
-                <th className="text-left font-medium py-3">Company</th>
+                <th className="text-left font-medium py-3">Type</th>
                 <th className="text-left font-medium py-3">GHL Sync</th>
                 <th className="text-right font-medium py-3 pr-6">Actions</th>
               </tr>
@@ -226,7 +226,19 @@ function Clients() {
                       {c.phone && <span className="inline-flex items-center gap-1.5"><Phone className="h-3 w-3" />{c.phone}</span>}
                     </div>
                   </td>
-                  <td className="py-4 text-muted-foreground text-xs">{c.company ?? "—"}</td>
+                  <td className="py-4">
+                    {c.client_type ? (
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
+                        c.client_type === "buyer"
+                          ? "bg-blue-500/10 text-blue-500"
+                          : "bg-amber-500/10 text-amber-500"
+                      }`}>
+                        {c.client_type}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </td>
                   <td className="py-4">
                     {c.ghl_contact_id ? (
                       <span className="inline-flex items-center gap-1 text-xs text-green-600">
@@ -352,8 +364,6 @@ function Clients() {
                 onChange={(e) => setForm((f) => ({ ...f, locality: e.target.value }))} />
             )}
 
-            <input className="input" placeholder="Company" value={form.company}
-              onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))} />
             <textarea className="input min-h-20" placeholder="Notes" value={form.notes}
               onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
           </div>
