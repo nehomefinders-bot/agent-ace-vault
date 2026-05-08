@@ -32,6 +32,13 @@ type Client = {
   last_synced_at: string | null;
   source: string;
   updated_at: string;
+  client_type: string | null;
+  timeline: string | null;
+  address: string | null;
+  pre_approved: boolean | null;
+  budget_min: number | null;
+  budget_max: number | null;
+  locality: string | null;
 };
 
 function Clients() {
@@ -44,14 +51,42 @@ function Clients() {
   const [editing, setEditing] = useState<Client | null>(null);
   const [syncing, setSyncing] = useState<string | null>(null);
 
-  const [form, setForm] = useState({ name: "", email: "", phone: "", company: "", notes: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    notes: "",
+    client_type: "" as "" | "buyer" | "seller",
+    timeline: "",
+    address: "",
+    pre_approved: "" as "" | "yes" | "no",
+    budget_min: "",
+    budget_max: "",
+    locality: "",
+  });
+
+  const emptyForm = {
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    notes: "",
+    client_type: "" as "" | "buyer" | "seller",
+    timeline: "",
+    address: "",
+    pre_approved: "" as "" | "yes" | "no",
+    budget_min: "",
+    budget_max: "",
+    locality: "",
+  };
 
   async function load() {
     if (!user) return;
     setLoading(true);
     const { data, error } = await supabase
       .from("clients")
-      .select("id,name,email,phone,company,notes,ghl_contact_id,last_synced_at,source,updated_at")
+      .select("id,name,email,phone,company,notes,ghl_contact_id,last_synced_at,source,updated_at,client_type,timeline,address,pre_approved,budget_min,budget_max,locality")
       .order("updated_at", { ascending: false });
     if (error) toast.error(error.message);
     setRows((data ?? []) as Client[]);
@@ -62,7 +97,7 @@ function Clients() {
 
   function openNew() {
     setEditing(null);
-    setForm({ name: "", email: "", phone: "", company: "", notes: "" });
+    setForm(emptyForm);
     setOpen(true);
   }
   function openEdit(c: Client) {
@@ -73,6 +108,13 @@ function Clients() {
       phone: c.phone ?? "",
       company: c.company ?? "",
       notes: c.notes ?? "",
+      client_type: (c.client_type as "buyer" | "seller" | null) ?? "",
+      timeline: c.timeline ?? "",
+      address: c.address ?? "",
+      pre_approved: c.pre_approved === true ? "yes" : c.pre_approved === false ? "no" : "",
+      budget_min: c.budget_min != null ? String(c.budget_min) : "",
+      budget_max: c.budget_max != null ? String(c.budget_max) : "",
+      locality: c.locality ?? "",
     });
     setOpen(true);
   }
@@ -80,12 +122,21 @@ function Clients() {
   async function save() {
     if (!user) return;
     if (!form.name.trim()) return toast.error("Name is required");
+    if (!form.client_type) return toast.error("Please select Buyer or Seller");
+    const isBuyer = form.client_type === "buyer";
     const payload = {
       name: form.name.trim(),
       email: form.email.trim() || null,
       phone: form.phone.trim() || null,
       company: form.company.trim() || null,
       notes: form.notes.trim() || null,
+      client_type: form.client_type,
+      timeline: form.timeline.trim() || null,
+      address: !isBuyer ? (form.address.trim() || null) : null,
+      pre_approved: isBuyer ? (form.pre_approved === "yes" ? true : form.pre_approved === "no" ? false : null) : null,
+      budget_min: form.budget_min ? Number(form.budget_min) : null,
+      budget_max: form.budget_max ? Number(form.budget_max) : null,
+      locality: isBuyer ? (form.locality.trim() || null) : null,
     };
     if (editing) {
       const { error } = await supabase.from("clients").update(payload).eq("id", editing.id);
@@ -215,7 +266,7 @@ function Clients() {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editing ? "Edit client" : "New client"}</DialogTitle>
           </DialogHeader>
@@ -224,8 +275,83 @@ function Clients() {
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
             <input className="input" placeholder="Email" value={form.email}
               onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
-            <input className="input" placeholder="Phone" value={form.phone}
+            <input className="input" placeholder="Phone Number" value={form.phone}
               onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} />
+
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Client type *</label>
+              <div className="grid grid-cols-2 gap-2">
+                {(["buyer", "seller"] as const).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, client_type: t }))}
+                    className={`px-4 py-2.5 rounded-lg border text-sm font-medium capitalize transition-colors ${
+                      form.client_type === t
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background border-input hover:bg-accent"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {form.client_type && (
+              <input
+                className="input"
+                placeholder={form.client_type === "buyer" ? "Timeline to buy (e.g. 1–3 months)" : "Timeline to sell (e.g. 1–3 months)"}
+                value={form.timeline}
+                onChange={(e) => setForm((f) => ({ ...f, timeline: e.target.value }))}
+              />
+            )}
+
+            {form.client_type === "seller" && (
+              <input className="input" placeholder="Property address" value={form.address}
+                onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} />
+            )}
+
+            {form.client_type === "buyer" && (
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Pre-approved?</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(["yes", "no"] as const).map((v) => (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, pre_approved: v }))}
+                      className={`px-4 py-2.5 rounded-lg border text-sm font-medium uppercase transition-colors ${
+                        form.pre_approved === v
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background border-input hover:bg-accent"
+                      }`}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {form.client_type && (
+              <div className="grid grid-cols-2 gap-2">
+                <input className="input" type="number" inputMode="numeric"
+                  placeholder={form.client_type === "buyer" ? "Budget min" : "Price range min"}
+                  value={form.budget_min}
+                  onChange={(e) => setForm((f) => ({ ...f, budget_min: e.target.value }))} />
+                <input className="input" type="number" inputMode="numeric"
+                  placeholder={form.client_type === "buyer" ? "Budget max" : "Price range max"}
+                  value={form.budget_max}
+                  onChange={(e) => setForm((f) => ({ ...f, budget_max: e.target.value }))} />
+              </div>
+            )}
+
+            {form.client_type === "buyer" && (
+              <input className="input" placeholder="Town / locality looking to buy in" value={form.locality}
+                onChange={(e) => setForm((f) => ({ ...f, locality: e.target.value }))} />
+            )}
+
             <input className="input" placeholder="Company" value={form.company}
               onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))} />
             <textarea className="input min-h-20" placeholder="Notes" value={form.notes}
