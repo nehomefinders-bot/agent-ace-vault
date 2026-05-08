@@ -89,7 +89,10 @@ export type Database = {
       clients: {
         Row: {
           address: string | null
+          budget_max: number | null
+          budget_min: number | null
           city: string | null
+          client_type: string | null
           company: string | null
           country: string | null
           created_at: string
@@ -97,19 +100,25 @@ export type Database = {
           ghl_contact_id: string | null
           id: string
           last_synced_at: string | null
+          locality: string | null
           name: string
           notes: string | null
           phone: string | null
           postal_code: string | null
+          pre_approved: boolean | null
           source: string
           state: string | null
           tags: string[] | null
+          timeline: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           address?: string | null
+          budget_max?: number | null
+          budget_min?: number | null
           city?: string | null
+          client_type?: string | null
           company?: string | null
           country?: string | null
           created_at?: string
@@ -117,19 +126,25 @@ export type Database = {
           ghl_contact_id?: string | null
           id?: string
           last_synced_at?: string | null
+          locality?: string | null
           name: string
           notes?: string | null
           phone?: string | null
           postal_code?: string | null
+          pre_approved?: boolean | null
           source?: string
           state?: string | null
           tags?: string[] | null
+          timeline?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           address?: string | null
+          budget_max?: number | null
+          budget_min?: number | null
           city?: string | null
+          client_type?: string | null
           company?: string | null
           country?: string | null
           created_at?: string
@@ -137,13 +152,16 @@ export type Database = {
           ghl_contact_id?: string | null
           id?: string
           last_synced_at?: string | null
+          locality?: string | null
           name?: string
           notes?: string | null
           phone?: string | null
           postal_code?: string | null
+          pre_approved?: boolean | null
           source?: string
           state?: string | null
           tags?: string[] | null
+          timeline?: string | null
           updated_at?: string
           user_id?: string
         }
