@@ -296,16 +296,29 @@ function HelpPage() {
           </div>
           <div className="min-w-0">
             <h3 className="font-display font-bold text-lg sm:text-xl">Still stuck?</h3>
-            <p className="text-sm sm:text-base opacity-80 mt-2 leading-6">
-              <span className="block">Email</span>
-              <a
-                href="mailto:livingandlearningwithjackie@gmail.com"
-                className="block break-all underline underline-offset-2"
-              >
-                livingandlearningwithjackie@gmail.com
-              </a>
-              <span className="block mt-1">with a screenshot - typical reply under 4 business hours.</span>
-            </p>
+            <div className="mt-3 space-y-3 text-sm sm:text-base opacity-90 leading-6">
+              <div>
+                <span className="block text-primary-foreground/80">Email</span>
+                <a
+                  href="mailto:livingandlearningwithjackie@gmail.com"
+                  className="block break-all underline underline-offset-2"
+                >
+                  livingandlearningwithjackie@gmail.com
+                </a>
+              </div>
+              <div>
+                <span className="block text-primary-foreground/80">Phone</span>
+                <a
+                  href="tel:+15083339393"
+                  className="block underline underline-offset-2"
+                >
+                  +1 508-333-9393
+                </a>
+              </div>
+              <p className="text-primary-foreground/80">
+                Send a screenshot or quick note and we'll get back to you as soon as we can.
+              </p>
+            </div>
           </div>
         </div>
       </div>

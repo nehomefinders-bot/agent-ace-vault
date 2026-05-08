@@ -2,7 +2,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard, TrendingUp, Home, Users, Receipt,
-  Wallet, Car, ScanLine, FolderOpen, Building2, BookOpen, LifeBuoy, LogOut, LogIn, Calculator,
+  Wallet, Car, ScanLine, FolderOpen, BookOpen, LifeBuoy, LogOut, LogIn, Calculator,
   CreditCard, Sparkles, Settings, ListTodo, Menu, X,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -38,7 +38,8 @@ const sections = [
       { to: "/settings", label: "Settings", icon: Settings },
       { to: "/billing", label: "Billing", icon: CreditCard },
       { to: "/pricing", label: "Plans", icon: Sparkles },
-      { to: "/help", label: "How-to", icon: LifeBuoy },
+      { to: "/support", label: "Support", icon: LifeBuoy },
+      { to: "/help", label: "How-to", icon: BookOpen },
     ],
   },
 ] as const;
@@ -81,8 +82,12 @@ export function AppSidebar() {
     <div className="flex h-full min-h-0 flex-col">
       <div className="px-5 pt-6 pb-6 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-xl bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground">
-            <Building2 className="h-4 w-4" />
+          <div className="h-9 w-9 rounded-xl overflow-hidden border border-sidebar-border bg-black flex items-center justify-center shrink-0">
+            <img
+              src="/endless-prospects-logo.png"
+              alt="Endless Prospects"
+              className="h-full w-full object-cover"
+            />
           </div>
           <div>
             <div className="font-display font-bold text-sm leading-none">Agent</div>
@@ -172,8 +177,12 @@ export function AppSidebar() {
           <Menu className="h-5 w-5" />
         </button>
         <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground">
-            <Building2 className="h-4 w-4" />
+          <div className="h-8 w-8 rounded-lg overflow-hidden border border-sidebar-border bg-black flex items-center justify-center shrink-0">
+            <img
+              src="/endless-prospects-logo.png"
+              alt="Endless Prospects"
+              className="h-full w-full object-cover"
+            />
           </div>
           <span className="font-display font-bold text-sm">Agent</span>
         </div>
