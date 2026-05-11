@@ -65,8 +65,9 @@ export function SignDocumentModal({ doc, userId, open, onOpenChange, onSigned }:
     setDocUrl(data.signedUrl);
     if (pdf) {
       try {
-        const pdfjs: any = await import("pdfjs-dist");
-        pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+        const pdfjsUrl = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.mjs";
+        const pdfjs: any = await import(/* @vite-ignore */ pdfjsUrl);
+        pdfjs.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs";
         const buf = await fetch(data.signedUrl).then(r => r.arrayBuffer());
         const pdfDoc = await pdfjs.getDocument({ data: buf }).promise;
         const imgs: string[] = [];
