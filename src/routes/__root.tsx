@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { PaywallGate } from "@/components/paywall-gate";
 import { applyTheme, createThemeSync, getStoredTheme, getThemeBootstrapScript } from "@/lib/theme";
+import { installServerFnAuth } from "@/integrations/supabase/server-fn-auth";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -96,6 +97,7 @@ function RootComponent() {
 
 function ThemeBridge() {
   useEffect(() => {
+    installServerFnAuth();
     applyTheme(getStoredTheme());
     return createThemeSync();
   }, []);
