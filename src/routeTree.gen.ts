@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestRouteImport } from './routes/test'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TasksRouteImport } from './routes/tasks'
+import { Route as SupportRouteImport } from './routes/support'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReceiptsRouteImport } from './routes/receipts'
@@ -56,6 +57,11 @@ const TermsRoute = TermsRouteImport.update({
 const TasksRoute = TasksRouteImport.update({
   id: '/tasks',
   path: '/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -232,6 +238,7 @@ export interface FileRoutesByFullPath {
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
+  '/support': typeof SupportRoute
   '/tasks': typeof TasksRoute
   '/terms': typeof TermsRoute
   '/test': typeof TestRoute
@@ -266,6 +273,7 @@ export interface FileRoutesByTo {
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
+  '/support': typeof SupportRoute
   '/tasks': typeof TasksRoute
   '/terms': typeof TermsRoute
   '/test': typeof TestRoute
@@ -302,6 +310,7 @@ export interface FileRoutesById {
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
+  '/support': typeof SupportRoute
   '/tasks': typeof TasksRoute
   '/terms': typeof TermsRoute
   '/test': typeof TestRoute
@@ -339,6 +348,7 @@ export interface FileRouteTypes {
     | '/receipts'
     | '/reset-password'
     | '/settings'
+    | '/support'
     | '/tasks'
     | '/terms'
     | '/test'
@@ -373,6 +383,7 @@ export interface FileRouteTypes {
     | '/receipts'
     | '/reset-password'
     | '/settings'
+    | '/support'
     | '/tasks'
     | '/terms'
     | '/test'
@@ -408,6 +419,7 @@ export interface FileRouteTypes {
     | '/receipts'
     | '/reset-password'
     | '/settings'
+    | '/support'
     | '/tasks'
     | '/terms'
     | '/test'
@@ -444,6 +456,7 @@ export interface RootRouteChildren {
   ReceiptsRoute: typeof ReceiptsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SettingsRoute: typeof SettingsRoute
+  SupportRoute: typeof SupportRoute
   TasksRoute: typeof TasksRoute
   TermsRoute: typeof TermsRoute
   TestRoute: typeof TestRoute
@@ -473,6 +486,13 @@ declare module '@tanstack/react-router' {
       path: '/tasks'
       fullPath: '/tasks'
       preLoaderRoute: typeof TasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -731,6 +751,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReceiptsRoute: ReceiptsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SettingsRoute: SettingsRoute,
+  SupportRoute: SupportRoute,
   TasksRoute: TasksRoute,
   TermsRoute: TermsRoute,
   TestRoute: TestRoute,
@@ -741,3 +762,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
