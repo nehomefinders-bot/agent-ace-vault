@@ -97,6 +97,7 @@ function RootComponent() {
 
 function ThemeBridge() {
   useEffect(() => {
+    installServerFnAuth();
     applyTheme(getStoredTheme());
     return createThemeSync();
   }, []);
