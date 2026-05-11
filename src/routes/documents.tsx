@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { FileText, Upload, Loader2, Trash2, Download, FolderOpen, PenLine, CheckCircle2 } from "lucide-react";
+import { FileText, Upload, Loader2, Trash2, Download, FolderOpen, PenLine, CheckCircle2, Eye } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
