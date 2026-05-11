@@ -236,7 +236,9 @@ export type Database = {
           id: string
           mime_type: string | null
           name: string
+          signed_at: string | null
           size_bytes: number | null
+          status: string
           updated_at: string
           user_id: string
         }
@@ -248,7 +250,9 @@ export type Database = {
           id?: string
           mime_type?: string | null
           name: string
+          signed_at?: string | null
           size_bytes?: number | null
+          status?: string
           updated_at?: string
           user_id: string
         }
@@ -260,7 +264,9 @@ export type Database = {
           id?: string
           mime_type?: string | null
           name?: string
+          signed_at?: string | null
           size_bytes?: number | null
+          status?: string
           updated_at?: string
           user_id?: string
         }
@@ -555,6 +561,53 @@ export type Database = {
             columns: ["transaction_id"]
             isOneToOne: false
             referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signature_coordinates: {
+        Row: {
+          created_at: string
+          document_id: string
+          height: number
+          id: string
+          page_number: number
+          pos_x: number
+          pos_y: number
+          signature_path: string
+          user_id: string
+          width: number
+        }
+        Insert: {
+          created_at?: string
+          document_id: string
+          height?: number
+          id?: string
+          page_number?: number
+          pos_x: number
+          pos_y: number
+          signature_path: string
+          user_id: string
+          width?: number
+        }
+        Update: {
+          created_at?: string
+          document_id?: string
+          height?: number
+          id?: string
+          page_number?: number
+          pos_x?: number
+          pos_y?: number
+          signature_path?: string
+          user_id?: string
+          width?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signature_coordinates_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
             referencedColumns: ["id"]
           },
         ]
