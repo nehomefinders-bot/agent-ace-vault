@@ -7,6 +7,7 @@ import {
   ghlSearchByEmailOrPhone,
   ghlToClientPatch,
   ghlUpdateContact,
+  hasGhlPrivateToken,
   type LocalClient,
 } from "./ghl.server";
 
@@ -66,7 +67,7 @@ export const getGhlStatus = createServerFn({ method: "GET" })
       .eq("provider", PROVIDER)
       .order("created_at", { ascending: false })
       .limit(10);
-    const tokenConfigured = Boolean(process.env.GHL_PRIVATE_TOKEN);
+    const tokenConfigured = hasGhlPrivateToken();
     return {
       tokenConfigured,
       settings,
