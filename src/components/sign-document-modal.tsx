@@ -64,13 +64,10 @@ export function SignDocumentModal({ doc, userId, open, onOpenChange, onSigned }:
     setIsPdf(pdf);
     setDocUrl(data.signedUrl);
     if (pdf) {
-      // Render PDF pages to images via pdf-lib + canvas using pdfjs from CDN
       try {
-        const pdfjs = await import(/* @vite-ignore */ "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/+esm" as string);
-        // @ts-ignore
-        pdfjs.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs";
+        const pdfjs: any = await import("pdfjs-dist");
+        pdfjs.GlobalWorkerOptions.workerSrc = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
         const buf = await fetch(data.signedUrl).then(r => r.arrayBuffer());
-        // @ts-ignore
         const pdfDoc = await pdfjs.getDocument({ data: buf }).promise;
         const imgs: string[] = [];
         for (let i = 1; i <= pdfDoc.numPages; i++) {
