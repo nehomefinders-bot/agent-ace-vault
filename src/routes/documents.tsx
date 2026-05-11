@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { FileText, Upload, Loader2, Trash2, Download, FolderOpen } from "lucide-react";
+import { FileText, Upload, Loader2, Trash2, Download, FolderOpen, PenLine, CheckCircle2 } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { SignDocumentModal } from "@/components/sign-document-modal";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/documents")({
@@ -24,6 +25,8 @@ interface Doc {
   size_bytes: number | null;
   mime_type: string | null;
   created_at: string;
+  status: string;
+  signed_at: string | null;
 }
 
 const FOLDERS = ["Miscellaneous", "Contracts", "Disclosures", "Listings", "Closing", "Marketing"];
