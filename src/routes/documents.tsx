@@ -209,7 +209,8 @@ function Documents() {
                           <PenLine className="h-4 w-4 mr-1" /> Sign
                         </Button>
                       )}
-                      <button onClick={() => download(d)} className="p-2 rounded-md hover:bg-muted text-muted-foreground"><Download className="h-4 w-4" /></button>
+                      <button onClick={() => preview(d)} title="Preview" className="p-2 rounded-md hover:bg-muted text-muted-foreground"><Eye className="h-4 w-4" /></button>
+                      <button onClick={() => download(d)} title="Download" className="p-2 rounded-md hover:bg-muted text-muted-foreground"><Download className="h-4 w-4" /></button>
                       <button onClick={() => remove(d)} className="p-2 rounded-md hover:bg-muted text-destructive"><Trash2 className="h-4 w-4" /></button>
                     </div>
                   </li>
