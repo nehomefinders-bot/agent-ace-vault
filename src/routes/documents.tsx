@@ -37,6 +37,8 @@ function Documents() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [signDoc, setSignDoc] = useState<Doc | null>(null);
+  const [filter, setFilter] = useState<"all" | "pending" | "signed">("all");
 
   const [name, setName] = useState("");
   const [folder, setFolder] = useState("Miscellaneous");
@@ -48,7 +50,7 @@ function Documents() {
     setLoading(true);
     const { data, error } = await supabase
       .from("documents")
-      .select("id,name,folder,file_path,size_bytes,mime_type,created_at")
+      .select("id,name,folder,file_path,size_bytes,mime_type,created_at,status,signed_at")
       .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
     setDocs((data ?? []) as Doc[]);
