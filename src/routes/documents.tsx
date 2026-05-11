@@ -90,17 +90,21 @@ function Documents() {
     load();
   }
 
-  async function download(d: Doc) {
+  async function getUrl(d: Doc): Promise<string | null> {
     const bucket = d.status === "signed" ? "signed-documents" : "documents";
-    const { data, error } = await supabase.storage.from(bucket).createSignedUrl(d.file_path, 60);
-    if (error || !data) {
-      // fallback to documents bucket if signed file not present
-      const fb = await supabase.storage.from("documents").createSignedUrl(d.file_path, 60);
-      if (fb.error || !fb.data) return toast.error(error?.message ?? "Download failed");
-      data!.signedUrl = fb.data.signedUrl;
-    }
+    const r = await supabase.storage.from(bucket).createSignedUrl(d.file_path, 60);
+    if (!r.error && r.data) return r.data.signedUrl;
+    const fb = await supabase.storage.from("documents").createSignedUrl(d.file_path, 60);
+    if (!fb.error && fb.data) return fb.data.signedUrl;
+    toast.error(r.error?.message ?? "Failed");
+    return null;
+  }
+
+  async function download(d: Doc) {
+    const url = await getUrl(d);
+    if (!url) return;
     try {
-      const res = await fetch(data!.signedUrl);
+      const res = await fetch(url);
       if (!res.ok) throw new Error("Download failed");
       const blob = await res.blob();
       const blobUrl = URL.createObjectURL(blob);
@@ -112,19 +116,13 @@ function Documents() {
       document.body.removeChild(a);
       URL.revokeObjectURL(blobUrl);
     } catch {
-      window.open(data!.signedUrl, "_blank");
+      window.open(url, "_blank");
     }
   }
 
   async function preview(d: Doc) {
-    const bucket = d.status === "signed" ? "signed-documents" : "documents";
-    let { data, error } = await supabase.storage.from(bucket).createSignedUrl(d.file_path, 60);
-    if (error || !data) {
-      const fb = await supabase.storage.from("documents").createSignedUrl(d.file_path, 60);
-      if (fb.error || !fb.data) return toast.error(fb.error?.message ?? "Preview failed");
-      data = fb.data;
-    }
-    window.open(data.signedUrl, "_blank");
+    const url = await getUrl(d);
+    if (url) window.open(url, "_blank");
   }
 
   if (authLoading) return <PageShell title="Documents"><div className="flex justify-center py-20"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div></PageShell>;
