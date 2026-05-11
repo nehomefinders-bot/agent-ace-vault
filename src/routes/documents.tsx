@@ -91,8 +91,39 @@ function Documents() {
   }
 
   async function download(d: Doc) {
-    const { data, error } = await supabase.storage.from("documents").createSignedUrl(d.file_path, 60);
-    if (error || !data) return toast.error(error?.message ?? "Download failed");
+    const bucket = d.status === "signed" ? "signed-documents" : "documents";
+    const { data, error } = await supabase.storage.from(bucket).createSignedUrl(d.file_path, 60);
+    if (error || !data) {
+      // fallback to documents bucket if signed file not present
+      const fb = await supabase.storage.from("documents").createSignedUrl(d.file_path, 60);
+      if (fb.error || !fb.data) return toast.error(error?.message ?? "Download failed");
+      data!.signedUrl = fb.data.signedUrl;
+    }
+    try {
+      const res = await fetch(data!.signedUrl);
+      if (!res.ok) throw new Error("Download failed");
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = d.name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(data!.signedUrl, "_blank");
+    }
+  }
+
+  async function preview(d: Doc) {
+    const bucket = d.status === "signed" ? "signed-documents" : "documents";
+    let { data, error } = await supabase.storage.from(bucket).createSignedUrl(d.file_path, 60);
+    if (error || !data) {
+      const fb = await supabase.storage.from("documents").createSignedUrl(d.file_path, 60);
+      if (fb.error || !fb.data) return toast.error(fb.error?.message ?? "Preview failed");
+      data = fb.data;
+    }
     window.open(data.signedUrl, "_blank");
   }
 
