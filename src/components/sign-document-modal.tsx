@@ -193,8 +193,10 @@ export function SignDocumentModal({ doc, userId, open, onOpenChange, onSigned }:
       const signedPath = `${userId}/${Date.now()}-${doc.name.replace(/\.[^.]+$/, "")}.${signedExt}`;
       const upSigned = await supabase.storage.from("signed-documents").upload(signedPath, signedBytes, { contentType: signedMime });
       if (upSigned.error) throw upSigned.error;
+      // Also place a copy in the documents bucket so the existing download path works
+      const newDocPath = `${userId}/${Date.now()}-signed-${doc.name.replace(/\.[^.]+$/, "")}.${signedExt}`;
+      await supabase.storage.from("documents").upload(newDocPath, signedBytes, { contentType: signedMime });
 
-      // Save coordinates
       await supabase.from("signature_coordinates").insert({
         user_id: userId,
         document_id: doc.id,
@@ -206,11 +208,10 @@ export function SignDocumentModal({ doc, userId, open, onOpenChange, onSigned }:
         height: sigSize.h,
       });
 
-      // Update document
       await supabase.from("documents").update({
         status: "signed",
         signed_at: new Date().toISOString(),
-        file_path: signedPath,
+        file_path: newDocPath,
         mime_type: signedMime,
       }).eq("id", doc.id);
 
