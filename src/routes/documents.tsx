@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { FileText, Upload, Loader2, Trash2, Download, FolderOpen, PenLine, CheckCircle2 } from "lucide-react";
+import { FileText, Upload, Loader2, Trash2, Download, FolderOpen, PenLine, CheckCircle2, Eye } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -90,10 +90,39 @@ function Documents() {
     load();
   }
 
+  async function getUrl(d: Doc): Promise<string | null> {
+    const bucket = d.status === "signed" ? "signed-documents" : "documents";
+    const r = await supabase.storage.from(bucket).createSignedUrl(d.file_path, 60);
+    if (!r.error && r.data) return r.data.signedUrl;
+    const fb = await supabase.storage.from("documents").createSignedUrl(d.file_path, 60);
+    if (!fb.error && fb.data) return fb.data.signedUrl;
+    toast.error(r.error?.message ?? "Failed");
+    return null;
+  }
+
   async function download(d: Doc) {
-    const { data, error } = await supabase.storage.from("documents").createSignedUrl(d.file_path, 60);
-    if (error || !data) return toast.error(error?.message ?? "Download failed");
-    window.open(data.signedUrl, "_blank");
+    const url = await getUrl(d);
+    if (!url) return;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Download failed");
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = d.name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(url, "_blank");
+    }
+  }
+
+  async function preview(d: Doc) {
+    const url = await getUrl(d);
+    if (url) window.open(url, "_blank");
   }
 
   if (authLoading) return <PageShell title="Documents"><div className="flex justify-center py-20"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div></PageShell>;
@@ -180,7 +209,8 @@ function Documents() {
                           <PenLine className="h-4 w-4 mr-1" /> Sign
                         </Button>
                       )}
-                      <button onClick={() => download(d)} className="p-2 rounded-md hover:bg-muted text-muted-foreground"><Download className="h-4 w-4" /></button>
+                      <button onClick={() => preview(d)} title="Preview" className="p-2 rounded-md hover:bg-muted text-muted-foreground"><Eye className="h-4 w-4" /></button>
+                      <button onClick={() => download(d)} title="Download" className="p-2 rounded-md hover:bg-muted text-muted-foreground"><Download className="h-4 w-4" /></button>
                       <button onClick={() => remove(d)} className="p-2 rounded-md hover:bg-muted text-destructive"><Trash2 className="h-4 w-4" /></button>
                     </div>
                   </li>
