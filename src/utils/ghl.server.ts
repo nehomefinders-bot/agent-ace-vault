@@ -40,15 +40,19 @@ export type LocalClient = {
   updated_at: string;
 };
 
-function token() {
+export function getGhlPrivateToken() {
   const t = process.env.GHL_PRIVATE_TOKEN;
   if (!t) throw new Error("GHL_PRIVATE_TOKEN is not configured");
   return t;
 }
 
+export function hasGhlPrivateToken() {
+  return Boolean(process.env.GHL_PRIVATE_TOKEN);
+}
+
 function headers() {
   return {
-    Authorization: `Bearer ${token()}`,
+    Authorization: `Bearer ${getGhlPrivateToken()}`,
     Version: GHL_VERSION,
     "Content-Type": "application/json",
     Accept: "application/json",
