@@ -34,14 +34,14 @@ export function YtdCommissionCard({ value, trend }: { value: number; trend: { m:
           <AreaChart data={trend} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
             <defs>
               <linearGradient id="ytdGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.45} />
-                <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.45} />
+                <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
               </linearGradient>
             </defs>
             <Area
               type="monotone"
               dataKey="v"
-              stroke="hsl(var(--primary))"
+              stroke="var(--primary)"
               strokeWidth={2}
               fill="url(#ytdGrad)"
             />
@@ -59,7 +59,7 @@ export function YtdCommissionCard({ value, trend }: { value: number; trend: { m:
 
 export function PipelineGaugeCard({ value, goal }: { value: number; goal: number }) {
   const pct = Math.min(100, Math.round((value / goal) * 100));
-  const data = [{ name: "pipeline", value: pct, fill: "hsl(var(--primary))" }];
+  const data = [{ name: "pipeline", value: pct, fill: "var(--primary)" }];
   return (
     <CardShell label="Pipeline Value" icon={DollarSign}>
       <div className="relative h-28 -mt-1">
@@ -73,7 +73,7 @@ export function PipelineGaugeCard({ value, goal }: { value: number; goal: number
             barSize={12}
           >
             <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-            <RadialBar background={{ fill: "hsl(var(--muted))" }} dataKey="value" cornerRadius={8} />
+            <RadialBar background={{ fill: "var(--muted)" }} dataKey="value" cornerRadius={8} />
           </RadialBarChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
@@ -88,7 +88,7 @@ export function PipelineGaugeCard({ value, goal }: { value: number; goal: number
 
 export function DealsClosedRingCard({ closed, goal }: { closed: number; goal: number }) {
   const pct = goal > 0 ? Math.min(100, Math.round((closed / goal) * 100)) : 0;
-  const data = [{ name: "closed", value: pct, fill: "hsl(var(--success, var(--primary)))" }];
+  const data = [{ name: "closed", value: pct, fill: "var(--success)" }];
   return (
     <CardShell label="Deals Closed (MTD)" icon={CheckCircle2}>
       <div className="flex items-center gap-4">
@@ -103,7 +103,7 @@ export function DealsClosedRingCard({ closed, goal }: { closed: number; goal: nu
               barSize={10}
             >
               <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-              <RadialBar background={{ fill: "hsl(var(--muted))" }} dataKey="value" cornerRadius={8} />
+              <RadialBar background={{ fill: "var(--muted)" }} dataKey="value" cornerRadius={8} />
             </RadialBarChart>
           </ResponsiveContainer>
           <div className="absolute inset-0 flex items-center justify-center">
