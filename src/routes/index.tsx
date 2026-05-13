@@ -77,27 +77,6 @@ function PropertyThumb({ address }: { address: string }) {
   );
 }
 
-function KpiCard({
-  label, value, delta, deltaTone = "muted", icon: Icon,
-}: {
-  label: string; value: string; delta: string;
-  deltaTone?: "success" | "danger" | "muted"; icon: React.ComponentType<{ className?: string }>;
-}) {
-  const toneCls = deltaTone === "success" ? "text-success" : deltaTone === "danger" ? "text-destructive" : "text-muted-foreground";
-  return (
-    <div className="glass rounded-2xl p-6">
-      <div className="flex items-start justify-between mb-4">
-        <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{label}</span>
-        <div className="h-8 w-8 rounded-lg bg-secondary/20 flex items-center justify-center">
-          <Icon className="h-4 w-4 text-primary" />
-        </div>
-      </div>
-      <div className="text-3xl font-bold tabular-nums font-display">{value}</div>
-      <div className={`text-xs mt-2 font-medium ${toneCls}`}>{delta}</div>
-    </div>
-  );
-}
-
 function Dashboard() {
   const { user } = useAuth();
   const [deals, setDeals] = useState<DashDeal[]>([]);
