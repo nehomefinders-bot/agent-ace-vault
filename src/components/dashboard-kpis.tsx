@@ -62,10 +62,10 @@ export function PipelineGaugeCard({ value, goal }: { value: number; goal: number
   const data = [{ name: "pipeline", value: pct, fill: "var(--primary)" }];
   return (
     <CardShell label="Pipeline Value" icon={DollarSign}>
-      <div className="relative h-32">
+      <div className="relative h-20 mb-2">
         <ResponsiveContainer width="100%" height="100%">
           <RadialBarChart
-            innerRadius="80%"
+            innerRadius="78%"
             outerRadius="100%"
             data={data}
             startAngle={210}
@@ -76,12 +76,12 @@ export function PipelineGaugeCard({ value, goal }: { value: number; goal: number
             <RadialBar background={{ fill: "var(--muted)" }} dataKey="value" cornerRadius={8} />
           </RadialBarChart>
         </ResponsiveContainer>
-        <div className="absolute inset-x-0 bottom-2 flex flex-col items-center justify-center pointer-events-none">
-          <div className="text-2xl font-bold tabular-nums font-display leading-none">{formatMoney(value)}</div>
-          <div className="text-[10px] text-muted-foreground mt-1.5">of {formatMoney(goal)} goal</div>
+        <div className="absolute inset-x-0 bottom-0 text-center text-[11px] font-semibold text-primary">
+          {pct}%
         </div>
       </div>
-      <div className="text-xs font-medium text-center text-muted-foreground mt-2">{pct}% to monthly target</div>
+      <div className="text-2xl font-bold tabular-nums font-display leading-tight">{formatMoney(value)}</div>
+      <div className="text-[11px] text-muted-foreground mt-1">of {formatMoney(goal)} monthly goal</div>
     </CardShell>
   );
 }
