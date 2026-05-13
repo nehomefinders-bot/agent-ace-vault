@@ -124,10 +124,32 @@ function Dashboard() {
       }
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        <KpiCard label="YTD Commission" value={formatMoney(kpis.ytdCommission)} delta="+12.5% vs last year" deltaTone="success" icon={TrendingUp} />
-        <KpiCard label="Pipeline Value" value={formatMoney(pipelineValue || kpis.pipelineValue)} delta={`${activeDeals} active deals`} icon={DollarSign} />
-        <KpiCard label="Outstanding Commissions" value={formatMoney(kpis.outstandingInvoices)} delta={`${invoices.filter(i => i.status === "Overdue").length} overdue`} deltaTone="danger" icon={AlertCircle} />
-        <KpiCard label="Deals Closed (MTD)" value={String(deals.filter((d) => d.status === "closed").length || kpis.closedDealsMTD)} delta={`Avg ${formatMoney(kpis.avgDealSize)}`} deltaTone="success" icon={CheckCircle2} />
+        <YtdCommissionCard
+          value={kpis.ytdCommission}
+          trend={[
+            { m: "May", v: 22 },
+            { m: "Jun", v: 28 },
+            { m: "Jul", v: 31 },
+            { m: "Aug", v: 27 },
+            { m: "Sep", v: 38 },
+            { m: "Oct", v: 45 },
+          ]}
+        />
+        <PipelineGaugeCard value={pipelineValue || kpis.pipelineValue} goal={3_000_000} />
+        <div className="glass rounded-2xl p-6">
+          <div className="flex items-start justify-between mb-4">
+            <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Outstanding Commissions</span>
+            <div className="h-8 w-8 rounded-lg bg-secondary/20 flex items-center justify-center">
+              <AlertCircle className="h-4 w-4 text-primary" />
+            </div>
+          </div>
+          <div className="text-3xl font-bold tabular-nums font-display">{formatMoney(kpis.outstandingInvoices)}</div>
+          <div className="text-xs mt-2 font-medium text-destructive">{invoices.filter(i => i.status === "Overdue").length} overdue</div>
+        </div>
+        <DealsClosedRingCard
+          closed={deals.filter((d) => d.status === "closed").length || kpis.closedDealsMTD}
+          goal={10}
+        />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
