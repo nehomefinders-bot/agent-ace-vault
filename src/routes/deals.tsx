@@ -66,7 +66,7 @@ type DealFormValues = {
   closeDate: string;
 };
 
-const STATUSES = ["pending", "under_contract", "closed", "dead"];
+const STATUSES = PIPELINE_STAGES.map((s) => s.key);
 
 function DealsPage() {
   const { user } = useAuth();
