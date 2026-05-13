@@ -357,9 +357,6 @@ function DealCard({
   );
 }
 
-function normalizeStage(status: string): Stage {
-  return STAGES.some((stage) => stage.key === status) ? (status as Stage) : "pending";
-}
 
 function DealDialog({
   open,
