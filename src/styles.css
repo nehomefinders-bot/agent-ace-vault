@@ -171,6 +171,37 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     min-height: 100dvh;
+    position: relative;
+  }
+  /* Subtle Massachusetts architecture overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-image: url("./assets/ma-architecture-bg.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    filter: blur(6px) saturate(0.85);
+    transform: scale(1.06);
+    opacity: 0.18;
+    pointer-events: none;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(80% 60% at 80% 0%, color-mix(in oklab, var(--color-primary) 10%, transparent), transparent 60%),
+      radial-gradient(70% 50% at 0% 100%, color-mix(in oklab, var(--color-secondary) 12%, transparent), transparent 60%),
+      linear-gradient(180deg, color-mix(in oklab, var(--color-background) 78%, transparent), color-mix(in oklab, var(--color-background) 92%, transparent));
+  }
+  .dark body::before {
+    opacity: 0.10;
+    filter: blur(8px) saturate(0.6) brightness(0.55);
   }
   :root {
     color-scheme: light;
@@ -180,7 +211,14 @@
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+  h1 { letter-spacing: -0.005em; }
+  .tracking-display {
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 600;
   }
   .tabular-nums {
     font-variant-numeric: tabular-nums;
