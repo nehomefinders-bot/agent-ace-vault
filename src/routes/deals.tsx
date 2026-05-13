@@ -439,7 +439,7 @@ function DealDialog({
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger className="inp"><SelectValue /></SelectTrigger>
               <SelectContent>
-                {STATUSES.map((s) => <SelectItem key={s} value={s}>{s.replace("_", " ")}</SelectItem>)}
+                {PIPELINE_STAGES.map((s) => <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>)}
               </SelectContent>
             </Select>
           </FormField>
