@@ -65,7 +65,7 @@ function Pipeline() {
     setLoading(true);
     const { data, error } = await supabase
       .from("deals")
-      .select("id,address,status,sale_price,gross_commission,client_name,close_date")
+      .select("id,address,status,sale_price,gross_commission,client_name,client_email,client_phone,close_date")
       .order("created_at", { ascending: false });
 
     if (error) toast.error(error.message);
