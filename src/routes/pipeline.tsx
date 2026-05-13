@@ -378,38 +378,66 @@ function DealCard({
 
   return (
     <li className="p-3 rounded-lg border border-border hover:border-secondary hover:shadow-sm transition bg-background">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
           <div className="font-medium text-sm truncate">{deal.address}</div>
-          {deal.client_name && <div className="text-xs text-muted-foreground mt-0.5 truncate">{deal.client_name}</div>}
         </div>
-
-        <div className="flex items-center gap-1.5">
-          <Select value={currentStage} onValueChange={(value) => onStageChange(deal.id, value as Stage)}>
-            <SelectTrigger className="h-8 w-full sm:w-[170px] text-xs" disabled={busy} aria-label={`Change stage for ${deal.address}`}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {STAGES.map((stage) => (
-                <SelectItem key={stage.key} value={stage.key}>
-                  {stage.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <button
-            type="button"
-            onClick={() => onDelete(deal.id)}
-            disabled={busy}
-            aria-label={`Delete ${deal.address}`}
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => onDelete(deal.id)}
+          disabled={busy}
+          aria-label={`Delete ${deal.address}`}
+          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
       </div>
 
-      <div className="flex items-center justify-between mt-3 gap-2">
+      {(deal.client_name || deal.client_email || deal.client_phone) && (
+        <div className="mt-2 space-y-1 border-l-2 border-muted pl-2.5">
+          {deal.client_name && (
+            <div className="flex items-center gap-1.5 text-xs text-foreground/90">
+              <User className="h-3 w-3 shrink-0 text-muted-foreground" />
+              <span className="truncate font-medium">{deal.client_name}</span>
+            </div>
+          )}
+          {deal.client_email && (
+            <a
+              href={`mailto:${deal.client_email}`}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition"
+            >
+              <Mail className="h-3 w-3 shrink-0" />
+              <span className="truncate">{deal.client_email}</span>
+            </a>
+          )}
+          {deal.client_phone && (
+            <a
+              href={`tel:${deal.client_phone}`}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition"
+            >
+              <Phone className="h-3 w-3 shrink-0" />
+              <span className="truncate tabular-nums">{deal.client_phone}</span>
+            </a>
+          )}
+        </div>
+      )}
+
+      <div className="mt-3">
+        <Select value={currentStage} onValueChange={(value) => onStageChange(deal.id, value as Stage)}>
+          <SelectTrigger className="h-8 w-full text-xs" disabled={busy} aria-label={`Change stage for ${deal.address}`}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {STAGES.map((stage) => (
+              <SelectItem key={stage.key} value={stage.key}>
+                {stage.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex items-center justify-between mt-3 gap-2 pt-2 border-t border-border/60">
         <span className="text-sm tabular-nums font-semibold">{formatMoney(Number(deal.sale_price))}</span>
         {deal.close_date && <span className="text-[11px] text-muted-foreground">{deal.close_date}</span>}
       </div>
