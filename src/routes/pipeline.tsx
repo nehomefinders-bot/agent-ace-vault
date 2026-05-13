@@ -33,6 +33,8 @@ interface Deal {
   sale_price: number;
   gross_commission: number;
   client_name: string | null;
+  client_email: string | null;
+  client_phone: string | null;
   close_date: string | null;
 }
 
