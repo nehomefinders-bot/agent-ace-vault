@@ -448,7 +448,7 @@ function DealDialog({
           </FormField>
         </div>
 
-        <div className="bg-muted/40 rounded-lg p-4 grid grid-cols-3 gap-4 text-sm mb-4">
+        <div className="bg-muted/40 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm mb-4">
           <div>
             <div className="text-xs text-muted-foreground">Gross commission</div>
             <div className="font-display font-bold tabular-nums">{formatMoney(gross)}</div>

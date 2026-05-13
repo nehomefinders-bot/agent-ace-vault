@@ -33,7 +33,7 @@ function BooksLayoutContent() {
   const pl = profitAndLoss(accounts, transactions);
 
   return (
-    <div className="p-8 max-w-[1400px] mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-[1400px] mx-auto">
       <header className="mb-6">
         <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground mb-2">
           <BookOpen className="h-3.5 w-3.5" /> Bookkeeping
@@ -44,7 +44,7 @@ function BooksLayoutContent() {
         </p>
       </header>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         <Stat label="YTD Income"  value={formatMoney(pl.totalIncome)}  tone="success" />
         <Stat label="YTD Expenses" value={formatMoney(pl.totalExpense)} tone="muted" />
         <Stat label="Net Income"  value={formatMoney(pl.netIncome)}    tone="primary" />

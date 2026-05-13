@@ -327,7 +327,7 @@ function Clients() {
 
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1.5">Client type *</label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {(["buyer", "seller"] as const).map((t) => (
                   <button
                     key={t}
@@ -362,7 +362,7 @@ function Clients() {
             {form.client_type === "buyer" && (
               <div>
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">Pre-approved?</label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {(["yes", "no"] as const).map((v) => (
                     <button
                       key={v}
@@ -382,7 +382,7 @@ function Clients() {
             )}
 
             {form.client_type && (
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <input className="input" type="number" inputMode="numeric"
                   placeholder={form.client_type === "buyer" ? "Budget min" : "Price range min"}
                   value={form.budget_min}

@@ -399,7 +399,7 @@ function AddTransactionModal({
         <DialogTitle>Add Transaction</DialogTitle>
       </DialogHeader>
       <form onSubmit={save} className="space-y-4">
-        <div className="grid grid-cols-2 gap-1 bg-muted rounded-lg p-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 bg-muted rounded-lg p-1">
           {(["expense", "income"] as const).map((t) => (
             <button
               key={t}

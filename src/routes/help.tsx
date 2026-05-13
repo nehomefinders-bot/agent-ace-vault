@@ -241,7 +241,7 @@ function HelpPage() {
     .filter((s) => s.articles.length > 0);
 
   return (
-    <div className="p-8 max-w-[1100px] mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-[1100px] mx-auto">
       <header className="mb-6">
         <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground mb-2">
           <LifeBuoy className="h-3.5 w-3.5" /> Help center

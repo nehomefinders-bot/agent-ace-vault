@@ -603,7 +603,7 @@ function NewListingDialog({
           </div>
 
           {images.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mt-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-3">
               {images.map((img, i) => (
                 <div key={img.id} className="relative group aspect-square rounded-lg overflow-hidden border border-border bg-muted">
                   <img src={img.preview} alt="" className="w-full h-full object-cover" />

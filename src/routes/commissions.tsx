@@ -611,7 +611,7 @@ function Commissions() {
                   </div>
                   <StatusBadge status={r.status} onChange={(v) => toggleStatus(r, v)} />
                 </div>
-                <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2 text-xs">
                   <div className="flex justify-between col-span-2 sm:col-span-1">
                     <dt className="text-muted-foreground">Agent</dt>
                     <dd className="tabular-nums">{r.agentName || "Unknown"}</dd>

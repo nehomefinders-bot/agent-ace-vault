@@ -229,7 +229,7 @@ function Receipts() {
           No receipts yet. Scan your first one above.
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {receipts.map((r) => {
             const kind = getReceiptPreviewKind(r.image_path);
             const canPreview = kind === "image" && !!previewUrls[r.id];
