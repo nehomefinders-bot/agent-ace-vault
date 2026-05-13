@@ -19,15 +19,7 @@ export const Route = createFileRoute("/pipeline")({
   head: () => ({ meta: [{ title: "Pipeline - Agent Business Tracker" }] }),
 });
 
-type Stage = "pending" | "under_contract" | "closing" | "closed";
 type PipelineView = "all" | Stage;
-
-const STAGES: { key: Stage; label: string; tone: "muted" | "warning" | "primary" | "success" }[] = [
-  { key: "pending", label: "Lead", tone: "muted" },
-  { key: "under_contract", label: "Under Contract", tone: "warning" },
-  { key: "closing", label: "Closing", tone: "primary" },
-  { key: "closed", label: "Closed", tone: "success" },
-];
 
 const PIPELINE_VIEWS: { key: PipelineView; label: string }[] = [
   { key: "all", label: "All stages" },
