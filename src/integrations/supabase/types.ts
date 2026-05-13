@@ -408,6 +408,10 @@ export type Database = {
           image_paths: string[]
           list_price: number
           notes: string | null
+          seller_email: string | null
+          seller_name: string | null
+          seller_new_address: string | null
+          seller_phone: string | null
           sqft: number | null
           status: string
           updated_at: string
@@ -422,6 +426,10 @@ export type Database = {
           image_paths?: string[]
           list_price?: number
           notes?: string | null
+          seller_email?: string | null
+          seller_name?: string | null
+          seller_new_address?: string | null
+          seller_phone?: string | null
           sqft?: number | null
           status?: string
           updated_at?: string
@@ -436,6 +444,10 @@ export type Database = {
           image_paths?: string[]
           list_price?: number
           notes?: string | null
+          seller_email?: string | null
+          seller_name?: string | null
+          seller_new_address?: string | null
+          seller_phone?: string | null
           sqft?: number | null
           status?: string
           updated_at?: string
