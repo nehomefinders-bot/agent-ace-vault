@@ -12,6 +12,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useBooks, formatMoneyCents, formatMoney } from "@/hooks/use-books";
 import { classifyTxn } from "@/lib/books-data";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+
+const EXTRA_ACCOUNTS: { sentinel: string; name: string; code: string }[] = [
+  { sentinel: "__misc__", name: "Miscellaneous", code: "1900" },
+  { sentinel: "__ask_accountant__", name: "Ask Accountant", code: "1910" },
+];
 
 export const Route = createFileRoute("/books/")({
   component: BooksOverview,
