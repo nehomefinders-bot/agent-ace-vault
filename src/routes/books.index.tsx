@@ -459,6 +459,9 @@ function AddTransactionModal({
               {acctOptions.map((a) => (
                 <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
               ))}
+              {EXTRA_ACCOUNTS.map((e) => (
+                <SelectItem key={e.sentinel} value={e.sentinel}>{e.name}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
