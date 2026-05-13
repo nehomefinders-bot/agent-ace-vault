@@ -2,9 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Pencil, Plus, Loader2, Trash2, Wallet, Paperclip } from "lucide-react";
 import { PageShell, StatusPill } from "@/components/page-shell";
+import { ReceiptPreviewDialog } from "@/components/receipt-preview-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatMoney } from "@/lib/mock-data";
+import { getReceiptFileName, getReceiptPreviewKind } from "@/lib/receipt-preview";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +45,14 @@ function Expenses() {
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [editing, setEditing] = useState<Expense | null>(null);
+  const [preview, setPreview] = useState<{
+    title: string;
+    subtitle: string;
+    fileUrl: string;
+    fileName: string;
+    kind: "image" | "pdf" | "other";
+  } | null>(null);
+  const [previewingId, setPreviewingId] = useState<string | null>(null);
 
   async function load() {
     if (!user) { setRows([]); setLoading(false); return; }
@@ -64,6 +74,29 @@ function Expenses() {
     if (error) return toast.error(error.message);
     toast.success("Expense deleted");
     load();
+  }
+
+  async function openReceiptPreview(expense: Expense) {
+    if (!expense.receipt_path) return;
+    setPreviewingId(expense.id);
+    try {
+      const { data, error } = await supabase.storage.from("receipts").createSignedUrl(expense.receipt_path, 60 * 30);
+      if (error || !data?.signedUrl) {
+        throw new Error(error?.message ?? "Could not open receipt");
+      }
+
+      setPreview({
+        title: `${expense.vendor} receipt`,
+        subtitle: [expense.category, expense.date].filter(Boolean).join(" - "),
+        fileUrl: data.signedUrl,
+        fileName: getReceiptFileName(expense.receipt_path),
+        kind: getReceiptPreviewKind(expense.receipt_path),
+      });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not open receipt");
+    } finally {
+      setPreviewingId(null);
+    }
   }
 
   const total = rows.reduce((s, e) => s + Number(e.amount), 0);
@@ -118,6 +151,17 @@ function Expenses() {
           await load();
         }}
       />
+      <ReceiptPreviewDialog
+        open={!!preview}
+        onOpenChange={(open) => {
+          if (!open) setPreview(null);
+        }}
+        title={preview?.title ?? "Receipt preview"}
+        subtitle={preview?.subtitle}
+        fileUrl={preview?.fileUrl ?? null}
+        fileName={preview?.fileName}
+        kind={preview?.kind}
+      />
 
       <div className="bg-card border border-border rounded-2xl p-5 mb-6 shadow-card max-w-sm">
         <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Total tracked</div>
@@ -139,8 +183,18 @@ function Expenses() {
               <li key={e.id} className="bg-card border border-border rounded-xl p-4 flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="font-medium text-sm">{e.vendor}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{e.category} · {e.date}</div>
-                  {e.receipt_path && <span className="inline-flex items-center gap-1 text-xs text-success mt-1"><Paperclip className="h-3 w-3" /> Receipt</span>}
+                  <div className="text-xs text-muted-foreground mt-0.5">{e.category} - {e.date}</div>
+                  {e.receipt_path && (
+                    <button
+                      type="button"
+                      onClick={() => openReceiptPreview(e)}
+                      className="inline-flex items-center gap-1 text-xs text-success mt-1 hover:underline disabled:opacity-60"
+                      disabled={previewingId === e.id}
+                    >
+                      {previewingId === e.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Paperclip className="h-3 w-3" />}
+                      Receipt
+                    </button>
+                  )}
                 </div>
                 <div className="text-right shrink-0">
                   <div className="tabular-nums font-medium">{formatMoney(Number(e.amount))}</div>
@@ -175,7 +229,23 @@ function Expenses() {
                     <td className="py-4 text-muted-foreground">{e.category}</td>
                     <td className="py-4 text-muted-foreground text-xs">{e.date}</td>
                     <td className="py-4">
-                      {e.receipt_path ? <StatusPill tone="success">Attached</StatusPill> : <StatusPill tone="warning">Missing</StatusPill>}
+                      {e.receipt_path ? (
+                        <button
+                          type="button"
+                          onClick={() => openReceiptPreview(e)}
+                          className="inline-flex"
+                          disabled={previewingId === e.id}
+                        >
+                          <StatusPill tone="success">
+                            <span className="inline-flex items-center gap-1">
+                              {previewingId === e.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Paperclip className="h-3 w-3" />}
+                              Attached
+                            </span>
+                          </StatusPill>
+                        </button>
+                      ) : (
+                        <StatusPill tone="warning">Missing</StatusPill>
+                      )}
                     </td>
                     <td className="py-4 text-right tabular-nums font-medium">{formatMoney(Number(e.amount))}</td>
                     <td className="py-4 pr-4">
