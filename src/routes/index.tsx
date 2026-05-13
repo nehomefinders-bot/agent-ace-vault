@@ -45,6 +45,38 @@ const statusTone: Record<string, "success" | "warning" | "danger" | "muted"> = {
   Draft: "muted",
 };
 
+function stagePillClasses(status: string) {
+  const k = normalizeStage(status);
+  if (k === "closed") return "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/30";
+  if (k === "contract_signed" || k === "under_agreement" || k === "commitment" || k === "clear_to_close")
+    return "bg-amber-500/15 text-amber-700 dark:text-amber-400 ring-1 ring-amber-500/30";
+  if (k === "no_response") return "bg-rose-500/15 text-rose-600 dark:text-rose-400 ring-1 ring-rose-500/30";
+  return "bg-blue-500/15 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/30";
+}
+
+function StagePill({ status }: { status: string }) {
+  return (
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide ${stagePillClasses(status)}`}>
+      {stageLabel(status)}
+    </span>
+  );
+}
+
+function PropertyThumb({ address }: { address: string }) {
+  // Deterministic gentle color from address
+  let h = 0;
+  for (let i = 0; i < address.length; i++) h = (h * 31 + address.charCodeAt(i)) >>> 0;
+  const hue = h % 360;
+  return (
+    <div
+      className="h-9 w-9 rounded-full flex items-center justify-center shrink-0 ring-1 ring-border"
+      style={{ background: `linear-gradient(135deg, oklch(85% 0.05 ${hue}), oklch(70% 0.08 ${hue}))` }}
+    >
+      <HomeIcon className="h-4 w-4 text-foreground/70" />
+    </div>
+  );
+}
+
 function KpiCard({
   label, value, delta, deltaTone = "muted", icon: Icon,
 }: {
