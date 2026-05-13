@@ -359,7 +359,7 @@ function DealDialog({
   const [agentSplit, setAgentSplit] = useState(initial?.agentSplit ?? "80");
   const [refPct, setRefPct] = useState(initial?.refPct ?? "0");
   const [refTo, setRefTo] = useState(initial?.refTo ?? "");
-  const [status, setStatus] = useState(initial?.status ?? "pending");
+  const [status, setStatus] = useState(normalizeStage(initial?.status));
   const [closeDate, setCloseDate] = useState(initial?.closeDate ?? "");
   const [saving, setSaving] = useState(false);
 
@@ -373,7 +373,7 @@ function DealDialog({
     setAgentSplit(initial?.agentSplit ?? "80");
     setRefPct(initial?.refPct ?? "0");
     setRefTo(initial?.refTo ?? "");
-    setStatus(initial?.status ?? "pending");
+    setStatus(normalizeStage(initial?.status));
     setCloseDate(initial?.closeDate ?? "");
   }, [open, initial]);
 
@@ -497,7 +497,7 @@ function dealToForm(d: Deal): DealFormValues {
     agentSplit,
     refPct,
     refTo: d.referral_to ?? "",
-    status: d.status ?? "pending",
+    status: normalizeStage(d.status),
     closeDate: d.close_date ?? "",
   };
 }
