@@ -35,12 +35,7 @@ interface DashExpense {
   receipt_path: string | null;
 }
 
-const stageLabel: Record<string, string> = {
-  closed: "Closed", closing: "Closing", under_contract: "Under Contract", pending: "Lead", dead: "Dead",
-};
-const stageTone: Record<string, "success" | "warning" | "primary" | "muted"> = {
-  closed: "success", closing: "primary", under_contract: "warning", pending: "muted", dead: "muted",
-};
+import { stageLabel, stageTone, normalizeStage } from "@/lib/pipeline-stages";
 
 const statusTone: Record<string, "success" | "warning" | "danger" | "muted"> = {
   Paid: "success",
