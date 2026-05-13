@@ -62,26 +62,26 @@ export function PipelineGaugeCard({ value, goal }: { value: number; goal: number
   const data = [{ name: "pipeline", value: pct, fill: "var(--primary)" }];
   return (
     <CardShell label="Pipeline Value" icon={DollarSign}>
-      <div className="relative h-28 -mt-1">
+      <div className="relative h-32">
         <ResponsiveContainer width="100%" height="100%">
           <RadialBarChart
-            innerRadius="78%"
+            innerRadius="80%"
             outerRadius="100%"
             data={data}
             startAngle={210}
             endAngle={-30}
-            barSize={12}
+            barSize={10}
           >
             <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
             <RadialBar background={{ fill: "var(--muted)" }} dataKey="value" cornerRadius={8} />
           </RadialBarChart>
         </ResponsiveContainer>
-        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <div className="text-xl font-bold tabular-nums font-display leading-none">{formatMoney(value)}</div>
-          <div className="text-[10px] text-muted-foreground mt-1">of {formatMoney(goal)} goal</div>
+        <div className="absolute inset-x-0 bottom-2 flex flex-col items-center justify-center pointer-events-none">
+          <div className="text-2xl font-bold tabular-nums font-display leading-none">{formatMoney(value)}</div>
+          <div className="text-[10px] text-muted-foreground mt-1.5">of {formatMoney(goal)} goal</div>
         </div>
       </div>
-      <div className="text-xs font-medium text-center text-muted-foreground -mt-1">{pct}% to monthly target</div>
+      <div className="text-xs font-medium text-center text-muted-foreground mt-2">{pct}% to monthly target</div>
     </CardShell>
   );
 }
