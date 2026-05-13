@@ -298,12 +298,14 @@ function StageColumn({
   total,
   updatingDealId,
   onStageChange,
+  onDelete,
 }: {
   stage: (typeof STAGES)[number];
   items: Deal[];
   total: number;
   updatingDealId: string | null;
   onStageChange: (dealId: string, nextStage: Stage) => Promise<void>;
+  onDelete: (dealId: string) => Promise<void>;
 }) {
   return (
     <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden flex flex-col min-h-[320px]">
@@ -322,6 +324,7 @@ function StageColumn({
             deal={deal}
             busy={updatingDealId === deal.id}
             onStageChange={onStageChange}
+            onDelete={onDelete}
           />
         ))}
         {items.length === 0 && <li className="text-xs text-muted-foreground text-center py-8">No deals</li>}
@@ -334,10 +337,12 @@ function DealCard({
   deal,
   busy,
   onStageChange,
+  onDelete,
 }: {
   deal: Deal;
   busy: boolean;
   onStageChange: (dealId: string, nextStage: Stage) => Promise<void>;
+  onDelete: (dealId: string) => Promise<void>;
 }) {
   const currentStage = normalizeStage(deal.status);
 
@@ -349,18 +354,29 @@ function DealCard({
           {deal.client_name && <div className="text-xs text-muted-foreground mt-0.5 truncate">{deal.client_name}</div>}
         </div>
 
-        <Select value={currentStage} onValueChange={(value) => onStageChange(deal.id, value as Stage)}>
-          <SelectTrigger className="h-8 w-full sm:w-[150px] text-xs" disabled={busy} aria-label={`Change stage for ${deal.address}`}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {STAGES.map((stage) => (
-              <SelectItem key={stage.key} value={stage.key}>
-                {stage.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-1.5">
+          <Select value={currentStage} onValueChange={(value) => onStageChange(deal.id, value as Stage)}>
+            <SelectTrigger className="h-8 w-full sm:w-[170px] text-xs" disabled={busy} aria-label={`Change stage for ${deal.address}`}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {STAGES.map((stage) => (
+                <SelectItem key={stage.key} value={stage.key}>
+                  {stage.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <button
+            type="button"
+            onClick={() => onDelete(deal.id)}
+            disabled={busy}
+            aria-label={`Delete ${deal.address}`}
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </div>
 
       <div className="flex items-center justify-between mt-3 gap-2">
