@@ -124,6 +124,8 @@ function Pipeline() {
       user_id: user.id,
       address: property.trim(),
       client_name: clientName.trim() || null,
+      client_email: clientEmail.trim() || null,
+      client_phone: clientPhone.trim() || null,
       side: "buy",
       status: stage,
       sale_price: sale,
@@ -140,6 +142,8 @@ function Pipeline() {
     toast.success("Opportunity added");
     setProperty("");
     setClientName("");
+    setClientEmail("");
+    setClientPhone("");
     setSalePrice("");
     setCloseDate("");
     setStage("new_lead");
