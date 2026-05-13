@@ -48,6 +48,8 @@ function Pipeline() {
 
   const [property, setProperty] = useState("");
   const [clientName, setClientName] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
   const [stage, setStage] = useState<Stage>("new_lead");
   const [closeDate, setCloseDate] = useState("");
   const [salePrice, setSalePrice] = useState("");
