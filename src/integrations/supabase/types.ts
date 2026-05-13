@@ -173,7 +173,9 @@ export type Database = {
           agent_name: string | null
           agent_split_pct: number
           brokerage_split_pct: number
+          client_email: string | null
           client_name: string | null
+          client_phone: string | null
           close_date: string | null
           created_at: string
           gross_commission: number
@@ -192,7 +194,9 @@ export type Database = {
           agent_name?: string | null
           agent_split_pct?: number
           brokerage_split_pct?: number
+          client_email?: string | null
           client_name?: string | null
+          client_phone?: string | null
           close_date?: string | null
           created_at?: string
           gross_commission?: number
@@ -211,7 +215,9 @@ export type Database = {
           agent_name?: string | null
           agent_split_pct?: number
           brokerage_split_pct?: number
+          client_email?: string | null
           client_name?: string | null
+          client_phone?: string | null
           close_date?: string | null
           created_at?: string
           gross_commission?: number
