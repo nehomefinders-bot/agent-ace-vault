@@ -183,9 +183,9 @@
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    filter: blur(4px) saturate(0.95);
-    transform: scale(1.06);
-    opacity: 0.55;
+    filter: blur(2px) saturate(1);
+    transform: scale(1.04);
+    opacity: 0.85;
     pointer-events: none;
   }
   body::after {
@@ -195,13 +195,13 @@
     z-index: -1;
     pointer-events: none;
     background:
-      radial-gradient(80% 60% at 80% 0%, color-mix(in oklab, var(--color-primary) 12%, transparent), transparent 60%),
-      radial-gradient(70% 50% at 0% 100%, color-mix(in oklab, var(--color-secondary) 14%, transparent), transparent 60%),
-      linear-gradient(180deg, color-mix(in oklab, var(--color-background) 35%, transparent), color-mix(in oklab, var(--color-background) 55%, transparent));
+      radial-gradient(80% 60% at 80% 0%, color-mix(in oklab, var(--color-primary) 10%, transparent), transparent 60%),
+      radial-gradient(70% 50% at 0% 100%, color-mix(in oklab, var(--color-secondary) 12%, transparent), transparent 60%),
+      linear-gradient(180deg, color-mix(in oklab, var(--color-background) 25%, transparent), color-mix(in oklab, var(--color-background) 40%, transparent));
   }
   .dark body::before {
-    opacity: 0.35;
-    filter: blur(6px) saturate(0.7) brightness(0.6);
+    opacity: 0.45;
+    filter: blur(4px) saturate(0.75) brightness(0.55);
   }
   :root {
     color-scheme: light;
