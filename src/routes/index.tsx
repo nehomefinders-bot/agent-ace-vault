@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, TrendingUp, DollarSign, AlertCircle, CheckCircle2, Plus, Search, Pencil, Trash2 } from "lucide-react";
+import { ArrowUpRight, AlertCircle, Plus, Search, Pencil, Trash2, Home as HomeIcon } from "lucide-react";
 import { PageShell, StatusPill } from "@/components/page-shell";
 import { invoices, kpis, formatMoney } from "@/lib/mock-data";
+import { YtdCommissionCard, PipelineGaugeCard, DealsClosedRingCard } from "@/components/dashboard-kpis";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
@@ -35,7 +36,7 @@ interface DashExpense {
   receipt_path: string | null;
 }
 
-import { stageLabel, stageTone, normalizeStage } from "@/lib/pipeline-stages";
+import { stageLabel, normalizeStage } from "@/lib/pipeline-stages";
 
 const statusTone: Record<string, "success" | "warning" | "danger" | "muted"> = {
   Paid: "success",
@@ -44,23 +45,34 @@ const statusTone: Record<string, "success" | "warning" | "danger" | "muted"> = {
   Draft: "muted",
 };
 
-function KpiCard({
-  label, value, delta, deltaTone = "muted", icon: Icon,
-}: {
-  label: string; value: string; delta: string;
-  deltaTone?: "success" | "danger" | "muted"; icon: React.ComponentType<{ className?: string }>;
-}) {
-  const toneCls = deltaTone === "success" ? "text-success" : deltaTone === "danger" ? "text-destructive" : "text-muted-foreground";
+function stagePillClasses(status: string) {
+  const k = normalizeStage(status);
+  if (k === "closed") return "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/30";
+  if (k === "contract_signed" || k === "under_agreement" || k === "commitment" || k === "clear_to_close")
+    return "bg-amber-500/15 text-amber-700 dark:text-amber-400 ring-1 ring-amber-500/30";
+  if (k === "no_response") return "bg-rose-500/15 text-rose-600 dark:text-rose-400 ring-1 ring-rose-500/30";
+  return "bg-blue-500/15 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/30";
+}
+
+function StagePill({ status }: { status: string }) {
   return (
-    <div className="glass rounded-2xl p-6">
-      <div className="flex items-start justify-between mb-4">
-        <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{label}</span>
-        <div className="h-8 w-8 rounded-lg bg-secondary/20 flex items-center justify-center">
-          <Icon className="h-4 w-4 text-primary" />
-        </div>
-      </div>
-      <div className="text-3xl font-bold tabular-nums font-display">{value}</div>
-      <div className={`text-xs mt-2 font-medium ${toneCls}`}>{delta}</div>
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide ${stagePillClasses(status)}`}>
+      {stageLabel(status)}
+    </span>
+  );
+}
+
+function PropertyThumb({ address }: { address: string }) {
+  // Deterministic gentle color from address
+  let h = 0;
+  for (let i = 0; i < address.length; i++) h = (h * 31 + address.charCodeAt(i)) >>> 0;
+  const hue = h % 360;
+  return (
+    <div
+      className="h-9 w-9 rounded-full flex items-center justify-center shrink-0 ring-1 ring-border"
+      style={{ background: `linear-gradient(135deg, oklch(85% 0.05 ${hue}), oklch(70% 0.08 ${hue}))` }}
+    >
+      <HomeIcon className="h-4 w-4 text-foreground/70" />
     </div>
   );
 }
@@ -123,10 +135,32 @@ function Dashboard() {
       }
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        <KpiCard label="YTD Commission" value={formatMoney(kpis.ytdCommission)} delta="+12.5% vs last year" deltaTone="success" icon={TrendingUp} />
-        <KpiCard label="Pipeline Value" value={formatMoney(pipelineValue || kpis.pipelineValue)} delta={`${activeDeals} active deals`} icon={DollarSign} />
-        <KpiCard label="Outstanding Commissions" value={formatMoney(kpis.outstandingInvoices)} delta={`${invoices.filter(i => i.status === "Overdue").length} overdue`} deltaTone="danger" icon={AlertCircle} />
-        <KpiCard label="Deals Closed (MTD)" value={String(deals.filter((d) => d.status === "closed").length || kpis.closedDealsMTD)} delta={`Avg ${formatMoney(kpis.avgDealSize)}`} deltaTone="success" icon={CheckCircle2} />
+        <YtdCommissionCard
+          value={kpis.ytdCommission}
+          trend={[
+            { m: "May", v: 22 },
+            { m: "Jun", v: 28 },
+            { m: "Jul", v: 31 },
+            { m: "Aug", v: 27 },
+            { m: "Sep", v: 38 },
+            { m: "Oct", v: 45 },
+          ]}
+        />
+        <PipelineGaugeCard value={pipelineValue || kpis.pipelineValue} goal={3_000_000} />
+        <div className="glass rounded-2xl p-6">
+          <div className="flex items-start justify-between mb-4">
+            <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Outstanding Commissions</span>
+            <div className="h-8 w-8 rounded-lg bg-secondary/20 flex items-center justify-center">
+              <AlertCircle className="h-4 w-4 text-primary" />
+            </div>
+          </div>
+          <div className="text-3xl font-bold tabular-nums font-display">{formatMoney(kpis.outstandingInvoices)}</div>
+          <div className="text-xs mt-2 font-medium text-destructive">{invoices.filter(i => i.status === "Overdue").length} overdue</div>
+        </div>
+        <DealsClosedRingCard
+          closed={deals.filter((d) => d.status === "closed").length || kpis.closedDealsMTD}
+          goal={10}
+        />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
@@ -150,14 +184,17 @@ function Dashboard() {
                 {deals.map((d) => (
                   <li key={d.id} className="px-4 py-4">
                     <div className="flex items-start justify-between gap-3 mb-2">
-                      <div className="min-w-0">
-                        <div className="font-medium text-sm truncate">{d.address}</div>
-                        {d.client_name && <div className="text-xs text-muted-foreground truncate">{d.client_name}</div>}
+                      <div className="flex items-start gap-3 min-w-0">
+                        <PropertyThumb address={d.address} />
+                        <div className="min-w-0">
+                          <div className="font-medium text-sm truncate">{d.address}</div>
+                          {d.client_name && <div className="text-xs text-muted-foreground truncate">{d.client_name}</div>}
+                        </div>
                       </div>
                       <div className="tabular-nums font-semibold text-sm shrink-0">{formatMoney(Number(d.sale_price))}</div>
                     </div>
                     <div className="flex items-center justify-between gap-2">
-                      <StatusPill tone={stageTone(d.status)}>{stageLabel(d.status)}</StatusPill>
+                      <StagePill status={d.status} />
                       {d.close_date && <span className="text-[11px] text-muted-foreground truncate">{d.close_date}</span>}
                     </div>
                     <div className="mt-3 flex items-center justify-end gap-1">
@@ -198,10 +235,15 @@ function Dashboard() {
                   <tbody>
                     {deals.map((d) => (
                       <tr key={d.id} className="border-t border-border row-hover-blue">
-                        <td className="py-4 px-6 font-medium">{d.address}</td>
+                        <td className="py-4 px-6 font-medium">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <PropertyThumb address={d.address} />
+                            <span className="truncate">{d.address}</span>
+                          </div>
+                        </td>
                         <td className="py-4 text-muted-foreground">{d.client_name ?? "N/A"}</td>
                         <td className="py-4 text-right tabular-nums font-medium">{formatMoney(Number(d.sale_price))}</td>
-                        <td className="py-4 pl-6"><StatusPill tone={stageTone(d.status)}>{stageLabel(d.status)}</StatusPill></td>
+                        <td className="py-4 pl-6"><StagePill status={d.status} /></td>
                         <td className="py-4 pr-6 text-muted-foreground text-xs">{d.close_date ?? "N/A"}</td>
                         <td className="py-4 pr-6">
                           <div className="flex items-center justify-end gap-1">
