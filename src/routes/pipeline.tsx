@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Mail, Phone, Plus, Trash2, User } from "lucide-react";
 import { STAGES, normalizeStage, type Stage } from "@/lib/pipeline-stages";
 import { PageShell, StatusPill } from "@/components/page-shell";
 import { supabase } from "@/integrations/supabase/client";
