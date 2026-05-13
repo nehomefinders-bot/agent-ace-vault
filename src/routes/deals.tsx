@@ -359,7 +359,7 @@ function DealDialog({
   const [agentSplit, setAgentSplit] = useState(initial?.agentSplit ?? "80");
   const [refPct, setRefPct] = useState(initial?.refPct ?? "0");
   const [refTo, setRefTo] = useState(initial?.refTo ?? "");
-  const [status, setStatus] = useState(normalizeStage(initial?.status));
+  const [status, setStatus] = useState<string>(normalizeStage(initial?.status));
   const [closeDate, setCloseDate] = useState(initial?.closeDate ?? "");
   const [saving, setSaving] = useState(false);
 
