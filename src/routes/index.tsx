@@ -157,7 +157,7 @@ function Dashboard() {
                       <div className="tabular-nums font-semibold text-sm shrink-0">{formatMoney(Number(d.sale_price))}</div>
                     </div>
                     <div className="flex items-center justify-between gap-2">
-                      <StatusPill tone={stageTone[d.status] ?? "muted"}>{stageLabel[d.status] ?? d.status}</StatusPill>
+                      <StatusPill tone={stageTone(d.status)}>{stageLabel(d.status)}</StatusPill>
                       {d.close_date && <span className="text-[11px] text-muted-foreground truncate">{d.close_date}</span>}
                     </div>
                     <div className="mt-3 flex items-center justify-end gap-1">
@@ -201,7 +201,7 @@ function Dashboard() {
                         <td className="py-4 px-6 font-medium">{d.address}</td>
                         <td className="py-4 text-muted-foreground">{d.client_name ?? "N/A"}</td>
                         <td className="py-4 text-right tabular-nums font-medium">{formatMoney(Number(d.sale_price))}</td>
-                        <td className="py-4 pl-6"><StatusPill tone={stageTone[d.status] ?? "muted"}>{stageLabel[d.status] ?? d.status}</StatusPill></td>
+                        <td className="py-4 pl-6"><StatusPill tone={stageTone(d.status)}>{stageLabel(d.status)}</StatusPill></td>
                         <td className="py-4 pr-6 text-muted-foreground text-xs">{d.close_date ?? "N/A"}</td>
                         <td className="py-4 pr-6">
                           <div className="flex items-center justify-end gap-1">
