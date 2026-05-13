@@ -97,6 +97,19 @@ function Pipeline() {
     toast.success(`Moved to ${label}`);
   }
 
+  async function deleteDeal(dealId: string) {
+    if (!confirm("Delete this deal? This cannot be undone.")) return;
+    const previous = deals;
+    setDeals((current) => current.filter((d) => d.id !== dealId));
+    const { error } = await supabase.from("deals").delete().eq("id", dealId);
+    if (error) {
+      setDeals(previous);
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Deal deleted");
+  }
+
   async function createOpportunity(e: FormEvent) {
     e.preventDefault();
     if (!user || !property.trim()) return;
