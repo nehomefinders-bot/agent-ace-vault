@@ -82,8 +82,8 @@ function Dashboard() {
     })();
   }, [user]);
 
-  const activeDeals = deals.filter((d) => d.status !== "closed" && d.status !== "dead").length;
-  const pipelineValue = deals.filter((d) => d.status !== "closed" && d.status !== "dead").reduce((s, d) => s + Number(d.sale_price), 0);
+  const activeDeals = deals.filter((d) => normalizeStage(d.status) !== "closed").length;
+  const pipelineValue = deals.filter((d) => normalizeStage(d.status) !== "closed").reduce((s, d) => s + Number(d.sale_price), 0);
 
   const deleteDeal = async (dealId: string) => {
     const { error } = await supabase.from("deals").delete().eq("id", dealId);
