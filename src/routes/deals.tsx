@@ -25,7 +25,7 @@ const DEAL_IMPORT_COLUMNS: ImportColumn[] = [
   { key: "brokerage_split_pct", label: "Brokerage Split %", type: "number", sample: 20 },
   { key: "referral_pct", label: "Referral %", type: "number", sample: 0 },
   { key: "referral_to", label: "Referral To", sample: "" },
-  { key: "status", label: "Status", enumValues: ["pending", "under_contract", "closed", "dead"], sample: "pending" },
+  { key: "status", label: "Status", enumValues: ["new_lead", "no_response", "in_conversation", "contract_signed", "under_agreement", "commitment", "clear_to_close", "closed"], sample: "new_lead" },
   { key: "close_date", label: "Close Date", type: "date", sample: "2025-01-15" },
   { key: "agent_name", label: "Agent Name", sample: "" },
   { key: "notes", label: "Notes", sample: "" },
