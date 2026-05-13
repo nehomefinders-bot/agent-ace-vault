@@ -46,7 +46,7 @@ function Pipeline() {
 
   const [property, setProperty] = useState("");
   const [clientName, setClientName] = useState("");
-  const [stage, setStage] = useState<Stage>("pending");
+  const [stage, setStage] = useState<Stage>("new_lead");
   const [closeDate, setCloseDate] = useState("");
   const [salePrice, setSalePrice] = useState("");
   const [saving, setSaving] = useState(false);
@@ -125,7 +125,7 @@ function Pipeline() {
     setClientName("");
     setSalePrice("");
     setCloseDate("");
-    setStage("pending");
+    setStage("new_lead");
     setOpen(false);
     load();
   }
