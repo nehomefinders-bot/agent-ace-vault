@@ -282,6 +282,7 @@ function Pipeline() {
                 total={total}
                 updatingDealId={updatingDealId}
                 onStageChange={changeStage}
+                onDelete={deleteDeal}
               />
             );
           })}
