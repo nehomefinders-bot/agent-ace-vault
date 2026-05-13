@@ -114,8 +114,8 @@ function DealsPage() {
     setSelected(new Set());
   };
 
-  const closed = deals.filter((d) => d.status === "closed");
-  const pipeline = deals.filter((d) => d.status !== "closed" && d.status !== "dead");
+  const closed = deals.filter((d) => normalizeStage(d.status) === "closed");
+  const pipeline = deals.filter((d) => normalizeStage(d.status) !== "closed");
 
   const calcAgentTake = (d: Deal) => {
     const afterReferral = d.gross_commission * (1 - d.referral_pct / 100);
