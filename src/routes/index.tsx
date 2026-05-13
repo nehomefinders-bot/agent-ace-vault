@@ -36,7 +36,7 @@ interface DashExpense {
   receipt_path: string | null;
 }
 
-import { stageLabel, stageTone, normalizeStage } from "@/lib/pipeline-stages";
+import { stageLabel, normalizeStage } from "@/lib/pipeline-stages";
 
 const statusTone: Record<string, "success" | "warning" | "danger" | "muted"> = {
   Paid: "success",
