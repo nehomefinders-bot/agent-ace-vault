@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, TrendingUp, DollarSign, AlertCircle, CheckCircle2, Plus, Search, Pencil, Trash2 } from "lucide-react";
+import { ArrowUpRight, AlertCircle, Plus, Search, Pencil, Trash2, Home as HomeIcon } from "lucide-react";
 import { PageShell, StatusPill } from "@/components/page-shell";
 import { invoices, kpis, formatMoney } from "@/lib/mock-data";
+import { YtdCommissionCard, PipelineGaugeCard, DealsClosedRingCard } from "@/components/dashboard-kpis";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
