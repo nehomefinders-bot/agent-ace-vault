@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { BulkStatusBar } from "@/components/bulk-status-bar";
 import { toast } from "sonner";
 import { ImportButton, type ImportColumn } from "@/components/import-button";
+import { STAGES as PIPELINE_STAGES, normalizeStage, stageLabel } from "@/lib/pipeline-stages";
 
 const DEAL_IMPORT_COLUMNS: ImportColumn[] = [
   { key: "address", label: "Address", required: true, sample: "123 Main St" },
