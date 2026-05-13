@@ -256,10 +256,15 @@ function Dashboard() {
                   <tbody>
                     {deals.map((d) => (
                       <tr key={d.id} className="border-t border-border row-hover-blue">
-                        <td className="py-4 px-6 font-medium">{d.address}</td>
+                        <td className="py-4 px-6 font-medium">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <PropertyThumb address={d.address} />
+                            <span className="truncate">{d.address}</span>
+                          </div>
+                        </td>
                         <td className="py-4 text-muted-foreground">{d.client_name ?? "N/A"}</td>
                         <td className="py-4 text-right tabular-nums font-medium">{formatMoney(Number(d.sale_price))}</td>
-                        <td className="py-4 pl-6"><StatusPill tone={stageTone(d.status)}>{stageLabel(d.status)}</StatusPill></td>
+                        <td className="py-4 pl-6"><StagePill status={d.status} /></td>
                         <td className="py-4 pr-6 text-muted-foreground text-xs">{d.close_date ?? "N/A"}</td>
                         <td className="py-4 pr-6">
                           <div className="flex items-center justify-end gap-1">
