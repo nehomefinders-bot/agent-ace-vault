@@ -60,76 +60,77 @@
 :root {
   --radius: 0.875rem;
 
-  /* Performance Cockpit palette: deep navy primary, warm ochre accent */
-  --background: oklch(98.5% 0.005 260);
-  --foreground: oklch(16% 0.02 260);
+  /* Crisp Gallery: pure whites, soft greys, navy blue accents */
+  --background: oklch(99% 0.002 250);
+  --foreground: oklch(18% 0.03 255);
 
   --card: oklch(100% 0 0);
-  --card-foreground: oklch(20% 0.02 260);
+  --card-foreground: oklch(20% 0.03 255);
   --popover: oklch(100% 0 0);
-  --popover-foreground: oklch(20% 0.02 260);
+  --popover-foreground: oklch(20% 0.03 255);
 
-  --primary: oklch(32% 0.07 260);
-  --primary-foreground: oklch(98% 0.005 80);
+  --primary: oklch(28% 0.10 255);
+  --primary-foreground: oklch(99% 0.002 250);
 
-  --secondary: oklch(78% 0.14 75);
-  --secondary-foreground: oklch(18% 0.04 260);
+  --secondary: oklch(36% 0.12 258);
+  --secondary-foreground: oklch(99% 0.002 250);
 
-  --muted: oklch(96% 0.008 260);
-  --muted-foreground: oklch(36% 0.025 260);
+  --muted: oklch(96% 0.005 250);
+  --muted-foreground: oklch(42% 0.02 255);
 
-  --accent: oklch(94% 0.02 75);
-  --accent-foreground: oklch(32% 0.07 260);
+  --accent: oklch(94% 0.02 255);
+  --accent-foreground: oklch(28% 0.10 255);
 
   --destructive: oklch(58% 0.22 25);
-  --destructive-foreground: oklch(98% 0.005 80);
+  --destructive-foreground: oklch(99% 0.002 250);
 
-  --success: oklch(60% 0.16 150);
-  --success-foreground: oklch(98% 0.005 150);
+  --success: oklch(55% 0.15 150);
+  --success-foreground: oklch(99% 0.002 150);
 
-  --warning: oklch(75% 0.15 75);
-  --warning-foreground: oklch(18% 0.04 260);
+  --warning: oklch(72% 0.16 70);
+  --warning-foreground: oklch(20% 0.04 260);
 
-  --border: oklch(91% 0.012 260);
-  --input: oklch(91% 0.012 260);
-  --ring: oklch(78% 0.14 75);
+  --border: oklch(90% 0.008 250);
+  --input: oklch(90% 0.008 250);
+  --ring: oklch(36% 0.12 258);
 
-  --chart-1: oklch(32% 0.07 260);
-  --chart-2: oklch(78% 0.14 75);
-  --chart-3: oklch(60% 0.16 150);
+  --chart-1: oklch(28% 0.10 255);
+  --chart-2: oklch(55% 0.15 150);
+  --chart-3: oklch(70% 0.13 70);
   --chart-4: oklch(58% 0.22 25);
   --chart-5: oklch(55% 0.12 220);
 
-  --sidebar: oklch(28% 0.06 260);
-  --sidebar-foreground: oklch(96% 0.01 80);
-  --sidebar-primary: oklch(78% 0.14 75);
-  --sidebar-primary-foreground: oklch(25% 0.05 260);
-  --sidebar-accent: oklch(35% 0.07 260);
-  --sidebar-accent-foreground: oklch(98% 0.005 80);
-  --sidebar-border: oklch(35% 0.05 260);
-  --sidebar-ring: oklch(78% 0.14 75);
+  --sidebar: oklch(20% 0.04 258);
+  --sidebar-foreground: oklch(96% 0.005 250);
+  --sidebar-primary: oklch(72% 0.14 75);
+  --sidebar-primary-foreground: oklch(20% 0.04 258);
+  --sidebar-accent: oklch(28% 0.06 258);
+  --sidebar-accent-foreground: oklch(99% 0.002 250);
+  --sidebar-border: oklch(30% 0.05 258);
+  --sidebar-ring: oklch(72% 0.14 75);
 }
 
 .dark {
-  --background: oklch(16% 0.02 260);
-  --foreground: oklch(98% 0.01 80);
+  /* Deep Slate & Midnight with gold/amber primary accents */
+  --background: oklch(14% 0.02 255);
+  --foreground: oklch(96% 0.01 80);
 
-  --card: oklch(20% 0.02 260);
+  --card: oklch(20% 0.025 255);
   --card-foreground: oklch(96% 0.01 80);
-  --popover: oklch(20% 0.02 260);
+  --popover: oklch(18% 0.025 255);
   --popover-foreground: oklch(96% 0.01 80);
 
   --primary: oklch(78% 0.14 75);
-  --primary-foreground: oklch(24% 0.04 260);
+  --primary-foreground: oklch(18% 0.03 255);
 
-  --secondary: oklch(30% 0.05 260);
+  --secondary: oklch(28% 0.04 255);
   --secondary-foreground: oklch(96% 0.01 80);
 
-  --muted: oklch(24% 0.02 260);
-  --muted-foreground: oklch(88% 0.015 260);
+  --muted: oklch(22% 0.025 255);
+  --muted-foreground: oklch(78% 0.018 255);
 
-  --accent: oklch(28% 0.04 75);
-  --accent-foreground: oklch(98% 0.005 80);
+  --accent: oklch(32% 0.06 75);
+  --accent-foreground: oklch(96% 0.01 80);
 
   --destructive: oklch(68% 0.21 25);
   --destructive-foreground: oklch(98% 0.005 80);
@@ -138,10 +139,10 @@
   --success-foreground: oklch(18% 0.02 150);
 
   --warning: oklch(78% 0.14 75);
-  --warning-foreground: oklch(98% 0.005 80);
+  --warning-foreground: oklch(18% 0.03 255);
 
-  --border: oklch(31% 0.02 260);
-  --input: oklch(31% 0.02 260);
+  --border: oklch(30% 0.025 255);
+  --input: oklch(30% 0.025 255);
   --ring: oklch(78% 0.14 75);
 
   --chart-1: oklch(78% 0.14 75);
@@ -150,13 +151,13 @@
   --chart-4: oklch(55% 0.12 220);
   --chart-5: oklch(86% 0.11 55);
 
-  --sidebar: oklch(14% 0.02 260);
-  --sidebar-foreground: oklch(98% 0.01 80);
+  --sidebar: oklch(11% 0.02 255);
+  --sidebar-foreground: oklch(96% 0.01 80);
   --sidebar-primary: oklch(78% 0.14 75);
-  --sidebar-primary-foreground: oklch(24% 0.04 260);
-  --sidebar-accent: oklch(20% 0.02 260);
-  --sidebar-accent-foreground: oklch(98% 0.005 80);
-  --sidebar-border: oklch(28% 0.02 260);
+  --sidebar-primary-foreground: oklch(18% 0.03 255);
+  --sidebar-accent: oklch(18% 0.025 255);
+  --sidebar-accent-foreground: oklch(96% 0.01 80);
+  --sidebar-border: oklch(24% 0.02 255);
   --sidebar-ring: oklch(78% 0.14 75);
 }
 
@@ -170,6 +171,37 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     min-height: 100dvh;
+    position: relative;
+  }
+  /* Subtle Massachusetts architecture overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-image: url("./assets/ma-architecture-bg.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    filter: blur(6px) saturate(0.85);
+    transform: scale(1.06);
+    opacity: 0.18;
+    pointer-events: none;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(80% 60% at 80% 0%, color-mix(in oklab, var(--color-primary) 10%, transparent), transparent 60%),
+      radial-gradient(70% 50% at 0% 100%, color-mix(in oklab, var(--color-secondary) 12%, transparent), transparent 60%),
+      linear-gradient(180deg, color-mix(in oklab, var(--color-background) 78%, transparent), color-mix(in oklab, var(--color-background) 92%, transparent));
+  }
+  .dark body::before {
+    opacity: 0.10;
+    filter: blur(8px) saturate(0.6) brightness(0.55);
   }
   :root {
     color-scheme: light;
@@ -179,7 +211,14 @@
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+  h1 { letter-spacing: -0.005em; }
+  .tracking-display {
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 600;
   }
   .tabular-nums {
     font-variant-numeric: tabular-nums;
@@ -230,18 +269,26 @@
 
 @layer components {
   .glass {
-    background-color: color-mix(in oklab, var(--color-card) 65%, transparent);
-    backdrop-filter: blur(12px) saturate(140%);
-    -webkit-backdrop-filter: blur(12px) saturate(140%);
-    border: 1px solid color-mix(in oklab, var(--color-border) 60%, transparent);
+    background-color: color-mix(in oklab, var(--color-card) 55%, transparent);
+    backdrop-filter: blur(10px) saturate(160%);
+    -webkit-backdrop-filter: blur(10px) saturate(160%);
+    border: 1px solid color-mix(in srgb, black 5%, transparent);
     box-shadow:
-      0 1px 0 0 color-mix(in oklab, white 6%, transparent) inset,
-      0 10px 30px -12px color-mix(in oklab, black 25%, transparent);
+      0 1px 0 0 color-mix(in srgb, white 35%, transparent) inset,
+      0 8px 28px -14px color-mix(in srgb, black 25%, transparent),
+      0 2px 6px -2px color-mix(in srgb, black 10%, transparent);
+  }
+  .dark .glass {
+    background-color: color-mix(in oklab, var(--color-card) 50%, transparent);
+    border: 1px solid color-mix(in srgb, white 10%, transparent);
+    box-shadow:
+      0 1px 0 0 color-mix(in srgb, white 6%, transparent) inset,
+      0 10px 32px -14px color-mix(in srgb, black 70%, transparent);
   }
   .row-hover-blue {
     transition: background-color 150ms ease;
   }
   .row-hover-blue:hover {
-    background-color: color-mix(in oklab, oklch(0.72 0.14 240) 12%, transparent);
+    background-color: color-mix(in oklab, var(--color-primary) 8%, transparent);
   }
 }
