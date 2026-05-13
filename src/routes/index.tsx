@@ -205,14 +205,17 @@ function Dashboard() {
                 {deals.map((d) => (
                   <li key={d.id} className="px-4 py-4">
                     <div className="flex items-start justify-between gap-3 mb-2">
-                      <div className="min-w-0">
-                        <div className="font-medium text-sm truncate">{d.address}</div>
-                        {d.client_name && <div className="text-xs text-muted-foreground truncate">{d.client_name}</div>}
+                      <div className="flex items-start gap-3 min-w-0">
+                        <PropertyThumb address={d.address} />
+                        <div className="min-w-0">
+                          <div className="font-medium text-sm truncate">{d.address}</div>
+                          {d.client_name && <div className="text-xs text-muted-foreground truncate">{d.client_name}</div>}
+                        </div>
                       </div>
                       <div className="tabular-nums font-semibold text-sm shrink-0">{formatMoney(Number(d.sale_price))}</div>
                     </div>
                     <div className="flex items-center justify-between gap-2">
-                      <StatusPill tone={stageTone(d.status)}>{stageLabel(d.status)}</StatusPill>
+                      <StagePill status={d.status} />
                       {d.close_date && <span className="text-[11px] text-muted-foreground truncate">{d.close_date}</span>}
                     </div>
                     <div className="mt-3 flex items-center justify-end gap-1">
