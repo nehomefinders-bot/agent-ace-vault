@@ -12,6 +12,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useBooks, formatMoneyCents, formatMoney } from "@/hooks/use-books";
 import { classifyTxn } from "@/lib/books-data";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+
+const EXTRA_ACCOUNTS: { sentinel: string; name: string; code: string }[] = [
+  { sentinel: "__misc__", name: "Miscellaneous", code: "1900" },
+  { sentinel: "__ask_accountant__", name: "Ask Accountant", code: "1910" },
+];
 
 export const Route = createFileRoute("/books/")({
   component: BooksOverview,
@@ -344,7 +351,26 @@ function AddTransactionModal({
   const acctOptions = [...assetAccounts, ...liabAccounts];
 
   const effCategory = category || catOptions[0]?.id || "";
-  const effAccount = account || acctOptions[0]?.id || "";
+  const effAccount = account || acctOptions[0]?.id || EXTRA_ACCOUNTS[0].sentinel;
+
+  const { user } = useAuth();
+  const { reload } = useBooks();
+
+  async function resolveAccountId(value: string): Promise<string> {
+    const extra = EXTRA_ACCOUNTS.find((e) => e.sentinel === value);
+    if (!extra) return value;
+    if (!user) throw new Error("Not signed in");
+    const existing = accounts.find((a) => a.name === extra.name);
+    if (existing) return existing.id;
+    const { data, error } = await supabase
+      .from("accounts")
+      .insert({ user_id: user.id, code: extra.code, name: extra.name, kind: "Asset" })
+      .select("id")
+      .single();
+    if (error || !data) throw error ?? new Error("Could not create account");
+    await reload();
+    return data.id;
+  }
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
@@ -354,8 +380,9 @@ function AddTransactionModal({
     if (!effCategory || !effAccount) return toast.error("Pick a category and account");
     setSaving(true);
     try {
-      const debit = type === "income" ? effAccount : effCategory;
-      const credit = type === "income" ? effCategory : effAccount;
+      const accountId = await resolveAccountId(effAccount);
+      const debit = type === "income" ? accountId : effCategory;
+      const credit = type === "income" ? effCategory : accountId;
       await onSubmit({ date, memo: memo.trim(), amount: amt, debitAccountId: debit, creditAccountId: credit });
       toast.success("Transaction saved");
       onClose();
@@ -431,6 +458,9 @@ function AddTransactionModal({
             <SelectContent>
               {acctOptions.map((a) => (
                 <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+              ))}
+              {EXTRA_ACCOUNTS.map((e) => (
+                <SelectItem key={e.sentinel} value={e.sentinel}>{e.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
