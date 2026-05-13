@@ -276,16 +276,15 @@ function DealsPage() {
                       </div>
                     </td>
                     <td className="py-4">
-                      <Select value={d.status} onValueChange={(v) => updateStatus(d.id, v)}>
-                        <SelectTrigger className={`h-7 w-[140px] text-xs border-0 px-2 ${
-                          d.status === "closed" ? "bg-success/10 text-success" :
-                          d.status === "dead" ? "bg-muted text-muted-foreground" :
+                      <Select value={normalizeStage(d.status)} onValueChange={(v) => updateStatus(d.id, v)}>
+                        <SelectTrigger className={`h-7 w-[170px] text-xs border-0 px-2 ${
+                          normalizeStage(d.status) === "closed" ? "bg-success/10 text-success" :
                           "bg-primary/10 text-primary"
                         }`}>
-                          <SelectValue>{d.status.replace("_", " ")}</SelectValue>
+                          <SelectValue>{stageLabel(d.status)}</SelectValue>
                         </SelectTrigger>
                         <SelectContent>
-                          {STATUSES.map((s) => <SelectItem key={s} value={s}>{s.replace("_", " ")}</SelectItem>)}
+                          {PIPELINE_STAGES.map((s) => <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </td>
