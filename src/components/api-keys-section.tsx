@@ -4,10 +4,17 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { listApiKeys, createApiKey, revokeApiKey } from "@/utils/api-keys.functions";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { withTimeout } from "@/components/async-section";
+import type { SensitiveActionRunner } from "@/lib/security-gate";
 
 interface ApiKeyRow {
   id: string;
@@ -19,7 +26,11 @@ interface ApiKeyRow {
   created_at: string;
 }
 
-export function ApiKeysSection() {
+interface ApiKeysSectionProps {
+  requireVerification?: SensitiveActionRunner;
+}
+
+export function ApiKeysSection({ requireVerification }: ApiKeysSectionProps = {}) {
   const fetchKeys = useServerFn(listApiKeys);
   const createKey = useServerFn(createApiKey);
   const revokeKey = useServerFn(revokeApiKey);
@@ -42,28 +53,39 @@ export function ApiKeysSection() {
     try {
       const { keys } = await withTimeout(fetchKeys(), 15000, "API keys");
       setKeys(keys as ApiKeyRow[]);
-    } catch (e) {
-      setLoadError(e instanceof Error ? e.message : "Failed to load API keys");
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : "Failed to load API keys");
       setKeys([]);
     } finally {
       setLoading(false);
     }
   }
-  useEffect(() => { load(); }, []);
 
+  useEffect(() => {
+    void load();
+  }, []);
 
   async function create() {
     if (!name.trim()) return toast.error("Name your key first");
     setCreating(true);
     try {
-      const days = expiry === "never" ? null : Number(expiry);
-      const { token } = await createKey({ data: { name: name.trim(), expiresInDays: days } });
-      setNewToken(token);
-      setName("");
-      setExpiry("never");
-      await load();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not create key");
+      const run = async () => {
+        const days = expiry === "never" ? null : Number(expiry);
+        const { token } = await createKey({ data: { name: name.trim(), expiresInDays: days } });
+        setNewToken(token);
+        setName("");
+        setExpiry("never");
+        await load();
+      };
+
+      if (requireVerification) {
+        const verified = await requireVerification("Create an API key", run);
+        if (!verified) return;
+      } else {
+        await run();
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not create key");
     } finally {
       setCreating(false);
     }
@@ -80,12 +102,21 @@ export function ApiKeysSection() {
     if (!confirmRevoke) return;
     setRevoking(true);
     try {
-      await revokeKey({ data: { id: confirmRevoke.id } });
-      toast.success("Key revoked");
-      setConfirmRevoke(null);
-      await load();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not revoke");
+      const run = async () => {
+        await revokeKey({ data: { id: confirmRevoke.id } });
+        toast.success("Key revoked");
+        setConfirmRevoke(null);
+        await load();
+      };
+
+      if (requireVerification) {
+        const verified = await requireVerification("Revoke an API key", run);
+        if (!verified) return;
+      } else {
+        await run();
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not revoke");
     } finally {
       setRevoking(false);
     }
@@ -103,7 +134,6 @@ export function ApiKeysSection() {
         </p>
       </div>
 
-      {/* Create form */}
       <div className="grid gap-3 sm:grid-cols-[1fr_160px_auto] mb-5">
         <input
           value={name}
@@ -118,12 +148,12 @@ export function ApiKeysSection() {
           <option value="90">90 days</option>
           <option value="365">1 year</option>
         </select>
-        <button onClick={create} disabled={creating || !name.trim()} className="btn-primary">
-          {creating && <Loader2 className="h-4 w-4 animate-spin mr-2" />} Create key
+        <button onClick={() => void create()} disabled={creating || !name.trim()} className="btn-primary">
+          {creating && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+          Create key
         </button>
       </div>
 
-      {/* New token reveal */}
       {newToken && (
         <div className="mb-5 rounded-xl border border-primary/30 bg-primary/5 p-4">
           <div className="text-sm font-medium mb-1">Save this token now</div>
@@ -143,12 +173,11 @@ export function ApiKeysSection() {
             onClick={() => setNewToken(null)}
             className="mt-3 text-xs text-muted-foreground hover:text-foreground underline"
           >
-            I've saved it — dismiss
+            I've saved it - dismiss
           </button>
         </div>
       )}
 
-      {/* Inline status banners — never block the create form above */}
       {loadError && (
         <div className="mb-3 rounded-lg border border-destructive/40 bg-destructive/5 p-3 flex items-start gap-2">
           <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
@@ -156,16 +185,15 @@ export function ApiKeysSection() {
             <div className="font-medium">Couldn't load your API keys</div>
             <div className="text-muted-foreground text-xs mt-0.5 break-words">{loadError}</div>
           </div>
-          <button onClick={load} className="btn-secondary text-xs" type="button">
+          <button onClick={() => void load()} className="btn-secondary text-xs" type="button">
             <RefreshCw className="h-3.5 w-3.5 mr-1" /> Retry
           </button>
         </div>
       )}
 
-      {/* List */}
       {loading ? (
         <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading API keys…
+          <Loader2 className="h-4 w-4 animate-spin" /> Loading API keys...
         </div>
       ) : safeKeys.length === 0 ? (
         <div className="text-sm text-muted-foreground text-center py-8 border border-dashed border-border rounded-xl">
@@ -173,37 +201,40 @@ export function ApiKeysSection() {
         </div>
       ) : (
         <div className="divide-y divide-border border border-border rounded-xl overflow-hidden">
-          {safeKeys.map((k) => {
-            const expired = k.expires_at && new Date(k.expires_at).getTime() < Date.now();
-            const status = k.revoked_at ? "revoked" : expired ? "expired" : "active";
+          {safeKeys.map((key) => {
+            const expired = key.expires_at && new Date(key.expires_at).getTime() < Date.now();
+            const status = key.revoked_at ? "revoked" : expired ? "expired" : "active";
             const tone =
-              status === "active" ? "bg-success/10 text-success"
-              : status === "expired" ? "bg-secondary/20 text-secondary-foreground"
-              : "bg-destructive/10 text-destructive";
+              status === "active"
+                ? "bg-success/10 text-success"
+                : status === "expired"
+                  ? "bg-secondary/20 text-secondary-foreground"
+                  : "bg-destructive/10 text-destructive";
+
             return (
-              <div key={k.id} className="flex items-center gap-4 p-3.5 bg-background">
+              <div key={key.id} className="flex items-center gap-4 p-3.5 bg-background">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm truncate">{k.name}</span>
+                    <span className="font-medium text-sm truncate">{key.name}</span>
                     <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-medium ${tone}`}>
                       {status}
                     </span>
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5 font-mono">
-                    {k.token_prefix}…••••
+                    {key.token_prefix}...****
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">
-                    Created {new Date(k.created_at).toLocaleDateString()}
-                    {" · "}
-                    {k.last_used_at
-                      ? `Last used ${new Date(k.last_used_at).toLocaleDateString()}`
+                    Created {new Date(key.created_at).toLocaleDateString()}
+                    {" - "}
+                    {key.last_used_at
+                      ? `Last used ${new Date(key.last_used_at).toLocaleDateString()}`
                       : "Never used"}
-                    {k.expires_at && ` · Expires ${new Date(k.expires_at).toLocaleDateString()}`}
+                    {key.expires_at && ` - Expires ${new Date(key.expires_at).toLocaleDateString()}`}
                   </div>
                 </div>
                 {status === "active" && (
                   <button
-                    onClick={() => setConfirmRevoke(k)}
+                    onClick={() => setConfirmRevoke(key)}
                     className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border border-border hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition"
                   >
                     <Trash2 className="h-3.5 w-3.5" /> Revoke
@@ -215,8 +246,7 @@ export function ApiKeysSection() {
         </div>
       )}
 
-
-      <AlertDialog open={!!confirmRevoke} onOpenChange={(o) => !o && setConfirmRevoke(null)}>
+      <AlertDialog open={!!confirmRevoke} onOpenChange={(open) => !open && setConfirmRevoke(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Revoke "{confirmRevoke?.name}"?</AlertDialogTitle>
@@ -227,7 +257,7 @@ export function ApiKeysSection() {
           <AlertDialogFooter>
             <AlertDialogCancel disabled={revoking}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={revoke}
+              onClick={() => void revoke()}
               disabled={revoking}
               className="bg-destructive text-destructive-foreground hover:opacity-90"
             >

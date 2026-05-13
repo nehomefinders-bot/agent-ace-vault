@@ -312,7 +312,7 @@ function HelpPage() {
                   href="tel:+15083339393"
                   className="block underline underline-offset-2"
                 >
-                  +1 508-333-9393
+                  (508) 682-4440
                 </a>
               </div>
               <p className="text-primary-foreground/80">

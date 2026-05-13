@@ -44,7 +44,7 @@ function SupportPage() {
               <Phone className="h-4 w-4 mt-0.5 text-primary shrink-0" />
               <div className="min-w-0">
                 <div className="text-xs uppercase tracking-wider text-muted-foreground">Phone</div>
-                <div className="font-medium">+1 508-333-9393</div>
+                <div className="font-medium">(508) 682-4440</div>
               </div>
             </a>
           </div>
