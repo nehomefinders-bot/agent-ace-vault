@@ -35,12 +35,7 @@ interface DashExpense {
   receipt_path: string | null;
 }
 
-const stageLabel: Record<string, string> = {
-  closed: "Closed", closing: "Closing", under_contract: "Under Contract", pending: "Lead", dead: "Dead",
-};
-const stageTone: Record<string, "success" | "warning" | "primary" | "muted"> = {
-  closed: "success", closing: "primary", under_contract: "warning", pending: "muted", dead: "muted",
-};
+import { stageLabel, stageTone, normalizeStage } from "@/lib/pipeline-stages";
 
 const statusTone: Record<string, "success" | "warning" | "danger" | "muted"> = {
   Paid: "success",
@@ -87,8 +82,8 @@ function Dashboard() {
     })();
   }, [user]);
 
-  const activeDeals = deals.filter((d) => d.status !== "closed" && d.status !== "dead").length;
-  const pipelineValue = deals.filter((d) => d.status !== "closed" && d.status !== "dead").reduce((s, d) => s + Number(d.sale_price), 0);
+  const activeDeals = deals.filter((d) => normalizeStage(d.status) !== "closed").length;
+  const pipelineValue = deals.filter((d) => normalizeStage(d.status) !== "closed").reduce((s, d) => s + Number(d.sale_price), 0);
 
   const deleteDeal = async (dealId: string) => {
     const { error } = await supabase.from("deals").delete().eq("id", dealId);
@@ -162,7 +157,7 @@ function Dashboard() {
                       <div className="tabular-nums font-semibold text-sm shrink-0">{formatMoney(Number(d.sale_price))}</div>
                     </div>
                     <div className="flex items-center justify-between gap-2">
-                      <StatusPill tone={stageTone[d.status] ?? "muted"}>{stageLabel[d.status] ?? d.status}</StatusPill>
+                      <StatusPill tone={stageTone(d.status)}>{stageLabel(d.status)}</StatusPill>
                       {d.close_date && <span className="text-[11px] text-muted-foreground truncate">{d.close_date}</span>}
                     </div>
                     <div className="mt-3 flex items-center justify-end gap-1">
@@ -206,7 +201,7 @@ function Dashboard() {
                         <td className="py-4 px-6 font-medium">{d.address}</td>
                         <td className="py-4 text-muted-foreground">{d.client_name ?? "N/A"}</td>
                         <td className="py-4 text-right tabular-nums font-medium">{formatMoney(Number(d.sale_price))}</td>
-                        <td className="py-4 pl-6"><StatusPill tone={stageTone[d.status] ?? "muted"}>{stageLabel[d.status] ?? d.status}</StatusPill></td>
+                        <td className="py-4 pl-6"><StatusPill tone={stageTone(d.status)}>{stageLabel(d.status)}</StatusPill></td>
                         <td className="py-4 pr-6 text-muted-foreground text-xs">{d.close_date ?? "N/A"}</td>
                         <td className="py-4 pr-6">
                           <div className="flex items-center justify-end gap-1">

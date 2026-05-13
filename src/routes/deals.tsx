@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { BulkStatusBar } from "@/components/bulk-status-bar";
 import { toast } from "sonner";
 import { ImportButton, type ImportColumn } from "@/components/import-button";
+import { STAGES as PIPELINE_STAGES, normalizeStage, stageLabel } from "@/lib/pipeline-stages";
 
 const DEAL_IMPORT_COLUMNS: ImportColumn[] = [
   { key: "address", label: "Address", required: true, sample: "123 Main St" },
@@ -25,7 +26,7 @@ const DEAL_IMPORT_COLUMNS: ImportColumn[] = [
   { key: "brokerage_split_pct", label: "Brokerage Split %", type: "number", sample: 20 },
   { key: "referral_pct", label: "Referral %", type: "number", sample: 0 },
   { key: "referral_to", label: "Referral To", sample: "" },
-  { key: "status", label: "Status", enumValues: ["pending", "under_contract", "closed", "dead"], sample: "pending" },
+  { key: "status", label: "Status", enumValues: ["new_lead", "no_response", "in_conversation", "contract_signed", "under_agreement", "commitment", "clear_to_close", "closed"], sample: "new_lead" },
   { key: "close_date", label: "Close Date", type: "date", sample: "2025-01-15" },
   { key: "agent_name", label: "Agent Name", sample: "" },
   { key: "notes", label: "Notes", sample: "" },
@@ -65,7 +66,7 @@ type DealFormValues = {
   closeDate: string;
 };
 
-const STATUSES = ["pending", "under_contract", "closed", "dead"];
+const STATUSES = PIPELINE_STAGES.map((s) => s.key);
 
 function DealsPage() {
   const { user } = useAuth();
@@ -113,8 +114,8 @@ function DealsPage() {
     setSelected(new Set());
   };
 
-  const closed = deals.filter((d) => d.status === "closed");
-  const pipeline = deals.filter((d) => d.status !== "closed" && d.status !== "dead");
+  const closed = deals.filter((d) => normalizeStage(d.status) === "closed");
+  const pipeline = deals.filter((d) => normalizeStage(d.status) !== "closed");
 
   const calcAgentTake = (d: Deal) => {
     const afterReferral = d.gross_commission * (1 - d.referral_pct / 100);
@@ -275,16 +276,15 @@ function DealsPage() {
                       </div>
                     </td>
                     <td className="py-4">
-                      <Select value={d.status} onValueChange={(v) => updateStatus(d.id, v)}>
-                        <SelectTrigger className={`h-7 w-[140px] text-xs border-0 px-2 ${
-                          d.status === "closed" ? "bg-success/10 text-success" :
-                          d.status === "dead" ? "bg-muted text-muted-foreground" :
+                      <Select value={normalizeStage(d.status)} onValueChange={(v) => updateStatus(d.id, v)}>
+                        <SelectTrigger className={`h-7 w-[170px] text-xs border-0 px-2 ${
+                          normalizeStage(d.status) === "closed" ? "bg-success/10 text-success" :
                           "bg-primary/10 text-primary"
                         }`}>
-                          <SelectValue>{d.status.replace("_", " ")}</SelectValue>
+                          <SelectValue>{stageLabel(d.status)}</SelectValue>
                         </SelectTrigger>
                         <SelectContent>
-                          {STATUSES.map((s) => <SelectItem key={s} value={s}>{s.replace("_", " ")}</SelectItem>)}
+                          {PIPELINE_STAGES.map((s) => <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </td>
@@ -359,7 +359,7 @@ function DealDialog({
   const [agentSplit, setAgentSplit] = useState(initial?.agentSplit ?? "80");
   const [refPct, setRefPct] = useState(initial?.refPct ?? "0");
   const [refTo, setRefTo] = useState(initial?.refTo ?? "");
-  const [status, setStatus] = useState(initial?.status ?? "pending");
+  const [status, setStatus] = useState<string>(normalizeStage(initial?.status));
   const [closeDate, setCloseDate] = useState(initial?.closeDate ?? "");
   const [saving, setSaving] = useState(false);
 
@@ -373,7 +373,7 @@ function DealDialog({
     setAgentSplit(initial?.agentSplit ?? "80");
     setRefPct(initial?.refPct ?? "0");
     setRefTo(initial?.refTo ?? "");
-    setStatus(initial?.status ?? "pending");
+    setStatus(normalizeStage(initial?.status));
     setCloseDate(initial?.closeDate ?? "");
   }, [open, initial]);
 
@@ -439,7 +439,7 @@ function DealDialog({
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger className="inp"><SelectValue /></SelectTrigger>
               <SelectContent>
-                {STATUSES.map((s) => <SelectItem key={s} value={s}>{s.replace("_", " ")}</SelectItem>)}
+                {PIPELINE_STAGES.map((s) => <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>)}
               </SelectContent>
             </Select>
           </FormField>
@@ -497,7 +497,7 @@ function dealToForm(d: Deal): DealFormValues {
     agentSplit,
     refPct,
     refTo: d.referral_to ?? "",
-    status: d.status ?? "pending",
+    status: normalizeStage(d.status),
     closeDate: d.close_date ?? "",
   };
 }

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, Trash2 } from "lucide-react";
+import { STAGES, normalizeStage, type Stage } from "@/lib/pipeline-stages";
 import { PageShell, StatusPill } from "@/components/page-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -18,15 +19,7 @@ export const Route = createFileRoute("/pipeline")({
   head: () => ({ meta: [{ title: "Pipeline - Agent Business Tracker" }] }),
 });
 
-type Stage = "pending" | "under_contract" | "closing" | "closed";
 type PipelineView = "all" | Stage;
-
-const STAGES: { key: Stage; label: string; tone: "muted" | "warning" | "primary" | "success" }[] = [
-  { key: "pending", label: "Lead", tone: "muted" },
-  { key: "under_contract", label: "Under Contract", tone: "warning" },
-  { key: "closing", label: "Closing", tone: "primary" },
-  { key: "closed", label: "Closed", tone: "success" },
-];
 
 const PIPELINE_VIEWS: { key: PipelineView; label: string }[] = [
   { key: "all", label: "All stages" },
@@ -53,7 +46,7 @@ function Pipeline() {
 
   const [property, setProperty] = useState("");
   const [clientName, setClientName] = useState("");
-  const [stage, setStage] = useState<Stage>("pending");
+  const [stage, setStage] = useState<Stage>("new_lead");
   const [closeDate, setCloseDate] = useState("");
   const [salePrice, setSalePrice] = useState("");
   const [saving, setSaving] = useState(false);
@@ -104,6 +97,19 @@ function Pipeline() {
     toast.success(`Moved to ${label}`);
   }
 
+  async function deleteDeal(dealId: string) {
+    if (!confirm("Delete this deal? This cannot be undone.")) return;
+    const previous = deals;
+    setDeals((current) => current.filter((d) => d.id !== dealId));
+    const { error } = await supabase.from("deals").delete().eq("id", dealId);
+    if (error) {
+      setDeals(previous);
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Deal deleted");
+  }
+
   async function createOpportunity(e: FormEvent) {
     e.preventDefault();
     if (!user || !property.trim()) return;
@@ -132,7 +138,7 @@ function Pipeline() {
     setClientName("");
     setSalePrice("");
     setCloseDate("");
-    setStage("pending");
+    setStage("new_lead");
     setOpen(false);
     load();
   }
@@ -276,6 +282,7 @@ function Pipeline() {
                 total={total}
                 updatingDealId={updatingDealId}
                 onStageChange={changeStage}
+                onDelete={deleteDeal}
               />
             );
           })}
@@ -291,12 +298,14 @@ function StageColumn({
   total,
   updatingDealId,
   onStageChange,
+  onDelete,
 }: {
   stage: (typeof STAGES)[number];
   items: Deal[];
   total: number;
   updatingDealId: string | null;
   onStageChange: (dealId: string, nextStage: Stage) => Promise<void>;
+  onDelete: (dealId: string) => Promise<void>;
 }) {
   return (
     <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden flex flex-col min-h-[320px]">
@@ -315,6 +324,7 @@ function StageColumn({
             deal={deal}
             busy={updatingDealId === deal.id}
             onStageChange={onStageChange}
+            onDelete={onDelete}
           />
         ))}
         {items.length === 0 && <li className="text-xs text-muted-foreground text-center py-8">No deals</li>}
@@ -327,10 +337,12 @@ function DealCard({
   deal,
   busy,
   onStageChange,
+  onDelete,
 }: {
   deal: Deal;
   busy: boolean;
   onStageChange: (dealId: string, nextStage: Stage) => Promise<void>;
+  onDelete: (dealId: string) => Promise<void>;
 }) {
   const currentStage = normalizeStage(deal.status);
 
@@ -342,18 +354,29 @@ function DealCard({
           {deal.client_name && <div className="text-xs text-muted-foreground mt-0.5 truncate">{deal.client_name}</div>}
         </div>
 
-        <Select value={currentStage} onValueChange={(value) => onStageChange(deal.id, value as Stage)}>
-          <SelectTrigger className="h-8 w-full sm:w-[150px] text-xs" disabled={busy} aria-label={`Change stage for ${deal.address}`}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {STAGES.map((stage) => (
-              <SelectItem key={stage.key} value={stage.key}>
-                {stage.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-1.5">
+          <Select value={currentStage} onValueChange={(value) => onStageChange(deal.id, value as Stage)}>
+            <SelectTrigger className="h-8 w-full sm:w-[170px] text-xs" disabled={busy} aria-label={`Change stage for ${deal.address}`}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {STAGES.map((stage) => (
+                <SelectItem key={stage.key} value={stage.key}>
+                  {stage.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <button
+            type="button"
+            onClick={() => onDelete(deal.id)}
+            disabled={busy}
+            aria-label={`Delete ${deal.address}`}
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </div>
 
       <div className="flex items-center justify-between mt-3 gap-2">
@@ -364,9 +387,6 @@ function DealCard({
   );
 }
 
-function normalizeStage(status: string): Stage {
-  return STAGES.some((stage) => stage.key === status) ? (status as Stage) : "pending";
-}
 
 function DealDialog({
   open,
