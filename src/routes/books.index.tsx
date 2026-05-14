@@ -491,8 +491,22 @@ function AddTransactionModal({
               {catOptions.map((a) => (
                 <SelectItem key={a.id} value={a.id}>{a.code} · {a.name}</SelectItem>
               ))}
+              <SelectItem value={CUSTOM_CATEGORY_SENTINEL}>
+                <span className="inline-flex items-center gap-1.5 font-medium text-primary">
+                  <Plus className="h-3.5 w-3.5" /> Add custom…
+                </span>
+              </SelectItem>
             </SelectContent>
           </Select>
+          {effCategory === CUSTOM_CATEGORY_SENTINEL && (
+            <Input
+              autoFocus
+              value={customCategoryName}
+              onChange={(e) => setCustomCategoryName(e.target.value)}
+              placeholder={`Enter ${type} category name`}
+              className="mt-2"
+            />
+          )}
         </div>
 
         <div className="space-y-1.5">
