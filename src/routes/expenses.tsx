@@ -206,18 +206,31 @@ function Expenses() {
         <div className="text-3xl font-bold tabular-nums font-display">{formatMoney(total)}</div>
       </div>
 
+      <TableFilterBar
+        filters={filters}
+        onChange={setFilters}
+        onReset={resetFilters}
+        searchPlaceholder="Search vendor, category, notes..."
+        showAmount
+        selects={[{
+          key: "category",
+          label: "Category",
+          options: CATEGORIES.map((c) => ({ value: c, label: c })),
+        }]}
+      />
+
       {loading ? (
         <div className="flex justify-center py-20"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-      ) : rows.length === 0 ? (
+      ) : filteredRows.length === 0 ? (
         <div className="border border-dashed rounded-xl py-16 text-center">
           <Wallet className="h-10 w-10 mx-auto text-muted-foreground/60 mb-3" />
-          <div className="font-medium">No expenses yet</div>
-          <div className="text-sm text-muted-foreground mt-1">Click <span className="font-medium">Log Expense</span> to add your first.</div>
+          <div className="font-medium">{rows.length === 0 ? "No expenses yet" : "No expenses match your filters"}</div>
+          <div className="text-sm text-muted-foreground mt-1">{rows.length === 0 ? <>Click <span className="font-medium">Log Expense</span> to add your first.</> : "Try adjusting your filters."}</div>
         </div>
       ) : (
         <>
           <ul className="md:hidden space-y-2">
-            {rows.map((e) => (
+            {filteredRows.map((e) => (
               <li key={e.id} className="bg-card border border-border rounded-xl p-4 flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="font-medium text-sm">{e.vendor}</div>
