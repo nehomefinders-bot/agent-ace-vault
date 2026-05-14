@@ -244,6 +244,19 @@ export function TableFilterBar({
         </PopoverContent>
       </Popover>
 
+      {count > 0 && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onReset}
+          className="gap-1 text-muted-foreground hover:text-foreground"
+          aria-label="Reset filters"
+        >
+          <X className="h-3.5 w-3.5" />
+          Reset
+        </Button>
+      )}
+
       {trailing}
     </div>
   );
