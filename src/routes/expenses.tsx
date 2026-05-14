@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { upsertExpenseTransaction, deleteExpenseTransaction } from "@/lib/expense-books-sync";
+import { TableFilterBar, useTableFilters, applyTableFilters } from "@/components/table-filter-bar";
 
 export const Route = createFileRoute("/expenses")({
   component: Expenses,
@@ -69,6 +70,14 @@ function Expenses() {
   }
   useEffect(() => { if (!authLoading) load(); /* eslint-disable-next-line */ }, [user, authLoading]);
 
+  const [filters, setFilters, resetFilters] = useTableFilters();
+  const filteredRows = applyTableFilters(rows, filters, {
+    searchText: (e) => `${e.vendor} ${e.notes ?? ""} ${e.category}`,
+    date: (e) => e.date,
+    amount: (e) => Number(e.amount),
+    selectValue: (e, key) => (key === "category" ? e.category : ""),
+  });
+
   async function remove(e: Expense) {
     if (!confirm("Delete this expense?")) return;
     if (e.receipt_path) await supabase.storage.from("receipts").remove([e.receipt_path]);
@@ -102,7 +111,7 @@ function Expenses() {
     }
   }
 
-  const total = rows.reduce((s, e) => s + Number(e.amount), 0);
+  const total = filteredRows.reduce((s, e) => s + Number(e.amount), 0);
 
   if (authLoading) return <PageShell title="Expenses"><div className="flex justify-center py-20"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div></PageShell>;
   if (!user) return <PageShell title="Expenses" subtitle="Sign in to track expenses."><Link to="/auth" className="inline-flex bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium">Sign in</Link></PageShell>;
