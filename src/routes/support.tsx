@@ -9,6 +9,16 @@ export const Route = createFileRoute("/support")({
 });
 
 function SupportPage() {
+  const { subscription } = useSubscription();
+  const isBeta = subscription?.price_id === "beta_monthly";
+  const betaEnd = isBeta && (subscription as any)?.cancel_at
+    ? new Date((subscription as any).cancel_at).toLocaleDateString()
+    : null;
+  const feedbackSubject = encodeURIComponent("Beta Tester Feedback");
+  const feedbackBody = encodeURIComponent(
+    `Hi team,\n\nHere's my feedback from the beta program:\n\nWhat worked well:\n- \n\nWhat didn't / bugs:\n- \n\nFeature requests:\n- \n\nThanks!`
+  );
+
   return (
     <PageShell
       title="Support"
