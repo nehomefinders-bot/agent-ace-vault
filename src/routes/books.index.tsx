@@ -14,6 +14,7 @@ import { useBooks, formatMoneyCents, formatMoney } from "@/hooks/use-books";
 import { classifyTxn } from "@/lib/books-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { TableFilterBar, useTableFilters, applyTableFilters } from "@/components/table-filter-bar";
 
 const EXTRA_ACCOUNTS: { sentinel: string; name: string; code: string }[] = [
   { sentinel: "__misc__", name: "Miscellaneous", code: "1900" },
@@ -47,10 +48,21 @@ function BooksOverview() {
   }, [monthly, accountById]);
   const netProfit = totalIncome - totalExpense;
 
-  const ledger = useMemo(
-    () => [...transactions].sort((a, b) => b.date.localeCompare(a.date)),
-    [transactions],
-  );
+  const [filters, setFilters, resetFilters] = useTableFilters();
+
+  const ledger = useMemo(() => {
+    const sorted = [...transactions].sort((a, b) => b.date.localeCompare(a.date));
+    return applyTableFilters(sorted, filters, {
+      searchText: (t) => `${t.memo} ${t.vendor ?? ""}`,
+      date: (t) => t.date,
+      amount: (t) => Number(t.amount),
+      selectValue: (t, key) => {
+        if (key === "type") return classifyTxn(t, accountById);
+        if (key === "cleared") return t.cleared ? "yes" : "no";
+        return "";
+      },
+    });
+  }, [transactions, filters, accountById]);
 
   const monthLabel = now.toLocaleDateString("en-US", { month: "long", year: "numeric" });
 
