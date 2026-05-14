@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BookOpen, LifeBuoy, Mail, Phone } from "lucide-react";
+import { BookOpen, LifeBuoy, Mail, MessageSquareHeart, Phone } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
+import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/support")({
   component: SupportPage,
