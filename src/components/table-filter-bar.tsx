@@ -150,11 +150,15 @@ export function TableFilterBar({
 
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button
+            variant={count > 0 ? "default" : "outline"}
+            size="sm"
+            className="gap-2"
+          >
             <Filter className="h-4 w-4" />
             Filters
             {count > 0 && (
-              <span className="ml-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary text-primary-foreground text-[11px] font-semibold px-1.5">
+              <span className="ml-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-background text-foreground text-[11px] font-semibold px-1.5">
                 {count}
               </span>
             )}
