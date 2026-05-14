@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TableFilterBar, useTableFilters, applyTableFilters } from "@/components/table-filter-bar";
 
 export const Route = createFileRoute("/mileage")({
   component: Mileage,
@@ -56,7 +57,19 @@ function Mileage() {
 
   useEffect(() => { reload(); /* eslint-disable-next-line */ }, [user]);
 
-  const totalMiles = trips.reduce((s, m) => s + Number(m.miles), 0);
+  const [filters, setFilters, resetFilters] = useTableFilters();
+  const filteredTrips = applyTableFilters(trips, filters, {
+    searchText: (t) => `${t.from_address ?? ""} ${t.to_address ?? ""} ${t.purpose ?? ""}`,
+    date: (t) => t.date,
+    amount: (t) => Number(t.miles),
+    selectValue: (t, key) => {
+      if (key === "purpose") return t.purpose ?? "";
+      if (key === "mode") return t.mode;
+      return "";
+    },
+  });
+
+  const totalMiles = filteredTrips.reduce((s, m) => s + Number(m.miles), 0);
   const deduction = totalMiles * irsRate;
 
   const addTrip = async (t: NewTrip) => {
@@ -157,11 +170,34 @@ function Mileage() {
         {mode === "manual" && <ManualEntry onSave={addTrip} />}
       </div>
 
+      <TableFilterBar
+        filters={filters}
+        onChange={setFilters}
+        onReset={resetFilters}
+        searchPlaceholder="Search from, to, or purpose..."
+        showAmount
+        selects={[
+          { key: "purpose", label: "Purpose", options: [
+            { value: "Showing", label: "Showing" },
+            { value: "Listing visit", label: "Listing visit" },
+            { value: "Closing", label: "Closing" },
+            { value: "Inspection", label: "Inspection" },
+            { value: "Client meeting", label: "Client meeting" },
+            { value: "Other", label: "Other" },
+          ]},
+          { key: "mode", label: "Mode", options: [
+            { value: "live", label: "Live" },
+            { value: "address", label: "Address" },
+            { value: "manual", label: "Manual" },
+          ]},
+        ]}
+      />
+
       <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
         {loading ? (
           <div className="p-8 text-sm text-muted-foreground text-center">Loading trips...</div>
-        ) : trips.length === 0 ? (
-          <div className="p-8 text-sm text-muted-foreground text-center">No trips logged yet.</div>
+        ) : filteredTrips.length === 0 ? (
+          <div className="p-8 text-sm text-muted-foreground text-center">{trips.length === 0 ? "No trips logged yet." : "No trips match your filters."}</div>
         ) : (
           <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-sm">
@@ -177,7 +213,7 @@ function Mileage() {
               </tr>
             </thead>
             <tbody>
-              {trips.map((m) => (
+              {filteredTrips.map((m) => (
                 <tr key={m.id} className="border-t border-border hover:bg-muted/30">
                   <td className="py-4 px-6 text-muted-foreground text-xs tabular-nums">{m.date}</td>
                   <td className="py-4">{m.from_address ?? "N/A"}</td>

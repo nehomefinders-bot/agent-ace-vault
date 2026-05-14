@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatMoneyCents } from "@/lib/mock-data";
 import { getReceiptFileName, getReceiptPreviewKind } from "@/lib/receipt-preview";
+import { TableFilterBar, useTableFilters, applyTableFilters } from "@/components/table-filter-bar";
 
 export const Route = createFileRoute("/receipts")({
   component: Receipts,
@@ -41,6 +42,19 @@ function Receipts() {
   const [previewingId, setPreviewingId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
+  const [filters, setFilters, resetFilters] = useTableFilters();
+  const filteredReceipts = applyTableFilters(receipts, filters, {
+    searchText: (r) => `${r.vendor ?? ""} ${r.suggested_category ?? ""}`,
+    date: (r) => r.receipt_date ?? r.created_at?.slice(0, 10) ?? "",
+    amount: (r) => r.total ?? 0,
+    selectValue: (r, key) => {
+      if (key === "status") return r.status;
+      if (key === "category") return r.suggested_category ?? "";
+      return "";
+    },
+  });
+  const categoryOptions = Array.from(new Set(receipts.map((r) => r.suggested_category).filter(Boolean) as string[]))
+    .map((c) => ({ value: c, label: c }));
 
   async function load() {
     if (!user) return;
@@ -222,15 +236,31 @@ function Receipts() {
         Recently scanned
       </h2>
 
+      <TableFilterBar
+        filters={filters}
+        onChange={setFilters}
+        onReset={resetFilters}
+        searchPlaceholder="Search vendor or category..."
+        showAmount
+        selects={[
+          { key: "status", label: "Status", options: [
+            { value: "scanned", label: "Scanned" },
+            { value: "pending", label: "Pending" },
+            { value: "failed", label: "Failed" },
+          ]},
+          ...(categoryOptions.length ? [{ key: "category", label: "Category", options: categoryOptions }] : []),
+        ]}
+      />
+
       {loading ? (
         <div className="text-sm text-muted-foreground">Loading...</div>
-      ) : receipts.length === 0 ? (
+      ) : filteredReceipts.length === 0 ? (
         <div className="bg-card border border-border rounded-2xl p-10 text-center text-sm text-muted-foreground">
-          No receipts yet. Scan your first one above.
+          {receipts.length === 0 ? "No receipts yet. Scan your first one above." : "No receipts match your filters."}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {receipts.map((r) => {
+          {filteredReceipts.map((r) => {
             const kind = getReceiptPreviewKind(r.image_path);
             const canPreview = kind === "image" && !!previewUrls[r.id];
 

@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowRight, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { ArrowRight, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { BooksTransactionDialog, type BooksTransactionDraft } from "@/components/books-transaction-dialog";
 import { useBooks, formatMoneyCents } from "@/hooks/use-books";
 import { classifyTxn } from "@/lib/books-data";
+import { TableFilterBar, useTableFilters, applyTableFilters } from "@/components/table-filter-bar";
 
 export const Route = createFileRoute("/books/transactions")({
   component: TransactionsPage,
@@ -12,20 +13,36 @@ export const Route = createFileRoute("/books/transactions")({
 
 function TransactionsPage() {
   const { accounts, transactions, accountById, addTransaction, updateTransaction, deleteTransaction } = useBooks();
-  const [q, setQ] = useState("");
-  const [cat, setCat] = useState<string>("all");
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<{ id: string; draft: BooksTransactionDraft } | null>(null);
 
+  const [filters, setFilters, resetFilters] = useTableFilters();
+
+  const accountSelectOptions = useMemo(() => {
+    const opts: { value: string; label: string }[] = [];
+    for (const a of accounts) opts.push({ value: a.id, label: `${a.kind}: ${a.name}` });
+    return opts;
+  }, [accounts]);
+
   const rows = useMemo(() => {
-    return [...transactions]
-      .sort((a, b) => b.date.localeCompare(a.date))
-      .filter((t) => {
-        if (q && !t.memo.toLowerCase().includes(q.toLowerCase()) && !(t.vendor ?? "").toLowerCase().includes(q.toLowerCase())) return false;
-        if (cat !== "all" && t.debitAccountId !== cat && t.creditAccountId !== cat) return false;
-        return true;
-      });
-  }, [q, cat, transactions]);
+    const sorted = [...transactions].sort((a, b) => b.date.localeCompare(a.date));
+    return applyTableFilters(sorted, filters, {
+      searchText: (t) => `${t.memo} ${t.vendor ?? ""}`,
+      date: (t) => t.date,
+      amount: (t) => Number(t.amount),
+      selectValue: (t, key) => {
+        if (key === "account") {
+          const v = filters.selects.account;
+          if (t.debitAccountId === v || t.creditAccountId === v) return v;
+          return "";
+        }
+        if (key === "type") {
+          return classifyTxn(t, accountById);
+        }
+        return "";
+      },
+    });
+  }, [transactions, filters, accountById]);
 
   const expenseAccounts = accounts.filter((a) => a.kind === "Expense");
   const incomeAccounts = accounts.filter((a) => a.kind === "Income");
@@ -34,39 +51,29 @@ function TransactionsPage() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-3 mb-5">
-        <div className="relative flex-1 min-w-[220px]">
-          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search memo or vendor..."
-            className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-card text-sm"
-          />
-        </div>
-        <select
-          value={cat}
-          onChange={(e) => setCat(e.target.value)}
-          className="px-3 py-2.5 rounded-lg border border-border bg-card text-sm min-w-[200px]"
-        >
-          <option value="all">All categories</option>
-          <optgroup label="Income">
-            {incomeAccounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-          </optgroup>
-          <optgroup label="Expenses">
-            {expenseAccounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-          </optgroup>
-          <optgroup label="Accounts">
-            {[...assetAccounts, ...liabAccounts].map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-          </optgroup>
-        </select>
-        <button
-          onClick={() => setShowAdd((v) => !v)}
-          className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium ml-auto"
-        >
-          <Plus className="h-4 w-4" /> Add transaction
-        </button>
-      </div>
+      <TableFilterBar
+        filters={filters}
+        onChange={setFilters}
+        onReset={resetFilters}
+        searchPlaceholder="Search memo or vendor..."
+        showAmount
+        selects={[
+          { key: "type", label: "Type", options: [
+            { value: "income", label: "Income" },
+            { value: "expense", label: "Expense" },
+            { value: "transfer", label: "Transfer" },
+          ]},
+          { key: "account", label: "Account / Category", options: accountSelectOptions },
+        ]}
+        trailing={
+          <button
+            onClick={() => setShowAdd((v) => !v)}
+            className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium ml-auto"
+          >
+            <Plus className="h-4 w-4" /> Add transaction
+          </button>
+        }
+      />
 
       {showAdd && (
         <AddTxnForm
