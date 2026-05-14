@@ -424,8 +424,9 @@ function AddTransactionModal({
     setSaving(true);
     try {
       const accountId = await resolveAccountId(effAccount);
-      const debit = type === "income" ? accountId : effCategory;
-      const credit = type === "income" ? effCategory : accountId;
+      const categoryId = await resolveCategoryId(effCategory);
+      const debit = type === "income" ? accountId : categoryId;
+      const credit = type === "income" ? categoryId : accountId;
       await onSubmit({ date, memo: memo.trim(), amount: amt, debitAccountId: debit, creditAccountId: credit });
       toast.success("Transaction saved");
       onClose();
