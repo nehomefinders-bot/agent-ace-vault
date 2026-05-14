@@ -236,15 +236,31 @@ function Receipts() {
         Recently scanned
       </h2>
 
+      <TableFilterBar
+        filters={filters}
+        onChange={setFilters}
+        onReset={resetFilters}
+        searchPlaceholder="Search vendor or category..."
+        showAmount
+        selects={[
+          { key: "status", label: "Status", options: [
+            { value: "scanned", label: "Scanned" },
+            { value: "pending", label: "Pending" },
+            { value: "failed", label: "Failed" },
+          ]},
+          ...(categoryOptions.length ? [{ key: "category", label: "Category", options: categoryOptions }] : []),
+        ]}
+      />
+
       {loading ? (
         <div className="text-sm text-muted-foreground">Loading...</div>
-      ) : receipts.length === 0 ? (
+      ) : filteredReceipts.length === 0 ? (
         <div className="bg-card border border-border rounded-2xl p-10 text-center text-sm text-muted-foreground">
-          No receipts yet. Scan your first one above.
+          {receipts.length === 0 ? "No receipts yet. Scan your first one above." : "No receipts match your filters."}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {receipts.map((r) => {
+          {filteredReceipts.map((r) => {
             const kind = getReceiptPreviewKind(r.image_path);
             const canPreview = kind === "image" && !!previewUrls[r.id];
 
