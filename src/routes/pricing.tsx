@@ -84,8 +84,8 @@ function PricingPage() {
           </div>
         </div>
 
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {PLANS.map((plan) => {
+        <div className={`mx-auto grid gap-5 grid-cols-1 sm:grid-cols-2 ${interval === "yearly" ? "max-w-5xl lg:grid-cols-3" : "max-w-6xl lg:grid-cols-4"}`}>
+          {PLANS.filter((plan) => !(interval === "yearly" && plan.id === "beta_tester")).map((plan) => {
             const price = plan[interval];
             const isCurrent = subscription?.price_id === price.priceId && isActive;
 
