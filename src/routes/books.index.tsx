@@ -111,6 +111,25 @@ function BooksOverview() {
         </Dialog>
       </div>
 
+      <TableFilterBar
+        filters={filters}
+        onChange={setFilters}
+        onReset={resetFilters}
+        searchPlaceholder="Search memo or vendor..."
+        showAmount
+        selects={[
+          { key: "type", label: "Type", options: [
+            { value: "income", label: "Income" },
+            { value: "expense", label: "Expense" },
+            { value: "transfer", label: "Transfer" },
+          ]},
+          { key: "cleared", label: "Cleared", options: [
+            { value: "yes", label: "Cleared" },
+            { value: "no", label: "Uncleared" },
+          ]},
+        ]}
+      />
+
       <BooksTransactionDialog
         open={!!editing}
         onOpenChange={(nextOpen) => {
