@@ -393,6 +393,28 @@ function AddTransactionModal({
     return data.id;
   }
 
+  async function resolveCategoryId(value: string): Promise<string> {
+    if (value !== CUSTOM_CATEGORY_SENTINEL) return value;
+    const name = customCategoryName.trim();
+    if (!name) throw new Error("Enter a name for the custom category");
+    if (!user) throw new Error("Not signed in");
+    const kind = type === "income" ? "Income" : "Expense";
+    const existing = accounts.find(
+      (a) => a.kind === kind && a.name.toLowerCase() === name.toLowerCase(),
+    );
+    if (existing) return existing.id;
+    const prefix = type === "income" ? "4" : "6";
+    const code = `${prefix}${Math.floor(100 + Math.random() * 900)}`;
+    const { data, error } = await supabase
+      .from("accounts")
+      .insert({ user_id: user.id, code, name, kind })
+      .select("id")
+      .single();
+    if (error || !data) throw error ?? new Error("Could not create category");
+    await reload();
+    return data.id;
+  }
+
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const amt = parseFloat(amount);
