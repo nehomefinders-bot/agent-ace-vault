@@ -13,7 +13,7 @@ import {
   PieChart,
 } from "lucide-react";
 import endlessProspectsLogo from "@/assets/endless-prospects-logo.png";
-import maHomeBg from "@/assets/ma-architecture-bg.jpg";
+import maHomeBg from "@/assets/landing-hero-bg.png";
 
 export const Route = createFileRoute("/landing")({
   component: Landing,
@@ -110,12 +110,12 @@ function Landing() {
         }}
         aria-hidden
       />
-      {/* Dark radial overlay */}
+      {/* Subtle bottom gradient + light top scrim for text legibility */}
       <div
         className="fixed inset-0 -z-10"
         style={{
           background:
-            "radial-gradient(ellipse at center, rgba(5,10,25,0.55) 0%, rgba(3,7,20,0.85) 60%, rgba(2,4,12,0.96) 100%)",
+            "linear-gradient(to bottom, rgba(3,7,20,0.55) 0%, rgba(3,7,20,0.35) 30%, rgba(3,7,20,0.65) 70%, rgba(2,4,12,0.95) 100%)",
         }}
         aria-hidden
       />
