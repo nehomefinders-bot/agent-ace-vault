@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Building2, Check, BookOpen, Car, Receipt, ScanLine, ArrowRight, Sparkles } from "lucide-react";
+import { Check, BookOpen, Car, Receipt, ScanLine, ArrowRight, Sparkles } from "lucide-react";
+import endlessProspectsLogo from "@/assets/endless-prospects-logo.png";
 
 export const Route = createFileRoute("/landing")({
   component: Landing,
