@@ -202,7 +202,7 @@ function ListingCard({
         onClick={onOpen}
       >
         <div className={`absolute top-3 right-12 z-10 transition ${isSel ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
-          <div className="bg-white/90 backdrop-blur rounded-md p-0.5" onClick={(e) => e.stopPropagation()}>
+          <div className="rounded-md bg-background p-0.5 shadow-sm" onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={isSel} onCheckedChange={onToggleSelect} aria-label="Select listing" />
           </div>
         </div>
@@ -216,7 +216,7 @@ function ListingCard({
         )}
         <div className="absolute top-3 left-3" onClick={(e) => e.stopPropagation()}>
           <Select value={l.status} onValueChange={onStatusChange}>
-            <SelectTrigger className={`h-7 px-2.5 text-xs font-medium border-0 rounded-full backdrop-blur ${
+            <SelectTrigger className={`h-7 px-2.5 text-xs font-medium border-0 rounded-full shadow-sm ${
               l.status === "Active" ? "bg-success/90 text-white" :
               l.status === "Pending" ? "bg-warning/90 text-white" :
               "bg-black/60 text-white"
@@ -339,7 +339,7 @@ function ListingFullscreen({ listing: l, onClose }: { listing: Listing; onClose:
 
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 backdrop-blur"
+        className="absolute top-4 right-4 bg-black/70 hover:bg-black/85 text-white rounded-full p-2"
         aria-label="Close"
       >
         <X className="h-5 w-5" />
@@ -350,18 +350,18 @@ function ListingFullscreen({ listing: l, onClose }: { listing: Listing; onClose:
           <button
             onClick={(e) => { e.stopPropagation(); setIdx((i) => (i - 1 + images.length) % images.length); }}
             aria-label="Previous"
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 backdrop-blur"
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/85 text-white rounded-full p-3"
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); setIdx((i) => (i + 1) % images.length); }}
             aria-label="Next"
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 backdrop-blur"
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/85 text-white rounded-full p-3"
           >
             <ChevronRight className="h-6 w-6" />
           </button>
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs font-medium rounded-full px-3 py-1 tabular-nums backdrop-blur">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs font-medium rounded-full px-3 py-1 tabular-nums">
             {idx + 1} / {images.length}
           </div>
         </>
@@ -370,7 +370,7 @@ function ListingFullscreen({ listing: l, onClose }: { listing: Listing; onClose:
       {/* Toggle for details overlay */}
       <button
         onClick={(e) => { e.stopPropagation(); setShowInfo((v) => !v); }}
-        className="absolute top-4 right-16 bg-white/10 hover:bg-white/20 text-white text-xs font-medium rounded-full px-3 py-2 backdrop-blur"
+        className="absolute top-4 right-16 bg-black/70 hover:bg-black/85 text-white text-xs font-medium rounded-full px-3 py-2"
       >
         {showInfo ? "Hide details" : "Show details"}
       </button>
@@ -392,7 +392,7 @@ function ListingFullscreen({ listing: l, onClose }: { listing: Listing; onClose:
                 {l.sqft != null && <span className="inline-flex items-center gap-1.5 tabular-nums"><Maximize2 className="h-4 w-4" />{l.sqft.toLocaleString()} sqft</span>}
                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                   l.status === "Active" ? "bg-success/90" :
-                  l.status === "Pending" ? "bg-warning/90" : "bg-white/20"
+                  l.status === "Pending" ? "bg-warning/90" : "bg-black/80"
                 }`}>{l.status}</span>
               </div>
             </div>

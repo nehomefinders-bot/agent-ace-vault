@@ -45,7 +45,7 @@ export function EmbeddedCheckoutModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-start justify-center overflow-y-auto p-4 sm:p-8">
+    <div className="fixed inset-0 z-50 bg-background flex items-start justify-center overflow-y-auto p-4 sm:p-8">
       <div className="bg-card w-full max-w-2xl rounded-2xl border border-border shadow-card relative">
         <button
           onClick={onClose}

@@ -261,7 +261,7 @@ function Receipts() {
                     <ScanLine className="h-10 w-10 text-muted-foreground/40" />
                   )}
                   {previewingId === r.id ? (
-                    <div className="absolute inset-0 bg-background/70 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-background flex items-center justify-center">
                       <Loader2 className="h-5 w-5 animate-spin text-primary" />
                     </div>
                   ) : null}

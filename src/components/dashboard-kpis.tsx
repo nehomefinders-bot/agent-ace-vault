@@ -12,7 +12,7 @@ function CardShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="glass rounded-2xl p-6 flex flex-col">
+    <div className="rounded-2xl border border-border bg-card p-6 shadow-card flex flex-col">
       <div className="flex items-start justify-between mb-3">
         <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{label}</span>
         <div className="h-8 w-8 rounded-lg bg-secondary/20 flex items-center justify-center">

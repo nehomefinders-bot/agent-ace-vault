@@ -147,7 +147,7 @@ function Dashboard() {
           ]}
         />
         <PipelineGaugeCard value={pipelineValue || kpis.pipelineValue} goal={3_000_000} />
-        <div className="glass rounded-2xl p-6">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <div className="flex items-start justify-between mb-4">
             <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Outstanding Commissions</span>
             <div className="h-8 w-8 rounded-lg bg-secondary/20 flex items-center justify-center">
@@ -164,7 +164,7 @@ function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
-        <section className="xl:col-span-2 glass rounded-2xl overflow-hidden">
+        <section className="xl:col-span-2 rounded-2xl border border-border bg-card shadow-card overflow-hidden">
           <header className="flex items-center justify-between px-6 py-5 border-b border-border">
             <div>
               <h2 className="text-lg font-bold">Deals Pipeline</h2>
@@ -276,7 +276,7 @@ function Dashboard() {
           )}
         </section>
 
-        <section className="glass rounded-2xl overflow-hidden">
+        <section className="rounded-2xl border border-border bg-card shadow-card overflow-hidden">
           <header className="flex items-center justify-between px-6 py-5 border-b border-border">
             <div>
               <h2 className="text-lg font-bold">Recent Commissions</h2>
@@ -301,7 +301,7 @@ function Dashboard() {
         </section>
       </div>
 
-      <section className="glass rounded-2xl overflow-hidden">
+      <section className="rounded-2xl border border-border bg-card shadow-card overflow-hidden">
         <header className="flex items-center justify-between px-6 py-5 border-b border-border">
           <div>
             <h2 className="text-lg font-bold">Recent Expenses</h2>

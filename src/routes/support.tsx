@@ -14,7 +14,7 @@ function SupportPage() {
       subtitle="Contact the team directly or jump back to the step-by-step help guides."
     >
       <div className="grid gap-5 lg:grid-cols-2">
-        <section className="glass rounded-2xl p-6">
+        <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
               <LifeBuoy className="h-5 w-5" />
@@ -50,7 +50,7 @@ function SupportPage() {
           </div>
         </section>
 
-        <section className="glass rounded-2xl p-6">
+        <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-secondary/20 flex items-center justify-center text-primary shrink-0">
               <BookOpen className="h-5 w-5" />

@@ -84,10 +84,12 @@ function RootComponent() {
       ) : (
         <div className="flex min-h-dvh w-full flex-col lg:flex-row bg-background">
           <AppSidebar />
-          <main className="flex-1 min-w-0 w-full overflow-x-hidden">
-            <PaywallGate>
-              <Outlet />
-            </PaywallGate>
+          <main className="app-content-backdrop relative isolate flex-1 min-w-0 w-full overflow-x-hidden">
+            <div className="relative z-10">
+              <PaywallGate>
+                <Outlet />
+              </PaywallGate>
+            </div>
           </main>
         </div>
       )}

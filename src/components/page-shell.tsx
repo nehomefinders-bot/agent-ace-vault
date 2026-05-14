@@ -18,24 +18,26 @@ export function PageShell({
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-[1400px] mx-auto">
-      <header className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-6 sm:mb-8 gap-4 sm:gap-6">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">{title}</h1>
-          {subtitle && <p className="text-muted-foreground mt-1.5 text-sm">{subtitle}</p>}
-        </div>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          {showHomeButton && (
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-muted"
-              aria-label="Go to dashboard"
-              title="Dashboard"
-            >
-              <Home className="h-4 w-4" />
-              <span className="hidden sm:inline">Dashboard</span>
-            </Link>
-          )}
-          {actions}
+      <header className="mb-6 sm:mb-8 rounded-3xl border border-border/70 bg-card px-4 py-4 shadow-sm sm:px-6 sm:py-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold">{title}</h1>
+            {subtitle && <p className="text-muted-foreground mt-1.5 text-sm">{subtitle}</p>}
+          </div>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            {showHomeButton && (
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-muted"
+                aria-label="Go to dashboard"
+                title="Dashboard"
+              >
+                <Home className="h-4 w-4" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </Link>
+            )}
+            {actions}
+          </div>
         </div>
       </header>
       {children}

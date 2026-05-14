@@ -10,9 +10,6 @@ import { EmbeddedCheckoutModal } from "@/components/embedded-checkout-modal";
 import { PaymentTestBanner } from "@/components/payment-test-banner";
 import { toast } from "sonner";
 
-const BACKGROUND_IMAGE_URL =
-  "https://assets.cdn.filesafe.space/Ym9STc30GZhxo1Z2crhM/media/69a9f300618c8d86d9096bba.webp";
-
 export const Route = createFileRoute("/pricing")({
   component: PricingPage,
   head: () => ({
@@ -36,6 +33,7 @@ function PricingPage() {
       navigate({ to: "/auth" });
       return;
     }
+
     setBusy(priceId);
     try {
       if (isActive && subscription) {
@@ -45,109 +43,104 @@ function PricingPage() {
         window.open(url, "_blank");
         return;
       }
+
       setCheckoutPriceId(priceId);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not start checkout");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not start checkout");
     } finally {
       setBusy(null);
     }
   }
 
   return (
-    <PageShell
-      title="Pricing"
-      subtitle="Start with a 14-day free trial. Cancel anytime - no contracts."
-    >
+    <PageShell title="Pricing" subtitle="Start with a 14-day free trial. Cancel anytime - no contracts.">
       <PaymentTestBanner />
 
-      <div
-        className="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-slate-950/80"
-        style={{
-          backgroundImage: `url(${BACKGROUND_IMAGE_URL})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundAttachment: "fixed",
-        }}
-      >
-        <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" aria-hidden="true" />
-
-        <div className="relative z-10 px-4 py-6 sm:px-6 sm:py-8 text-white">
-          <div className="flex justify-center mb-8">
-            <div className="inline-flex items-center rounded-full border border-white/15 bg-white/10 p-1 backdrop-blur-md">
-              <button
-                type="button"
-                onClick={() => setInterval("monthly")}
-                className={`px-4 py-1.5 text-sm rounded-full font-medium transition ${
-                  interval === "monthly" ? "bg-white/20 text-white shadow" : "text-white/70 hover:text-white"
-                }`}
-              >
-                Monthly
-              </button>
-              <button
-                type="button"
-                onClick={() => setInterval("yearly")}
-                className={`px-4 py-1.5 text-sm rounded-full font-medium transition ${
-                  interval === "yearly" ? "bg-white/20 text-white shadow" : "text-white/70 hover:text-white"
-                }`}
-              >
-                Yearly <span className="text-xs text-success ml-1">save ~17%</span>
-              </button>
-            </div>
+      <div className="rounded-3xl border border-border bg-background p-4 shadow-sm sm:p-6">
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex items-center rounded-full border border-border bg-background p-1 shadow-sm">
+            <button
+              type="button"
+              onClick={() => setInterval("monthly")}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                interval === "monthly"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              type="button"
+              onClick={() => setInterval("yearly")}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                interval === "yearly"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Yearly <span className="ml-1 text-xs text-success">save ~17%</span>
+            </button>
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
-            {PLANS.map((plan) => {
-              const price = plan[interval];
-              const isCurrent = subscription?.price_id === price.priceId && isActive;
-              return (
-                <div
-                  key={plan.id}
-                  className={`relative rounded-2xl p-6 shadow-[0_24px_80px_rgba(2,6,23,0.35)] backdrop-blur-md border ${
-                    plan.popular ? "border-white/25 bg-white/[0.12]" : "border-white/15 bg-white/10"
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-5 md:grid-cols-3">
+          {PLANS.map((plan) => {
+            const price = plan[interval];
+            const isCurrent = subscription?.price_id === price.priceId && isActive;
+
+            return (
+              <div
+                key={plan.id}
+                className={`relative rounded-2xl border bg-card p-6 shadow-card ${
+                  plan.popular ? "border-primary/25" : "border-border"
+                }`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-primary-foreground shadow-sm">
+                    <Sparkles className="h-3 w-3" /> Most popular
+                  </div>
+                )}
+
+                <div className="font-display text-xl font-bold text-foreground">{plan.name}</div>
+                <div className="mb-5 mt-1 text-sm text-muted-foreground">{plan.tagline}</div>
+
+                <div className="mb-5 flex items-baseline gap-1">
+                  <span className="font-display text-4xl font-bold tabular-nums text-foreground">${price.amount}</span>
+                  <span className="text-sm text-muted-foreground">/{interval === "monthly" ? "mo" : "yr"}</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => subscribe(price.priceId)}
+                  disabled={!!busy || isCurrent}
+                  className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition disabled:opacity-60 ${
+                    plan.popular
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "border border-border bg-background text-foreground hover:bg-muted"
                   }`}
                 >
-                  {plan.popular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-primary-foreground">
-                      <Sparkles className="h-3 w-3" /> Most popular
-                    </div>
-                  )}
-                  <div className="font-display text-xl font-bold text-white">{plan.name}</div>
-                  <div className="mt-1 mb-5 text-sm text-white/70">{plan.tagline}</div>
-                  <div className="mb-5 flex items-baseline gap-1">
-                    <span className="font-display text-4xl font-bold tabular-nums text-white">${price.amount}</span>
-                    <span className="text-sm text-white/70">/{interval === "monthly" ? "mo" : "yr"}</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => subscribe(price.priceId)}
-                    disabled={!!busy || isCurrent}
-                    className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium disabled:opacity-60 ${
-                      plan.popular
-                        ? "bg-primary text-primary-foreground"
-                        : "border border-white/20 bg-white/10 text-white hover:bg-white/15"
-                    }`}
-                  >
-                    {busy === price.priceId && <Loader2 className="h-4 w-4 animate-spin" />}
-                    {isCurrent ? "Current plan" : isActive ? "Switch plan" : "Start 14-day free trial"}
-                  </button>
-                  <ul className="mt-6 space-y-2.5">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm text-white/85">
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
-                        <span>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
-          </div>
+                  {busy === price.priceId && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {isCurrent ? "Current plan" : isActive ? "Switch plan" : "Start 14-day free trial"}
+                </button>
 
-          <p className="mt-8 text-center text-xs text-white/70">
-            14-day free trial on all plans. Card required to start - no charge until day 15. Cancel anytime from your billing page.
-            {isTestMode() && " Currently in test mode - no real charges."}
-          </p>
+                <ul className="mt-6 space-y-2.5">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-2 text-sm text-foreground/90">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
         </div>
+
+        <p className="mt-8 text-center text-xs text-muted-foreground">
+          14-day free trial on all plans. Card required to start - no charge until day 15. Cancel anytime from your billing page.
+          {isTestMode() && " Currently in test mode - no real charges."}
+        </p>
       </div>
 
       <EmbeddedCheckoutModal

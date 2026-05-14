@@ -275,14 +275,7 @@ function Pipeline() {
         </>
       }
     >
-      <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Stage view</div>
-          <p className="text-sm text-muted-foreground">
-            Switch stages with the tabs, then change any card directly from the card itself.
-          </p>
-        </div>
-
+      <div className="mb-5 flex justify-end">
         <Tabs value={view} onValueChange={(value) => setView(value as PipelineView)} className="w-full lg:w-auto">
           <TabsList className="w-full flex flex-wrap gap-2">
             {PIPELINE_VIEWS.map((item) => (

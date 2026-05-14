@@ -356,7 +356,7 @@ export function SignDocumentModal({ doc, userId, open, onOpenChange, onSigned }:
                       <div
                         key={p.id}
                         data-placement
-                        className={`absolute touch-none cursor-move rounded ${isSel ? "border-2 border-primary bg-primary/10" : "border border-primary/40 bg-white/30"}`}
+                        className={`absolute touch-none cursor-move rounded ${isSel ? "border-2 border-primary bg-primary/10" : "border border-primary/40 bg-background"}`}
                         style={{ left: p.x, top: p.y, width: p.w, height: p.h }}
                         onPointerDown={(e) => startDrag(e, p, "move")}
                         onPointerMove={onDrag}
