@@ -184,8 +184,8 @@
     background-attachment: fixed;
     filter: blur(2px) saturate(1);
     transform: scale(1.04);
-    opacity: 0;
-    pointer-events: none;
+    opacity: 0.35;
+    filter: blur(2px) saturate(1);
   }
   .dark body::before {
     opacity: 0.45;
