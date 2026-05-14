@@ -481,8 +481,22 @@ function AddTransactionModal({
               {EXTRA_ACCOUNTS.map((e) => (
                 <SelectItem key={e.sentinel} value={e.sentinel}>{e.name}</SelectItem>
               ))}
+              <SelectItem value={CUSTOM_SENTINEL}>
+                <span className="inline-flex items-center gap-1.5 font-medium text-primary">
+                  <Plus className="h-3.5 w-3.5" /> Add custom…
+                </span>
+              </SelectItem>
             </SelectContent>
           </Select>
+          {effAccount === CUSTOM_SENTINEL && (
+            <Input
+              autoFocus
+              value={customAccountName}
+              onChange={(e) => setCustomAccountName(e.target.value)}
+              placeholder="Enter account name"
+              className="mt-2"
+            />
+          )}
         </div>
 
         <div className="space-y-1.5">
