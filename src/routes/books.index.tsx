@@ -346,9 +346,11 @@ function AddTransactionModal({
   const [category, setCategory] = useState("");
   const [account, setAccount] = useState("");
   const [customAccountName, setCustomAccountName] = useState("");
+  const [customCategoryName, setCustomCategoryName] = useState("");
   const [saving, setSaving] = useState(false);
 
   const CUSTOM_SENTINEL = "__custom__";
+  const CUSTOM_CATEGORY_SENTINEL = "__custom_category__";
 
   const catOptions = type === "income" ? incomeAccounts : expenseAccounts;
   const acctOptions = [...assetAccounts, ...liabAccounts];
@@ -391,6 +393,28 @@ function AddTransactionModal({
     return data.id;
   }
 
+  async function resolveCategoryId(value: string): Promise<string> {
+    if (value !== CUSTOM_CATEGORY_SENTINEL) return value;
+    const name = customCategoryName.trim();
+    if (!name) throw new Error("Enter a name for the custom category");
+    if (!user) throw new Error("Not signed in");
+    const kind = type === "income" ? "Income" : "Expense";
+    const existing = accounts.find(
+      (a) => a.kind === kind && a.name.toLowerCase() === name.toLowerCase(),
+    );
+    if (existing) return existing.id;
+    const prefix = type === "income" ? "4" : "6";
+    const code = `${prefix}${Math.floor(100 + Math.random() * 900)}`;
+    const { data, error } = await supabase
+      .from("accounts")
+      .insert({ user_id: user.id, code, name, kind })
+      .select("id")
+      .single();
+    if (error || !data) throw error ?? new Error("Could not create category");
+    await reload();
+    return data.id;
+  }
+
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const amt = parseFloat(amount);
@@ -400,8 +424,9 @@ function AddTransactionModal({
     setSaving(true);
     try {
       const accountId = await resolveAccountId(effAccount);
-      const debit = type === "income" ? accountId : effCategory;
-      const credit = type === "income" ? effCategory : accountId;
+      const categoryId = await resolveCategoryId(effCategory);
+      const debit = type === "income" ? accountId : categoryId;
+      const credit = type === "income" ? categoryId : accountId;
       await onSubmit({ date, memo: memo.trim(), amount: amt, debitAccountId: debit, creditAccountId: credit });
       toast.success("Transaction saved");
       onClose();
@@ -466,8 +491,22 @@ function AddTransactionModal({
               {catOptions.map((a) => (
                 <SelectItem key={a.id} value={a.id}>{a.code} · {a.name}</SelectItem>
               ))}
+              <SelectItem value={CUSTOM_CATEGORY_SENTINEL}>
+                <span className="inline-flex items-center gap-1.5 font-medium text-primary">
+                  <Plus className="h-3.5 w-3.5" /> Add custom…
+                </span>
+              </SelectItem>
             </SelectContent>
           </Select>
+          {effCategory === CUSTOM_CATEGORY_SENTINEL && (
+            <Input
+              autoFocus
+              value={customCategoryName}
+              onChange={(e) => setCustomCategoryName(e.target.value)}
+              placeholder={`Enter ${type} category name`}
+              className="mt-2"
+            />
+          )}
         </div>
 
         <div className="space-y-1.5">
