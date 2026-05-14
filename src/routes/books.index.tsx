@@ -346,9 +346,11 @@ function AddTransactionModal({
   const [category, setCategory] = useState("");
   const [account, setAccount] = useState("");
   const [customAccountName, setCustomAccountName] = useState("");
+  const [customCategoryName, setCustomCategoryName] = useState("");
   const [saving, setSaving] = useState(false);
 
   const CUSTOM_SENTINEL = "__custom__";
+  const CUSTOM_CATEGORY_SENTINEL = "__custom_category__";
 
   const catOptions = type === "income" ? incomeAccounts : expenseAccounts;
   const acctOptions = [...assetAccounts, ...liabAccounts];
