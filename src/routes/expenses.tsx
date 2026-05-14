@@ -274,7 +274,7 @@ function Expenses() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((e) => (
+                {filteredRows.map((e) => (
                   <tr key={e.id} className="border-t border-border hover:bg-muted/30">
                     <td className="py-4 px-6 font-medium">{e.vendor}</td>
                     <td className="py-4 text-muted-foreground">{e.category}</td>
