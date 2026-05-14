@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BookOpen, LifeBuoy, Mail, Phone } from "lucide-react";
+import { BookOpen, LifeBuoy, Mail, MessageSquareHeart, Phone } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
+import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/support")({
   component: SupportPage,
@@ -8,6 +9,16 @@ export const Route = createFileRoute("/support")({
 });
 
 function SupportPage() {
+  const { subscription } = useSubscription();
+  const isBeta = subscription?.price_id === "beta_monthly";
+  const betaEnd = isBeta && (subscription as any)?.cancel_at
+    ? new Date((subscription as any).cancel_at).toLocaleDateString()
+    : null;
+  const feedbackSubject = encodeURIComponent("Beta Tester Feedback");
+  const feedbackBody = encodeURIComponent(
+    `Hi team,\n\nHere's my feedback from the beta program:\n\nWhat worked well:\n- \n\nWhat didn't / bugs:\n- \n\nFeature requests:\n- \n\nThanks!`
+  );
+
   return (
     <PageShell
       title="Support"
@@ -77,6 +88,38 @@ function SupportPage() {
           </div>
         </section>
       </div>
+
+      <section className="mt-5 rounded-2xl border border-primary/30 bg-primary/5 p-6 shadow-card">
+        <div className="flex items-start gap-3">
+          <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary shrink-0">
+            <MessageSquareHeart className="h-5 w-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="font-display font-bold text-xl">
+              {isBeta ? "Beta tester feedback" : "Beta program feedback"}
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              {isBeta
+                ? `Thanks for testing! Your beta access runs until ${betaEnd ?? "the end of your 6-month window"}. Send bugs, ideas, or anything that felt off — we read every message.`
+                : "Are you on the Beta Tester plan? Send us bugs, ideas, or anything that felt off and help shape the product."}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <a
+                href={`mailto:livingandlearningwithjackie@gmail.com?subject=${feedbackSubject}&body=${feedbackBody}`}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                <Mail className="h-4 w-4" /> Email beta feedback
+              </a>
+              <Link
+                to="/pricing"
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium hover:bg-muted"
+              >
+                {isBeta ? "Switch to a regular plan" : "View Beta Tester plan"}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
     </PageShell>
   );
 }
