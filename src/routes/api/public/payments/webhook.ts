@@ -34,6 +34,7 @@ async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
       current_period_start: periodStart ? new Date(periodStart * 1000).toISOString() : null,
       current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
       cancel_at_period_end: subscription.cancel_at_period_end || false,
+      cancel_at: subscription.cancel_at ? new Date(subscription.cancel_at * 1000).toISOString() : null,
       environment: env,
       updated_at: new Date().toISOString(),
     },
