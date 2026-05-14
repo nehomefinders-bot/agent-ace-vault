@@ -308,7 +308,28 @@ export function TableFilterBar({
         </Button>
       )}
 
-      {trailing}
+        {trailing}
+      </div>
+
+      {chips.length > 0 && (
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] uppercase tracking-wider text-muted-foreground mr-1">
+            Active filters
+          </span>
+          {chips.map((c) => (
+            <button
+              key={c.key}
+              type="button"
+              onClick={c.clear}
+              className="group inline-flex items-center gap-1 rounded-full border border-border bg-muted/50 hover:bg-muted px-2 py-0.5 text-xs text-foreground transition-colors"
+              aria-label={`Remove filter ${c.label}`}
+            >
+              <span>{c.label}</span>
+              <X className="h-3 w-3 text-muted-foreground group-hover:text-foreground" />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
