@@ -136,8 +136,59 @@ export function TableFilterBar({
 }: TableFilterBarProps) {
   const count = useMemo(() => activeFilterCount(filters), [filters]);
 
+  const chips = useMemo(() => {
+    const items: { key: string; label: string; clear: () => void }[] = [];
+    if (filters.search.trim()) {
+      items.push({
+        key: "search",
+        label: `Search: "${filters.search.trim()}"`,
+        clear: () => onChange({ search: "" }),
+      });
+    }
+    if (filters.dateFrom) {
+      items.push({
+        key: "dateFrom",
+        label: `From ${filters.dateFrom}`,
+        clear: () => onChange({ dateFrom: "" }),
+      });
+    }
+    if (filters.dateTo) {
+      items.push({
+        key: "dateTo",
+        label: `To ${filters.dateTo}`,
+        clear: () => onChange({ dateTo: "" }),
+      });
+    }
+    if (filters.amountMin) {
+      items.push({
+        key: "amountMin",
+        label: `Min ${filters.amountMin}`,
+        clear: () => onChange({ amountMin: "" }),
+      });
+    }
+    if (filters.amountMax) {
+      items.push({
+        key: "amountMax",
+        label: `Max ${filters.amountMax}`,
+        clear: () => onChange({ amountMax: "" }),
+      });
+    }
+    for (const s of selects) {
+      const v = filters.selects[s.key];
+      if (!v || v === "all") continue;
+      const opt = s.options.find((o) => o.value === v);
+      items.push({
+        key: `sel-${s.key}`,
+        label: `${s.label}: ${opt?.label ?? v}`,
+        clear: () => onChange({ selects: { [s.key]: "all" } }),
+      });
+    }
+    return items;
+  }, [filters, selects, onChange]);
+
   return (
-    <div className={`flex flex-wrap items-center gap-2 mb-4 ${className}`}>
+    <div className={`mb-4 ${className}`}>
+      <div className="flex flex-wrap items-center gap-2">
       <div className="relative flex-1 min-w-[200px]">
         <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -257,7 +308,28 @@ export function TableFilterBar({
         </Button>
       )}
 
-      {trailing}
+        {trailing}
+      </div>
+
+      {chips.length > 0 && (
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] uppercase tracking-wider text-muted-foreground mr-1">
+            Active filters
+          </span>
+          {chips.map((c) => (
+            <button
+              key={c.key}
+              type="button"
+              onClick={c.clear}
+              className="group inline-flex items-center gap-1 rounded-full border border-border bg-muted/50 hover:bg-muted px-2 py-0.5 text-xs text-foreground transition-colors"
+              aria-label={`Remove filter ${c.label}`}
+            >
+              <span>{c.label}</span>
+              <X className="h-3 w-3 text-muted-foreground group-hover:text-foreground" />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
