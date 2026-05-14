@@ -84,11 +84,9 @@ function Landing() {
       <header className="border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/landing" className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground">
-              <Building2 className="h-5 w-5" />
-            </div>
+            <img src={endlessProspectsLogo} alt="Endless Prospects" className="h-10 w-10 rounded-xl object-cover" />
             <div>
-              <div className="font-display font-bold text-base leading-none">Agent</div>
+              <div className="font-display font-bold text-base leading-none">Endless Prospects</div>
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">Business Tracker</div>
             </div>
           </Link>
