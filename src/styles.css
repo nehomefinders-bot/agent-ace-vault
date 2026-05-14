@@ -60,9 +60,8 @@
 :root {
   --radius: 0.875rem;
 
-  /* Tracker navy background with crisp white cards */
-  --background: #0A1628;
-  --foreground: oklch(96% 0.01 250);
+  --background: oklch(98% 0.005 250);
+  --foreground: oklch(20% 0.03 255);
 
   --card: oklch(100% 0 0);
   --card-foreground: oklch(20% 0.03 255);
@@ -185,8 +184,8 @@
     background-attachment: fixed;
     filter: blur(2px) saturate(1);
     transform: scale(1.04);
-    opacity: 0;
-    pointer-events: none;
+    opacity: 0.35;
+    filter: blur(2px) saturate(1);
   }
   .dark body::before {
     opacity: 0.45;
