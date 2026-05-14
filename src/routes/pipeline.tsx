@@ -275,7 +275,7 @@ function Pipeline() {
         </>
       }
     >
-      <div className="mb-5 flex justify-end">
+      <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Tabs value={view} onValueChange={(value) => setView(value as PipelineView)} className="w-full lg:w-auto">
           <TabsList className="w-full flex flex-wrap gap-2">
             {PIPELINE_VIEWS.map((item) => (

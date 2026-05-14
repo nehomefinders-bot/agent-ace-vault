@@ -166,11 +166,42 @@
     border-color: var(--color-border);
   }
   body {
-    background-color: var(--color-background);
+    background-image: url("./assets/ma-architecture-bg.jpg");
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     min-height: 100dvh;
+    position: relative;
+  }
+  /* Subtle Massachusetts architecture overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-image: url("./assets/ma-architecture-bg.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    filter: blur(2px) saturate(1);
+    transform: scale(1.04);
+    opacity: 0.85;
+    pointer-events: none;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(80% 60% at 80% 0%, color-mix(in oklab, var(--color-primary) 10%, transparent), transparent 60%),
+      radial-gradient(70% 50% at 0% 100%, color-mix(in oklab, var(--color-secondary) 12%, transparent), transparent 60%),
+      linear-gradient(180deg, color-mix(in oklab, var(--color-background) 25%, transparent), color-mix(in oklab, var(--color-background) 40%, transparent));
+  }
+  .dark body::before {
+    opacity: 0.45;
+    filter: blur(4px) saturate(0.75) brightness(0.55);
   }
   :root {
     color-scheme: light;
@@ -195,16 +226,6 @@
 }
 
 @layer components {
-  .app-content-backdrop {
-    background-color: var(--color-background);
-  }
-  :root:not(.dark) .app-content-backdrop {
-    background-color: var(--popover-foreground);
-  }
-  .app-content-backdrop::before,
-  .app-content-backdrop::after {
-    content: none;
-  }
   .input {
     width: 100%;
     background-color: var(--color-background);
@@ -247,6 +268,23 @@
 }
 
 @layer components {
+  .glass {
+    background-color: color-mix(in oklab, var(--color-card) 55%, transparent);
+    backdrop-filter: blur(10px) saturate(160%);
+    -webkit-backdrop-filter: blur(10px) saturate(160%);
+    border: 1px solid color-mix(in srgb, black 5%, transparent);
+    box-shadow:
+      0 1px 0 0 color-mix(in srgb, white 35%, transparent) inset,
+      0 8px 28px -14px color-mix(in srgb, black 25%, transparent),
+      0 2px 6px -2px color-mix(in srgb, black 10%, transparent);
+  }
+  .dark .glass {
+    background-color: color-mix(in oklab, var(--color-card) 50%, transparent);
+    border: 1px solid color-mix(in srgb, white 10%, transparent);
+    box-shadow:
+      0 1px 0 0 color-mix(in srgb, white 6%, transparent) inset,
+      0 10px 32px -14px color-mix(in srgb, black 70%, transparent);
+  }
   .row-hover-blue {
     transition: background-color 150ms ease;
   }
