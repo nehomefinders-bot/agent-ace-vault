@@ -360,6 +360,22 @@ function AddTransactionModal({
   const { reload } = useBooks();
 
   async function resolveAccountId(value: string): Promise<string> {
+    if (value === CUSTOM_SENTINEL) {
+      const name = customAccountName.trim();
+      if (!name) throw new Error("Enter a name for the custom account");
+      if (!user) throw new Error("Not signed in");
+      const existing = accounts.find((a) => a.name.toLowerCase() === name.toLowerCase());
+      if (existing) return existing.id;
+      const code = `1${Math.floor(100 + Math.random() * 900)}`;
+      const { data, error } = await supabase
+        .from("accounts")
+        .insert({ user_id: user.id, code, name, kind: "Asset" })
+        .select("id")
+        .single();
+      if (error || !data) throw error ?? new Error("Could not create account");
+      await reload();
+      return data.id;
+    }
     const extra = EXTRA_ACCOUNTS.find((e) => e.sentinel === value);
     if (!extra) return value;
     if (!user) throw new Error("Not signed in");
