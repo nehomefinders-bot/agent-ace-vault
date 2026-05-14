@@ -82,17 +82,21 @@ function Landing() {
   return (
     <div className="min-h-dvh w-full bg-background">
       <header className="border-b border-border">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/landing" className="flex items-center gap-2.5">
-            <img src={endlessProspectsLogo} alt="Endless Prospects" className="h-10 w-10 rounded-xl object-cover" />
-            <div>
-              <div className="font-display font-bold text-base leading-none">Endless Prospects</div>
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">Business Tracker</div>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
+          <Link to="/landing" className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+            <img
+              src={endlessProspectsLogo}
+              alt="Endless Prospects"
+              className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-cover shrink-0"
+            />
+            <div className="min-w-0">
+              <div className="font-display font-bold text-sm sm:text-base leading-none truncate">Endless Prospects</div>
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1 hidden sm:block">Business Tracker</div>
             </div>
           </Link>
-          <div className="flex items-center gap-2">
-            <Link to="/auth" className="text-sm font-medium px-4 py-2 hover:text-foreground text-muted-foreground">Sign in</Link>
-            <Link to="/auth" className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium">Get started</Link>
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <Link to="/auth" className="text-sm font-medium px-2.5 sm:px-4 py-2 hover:text-foreground text-muted-foreground">Sign in</Link>
+            <Link to="/auth" className="bg-primary text-primary-foreground px-3 sm:px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap">Get started</Link>
           </div>
         </div>
       </header>
