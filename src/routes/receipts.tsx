@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatMoneyCents } from "@/lib/mock-data";
 import { getReceiptFileName, getReceiptPreviewKind } from "@/lib/receipt-preview";
+import { TableFilterBar, useTableFilters, applyTableFilters } from "@/components/table-filter-bar";
 
 export const Route = createFileRoute("/receipts")({
   component: Receipts,
@@ -41,6 +42,19 @@ function Receipts() {
   const [previewingId, setPreviewingId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
+  const [filters, setFilters, resetFilters] = useTableFilters();
+  const filteredReceipts = applyTableFilters(receipts, filters, {
+    searchText: (r) => `${r.vendor ?? ""} ${r.suggested_category ?? ""}`,
+    date: (r) => r.receipt_date ?? r.created_at?.slice(0, 10) ?? "",
+    amount: (r) => r.total ?? 0,
+    selectValue: (r, key) => {
+      if (key === "status") return r.status;
+      if (key === "category") return r.suggested_category ?? "";
+      return "";
+    },
+  });
+  const categoryOptions = Array.from(new Set(receipts.map((r) => r.suggested_category).filter(Boolean) as string[]))
+    .map((c) => ({ value: c, label: c }));
 
   async function load() {
     if (!user) return;
