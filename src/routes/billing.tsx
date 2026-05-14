@@ -135,6 +135,16 @@ function BillingPage() {
               </div>
             )}
 
+            {subscription.price_id === "beta_monthly" && (subscription as any).cancel_at && (
+              <div className="mb-5 bg-primary/10 border border-primary/30 text-primary rounded-lg px-3 py-2.5 text-sm flex items-start gap-2">
+                <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" />
+                <div>
+                  <strong>Beta program active</strong> — your $9.99/mo beta access ends on{" "}
+                  {new Date((subscription as any).cancel_at).toLocaleDateString()}. You can switch to a regular plan anytime from "Change plan", and pick one back up after the beta ends too.
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{subscription.cancel_at_period_end ? "Ends" : "Renews"}</div>
