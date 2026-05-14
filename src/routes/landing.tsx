@@ -17,11 +17,11 @@ export const Route = createFileRoute("/landing")({
 const tiers = [
   {
     name: "Beta Tester",
-    price: 9.99,
+    price: 10,
     blurb: "All features unlocked for 6 months while we gather feedback.",
     features: [
       "All Pro & Team features unlocked",
-      "Just $9.99/mo for 6 months",
+      "Just $10/mo for 6 months",
       "Help shape the product roadmap",
       "Direct line to the founders",
       "Priority bug-fix turnaround",
