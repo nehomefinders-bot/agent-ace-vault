@@ -146,15 +146,20 @@ function Landing() {
           <p className="text-muted-foreground mt-3">Less than a single closing gift per month.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {tiers.map((tier) => (
             <div key={tier.name}
-              className={`rounded-2xl p-7 border ${tier.featured
-                ? "border-primary bg-card shadow-card relative"
+              className={`relative rounded-2xl p-7 border ${tier.featured
+                ? "border-primary bg-card shadow-card"
                 : "border-border bg-card"}`}>
               {tier.featured && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] uppercase tracking-wider font-bold px-3 py-1 rounded-full">
                   Most popular
+                </div>
+              )}
+              {tier.badge && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-success text-success-foreground text-[10px] uppercase tracking-wider font-bold px-3 py-1 rounded-full">
+                  {tier.badge}
                 </div>
               )}
               <div className="font-display font-bold text-lg">{tier.name}</div>
