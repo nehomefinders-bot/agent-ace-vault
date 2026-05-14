@@ -249,6 +249,10 @@
     border-radius: 0.5rem;
     font-size: 0.875rem;
     font-weight: 500;
+    transition: background-color 0.15s ease;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-color: color-mix(in oklab, var(--color-primary) 90%, black);
   }
   .btn-primary:disabled { opacity: 0.6; }
   .btn-secondary {
@@ -262,8 +266,12 @@
     font-size: 0.875rem;
     font-weight: 500;
     border: 1px solid var(--color-border);
+    transition: background-color 0.15s ease;
   }
-  .btn-secondary:hover { background-color: var(--color-muted); }
+  .btn-secondary:hover:not(:disabled) {
+    background-color: color-mix(in oklab, var(--color-secondary) 92%, black);
+    color: var(--color-secondary-foreground);
+  }
 }
 
 @layer components {
