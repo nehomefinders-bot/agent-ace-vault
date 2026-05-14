@@ -213,7 +213,7 @@ function Mileage() {
               </tr>
             </thead>
             <tbody>
-              {trips.map((m) => (
+              {filteredTrips.map((m) => (
                 <tr key={m.id} className="border-t border-border hover:bg-muted/30">
                   <td className="py-4 px-6 text-muted-foreground text-xs tabular-nums">{m.date}</td>
                   <td className="py-4">{m.from_address ?? "N/A"}</td>
