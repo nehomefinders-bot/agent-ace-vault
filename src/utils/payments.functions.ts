@@ -64,6 +64,11 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     const customerId = existing?.stripe_customer_id as string | undefined;
     const customerEmail = (claims as any)?.email as string | undefined;
 
+    const isBeta = data.priceId === "beta_monthly";
+    // Beta Tester: hard 6-month cap, no trial — they pay $9.99 immediately and
+    // Stripe auto-cancels the subscription after 6 monthly renewals.
+    const sixMonthsFromNow = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30 * 6;
+
     const session = await stripe.checkout.sessions.create({
       line_items: [{ price: stripePrice.id, quantity: 1 }],
       mode: "subscription",
@@ -77,12 +82,15 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       // Full compliance handling — Stripe handles tax + fraud + disputes + support
       managed_payments: { enabled: true },
       subscription_data: {
-        trial_period_days: 14,
-        metadata: { userId },
+        ...(isBeta
+          ? { cancel_at: sixMonthsFromNow }
+          : { trial_period_days: 14 }),
+        metadata: { userId, ...(isBeta ? { beta_program: "true" } : {}) },
       },
       metadata: { userId, lovable_price_id: data.priceId, managed_payments: "true" },
       allow_promotion_codes: true,
     } as any);
+
 
     return { clientSecret: (session as any).client_secret as string };
   });
