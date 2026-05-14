@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { upsertExpenseTransaction, deleteExpenseTransaction } from "@/lib/expense-books-sync";
 
 export const Route = createFileRoute("/expenses")({
   component: Expenses,
@@ -27,6 +28,7 @@ interface Expense {
   date: string;
   receipt_path: string | null;
   notes: string | null;
+  transaction_id: string | null;
 }
 
 type ExpenseFormValues = {
@@ -59,7 +61,7 @@ function Expenses() {
     setLoading(true);
     const { data, error } = await supabase
       .from("expenses")
-      .select("id,vendor,category,amount,date,receipt_path,notes")
+      .select("id,vendor,category,amount,date,receipt_path,notes,transaction_id")
       .order("date", { ascending: false });
     if (error) toast.error(error.message);
     setRows((data ?? []) as Expense[]);
@@ -70,6 +72,7 @@ function Expenses() {
   async function remove(e: Expense) {
     if (!confirm("Delete this expense?")) return;
     if (e.receipt_path) await supabase.storage.from("receipts").remove([e.receipt_path]);
+    await deleteExpenseTransaction(e.transaction_id);
     const { error } = await supabase.from("expenses").delete().eq("id", e.id);
     if (error) return toast.error(error.message);
     toast.success("Expense deleted");
@@ -121,9 +124,21 @@ function Expenses() {
           if (!user) return;
           const created = await saveExpenseRow(user.id, input, null);
           if (created.error) throw created.error;
+          const txnId = await upsertExpenseTransaction(
+            user.id,
+            {
+              vendor: created.row.vendor as string,
+              category: created.row.category as string,
+              amount: created.row.amount as number,
+              date: created.row.date as string,
+              notes: (created.row.notes as string | null) ?? null,
+            },
+            null,
+          );
           const { error } = await supabase.from("expenses").insert({
             user_id: user.id,
             ...created.row,
+            transaction_id: txnId,
           } as never);
           if (error) throw error;
           toast.success("Expense logged");
@@ -144,7 +159,21 @@ function Expenses() {
           if (!editing) return;
           const result = await saveExpenseRow(user!.id, input, editing.receipt_path);
           if (result.error) throw result.error;
-          const { error } = await supabase.from("expenses").update(result.row as never).eq("id", editing.id);
+          const txnId = await upsertExpenseTransaction(
+            user!.id,
+            {
+              vendor: result.row.vendor as string,
+              category: result.row.category as string,
+              amount: result.row.amount as number,
+              date: result.row.date as string,
+              notes: (result.row.notes as string | null) ?? null,
+            },
+            editing.transaction_id,
+          );
+          const { error } = await supabase
+            .from("expenses")
+            .update({ ...result.row, transaction_id: txnId } as never)
+            .eq("id", editing.id);
           if (error) throw error;
           setEditing(null);
           toast.success("Expense updated");
