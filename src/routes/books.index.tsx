@@ -345,7 +345,10 @@ function AddTransactionModal({
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [account, setAccount] = useState("");
+  const [customAccountName, setCustomAccountName] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const CUSTOM_SENTINEL = "__custom__";
 
   const catOptions = type === "income" ? incomeAccounts : expenseAccounts;
   const acctOptions = [...assetAccounts, ...liabAccounts];
@@ -357,6 +360,22 @@ function AddTransactionModal({
   const { reload } = useBooks();
 
   async function resolveAccountId(value: string): Promise<string> {
+    if (value === CUSTOM_SENTINEL) {
+      const name = customAccountName.trim();
+      if (!name) throw new Error("Enter a name for the custom account");
+      if (!user) throw new Error("Not signed in");
+      const existing = accounts.find((a) => a.name.toLowerCase() === name.toLowerCase());
+      if (existing) return existing.id;
+      const code = `1${Math.floor(100 + Math.random() * 900)}`;
+      const { data, error } = await supabase
+        .from("accounts")
+        .insert({ user_id: user.id, code, name, kind: "Asset" })
+        .select("id")
+        .single();
+      if (error || !data) throw error ?? new Error("Could not create account");
+      await reload();
+      return data.id;
+    }
     const extra = EXTRA_ACCOUNTS.find((e) => e.sentinel === value);
     if (!extra) return value;
     if (!user) throw new Error("Not signed in");
@@ -462,8 +481,22 @@ function AddTransactionModal({
               {EXTRA_ACCOUNTS.map((e) => (
                 <SelectItem key={e.sentinel} value={e.sentinel}>{e.name}</SelectItem>
               ))}
+              <SelectItem value={CUSTOM_SENTINEL}>
+                <span className="inline-flex items-center gap-1.5 font-medium text-primary">
+                  <Plus className="h-3.5 w-3.5" /> Add custom…
+                </span>
+              </SelectItem>
             </SelectContent>
           </Select>
+          {effAccount === CUSTOM_SENTINEL && (
+            <Input
+              autoFocus
+              value={customAccountName}
+              onChange={(e) => setCustomAccountName(e.target.value)}
+              placeholder="Enter account name"
+              className="mt-2"
+            />
+          )}
         </div>
 
         <div className="space-y-1.5">
