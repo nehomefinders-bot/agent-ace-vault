@@ -13,7 +13,7 @@ import {
   PieChart,
 } from "lucide-react";
 import endlessProspectsLogo from "@/assets/endless-prospects-logo.png";
-import maHomeBg from "@/assets/ma-architecture-bg.jpg";
+import maHomeBg from "@/assets/landing-hero-bg.png";
 
 export const Route = createFileRoute("/landing")({
   component: Landing,
