@@ -328,6 +328,14 @@ export function TableFilterBar({
               <X className="h-3 w-3 text-muted-foreground group-hover:text-foreground" />
             </button>
           ))}
+          <button
+            type="button"
+            onClick={onReset}
+            className="ml-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium text-primary hover:underline"
+            aria-label="Clear all filters"
+          >
+            Clear all
+          </button>
         </div>
       )}
     </div>
