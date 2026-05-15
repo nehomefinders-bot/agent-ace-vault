@@ -484,7 +484,10 @@ function DealDialog({
   const yourTake = gross * (1 - (parseFloat(refPct) || 0) / 100) * ((parseFloat(agentSplit) || 0) / 100);
 
   const save = async () => {
-    if (!address.trim()) return;
+    if (!address.trim()) {
+      toast.error("Please enter a property address");
+      return;
+    }
     setSaving(true);
     try {
       await onSubmit({
@@ -500,6 +503,9 @@ function DealDialog({
         closeDate,
       });
       onOpenChange(false);
+    } catch (err) {
+      console.error("Save deal failed", err);
+      toast.error(err instanceof Error ? err.message : "Could not save deal");
     } finally {
       setSaving(false);
     }
