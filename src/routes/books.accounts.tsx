@@ -246,6 +246,9 @@ function TransferForm({
         creditAccountId: from,
       });
       onDone();
+    } catch (err) {
+      console.error("Transfer failed", err);
+      toast.error(err instanceof Error ? err.message : "Could not record transfer");
     } finally {
       setSaving(false);
     }
