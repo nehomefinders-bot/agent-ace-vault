@@ -15,6 +15,7 @@ import { BulkStatusBar } from "@/components/bulk-status-bar";
 import { toast } from "sonner";
 import { ImportButton, type ImportColumn } from "@/components/import-button";
 import { STAGES as PIPELINE_STAGES, normalizeStage, stageLabel } from "@/lib/pipeline-stages";
+import { TableExportButton } from "@/components/table-export-button";
 
 const DEAL_IMPORT_COLUMNS: ImportColumn[] = [
   { key: "address", label: "Address", required: true, sample: "123 Main St" },
@@ -139,6 +140,25 @@ function DealsPage() {
       subtitle="Track each transaction, splits, and what you actually take home."
       actions={
         <div className="flex flex-wrap items-center gap-2">
+          <TableExportButton
+            filename="deals"
+            sheetName="Deals"
+            rows={deals}
+            columns={[
+              { header: "Address", accessor: (d) => d.address },
+              { header: "Client", accessor: (d) => d.client_name },
+              { header: "Side", accessor: (d) => d.side },
+              { header: "Sale Price", accessor: (d) => Number(d.sale_price) },
+              { header: "Gross Commission", accessor: (d) => Number(d.gross_commission) },
+              { header: "Agent Split %", accessor: (d) => Number(d.agent_split_pct) },
+              { header: "Brokerage Split %", accessor: (d) => Number(d.brokerage_split_pct) },
+              { header: "Referral %", accessor: (d) => Number(d.referral_pct) },
+              { header: "Referral To", accessor: (d) => d.referral_to },
+              { header: "Status", accessor: (d) => stageLabel(normalizeStage(d.status)) },
+              { header: "Close Date", accessor: (d) => d.close_date },
+              { header: "Notes", accessor: (d) => d.notes },
+            ]}
+          />
           <ImportButton
             table="deals"
             userId={user.id}

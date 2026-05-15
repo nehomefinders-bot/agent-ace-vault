@@ -15,6 +15,7 @@ import { classifyTxn } from "@/lib/books-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { TableFilterBar, useTableFilters, applyTableFilters } from "@/components/table-filter-bar";
+import { TableExportButton } from "@/components/table-export-button";
 
 const EXTRA_ACCOUNTS: { sentinel: string; name: string; code: string }[] = [
   { sentinel: "__misc__", name: "Miscellaneous", code: "1900" },
@@ -97,18 +98,38 @@ function BooksOverview() {
           <h2 className="font-display font-bold text-lg">Transaction Ledger</h2>
           <p className="text-xs text-muted-foreground mt-0.5">All income and expenses, newest first.</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-1.5" /> Add Transaction
-            </Button>
-          </DialogTrigger>
-          <AddTransactionModal
-            accounts={accounts}
-            onClose={() => setOpen(false)}
-            onSubmit={addTransaction}
+        <div className="flex items-center gap-2">
+          <TableExportButton
+            filename="bookkeeping-ledger"
+            sheetName="Ledger"
+            rows={ledger}
+            columns={[
+              { header: "Date", accessor: (t) => t.date },
+              { header: "Memo", accessor: (t) => t.memo },
+              { header: "Vendor", accessor: (t) => t.vendor },
+              { header: "Type", accessor: (t) => classifyTxn(t, accountById) },
+              { header: "Category", accessor: (t) => {
+                const k = classifyTxn(t, accountById);
+                const acc = accountById(k === "income" ? t.creditAccountId : t.debitAccountId);
+                return acc?.name ?? "";
+              } },
+              { header: "Amount", accessor: (t) => Number(t.amount) },
+              { header: "Cleared", accessor: (t) => (t.cleared ? "Yes" : "No") },
+            ]}
           />
-        </Dialog>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-1.5" /> Add Transaction
+              </Button>
+            </DialogTrigger>
+            <AddTransactionModal
+              accounts={accounts}
+              onClose={() => setOpen(false)}
+              onSubmit={addTransaction}
+            />
+          </Dialog>
+        </div>
       </div>
 
       <TableFilterBar

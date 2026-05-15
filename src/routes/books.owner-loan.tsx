@@ -4,6 +4,7 @@ import { useState } from "react";
 import { BooksTransactionDialog, type BooksTransactionDraft } from "@/components/books-transaction-dialog";
 import { useBooks, formatMoney, formatMoneyCents } from "@/hooks/use-books";
 import { ownerLoanLedger } from "@/lib/books-data";
+import { TableExportButton } from "@/components/table-export-button";
 
 export const Route = createFileRoute("/books/owner-loan")({
   component: OwnerLoanPage,
@@ -63,8 +64,19 @@ function OwnerLoanPage() {
       </div>
 
       <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
-        <div className="px-6 py-4 border-b border-border">
+        <div className="px-6 py-4 border-b border-border flex items-center justify-between gap-2">
           <h2 className="font-display font-bold">Ledger</h2>
+          <TableExportButton
+            filename="owner-loan-ledger"
+            sheetName="Owner Loan"
+            rows={entries}
+            columns={[
+              { header: "Date", accessor: (e) => e.date },
+              { header: "Memo", accessor: (e) => e.memo },
+              { header: "Type", accessor: (e) => e.direction },
+              { header: "Amount", accessor: (e) => Number(e.amount) },
+            ]}
+          />
         </div>
         {entries.length === 0 ? (
           <div className="p-8 text-sm text-muted-foreground text-center">No officer-loan activity yet.</div>

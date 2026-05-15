@@ -6,6 +6,7 @@ import { BooksTransactionDialog, type BooksTransactionDraft } from "@/components
 import { useBooks, formatMoneyCents } from "@/hooks/use-books";
 import { classifyTxn } from "@/lib/books-data";
 import { TableFilterBar, useTableFilters, applyTableFilters } from "@/components/table-filter-bar";
+import { TableExportButton } from "@/components/table-export-button";
 
 export const Route = createFileRoute("/books/transactions")({
   component: TransactionsPage,
@@ -66,12 +67,28 @@ function TransactionsPage() {
           { key: "account", label: "Account / Category", options: accountSelectOptions },
         ]}
         trailing={
-          <button
-            onClick={() => setShowAdd((v) => !v)}
-            className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium ml-auto"
-          >
-            <Plus className="h-4 w-4" /> Add transaction
-          </button>
+          <div className="flex items-center gap-2 ml-auto">
+            <TableExportButton
+              filename="transactions"
+              sheetName="Transactions"
+              rows={rows}
+              columns={[
+                { header: "Date", accessor: (t) => t.date },
+                { header: "Memo", accessor: (t) => t.memo },
+                { header: "Vendor", accessor: (t) => t.vendor },
+                { header: "Type", accessor: (t) => classifyTxn(t, accountById) },
+                { header: "Debit Account", accessor: (t) => accountById(t.debitAccountId)?.name ?? "" },
+                { header: "Credit Account", accessor: (t) => accountById(t.creditAccountId)?.name ?? "" },
+                { header: "Amount", accessor: (t) => Number(t.amount) },
+              ]}
+            />
+            <button
+              onClick={() => setShowAdd((v) => !v)}
+              className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium"
+            >
+              <Plus className="h-4 w-4" /> Add transaction
+            </button>
+          </div>
         }
       />
 
