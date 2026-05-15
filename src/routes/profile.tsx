@@ -14,10 +14,13 @@ import {
   Loader2,
   Mail,
   MapPin,
+  PencilLine,
   Phone,
   RefreshCw,
   ShieldCheck,
+  Save,
   Sparkles,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
@@ -98,6 +101,10 @@ function ProfilePage() {
   const [listings, setListings] = useState<ListingRecord[]>([]);
   const [avatarUrl, setAvatarUrl] = useState("");
   const [avatarBusy, setAvatarBusy] = useState(false);
+  const [bioText, setBioText] = useState(PROFILE_BIO);
+  const [bioDraft, setBioDraft] = useState(PROFILE_BIO);
+  const [bioEditing, setBioEditing] = useState(false);
+  const [bioBusy, setBioBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [refreshSeed, setRefreshSeed] = useState(0);
@@ -111,6 +118,10 @@ function ProfilePage() {
       setMileageTrips([]);
       setListings([]);
       setAvatarUrl("");
+      setBioText(PROFILE_BIO);
+      setBioDraft(PROFILE_BIO);
+      setBioEditing(false);
+      setBioBusy(false);
       setLoadError(null);
       setLoading(false);
       return;
@@ -154,6 +165,13 @@ function ProfilePage() {
         setMileageTrips((mileageRes.data ?? []) as MileageRecord[]);
         setListings((listingsRes.data ?? []) as ListingRecord[]);
         setAvatarUrl(profileRes.data?.avatar_url?.trim() || "");
+        const nextBio =
+          typeof user.user_metadata?.bio === "string" && user.user_metadata.bio.trim()
+            ? user.user_metadata.bio.trim()
+            : PROFILE_BIO;
+        setBioText(nextBio);
+        setBioDraft(nextBio);
+        setBioEditing(false);
       } catch (error) {
         if (!cancelled) {
           setLoadError(error instanceof Error ? error.message : "Could not load profile data");
@@ -265,6 +283,34 @@ function ProfilePage() {
     } finally {
       setAvatarBusy(false);
     }
+  }
+
+  async function saveBio() {
+    if (!user) return;
+    const nextBio = bioDraft.trim();
+    if (!nextBio) {
+      toast.error("Bio can't be empty");
+      return;
+    }
+
+    setBioBusy(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ data: { bio: nextBio } });
+      if (error) throw error;
+      setBioText(nextBio);
+      setBioDraft(nextBio);
+      setBioEditing(false);
+      toast.success("Bio updated");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not update the bio");
+    } finally {
+      setBioBusy(false);
+    }
+  }
+
+  function cancelBioEdit() {
+    setBioDraft(bioText);
+    setBioEditing(false);
   }
 
   async function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
@@ -429,7 +475,59 @@ function ProfilePage() {
               <div className="mt-5 space-y-2">
                 <h2 className="text-3xl font-bold tracking-tight text-white sm:text-[2.5rem]">{displayName}</h2>
                 <p className="text-sm font-medium uppercase tracking-[0.22em] text-slate-300">{PROFILE_TITLE}</p>
-                <p className="mx-auto max-w-xs text-sm leading-6 text-slate-400">{PROFILE_BIO}</p>
+                <div className="mx-auto mt-4 w-full max-w-sm rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-left shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Bio</div>
+                    {!bioEditing ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setBioDraft(bioText);
+                          setBioEditing(true);
+                        }}
+                        className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200 transition hover:bg-white/10"
+                      >
+                        <PencilLine className="h-3.5 w-3.5" />
+                        Edit
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => void saveBio()}
+                          disabled={bioBusy}
+                          className="inline-flex items-center gap-2 rounded-full bg-cyan-400 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                          {bioBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelBioEdit}
+                          disabled={bioBusy}
+                          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  {bioEditing ? (
+                    <textarea
+                      value={bioDraft}
+                      onChange={(event) => setBioDraft(event.target.value)}
+                      rows={5}
+                      placeholder="Write a short bio about you..."
+                      className="mt-3 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400/40 focus:ring-2 focus:ring-cyan-400/20"
+                    />
+                  ) : (
+                    <p className="mt-3 whitespace-pre-line text-sm leading-6 text-slate-400">{bioText}</p>
+                  )}
+                  <p className="mt-3 text-[11px] leading-5 text-slate-500">
+                    This bio is saved to your profile and can be updated any time.
+                  </p>
+                </div>
               </div>
 
               <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
