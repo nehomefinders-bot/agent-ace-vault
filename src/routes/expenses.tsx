@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { toast } from "sonner";
 import { upsertExpenseTransaction, deleteExpenseTransaction } from "@/lib/expense-books-sync";
 import { TableFilterBar, useTableFilters, applyTableFilters } from "@/components/table-filter-bar";
+import { TableExportButton } from "@/components/table-export-button";
 
 export const Route = createFileRoute("/expenses")({
   component: Expenses,
@@ -121,7 +122,22 @@ function Expenses() {
       title="Expenses"
       subtitle="Track deductible business spend, with receipts attached."
       actions={
-        <Button onClick={() => setAddOpen(true)}><Plus className="h-4 w-4 mr-1.5" /> Log Expense</Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <TableExportButton
+            filename="expenses"
+            sheetName="Expenses"
+            rows={filteredRows}
+            columns={[
+              { header: "Date", accessor: (r) => r.date },
+              { header: "Vendor", accessor: (r) => r.vendor },
+              { header: "Category", accessor: (r) => r.category },
+              { header: "Amount", accessor: (r) => Number(r.amount) },
+              { header: "Notes", accessor: (r) => r.notes },
+              { header: "Has Receipt", accessor: (r) => (r.receipt_path ? "Yes" : "No") },
+            ]}
+          />
+          <Button onClick={() => setAddOpen(true)}><Plus className="h-4 w-4 mr-1.5" /> Log Expense</Button>
+        </div>
       }
     >
       <ExpenseDialog
