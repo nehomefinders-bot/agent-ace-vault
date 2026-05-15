@@ -446,11 +446,22 @@ function ExpenseDialog({
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
-    if (!vendor.trim()) return;
+    if (!vendor.trim()) {
+      toast.error("Please enter a vendor name");
+      return;
+    }
+    const amt = parseFloat(amount);
+    if (!amt || amt <= 0) {
+      toast.error("Please enter an amount greater than 0");
+      return;
+    }
     setSaving(true);
     try {
       await onSubmit({ vendor, category, amount, date, notes, file });
       onOpenChange(false);
+    } catch (err) {
+      console.error("Save expense failed", err);
+      toast.error(err instanceof Error ? err.message : "Could not save expense");
     } finally {
       setSaving(false);
     }
