@@ -42,7 +42,7 @@ const PHONE_NUMBER = "(617) 555-0148";
 const OFFICE_ADDRESS = "24 Beacon St, Suite 1200\nBoston, MA 02108";
 const REFERRAL_SLUG = "jackie-connolly";
 const REFERRAL_LINK = `https://endlessprospects.app/r/${REFERRAL_SLUG}`;
-const MLS_SEARCH_LINK = "https://idx.mlspin.com/MLS.IDX/Search?AgentId=BB804695";
+const MLS_SEARCH_LINK = "https://h3i.mlspin.com/signin.asp?lstpgckhd=1#ath";
 const PROFILE_BIO =
   "Jackie is a relationship-first realtor who pairs calm guidance with fast follow-through, helping Massachusetts clients move with clarity and confidence.";
 type SummaryAccent = "cyan" | "emerald" | "violet";
