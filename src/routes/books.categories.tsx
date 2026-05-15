@@ -4,6 +4,7 @@ import { useState } from "react";
 import { BooksAccountDialog, type BooksAccountDraft } from "@/components/books-account-dialog";
 import { useBooks, formatMoney } from "@/hooks/use-books";
 import type { Account, AccountKind } from "@/lib/books-data";
+import { TableExportButton } from "@/components/table-export-button";
 
 export const Route = createFileRoute("/books/categories")({
   component: CategoriesPage,
@@ -29,12 +30,27 @@ function CategoriesPage() {
           Your chart of accounts. These are the buckets every dollar gets sorted into for tax time.
           Tax line shows where each one lands on Schedule C.
         </p>
-        <button
-          onClick={() => setShowNew(true)}
-          className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium shrink-0 ml-4"
-        >
-          <Plus className="h-4 w-4" /> New category
-        </button>
+        <div className="flex items-center gap-2 shrink-0 ml-4">
+          <TableExportButton
+            filename="categories"
+            sheetName="Categories"
+            rows={accounts}
+            columns={[
+              { header: "Code", accessor: (a) => a.code },
+              { header: "Name", accessor: (a) => a.name },
+              { header: "Kind", accessor: (a) => a.kind },
+              { header: "Tax Line", accessor: (a) => a.taxLine },
+              { header: "Description", accessor: (a) => a.description },
+              { header: "YTD Activity", accessor: (a) => Number(totals.get(a.id) ?? 0) },
+            ]}
+          />
+          <button
+            onClick={() => setShowNew(true)}
+            className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium"
+          >
+            <Plus className="h-4 w-4" /> New category
+          </button>
+        </div>
       </div>
 
       <BooksAccountDialog
