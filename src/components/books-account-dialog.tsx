@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { AccountKind } from "@/lib/books-data";
+import { toast } from "sonner";
 
 export interface BooksAccountDraft {
   code: string;
@@ -61,6 +62,9 @@ export function BooksAccountDialog({
         description: description.trim() || undefined,
       });
       onOpenChange(false);
+    } catch (err) {
+      console.error("Save account failed", err);
+      toast.error(err instanceof Error ? err.message : "Could not save account");
     } finally {
       setSaving(false);
     }

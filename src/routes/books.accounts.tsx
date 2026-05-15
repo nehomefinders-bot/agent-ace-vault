@@ -4,6 +4,7 @@ import { ArrowRightLeft, Building2, CreditCard, Pencil, PiggyBank, Plus, Trash2,
 import { BooksAccountDialog, type BooksAccountDraft } from "@/components/books-account-dialog";
 import { useBooks, formatMoney, formatMoneyCents } from "@/hooks/use-books";
 import { accountBalance, type Account, type AccountKind } from "@/lib/books-data";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/books/accounts")({
   component: AccountsPage,
@@ -246,6 +247,9 @@ function TransferForm({
         creditAccountId: from,
       });
       onDone();
+    } catch (err) {
+      console.error("Transfer failed", err);
+      toast.error(err instanceof Error ? err.message : "Could not record transfer");
     } finally {
       setSaving(false);
     }

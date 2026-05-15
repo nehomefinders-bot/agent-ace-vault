@@ -174,7 +174,7 @@ function DealsPage() {
           const agentSplit = parseFloat(input.agentSplit) || 0;
           const refPct = parseFloat(input.refPct) || 0;
           const gross = sale * (commPct / 100);
-          await supabase.from("deals").insert({
+          const { error } = await supabase.from("deals").insert({
             user_id: user.id,
             address: input.address,
             client_name: input.client || null,
@@ -188,6 +188,8 @@ function DealsPage() {
             status: input.status,
             close_date: input.closeDate || null,
           });
+          if (error) throw error;
+          toast.success("Deal added");
           await reload();
         }}
       />
@@ -207,7 +209,7 @@ function DealsPage() {
           const agentSplit = parseFloat(input.agentSplit) || 0;
           const refPct = parseFloat(input.refPct) || 0;
           const gross = sale * (commPct / 100);
-          await supabase.from("deals").update({
+          const { error } = await supabase.from("deals").update({
             address: input.address,
             client_name: input.client || null,
             side: input.side,
@@ -220,7 +222,9 @@ function DealsPage() {
             status: input.status,
             close_date: input.closeDate || null,
           }).eq("id", editing.id);
+          if (error) throw error;
           setEditing(null);
+          toast.success("Deal updated");
           await reload();
         }}
       />
@@ -381,7 +385,10 @@ function DealDialog({
   const yourTake = gross * (1 - (parseFloat(refPct) || 0) / 100) * ((parseFloat(agentSplit) || 0) / 100);
 
   const save = async () => {
-    if (!address.trim()) return;
+    if (!address.trim()) {
+      toast.error("Please enter a property address");
+      return;
+    }
     setSaving(true);
     try {
       await onSubmit({
@@ -397,6 +404,9 @@ function DealDialog({
         closeDate,
       });
       onOpenChange(false);
+    } catch (err) {
+      console.error("Save deal failed", err);
+      toast.error(err instanceof Error ? err.message : "Could not save deal");
     } finally {
       setSaving(false);
     }
