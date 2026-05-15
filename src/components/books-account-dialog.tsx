@@ -61,6 +61,9 @@ export function BooksAccountDialog({
         description: description.trim() || undefined,
       });
       onOpenChange(false);
+    } catch (err) {
+      console.error("Save account failed", err);
+      toast.error(err instanceof Error ? err.message : "Could not save account");
     } finally {
       setSaving(false);
     }
