@@ -75,6 +75,9 @@ export function BooksTransactionDialog({
         vendor: vendor.trim() || undefined,
       });
       onOpenChange(false);
+    } catch (err) {
+      console.error("Save transaction failed", err);
+      toast.error(err instanceof Error ? err.message : "Could not save transaction");
     } finally {
       setSaving(false);
     }
