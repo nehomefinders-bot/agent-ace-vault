@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Pencil, Plus, Loader2, Trash2, Wallet, Paperclip } from "lucide-react";
+import { Pencil, Plus, Loader2, Trash2, Wallet, Paperclip, Camera, ScanLine } from "lucide-react";
 import { PageShell, StatusPill } from "@/components/page-shell";
 import { ReceiptPreviewDialog } from "@/components/receipt-preview-dialog";
 import { supabase } from "@/integrations/supabase/client";
