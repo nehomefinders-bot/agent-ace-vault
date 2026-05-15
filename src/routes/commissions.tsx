@@ -149,7 +149,14 @@ function CommissionDialog({
   const net = gci * (bSplit / 100) - ded;
 
   const save = async () => {
-    if (!property.trim() || sale <= 0) return;
+    if (!property.trim()) {
+      toast.error("Please enter a property address");
+      return;
+    }
+    if (sale <= 0) {
+      toast.error("Please enter a sale price greater than 0");
+      return;
+    }
     setSaving(true);
     try {
       await onSubmit({
@@ -161,6 +168,9 @@ function CommissionDialog({
         deductions,
       });
       onOpenChange(false);
+    } catch (err) {
+      console.error("Save commission failed", err);
+      toast.error(err instanceof Error ? err.message : "Could not save commission");
     } finally {
       setSaving(false);
     }
