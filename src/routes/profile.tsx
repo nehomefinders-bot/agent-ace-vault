@@ -10,6 +10,7 @@ import {
   Download,
   Facebook,
   Instagram,
+  ImagePlus,
   Loader2,
   Mail,
   MapPin,
@@ -50,6 +51,7 @@ type PillTone = "success" | "info" | "warning" | "muted";
 type ProfileRecord = {
   display_name: string | null;
   avatar_url: string | null;
+  cover_url: string | null;
 };
 
 type IntegrationRecord = {
@@ -92,13 +94,16 @@ export const Route = createFileRoute("/profile")({
 function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
+  const coverInputRef = useRef<HTMLInputElement | null>(null);
   const [profile, setProfile] = useState<ProfileRecord | null>(null);
   const [integration, setIntegration] = useState<IntegrationRecord | null>(null);
   const [deals, setDeals] = useState<DealRecord[]>([]);
   const [mileageTrips, setMileageTrips] = useState<MileageRecord[]>([]);
   const [listings, setListings] = useState<ListingRecord[]>([]);
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [coverUrl, setCoverUrl] = useState("");
   const [avatarBusy, setAvatarBusy] = useState(false);
+  const [coverBusy, setCoverBusy] = useState(false);
   const [bioText, setBioText] = useState(PROFILE_BIO);
   const [bioDraft, setBioDraft] = useState(PROFILE_BIO);
   const [bioEditing, setBioEditing] = useState(false);
@@ -116,6 +121,9 @@ function ProfilePage() {
       setMileageTrips([]);
       setListings([]);
       setAvatarUrl("");
+      setAvatarBusy(false);
+      setCoverUrl("");
+      setCoverBusy(false);
       setBioText(PROFILE_BIO);
       setBioDraft(PROFILE_BIO);
       setBioEditing(false);
@@ -133,7 +141,7 @@ function ProfilePage() {
 
       try {
         const [profileRes, integrationRes, dealsRes, mileageRes, listingsRes] = await Promise.all([
-          supabase.from("profiles").select("display_name, avatar_url").eq("id", user.id).maybeSingle(),
+          supabase.from("profiles").select("display_name, avatar_url, cover_url").eq("id", user.id).maybeSingle(),
           supabase
             .from("integration_settings")
             .select("location_id, enabled, last_full_sync_at")
@@ -163,6 +171,7 @@ function ProfilePage() {
         setMileageTrips((mileageRes.data ?? []) as MileageRecord[]);
         setListings((listingsRes.data ?? []) as ListingRecord[]);
         setAvatarUrl(profileRes.data?.avatar_url?.trim() || "");
+        setCoverUrl(profileRes.data?.cover_url?.trim() || "");
         const nextBio =
           typeof user.user_metadata?.bio === "string" && user.user_metadata.bio.trim()
             ? user.user_metadata.bio.trim()
@@ -274,12 +283,61 @@ function ProfilePage() {
       setProfile((current) => ({
         display_name: current?.display_name ?? displayName,
         avatar_url: dataUrl,
+        cover_url: current?.cover_url ?? coverUrl,
       }));
       toast.success("Profile photo updated");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not update the profile photo");
     } finally {
       setAvatarBusy(false);
+    }
+  }
+
+  async function uploadCover(file: File) {
+    if (!user) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file");
+      return;
+    }
+
+    const maxBytes = 8 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      toast.error("Cover image must be 8 MB or smaller");
+      return;
+    }
+
+    let dimensions: { width: number; height: number };
+    try {
+      dimensions = await readImageDimensions(file);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not inspect the cover image");
+      return;
+    }
+
+    if (dimensions.width <= dimensions.height) {
+      toast.error("Please choose a landscape cover image");
+      return;
+    }
+
+    setCoverBusy(true);
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({ id: user.id, cover_url: dataUrl }, { onConflict: "id" });
+      if (error) throw error;
+
+      setCoverUrl(dataUrl);
+      setProfile((current) => ({
+        display_name: current?.display_name ?? displayName,
+        avatar_url: current?.avatar_url ?? avatarUrl,
+        cover_url: dataUrl,
+      }));
+      toast.success("Cover image updated");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not update the cover image");
+    } finally {
+      setCoverBusy(false);
     }
   }
 
@@ -320,6 +378,17 @@ function ProfilePage() {
 
   function openAvatarPicker() {
     avatarInputRef.current?.click();
+  }
+
+  function openCoverPicker() {
+    coverInputRef.current?.click();
+  }
+
+  async function handleCoverChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.currentTarget.files?.[0];
+    event.currentTarget.value = "";
+    if (!file) return;
+    await uploadCover(file);
   }
 
   function downloadVCard() {
@@ -423,48 +492,76 @@ function ProfilePage() {
       <section className="grid gap-4 xl:grid-cols-[1.05fr_1.15fr_0.95fr]">
         <Card className={glassCardClass}>
           <div className="flex h-full flex-col p-5 sm:p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-1">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Profile Header</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <ProfileIconBadge label="Facebook" icon={<Facebook className="h-4 w-4" />} />
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-1">
+                <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Profile Header</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <ProfileIconBadge label="Facebook" icon={<Facebook className="h-4 w-4" />} />
                 <ProfileIconBadge label="Instagram" icon={<Instagram className="h-4 w-4" />} />
               </div>
             </div>
 
-            <div className="mt-6 flex flex-1 flex-col items-center justify-center text-center">
-              <div className="relative">
-                <Avatar className="h-36 w-36 border border-white/10 bg-slate-900 shadow-[0_20px_60px_rgba(0,0,0,0.35)] sm:h-44 sm:w-44">
-                  {avatarUrl ? <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" /> : null}
-                  <AvatarFallback className="bg-gradient-to-br from-cyan-400/35 via-sky-500/35 to-indigo-500/35 text-3xl font-bold text-white">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-                <button
-                  type="button"
-                  onClick={openAvatarPicker}
-                  disabled={avatarBusy}
-                  aria-label="Edit profile photo"
-                  className="absolute bottom-2 right-2 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-slate-950/90 text-white shadow-lg transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  {avatarBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
-                </button>
-                <input
-                  ref={avatarInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(event) => void handleAvatarChange(event)}
-                />
+            <div className="mt-5">
+              <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/55 shadow-[0_18px_50px_rgba(0,0,0,0.2)]">
+                <div className="relative h-44 sm:h-52">
+                  {coverUrl ? (
+                    <img src={coverUrl} alt={`${displayName} cover`} className="absolute inset-0 h-full w-full object-cover" />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/25 via-slate-900 to-indigo-500/20" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                  <button
+                    type="button"
+                    onClick={openCoverPicker}
+                    disabled={coverBusy}
+                    aria-label="Edit cover image"
+                    className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-slate-950/75 text-white shadow-lg transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {coverBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImagePlus className="h-3.5 w-3.5" />}
+                  </button>
+                  <input
+                    ref={coverInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(event) => void handleCoverChange(event)}
+                  />
+                </div>
               </div>
 
-              <div className="mt-5 space-y-2">
+              <div className="relative -mt-16 flex justify-center">
+                <div className="relative">
+                  <Avatar className="h-36 w-36 border border-white/10 bg-slate-900 shadow-[0_20px_60px_rgba(0,0,0,0.35)] ring-4 ring-slate-950 sm:h-44 sm:w-44">
+                    {avatarUrl ? <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" /> : null}
+                    <AvatarFallback className="bg-gradient-to-br from-cyan-400/35 via-sky-500/35 to-indigo-500/35 text-3xl font-bold text-white">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <button
+                    type="button"
+                    onClick={openAvatarPicker}
+                    disabled={avatarBusy}
+                    aria-label="Edit profile photo"
+                    className="absolute bottom-2 right-2 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-slate-950/90 text-white shadow-lg transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {avatarBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+                  </button>
+                  <input
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(event) => void handleAvatarChange(event)}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-5 space-y-2 text-center">
                 <h2 className="text-3xl font-bold tracking-tight text-white sm:text-[2.5rem]">{displayName}</h2>
                 <p className="text-sm font-medium uppercase tracking-[0.22em] text-slate-300">{PROFILE_TITLE}</p>
                 <div className="mx-auto mt-4 w-full max-w-sm rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-left shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Bio</div>
+                  <div className="relative">
                     {!bioEditing ? (
                       <button
                         type="button"
@@ -472,48 +569,48 @@ function ProfilePage() {
                           setBioDraft(bioText);
                           setBioEditing(true);
                         }}
-                        className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200 transition hover:bg-white/10"
+                        aria-label="Edit bio"
+                        className="absolute right-0 top-0 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white"
                       >
                         <PencilLine className="h-3.5 w-3.5" />
-                        Edit
                       </button>
                     ) : (
-                      <div className="flex items-center gap-2">
+                      <div className="absolute right-0 top-0 flex items-center gap-1.5">
                         <button
                           type="button"
                           onClick={() => void saveBio()}
                           disabled={bioBusy}
-                          className="inline-flex items-center gap-2 rounded-full bg-cyan-400 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-70"
+                          aria-label="Save bio"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-400 text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-70"
                         >
                           {bioBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                          Save
                         </button>
                         <button
                           type="button"
                           onClick={cancelBioEdit}
                           disabled={bioBusy}
-                          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70"
+                          aria-label="Cancel bio edit"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
                         >
                           <X className="h-3.5 w-3.5" />
-                          Cancel
                         </button>
                       </div>
                     )}
+
+                    <div className={bioEditing ? "pr-20" : "pr-12"}>
+                      {bioEditing ? (
+                        <textarea
+                          value={bioDraft}
+                          onChange={(event) => setBioDraft(event.target.value)}
+                          rows={5}
+                          placeholder="Write a short bio about you..."
+                          className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400/40 focus:ring-2 focus:ring-cyan-400/20"
+                        />
+                      ) : (
+                        <p className="whitespace-pre-line text-sm leading-6 text-slate-400">{bioText}</p>
+                      )}
+                    </div>
                   </div>
-                  {bioEditing ? (
-                    <textarea
-                      value={bioDraft}
-                      onChange={(event) => setBioDraft(event.target.value)}
-                      rows={5}
-                      placeholder="Write a short bio about you..."
-                      className="mt-3 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400/40 focus:ring-2 focus:ring-cyan-400/20"
-                    />
-                  ) : (
-                    <p className="mt-3 whitespace-pre-line text-sm leading-6 text-slate-400">{bioText}</p>
-                  )}
-                  <p className="mt-3 text-[11px] leading-5 text-slate-500">
-                    This bio is saved to your profile and can be updated any time.
-                  </p>
                 </div>
               </div>
 
@@ -837,6 +934,28 @@ function readFileAsDataUrl(file: File): Promise<string> {
     };
     reader.onerror = () => reject(reader.error ?? new Error("Could not read the selected image"));
     reader.readAsDataURL(file);
+  });
+}
+
+function readImageDimensions(file: File): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve({
+        width: image.naturalWidth,
+        height: image.naturalHeight,
+      });
+    };
+
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Could not inspect the selected image"));
+    };
+
+    image.src = url;
   });
 }
 
