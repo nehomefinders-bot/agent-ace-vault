@@ -17,7 +17,7 @@ import {
   PencilLine,
   Phone,
   RefreshCw,
-  ShieldCheck,
+  Search,
   Save,
   X,
 } from "lucide-react";
@@ -42,6 +42,7 @@ const PHONE_NUMBER = "(617) 555-0148";
 const OFFICE_ADDRESS = "24 Beacon St, Suite 1200\nBoston, MA 02108";
 const REFERRAL_SLUG = "jackie-connolly";
 const REFERRAL_LINK = `https://endlessprospects.app/r/${REFERRAL_SLUG}`;
+const MLS_SEARCH_LINK = "https://idx.mlspin.com/MLS.IDX/Search?AgentId=BB804695";
 const PROFILE_BIO =
   "Jackie is a relationship-first realtor who pairs calm guidance with fast follow-through, helping Massachusetts clients move with clarity and confidence.";
 type SummaryAccent = "cyan" | "emerald" | "violet";
@@ -619,10 +620,17 @@ function ProfilePage() {
                   <MapPin className="h-3.5 w-3.5" />
                   Massachusetts
                 </ProfilePill>
-                <ProfilePill tone="info">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  MLS Ready
-                </ProfilePill>
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.location.href = MLS_SEARCH_LINK;
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200 transition hover:bg-cyan-400/15"
+                  aria-label="Search MLS"
+                >
+                  <Search className="h-3.5 w-3.5" />
+                  Search MLS
+                </button>
               </div>
             </div>
           </div>
