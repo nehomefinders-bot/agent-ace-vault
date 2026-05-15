@@ -93,7 +93,7 @@ export function BooksTransactionDialog({
           </div>
           <div className="space-y-1.5">
             <Label>Amount</Label>
-            <Input value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" placeholder="0.00" />
+            <Input value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" placeholder="Enter amount here" />
           </div>
           <div className="space-y-1.5 md:col-span-2">
             <Label>Memo</Label>

@@ -521,13 +521,13 @@ function NewListingDialog({
       <form onSubmit={save} className="space-y-5">
         <div className="space-y-1.5">
           <Label htmlFor="addr">Property Address *</Label>
-          <Input id="addr" autoFocus required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="412 Oakwood Dr, Austin TX" />
+          <Input id="addr" autoFocus required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Enter property address here" />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="lp">List Price *</Label>
-            <Input id="lp" type="number" min="0" required value={price} onChange={(e) => setPrice(e.target.value)} placeholder="750000" className="tabular-nums" />
+            <Input id="lp" type="number" min="0" required value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Enter sale price here" className="tabular-nums" />
           </div>
           <div className="space-y-1.5">
             <Label>Status</Label>

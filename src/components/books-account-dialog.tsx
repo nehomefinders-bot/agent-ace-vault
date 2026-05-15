@@ -81,7 +81,7 @@ export function BooksAccountDialog({
                 id="account-code"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                placeholder="6500"
+                placeholder="Enter account code here"
               />
             </div>
             <div className="space-y-1.5">

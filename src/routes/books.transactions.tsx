@@ -259,7 +259,7 @@ function AddTxnForm({
           className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm md:col-span-2" />
         <input value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Vendor (optional)"
           className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
-        <input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" inputMode="decimal"
+        <input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Enter amount here" inputMode="decimal"
           className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm tabular-nums" />
         <button onClick={save} disabled={saving}
           className="bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50">
