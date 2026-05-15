@@ -14,7 +14,6 @@ import {
   PieChart,
   Bell,
   LayoutDashboard,
-  User,
 } from "lucide-react";
 import endlessProspectsLogo from "@/assets/endless-prospects-logo.png";
 import maHomeBg from "@/assets/landing-hero-bg.png";
@@ -210,7 +209,7 @@ function Landing() {
       </section>
 
       {/* Floating Dashboard Preview */}
-      <section className="relative max-w-6xl mx-auto px-6 py-16 sm:py-24">
+      <section className="relative max-w-6xl mx-auto px-6 py-16 sm:py-24 lg:pb-52">
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 backdrop-blur-md border border-white/15 text-xs font-medium mb-4 text-amber-200">
             Live preview
@@ -219,7 +218,7 @@ function Landing() {
           <p className="text-white/65 mt-3 max-w-xl mx-auto">A real-time view of commissions earned, expenses logged, miles driven, and the mobile app experience.</p>
         </div>
 
-        <div className="relative mx-auto max-w-5xl perspective-1000">
+        <div className="relative mx-auto max-w-6xl perspective-1000 lg:translate-x-[-4rem]">
           {/* Glow */}
           <div className="absolute -inset-8 bg-gradient-to-r from-amber-500/20 via-yellow-400/10 to-amber-500/20 blur-3xl rounded-[3rem] -z-10" />
           <div
@@ -289,10 +288,10 @@ function Landing() {
             </div>
           </div>
         </div>
-        <div className="mt-8 flex flex-col items-center gap-3 lg:-mt-80 lg:items-end lg:pr-10">
-          <div className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-white/55 backdrop-blur-md">
-            iPhone mockup
-          </div>
+        <div className="mt-8 flex justify-center lg:hidden">
+          <IPhoneMockup />
+        </div>
+        <div className="hidden lg:block absolute right-0 top-[10rem] w-[15.5rem]">
           <IPhoneMockup />
         </div>
       </section>
@@ -380,9 +379,9 @@ function Landing() {
 
 function IPhoneMockup() {
   const stats = [
-    { icon: TrendingUp, label: "Deals", value: "14", color: "text-amber-300" },
-    { icon: BookOpen, label: "Books", value: "8", color: "text-sky-300" },
-    { icon: Car, label: "Miles", value: "83", color: "text-emerald-300" },
+    { icon: TrendingUp, label: "Deals", value: "14", note: "+3 this week", accent: "text-amber-300" },
+    { icon: BookOpen, label: "Books", value: "8", note: "Synced", accent: "text-sky-300" },
+    { icon: Car, label: "Miles", value: "83", note: "Today", accent: "text-emerald-300" },
   ];
   const activity = [
     { title: "Open house follow-up", detail: "3 new leads added this morning", time: "8m", tone: "bg-amber-300" },
@@ -393,88 +392,85 @@ function IPhoneMockup() {
     { label: "Home", icon: LayoutDashboard, active: true },
     { label: "Pipeline", icon: TrendingUp, active: false },
     { label: "Books", icon: BookOpen, active: false },
-    { label: "Profile", icon: User, active: false },
+    { label: "Alerts", icon: Bell, active: false },
   ];
 
   return (
-    <div className="relative w-full max-w-[20rem] shrink-0 lg:rotate-6">
-      <div className="absolute -inset-5 rounded-[3rem] bg-gradient-to-b from-sky-400/20 via-amber-400/10 to-emerald-400/15 blur-3xl" />
-      <div className="relative mx-auto w-[min(100%,19rem)] rounded-[2.8rem] border border-white/20 bg-slate-950/95 p-2.5 shadow-[0_40px_80px_-24px_rgba(0,0,0,0.85),0_18px_48px_-20px_rgba(14,165,233,0.25)]">
-        <div className="overflow-hidden rounded-[2.2rem] border border-white/10 bg-[#0b1127]">
-          <div className="flex items-center justify-between px-4 pt-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-                <img src={endlessProspectsLogo} alt="Endless Prospects" className="h-full w-full object-cover" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-[10px] uppercase tracking-[0.22em] text-white/45">Mobile app</div>
-                <div className="font-display text-base font-bold text-white">Today</div>
-              </div>
+    <div className="relative w-full max-w-[15.5rem] sm:max-w-[16rem] lg:max-w-[15.25rem] lg:rotate-[3deg]">
+      <div className="absolute left-1/2 bottom-[-0.9rem] h-4 w-[80%] -translate-x-1/2 rounded-full bg-black/35 blur-2xl" />
+      <div className="relative mx-auto rounded-[2.75rem] border border-white/15 bg-slate-950 p-2 shadow-[0_28px_70px_-28px_rgba(0,0,0,0.85),0_18px_48px_-20px_rgba(14,165,233,0.18)]">
+        <div className="absolute left-1/2 top-2.5 h-1.5 w-24 -translate-x-1/2 rounded-full bg-black/85 shadow-inner" />
+        <div className="overflow-hidden rounded-[2.35rem] border border-white/10 bg-[#09111f]">
+          <div className="border-b border-white/10 bg-[#0c1630]/95 px-4 pb-4 pt-4">
+            <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.22em] text-white/45">
+              <span>9:41</span>
+              <span>Endless Prospects</span>
+              <span className="flex items-center gap-1 text-white/55">
+                <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
+                5G
+              </span>
             </div>
-            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/65">
-              <Bell className="h-4 w-4" />
+
+            <div className="mt-4 flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-[11px] uppercase tracking-[0.24em] text-amber-300/80">Mobile app</div>
+                <div className="mt-1 font-display text-[1.85rem] font-bold leading-[0.95] text-white">On the go</div>
+                <p className="mt-2 max-w-[10.5rem] text-xs leading-5 text-white/55">
+                  Quick reads for deals, books, and mileage.
+                </p>
+              </div>
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500 text-slate-950 shadow-[0_14px_30px_-10px_rgba(251,191,36,0.65)]">
+                <LayoutDashboard className="h-6 w-6" />
+              </div>
             </div>
           </div>
 
-          <div className="space-y-4 px-4 pb-4 pt-4">
-            <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-[11px] uppercase tracking-[0.2em] text-white/45">YTD commissions</div>
-                  <div className="mt-2 font-display text-3xl font-bold tabular-nums text-white">$184,250</div>
-                  <div className="mt-2 text-xs text-emerald-300">+12.4% vs last month</div>
-                </div>
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500 text-slate-950 shadow-[0_14px_30px_-10px_rgba(251,191,36,0.6)]">
-                  <LayoutDashboard className="h-7 w-7" />
-                </div>
-              </div>
-            </div>
-
+          <div className="space-y-3 px-4 pb-4 pt-4">
             <div className="grid grid-cols-3 gap-2">
               {stats.map((stat) => {
                 const Icon = stat.icon;
                 return (
-                  <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/5 p-3">
-                    <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-white/45">
+                  <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/5 p-2.5">
+                    <div className="flex items-center justify-between text-[9px] uppercase tracking-[0.18em] text-white/40">
                       <span>{stat.label}</span>
                       <Icon className="h-3.5 w-3.5" />
                     </div>
-                    <div className="mt-2 text-lg font-bold tabular-nums text-white">{stat.value}</div>
-                    <div className={`mt-1 text-[10px] ${stat.color}`}>Live</div>
+                    <div className="mt-2 font-display text-xl font-bold tabular-nums text-white">{stat.value}</div>
+                    <div className={`mt-1 text-[10px] ${stat.accent}`}>{stat.note}</div>
                   </div>
                 );
               })}
             </div>
 
-            <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="text-sm font-semibold text-white">Recent activity</div>
-                <div className="text-[11px] text-white/45">Live</div>
+            <div className="rounded-[1.25rem] border border-white/10 bg-white/5 p-3">
+              <div className="mb-2 flex items-center justify-between">
+                <div className="text-[11px] font-semibold text-white">Recent activity</div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-white/40">Live</div>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {activity.map((item) => (
-                  <div key={item.title} className="flex items-start gap-3">
+                  <div key={item.title} className="flex items-start gap-3 rounded-xl border border-white/5 bg-[#0b1328] px-3 py-2.5">
                     <span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${item.tone}`} />
                     <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium text-white">{item.title}</div>
-                      <div className="text-xs text-white/55">{item.detail}</div>
+                      <div className="text-xs font-medium text-white">{item.title}</div>
+                      <div className="text-[11px] leading-4 text-white/50">{item.detail}</div>
                     </div>
-                    <span className="text-[11px] text-white/40">{item.time}</span>
+                    <span className="text-[10px] text-white/35">{item.time}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          <div className="border-t border-white/10 bg-slate-950/75 px-3 pb-[calc(0.85rem+env(safe-area-inset-bottom))] pt-3">
-            <div className="flex items-center justify-between gap-1">
+          <div className="border-t border-white/10 bg-[#0c1630]/95 px-3 pb-[calc(0.85rem+env(safe-area-inset-bottom))] pt-3">
+            <div className="grid grid-cols-4 gap-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 return (
                   <button
                     key={item.label}
                     type="button"
-                    className={`flex flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2 text-[10px] font-medium transition-colors ${
+                    className={`flex flex-col items-center gap-1 rounded-2xl px-2 py-2 text-[10px] transition-colors ${
                       item.active ? "bg-white/10 text-amber-300" : "text-white/45 hover:bg-white/5 hover:text-white/75"
                     }`}
                   >
@@ -485,8 +481,6 @@ function IPhoneMockup() {
               })}
             </div>
           </div>
-
-          <div className="absolute left-1/2 top-2 h-1.5 w-28 -translate-x-1/2 rounded-full bg-white/12" />
         </div>
       </div>
     </div>
