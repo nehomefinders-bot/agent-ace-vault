@@ -4,6 +4,7 @@ import {
   LayoutDashboard, TrendingUp, Home, Users, Receipt,
   Wallet, Car, ScanLine, FolderOpen, BookOpen, LifeBuoy, LogOut, LogIn, Calculator,
   CreditCard, Sparkles, Settings, ListTodo, Menu, X,
+  User,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -35,6 +36,7 @@ const sections = [
   {
     label: "Account",
     items: [
+      { to: "/profile", label: "Profile", icon: User },
       { to: "/settings", label: "Settings", icon: Settings },
       { to: "/billing", label: "Billing", icon: CreditCard },
       { to: "/pricing", label: "Plans", icon: Sparkles },

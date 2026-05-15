@@ -16,6 +16,7 @@ import { Route as SupportRouteImport } from './routes/support'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReceiptsRouteImport } from './routes/receipts'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PipelineRouteImport } from './routes/pipeline'
@@ -77,6 +78,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const ReceiptsRoute = ReceiptsRouteImport.update({
   id: '/receipts',
   path: '/receipts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -235,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/profile': typeof ProfileRoute
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
@@ -270,6 +277,7 @@ export interface FileRoutesByTo {
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/profile': typeof ProfileRoute
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
@@ -307,6 +315,7 @@ export interface FileRoutesById {
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/profile': typeof ProfileRoute
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
@@ -345,6 +354,7 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/pricing'
     | '/privacy'
+    | '/profile'
     | '/receipts'
     | '/reset-password'
     | '/settings'
@@ -380,6 +390,7 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/pricing'
     | '/privacy'
+    | '/profile'
     | '/receipts'
     | '/reset-password'
     | '/settings'
@@ -416,6 +427,7 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/pricing'
     | '/privacy'
+    | '/profile'
     | '/receipts'
     | '/reset-password'
     | '/settings'
@@ -453,6 +465,7 @@ export interface RootRouteChildren {
   PipelineRoute: typeof PipelineRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
+  ProfileRoute: typeof ProfileRoute
   ReceiptsRoute: typeof ReceiptsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SettingsRoute: typeof SettingsRoute
@@ -514,6 +527,13 @@ declare module '@tanstack/react-router' {
       path: '/receipts'
       fullPath: '/receipts'
       preLoaderRoute: typeof ReceiptsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -748,6 +768,7 @@ const rootRouteChildren: RootRouteChildren = {
   PipelineRoute: PipelineRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
+  ProfileRoute: ProfileRoute,
   ReceiptsRoute: ReceiptsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SettingsRoute: SettingsRoute,

@@ -165,31 +165,13 @@
     border-color: var(--color-border);
   }
   body {
-    background-image: url("./assets/ma-architecture-bg.jpg");
+    background-color: var(--background);
+    background-image: none;
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     min-height: 100dvh;
     position: relative;
-  }
-  /* Subtle Massachusetts architecture overlay */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -2;
-    background-image: url("./assets/ma-architecture-bg.jpg");
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    filter: blur(2px) saturate(1);
-    transform: scale(1.04);
-    opacity: 0.35;
-    filter: blur(2px) saturate(1);
-  }
-  .dark body::before {
-    opacity: 0.45;
-    filter: blur(4px) saturate(0.75) brightness(0.55);
   }
   body::after {
     content: "";
