@@ -74,7 +74,7 @@ function Mileage() {
 
   const addTrip = async (t: NewTrip) => {
     if (!user) return;
-    await supabase.from("mileage_trips").insert({
+    const { error } = await supabase.from("mileage_trips").insert({
       user_id: user.id,
       date: t.date ?? new Date().toISOString().slice(0, 10),
       miles: t.miles,
@@ -83,11 +83,13 @@ function Mileage() {
       purpose: t.purpose ?? null,
       mode: t.mode,
     });
+    if (error) { toast.error(error.message); return; }
+    toast.success("Trip logged");
     await reload();
   };
 
   const updateTrip = async (id: string, t: NewTrip) => {
-    await supabase.from("mileage_trips").update({
+    const { error } = await supabase.from("mileage_trips").update({
       date: t.date ?? new Date().toISOString().slice(0, 10),
       miles: t.miles,
       from_address: t.from_address ?? null,
@@ -95,11 +97,14 @@ function Mileage() {
       purpose: t.purpose ?? null,
       mode: t.mode,
     }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Trip updated");
     await reload();
   };
 
   const deleteTrip = async (id: string) => {
-    await supabase.from("mileage_trips").delete().eq("id", id);
+    const { error } = await supabase.from("mileage_trips").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
     await reload();
   };
 
