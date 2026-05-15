@@ -193,7 +193,7 @@ function Pipeline() {
                     id="prop"
                     autoFocus
                     required
-                    placeholder="123 Main St"
+                    placeholder="Enter property address here"
                     value={property}
                     onChange={(e) => setProperty(e.target.value)}
                   />
@@ -256,7 +256,7 @@ function Pipeline() {
                     id="sp"
                     type="number"
                     min="0"
-                    placeholder="500000"
+                    placeholder="Enter list price here"
                     value={salePrice}
                     onChange={(e) => setSalePrice(e.target.value)}
                   />
@@ -513,7 +513,7 @@ function DealDialog({
         </DialogHeader>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
           <FormField label="Property address">
-            <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="123 Main St" className="inp" />
+            <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Enter property address here" className="inp" />
           </FormField>
           <FormField label="Client name">
             <input value={client} onChange={(e) => setClient(e.target.value)} placeholder="Sarah Chen" className="inp" />

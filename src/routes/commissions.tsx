@@ -204,7 +204,7 @@ function CommissionDialog({
                 id="price"
                 type="number"
                 min="0"
-                placeholder="750000"
+                placeholder="Enter sale price here"
                 value={salePrice}
                 onChange={(e) => setSalePrice(e.target.value)}
               />
@@ -216,7 +216,7 @@ function CommissionDialog({
                 type="number"
                 min="0"
                 step="0.1"
-                placeholder="3"
+                placeholder="Enter commission % here"
                 value={commissionPct}
                 onChange={(e) => setCommissionPct(e.target.value)}
               />
@@ -232,7 +232,7 @@ function CommissionDialog({
                 min="0"
                 max="100"
                 step="1"
-                placeholder="70"
+                placeholder="Enter your split % here"
                 value={brokerSplit}
                 onChange={(e) => setBrokerSplit(e.target.value)}
               />

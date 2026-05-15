@@ -410,7 +410,7 @@ function DealDialog({
         </DialogHeader>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
           <FormField label="Property address">
-            <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="123 Main St" className="inp" />
+            <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Enter property address here" className="inp" />
           </FormField>
           <FormField label="Client name">
             <input value={client} onChange={(e) => setClient(e.target.value)} placeholder="Sarah Chen" className="inp" />
