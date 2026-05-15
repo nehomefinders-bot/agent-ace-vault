@@ -100,8 +100,19 @@ const features = [
 ];
 
 function Landing() {
+  useEffect(() => {
+    const root = document.documentElement;
+    const prevClass = root.classList.contains("dark");
+    const prevScheme = root.style.colorScheme;
+    root.classList.add("dark");
+    root.style.colorScheme = "dark";
+    return () => {
+      if (!prevClass) root.classList.remove("dark");
+      root.style.colorScheme = prevScheme;
+    };
+  }, []);
   return (
-    <div className="relative min-h-dvh w-full text-white overflow-hidden">
+    <div className="dark relative min-h-dvh w-full bg-[#050b22] text-white overflow-hidden">
       {/* Fixed luxury home background */}
       <div
         className="fixed inset-0 -z-20 bg-cover bg-center"
