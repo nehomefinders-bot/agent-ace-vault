@@ -377,6 +377,7 @@ function ExpenseDialog({
   existingReceiptPath?: string | null;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
   const [vendor, setVendor] = useState(initial?.vendor ?? "");
   const [category, setCategory] = useState(initial?.category ?? "Other");
   const [amount, setAmount] = useState(initial?.amount ?? "");
@@ -384,6 +385,7 @@ function ExpenseDialog({
   const [notes, setNotes] = useState(initial?.notes ?? "");
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -394,7 +396,53 @@ function ExpenseDialog({
     setNotes(initial?.notes ?? "");
     setFile(null);
     if (fileRef.current) fileRef.current.value = "";
+    if (cameraRef.current) cameraRef.current.value = "";
   }, [open, initial]);
+
+  // Map suggested Schedule C category from scan-receipt to our short categories.
+  function mapScannedCategory(c: string | null | undefined): string | null {
+    if (!c) return null;
+    const s = c.toLowerCase();
+    if (s.includes("advertis") || s.includes("market")) return "Marketing";
+    if (s.includes("auto") || s.includes("gas")) return "Auto";
+    if (s.includes("office")) return "Office";
+    if (s.includes("software") || s.includes("subscription") || s.includes("dues")) return "Software";
+    if (s.includes("meal")) return "Meals";
+    if (s.includes("travel")) return "Travel";
+    if (s.includes("education")) return "Education";
+    if (s.includes("insurance")) return "Insurance";
+    return "Other";
+  }
+
+  async function handleScannedFile(picked: File) {
+    setFile(picked);
+    setScanning(true);
+    try {
+      const dataUrl: string = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result as string);
+        r.onerror = rej;
+        r.readAsDataURL(picked);
+      });
+      const { data, error } = await supabase.functions.invoke("scan-receipt", {
+        body: { imageDataUrl: dataUrl },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const ex = data?.extracted ?? {};
+      if (ex.vendor) setVendor(String(ex.vendor));
+      if (ex.total != null) setAmount(String(ex.total));
+      if (ex.receipt_date) setDate(String(ex.receipt_date));
+      const mapped = mapScannedCategory(ex.suggested_category);
+      if (mapped) setCategory(mapped);
+      if (ex.notes && !notes) setNotes(String(ex.notes));
+      toast.success("Receipt scanned — review the details below");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not scan receipt");
+    } finally {
+      setScanning(false);
+    }
+  }
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
@@ -415,9 +463,55 @@ function ExpenseDialog({
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <form onSubmit={save} className="space-y-4">
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={scanning}
+              onClick={() => cameraRef.current?.click()}
+            >
+              {scanning ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Camera className="h-4 w-4 mr-1.5" />}
+              {scanning ? "Scanning..." : "Scan with camera"}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={scanning}
+              onClick={() => fileRef.current?.click()}
+            >
+              <ScanLine className="h-4 w-4 mr-1.5" />
+              Scan from file
+            </Button>
+          </div>
+          <input
+            ref={cameraRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            hidden
+            onChange={(e) => e.target.files?.[0] && handleScannedFile(e.target.files[0])}
+          />
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*,application/pdf"
+            hidden
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (!f) return;
+              if (f.type.startsWith("image/")) handleScannedFile(f);
+              else setFile(f);
+            }}
+          />
+          {file && (
+            <div className="text-xs text-muted-foreground -mt-2">
+              Receipt attached: <span className="font-medium text-foreground">{file.name}</span>
+            </div>
+          )}
+
           <div className="space-y-1.5">
             <Label htmlFor="ve">Vendor *</Label>
-            <Input id="ve" autoFocus required value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Staples, Shell, Zillow Ads..." />
+            <Input id="ve" autoFocus required value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Enter vendor name here" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
@@ -431,7 +525,7 @@ function ExpenseDialog({
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="am">Amount *</Label>
-              <Input id="am" type="number" min="0" step="0.01" required value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="89.50" />
+              <Input id="am" type="number" min="0" step="0.01" required value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Enter amount here" />
             </div>
           </div>
           <div className="space-y-1.5">
@@ -439,16 +533,17 @@ function ExpenseDialog({
             <Input id="dt" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="rc">{existingReceiptPath ? "Replace receipt (optional)" : "Receipt (optional)"}</Label>
-            <Input id="rc" ref={fileRef} type="file" accept="image/*,application/pdf" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-          </div>
-          <div className="space-y-1.5">
             <Label htmlFor="nt">Notes</Label>
-            <Input id="nt" value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <Input id="nt" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Enter notes here (optional)" />
           </div>
+          {existingReceiptPath && !file && (
+            <div className="text-xs text-muted-foreground">
+              A receipt is already attached. Scan or pick a new file to replace it.
+            </div>
+          )}
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit" disabled={saving || !vendor.trim()}>{saving ? "Saving..." : submitLabel}</Button>
+            <Button type="submit" disabled={saving || scanning || !vendor.trim()}>{saving ? "Saving..." : submitLabel}</Button>
           </DialogFooter>
         </form>
       </DialogContent>
