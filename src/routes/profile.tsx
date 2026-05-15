@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import {
   Activity,
   ArrowRightLeft,
@@ -11,7 +11,6 @@ import {
   Download,
   Facebook,
   Instagram,
-  Link2,
   Loader2,
   Mail,
   MapPin,
@@ -30,15 +29,19 @@ import { formatMoney, formatMoneyCents } from "@/hooks/use-books";
 import { normalizeStage } from "@/lib/pipeline-stages";
 
 const IRS_RATE = 0.67;
-const PROFILE_NAME = "Kimberly Graham";
+const PROFILE_NAME = "Jackie Connolly";
 const PROFILE_TITLE = "Realtor";
 const LICENSE_NUMBER = "MA 9574862";
 const LICENSE_EXPIRATION = "09/30/2026";
-const PROFESSIONAL_EMAIL = "kimberly.graham@endlessprospects.com";
-const PERSONAL_EMAIL = "kimberly.graham@gmail.com";
+const JACKIE_EMAIL = "livingandlearningwithjackie@gmail.com";
+const PROFESSIONAL_EMAIL = JACKIE_EMAIL;
+const PERSONAL_EMAIL = JACKIE_EMAIL;
 const PHONE_NUMBER = "(617) 555-0148";
 const OFFICE_ADDRESS = "24 Beacon St, Suite 1200\nBoston, MA 02108";
-const REFERRAL_LINK = "https://endlessprospects.app/r/kimberly-graham";
+const REFERRAL_SLUG = "jackie-connolly";
+const REFERRAL_LINK = `https://endlessprospects.app/r/${REFERRAL_SLUG}`;
+const PROFILE_BIO =
+  "Jackie is a relationship-first realtor who pairs calm guidance with fast follow-through, helping Massachusetts clients move with clarity and confidence.";
 type SummaryAccent = "cyan" | "emerald" | "violet";
 type MetricTone = "teal" | "blue" | "rose";
 type PillTone = "success" | "info" | "warning" | "muted";
@@ -87,11 +90,14 @@ export const Route = createFileRoute("/profile")({
 
 function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const [profile, setProfile] = useState<ProfileRecord | null>(null);
   const [integration, setIntegration] = useState<IntegrationRecord | null>(null);
   const [deals, setDeals] = useState<DealRecord[]>([]);
   const [mileageTrips, setMileageTrips] = useState<MileageRecord[]>([]);
   const [listings, setListings] = useState<ListingRecord[]>([]);
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarBusy, setAvatarBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [refreshSeed, setRefreshSeed] = useState(0);
@@ -104,6 +110,7 @@ function ProfilePage() {
       setDeals([]);
       setMileageTrips([]);
       setListings([]);
+      setAvatarUrl("");
       setLoadError(null);
       setLoading(false);
       return;
@@ -146,6 +153,7 @@ function ProfilePage() {
         setDeals((dealsRes.data ?? []) as DealRecord[]);
         setMileageTrips((mileageRes.data ?? []) as MileageRecord[]);
         setListings((listingsRes.data ?? []) as ListingRecord[]);
+        setAvatarUrl(profileRes.data?.avatar_url?.trim() || "");
       } catch (error) {
         if (!cancelled) {
           setLoadError(error instanceof Error ? error.message : "Could not load profile data");
@@ -164,7 +172,6 @@ function ProfilePage() {
 
   const currentYear = new Date().getFullYear();
   const displayName = profile?.display_name?.trim() || PROFILE_NAME;
-  const avatarUrl = profile?.avatar_url?.trim() || "";
   const initials = displayName
     .split(/\s+/)
     .filter(Boolean)
@@ -217,14 +224,58 @@ function ProfilePage() {
 
   async function copyReferralLink() {
     try {
-      const link = typeof window !== "undefined" ? `${window.location.origin}/r/kimberly-graham` : REFERRAL_LINK;
-      await navigator.clipboard.writeText(link);
+      await navigator.clipboard.writeText(REFERRAL_LINK);
       setCopiedReferral(true);
       setTimeout(() => setCopiedReferral(false), 1500);
       toast.success("Referral link copied");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not copy the referral link");
     }
+  }
+
+  async function uploadAvatar(file: File) {
+    if (!user) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file");
+      return;
+    }
+
+    const maxBytes = 5 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      toast.error("Image must be 5 MB or smaller");
+      return;
+    }
+
+    setAvatarBusy(true);
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({ id: user.id, avatar_url: dataUrl }, { onConflict: "id" });
+      if (error) throw error;
+
+      setAvatarUrl(dataUrl);
+      setProfile((current) => ({
+        display_name: current?.display_name ?? displayName,
+        avatar_url: dataUrl,
+      }));
+      toast.success("Profile photo updated");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not update the profile photo");
+    } finally {
+      setAvatarBusy(false);
+    }
+  }
+
+  async function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.currentTarget.files?.[0];
+    event.currentTarget.value = "";
+    if (!file) return;
+    await uploadAvatar(file);
+  }
+
+  function openAvatarPicker() {
+    avatarInputRef.current?.click();
   }
 
   function downloadVCard() {
@@ -252,7 +303,7 @@ function ProfilePage() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = "kimberly-graham.vcf";
+    anchor.download = `${REFERRAL_SLUG}.vcf`;
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
@@ -359,20 +410,26 @@ function ProfilePage() {
                 </Avatar>
                 <button
                   type="button"
+                  onClick={openAvatarPicker}
+                  disabled={avatarBusy}
                   aria-label="Edit profile photo"
-                  className="absolute bottom-2 right-2 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-slate-950/90 text-white shadow-lg transition hover:bg-slate-900"
+                  className="absolute bottom-2 right-2 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-slate-950/90 text-white shadow-lg transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  <Camera className="h-4 w-4" />
+                  {avatarBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
                 </button>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(event) => void handleAvatarChange(event)}
+                />
               </div>
 
               <div className="mt-5 space-y-2">
                 <h2 className="text-3xl font-bold tracking-tight text-white sm:text-[2.5rem]">{displayName}</h2>
                 <p className="text-sm font-medium uppercase tracking-[0.22em] text-slate-300">{PROFILE_TITLE}</p>
-                <p className="mx-auto max-w-xs text-sm leading-6 text-slate-400">
-                  Massachusetts-focused real estate production with a polished client experience across deals, listings, and
-                  referrals.
-                </p>
+                <p className="mx-auto max-w-xs text-sm leading-6 text-slate-400">{PROFILE_BIO}</p>
               </div>
 
               <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
@@ -577,53 +634,7 @@ function ProfilePage() {
           </div>
         </section>
 
-        <TabsContent value="overview" className="mt-0 space-y-4">
-          <div className="grid gap-4 lg:grid-cols-2">
-            <GlassPanel title="Workspace snapshot" icon={<Sparkles className="h-4 w-4" />}>
-              <ul className="space-y-3 text-sm text-slate-300">
-                <li className="flex items-start gap-2">
-                  <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
-                  <span>Producing status is active and the profile is tuned for client-facing use.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300" />
-                  <span>Massachusetts license, office location, and referral handoff details are visible at a glance.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Activity className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
-                  <span>Current workspace sync is tied to GoHighLevel and can be refreshed anytime.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Link2 className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
-                  <span>The referral link and V-Card are ready for quick handoffs to clients and partners.</span>
-                </li>
-              </ul>
-            </GlassPanel>
-
-            <GlassPanel title="Brand presence" icon={<Facebook className="h-4 w-4" />}>
-              <div className="space-y-4 text-sm text-slate-300">
-                <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3">
-                  <div>
-                    <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Public name</div>
-                    <div className="mt-1 font-medium text-white">{displayName}</div>
-                  </div>
-                  <ProfileIconBadge label="Facebook" icon={<Facebook className="h-4 w-4" />} />
-                </div>
-                <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3">
-                  <div>
-                    <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Social stack</div>
-                    <div className="mt-1 font-medium text-white">Instagram-ready creative presence</div>
-                  </div>
-                  <ProfileIconBadge label="Instagram" icon={<Instagram className="h-4 w-4" />} />
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3">
-                  <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Referral access</div>
-                  <div className="mt-1 font-mono text-xs text-slate-200">{REFERRAL_LINK}</div>
-                </div>
-              </div>
-            </GlassPanel>
-          </div>
-        </TabsContent>
+        <TabsContent value="overview" className="mt-0" />
 
         <TabsContent value="professional" className="mt-0 space-y-4">
           <div className="grid gap-4 lg:grid-cols-2">
@@ -734,6 +745,22 @@ function ProfilePage() {
 function calculateNetCommission(deal: DealRecord) {
   const afterReferral = Number(deal.gross_commission) * (1 - Number(deal.referral_pct ?? 0) / 100);
   return afterReferral * (Number(deal.agent_split_pct ?? 0) / 100);
+}
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      if (typeof result === "string") {
+        resolve(result);
+      } else {
+        reject(new Error("Could not read the selected image"));
+      }
+    };
+    reader.onerror = () => reject(reader.error ?? new Error("Could not read the selected image"));
+    reader.readAsDataURL(file);
+  });
 }
 
 function ProfileFrame({ children }: { children: ReactNode }) {
@@ -963,7 +990,11 @@ function ProfilePill({
 
 function ProfileIconBadge({ label, icon }: { label: string; icon: ReactNode }) {
   return (
-    <div className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-100" title={label} aria-label={label}>
+    <div
+      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-100"
+      title={label}
+      aria-label={label}
+    >
       {icon}
     </div>
   );
