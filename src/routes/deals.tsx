@@ -174,7 +174,7 @@ function DealsPage() {
           const agentSplit = parseFloat(input.agentSplit) || 0;
           const refPct = parseFloat(input.refPct) || 0;
           const gross = sale * (commPct / 100);
-          await supabase.from("deals").insert({
+          const { error } = await supabase.from("deals").insert({
             user_id: user.id,
             address: input.address,
             client_name: input.client || null,
@@ -188,6 +188,8 @@ function DealsPage() {
             status: input.status,
             close_date: input.closeDate || null,
           });
+          if (error) throw error;
+          toast.success("Deal added");
           await reload();
         }}
       />
@@ -207,7 +209,7 @@ function DealsPage() {
           const agentSplit = parseFloat(input.agentSplit) || 0;
           const refPct = parseFloat(input.refPct) || 0;
           const gross = sale * (commPct / 100);
-          await supabase.from("deals").update({
+          const { error } = await supabase.from("deals").update({
             address: input.address,
             client_name: input.client || null,
             side: input.side,
@@ -220,7 +222,9 @@ function DealsPage() {
             status: input.status,
             close_date: input.closeDate || null,
           }).eq("id", editing.id);
+          if (error) throw error;
           setEditing(null);
+          toast.success("Deal updated");
           await reload();
         }}
       />
