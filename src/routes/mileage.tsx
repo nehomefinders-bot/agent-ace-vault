@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TableFilterBar, useTableFilters, applyTableFilters } from "@/components/table-filter-bar";
+import { TableExportButton } from "@/components/table-export-button";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/mileage")({
@@ -122,12 +123,28 @@ function Mileage() {
       title="Mileage"
       subtitle="Three ways to log: live GPS while you drive, address-to-address, or by hand."
       actions={
-        <button
-          onClick={() => setMode("manual")}
-          className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium"
-        >
-          <Plus className="h-4 w-4" /> Log Trip
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <TableExportButton
+            filename="mileage-trips"
+            sheetName="Trips"
+            rows={trips}
+            columns={[
+              { header: "Date", accessor: (t) => t.date },
+              { header: "Miles", accessor: (t) => Number(t.miles) },
+              { header: "From", accessor: (t) => t.from_address },
+              { header: "To", accessor: (t) => t.to_address },
+              { header: "Purpose", accessor: (t) => t.purpose },
+              { header: "Mode", accessor: (t) => t.mode },
+              { header: "Deduction (USD)", accessor: (t) => Number((Number(t.miles) * irsRate).toFixed(2)) },
+            ]}
+          />
+          <button
+            onClick={() => setMode("manual")}
+            className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium"
+          >
+            <Plus className="h-4 w-4" /> Log Trip
+          </button>
+        </div>
       }
     >
       <TripDialog
