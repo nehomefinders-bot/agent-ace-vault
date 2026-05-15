@@ -11,6 +11,7 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { ImportButton, type ImportColumn } from "@/components/import-button";
+import { TableExportButton } from "@/components/table-export-button";
 
 const CLIENT_IMPORT_COLUMNS: ImportColumn[] = [
   { key: "name", label: "Name", required: true, sample: "Jane Smith" },
@@ -201,6 +202,27 @@ function Clients() {
       subtitle="Your CRM — synced two-way with GoHighLevel."
       actions={
         <div className="flex flex-wrap items-center gap-2">
+          <TableExportButton
+            filename="clients"
+            sheetName="Clients"
+            rows={rows}
+            columns={[
+              { header: "Name", accessor: (r) => r.name },
+              { header: "Email", accessor: (r) => r.email },
+              { header: "Phone", accessor: (r) => r.phone },
+              { header: "Company", accessor: (r) => r.company },
+              { header: "Type", accessor: (r) => r.client_type },
+              { header: "Timeline", accessor: (r) => r.timeline },
+              { header: "Address", accessor: (r) => r.address },
+              { header: "Pre-Approved", accessor: (r) => r.pre_approved == null ? "" : r.pre_approved ? "Yes" : "No" },
+              { header: "Budget Min", accessor: (r) => r.budget_min },
+              { header: "Budget Max", accessor: (r) => r.budget_max },
+              { header: "Locality", accessor: (r) => r.locality },
+              { header: "GHL Synced", accessor: (r) => r.ghl_contact_id ? "Yes" : "No" },
+              { header: "Last Synced", accessor: (r) => r.last_synced_at },
+              { header: "Notes", accessor: (r) => r.notes },
+            ]}
+          />
           <ImportButton
             table="clients"
             userId={user!.id}
