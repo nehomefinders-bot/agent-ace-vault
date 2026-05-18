@@ -94,10 +94,10 @@ const tiers = [
 ];
 
 const features = [
-  { icon: Car, title: "Live mileage tracker", body: "Tap start, drive, tap stop. Or punch in two addresses.", glow: "from-sky-300 to-cyan-500" },
-  { icon: BookOpen, title: "Normal bookkeeping", body: "Tracking your business from lead to close. Log expenses across all of your financial accounts, and pull a Schedule C and a profit and loss statement from your own bookkeeping system.", glow: "from-amber-300 to-yellow-500" },
-  { icon: ScanLine, title: "Receipt scanner", body: "Snap, categorize, file. Everything ready come April.", glow: "from-fuchsia-300 to-rose-500" },
-  { icon: ShieldCheck, title: "Cancel anytime", body: "Credit card is not charged until after the 14-day trial. Cancel anytime.", glow: "from-emerald-300 to-teal-500" },
+  { icon: Car, title: "Live mileage tracker", body: "Tap start, drive, tap stop. Or punch in two addresses.", glow: "from-white via-[#f7e7b6] to-[#d4af37]" },
+  { icon: BookOpen, title: "Normal bookkeeping", body: "Tracking your business from lead to close. Log expenses across all of your financial accounts, and pull a Schedule C and a profit and loss statement from your own bookkeeping system.", glow: "from-white via-[#f7e7b6] to-[#d4af37]" },
+  { icon: ScanLine, title: "Receipt scanner", body: "Snap, categorize, file. Everything ready come April.", glow: "from-white via-[#f7e7b6] to-[#d4af37]" },
+  { icon: ShieldCheck, title: "Cancel anytime", body: "Credit card is not charged until after the 14-day trial. Cancel anytime.", glow: "from-white via-[#f7e7b6] to-[#d4af37]" },
 ];
 
 const landingTypographyStyle: CSSProperties & { "--font-display": string } = {
@@ -151,14 +151,14 @@ function Landing() {
             />
             <div className="min-w-0">
               <div className="font-display font-bold text-sm sm:text-base leading-none truncate text-white">Endless Prospects</div>
-              <div className="text-[10px] uppercase tracking-[0.2em] text-amber-300/80 mt-1 hidden sm:block">Business Tracker</div>
+              <div className="text-[10px] uppercase tracking-[0.2em] text-[#d4af37] opacity-80 mt-1 hidden sm:block">Business Tracker</div>
             </div>
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <Link to="/auth" className="text-sm font-medium px-2.5 sm:px-4 py-2 text-white/80 hover:text-white transition-colors">Sign in</Link>
             <Link
               to="/auth"
-              className="px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 shadow-[0_8px_24px_-8px_rgba(251,191,36,0.6)] hover:from-amber-300 hover:to-yellow-400 transition-colors"
+              className="px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-gradient-to-r from-white via-[#f7e7b6] to-[#d4af37] text-slate-950 shadow-[0_8px_24px_-8px_rgba(212,175,55,0.55)] hover:from-[#fffdf7] hover:to-[#c89e2f] transition-colors"
             >
               Get started
             </Link>
@@ -168,12 +168,12 @@ function Landing() {
 
       {/* Hero */}
       <section className="relative max-w-6xl mx-auto px-6 pt-24 sm:pt-32 pb-20 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 backdrop-blur-md border border-white/15 text-xs font-medium mb-8 text-amber-200">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 backdrop-blur-md border border-white/15 text-xs font-medium mb-8 text-[#d4af37]">
           <Sparkles className="h-3 w-3" /> Built for real estate agents
         </div>
         <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight max-w-4xl mx-auto leading-[1.02] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]">
           Your Real Estate Business at a Glance{" "}
-          <span className="bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-white via-[#f7e7b6] to-[#d4af37] bg-clip-text text-transparent">
             all in one place
           </span>
           .
@@ -184,7 +184,7 @@ function Landing() {
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             to="/auth"
-            className="px-7 py-3.5 rounded-lg text-sm font-semibold inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 shadow-[0_12px_40px_-8px_rgba(251,191,36,0.55)] hover:from-amber-300 hover:to-yellow-400 transition-colors"
+            className="px-7 py-3.5 rounded-lg text-sm font-semibold inline-flex items-center gap-2 bg-gradient-to-r from-white via-[#f7e7b6] to-[#d4af37] text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] hover:from-[#fffdf7] hover:to-[#c89e2f] transition-colors"
           >
             Start your free 14-day trial <ArrowRight className="h-4 w-4" />
           </Link>
@@ -218,33 +218,35 @@ function Landing() {
       {/* Floating Dashboard Preview */}
       <section className="relative max-w-6xl mx-auto px-6 py-16 sm:py-24">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 backdrop-blur-md border border-white/15 text-xs font-medium mb-4 text-amber-200">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 backdrop-blur-md border border-white/15 text-xs font-medium mb-4 text-[#d4af37]">
             Live preview
           </div>
-          <h2 className="font-display text-3xl md:text-5xl font-bold text-white">Your business, at a glance.</h2>
+          <h2 className="font-display text-3xl md:text-5xl font-bold text-white">
+            Your business, at a <span className="text-[#d4af37]">glance.</span>
+          </h2>
           <p className="text-white/65 mt-3 max-w-xl mx-auto">A real-time view of commissions earned, expenses logged, and miles driven.</p>
         </div>
 
         <div className="relative mx-auto max-w-5xl perspective-1000">
           {/* Glow */}
-          <div className="absolute -inset-8 bg-gradient-to-r from-amber-500/20 via-yellow-400/10 to-amber-500/20 blur-3xl rounded-[3rem] -z-10" />
+          <div className="absolute -inset-8 bg-gradient-to-r from-[#d4af37]/20 via-white/10 to-[#d4af37]/20 blur-3xl rounded-[3rem] -z-10" />
           <div
-            className="rounded-2xl border border-white/15 bg-slate-900/80 backdrop-blur-xl shadow-[0_60px_120px_-30px_rgba(0,0,0,0.9),0_30px_60px_-20px_rgba(251,191,36,0.15)] overflow-hidden"
+            className="rounded-2xl border border-white/15 bg-[#0b0a08]/80 backdrop-blur-xl shadow-[0_60px_120px_-30px_rgba(0,0,0,0.9),0_30px_60px_-20px_rgba(212,175,55,0.2)] overflow-hidden"
             style={{ transform: "rotateX(4deg)" }}
           >
             {/* Window chrome */}
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-slate-950/60">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-[#130f0a]/60">
               <span className="h-3 w-3 rounded-full bg-red-400/80" />
-              <span className="h-3 w-3 rounded-full bg-yellow-400/80" />
+              <span className="h-3 w-3 rounded-full bg-[#d4af37]/80" />
               <span className="h-3 w-3 rounded-full bg-green-400/80" />
               <div className="ml-4 text-xs text-white/50 font-mono">endlessprospects.app/dashboard</div>
             </div>
             {/* Dashboard body */}
             <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
-                { icon: DollarSign, label: "YTD Commissions", value: "$184,250", delta: "+12.4%", color: "text-emerald-300" },
-                { icon: Wallet,     label: "Expenses",        value: "$22,807",  delta: "+3.1%",  color: "text-amber-300"   },
-                { icon: Car,        label: "Miles driven",    value: "8,431",    delta: "+248",   color: "text-sky-300"     },
+                { icon: DollarSign, label: "YTD Commissions", value: "$184,250", delta: "+12.4%", color: "text-[#d4af37]" },
+                { icon: Wallet,     label: "Expenses",        value: "$22,807",  delta: "+3.1%",  color: "text-[#f7e7b6]"   },
+                { icon: Car,        label: "Miles driven",    value: "8,431",    delta: "+248",   color: "text-[#d4af37]"     },
               ].map((k) => (
                 <div key={k.label} className="rounded-xl border border-white/10 bg-white/5 p-4">
                   <div className="flex items-center justify-between text-white/60 text-xs uppercase tracking-wider">
@@ -259,27 +261,27 @@ function Landing() {
               <div className="md:col-span-2 rounded-xl border border-white/10 bg-white/5 p-5">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2 text-sm font-medium text-white">
-                    <TrendingUp className="h-4 w-4 text-amber-300" /> Revenue · last 6 months
+                    <TrendingUp className="h-4 w-4 text-[#d4af37]" /> Revenue · last 6 months
                   </div>
                   <span className="text-xs text-white/50">2025</span>
                 </div>
                 <div className="flex items-end gap-3 h-32">
                   {[40, 62, 55, 78, 70, 92].map((h, i) => (
-                    <div key={i} className="flex-1 rounded-t-md bg-gradient-to-t from-amber-500 to-yellow-300" style={{ height: `${h}%` }} />
+                    <div key={i} className="flex-1 rounded-t-md bg-gradient-to-t from-[#d4af37] to-[#fff0c9]" style={{ height: `${h}%` }} />
                   ))}
                 </div>
               </div>
 
               <div className="rounded-xl border border-white/10 bg-white/5 p-5">
                 <div className="flex items-center gap-2 text-sm font-medium text-white mb-4">
-                  <PieChart className="h-4 w-4 text-amber-300" /> Expense mix
+                  <PieChart className="h-4 w-4 text-[#d4af37]" /> Expense mix
                 </div>
                 <div className="space-y-2.5">
                   {[
-                    { l: "Marketing", v: 42, c: "bg-amber-400" },
-                    { l: "Mileage",   v: 28, c: "bg-sky-400"   },
-                    { l: "MLS fees",  v: 18, c: "bg-emerald-400" },
-                    { l: "Office",    v: 12, c: "bg-fuchsia-400" },
+                    { l: "Marketing", v: 42, c: "bg-[#d4af37]" },
+                    { l: "Mileage",   v: 28, c: "bg-[#f7e7b6]"   },
+                    { l: "MLS fees",  v: 18, c: "bg-white/60" },
+                    { l: "Office",    v: 12, c: "bg-[#b8912a]" },
                   ].map((r) => (
                     <div key={r.l}>
                       <div className="flex justify-between text-xs text-white/70 mb-1">
@@ -310,27 +312,27 @@ function Landing() {
               key={tier.name}
               className={`relative rounded-2xl p-7 border backdrop-blur-md transition-all flex flex-col ${
                 tier.featured
-                  ? "border-amber-400/60 bg-gradient-to-b from-[#0b1638]/90 to-[#050b22]/90 lg:scale-105 shadow-[0_0_0_1px_rgba(251,191,36,0.3),0_30px_80px_-20px_rgba(251,191,36,0.35)]"
+                  ? "border-[#d4af37]/60 bg-gradient-to-b from-[#120f0a]/90 to-[#050b22]/90 lg:scale-105 shadow-[0_0_0_1px_rgba(212,175,55,0.3),0_30px_80px_-20px_rgba(212,175,55,0.35)]"
                   : "border-white/10 bg-[#070d24]/80 hover:border-white/20 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.7)]"
               }`}
             >
               {tier.featured && (
                 <>
-                  <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-amber-400/40 via-transparent to-transparent pointer-events-none" />
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 text-[10px] uppercase tracking-[0.18em] font-bold px-3 py-1 rounded-full shadow-[0_8px_24px_-4px_rgba(251,191,36,0.6)]">
+                  <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-[#d4af37]/40 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-white via-[#f7e7b6] to-[#d4af37] text-slate-950 text-[10px] uppercase tracking-[0.18em] font-bold px-3 py-1 rounded-full shadow-[0_8px_24px_-4px_rgba(212,175,55,0.6)]">
                     Most popular
                   </div>
                 </>
               )}
               {tier.badge && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-emerald-950 text-[10px] uppercase tracking-[0.18em] font-bold px-3 py-1 rounded-full">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#d4af37] text-slate-950 text-[10px] uppercase tracking-[0.18em] font-bold px-3 py-1 rounded-full">
                   {tier.badge}
                 </div>
               )}
               <div className="font-display font-bold text-lg text-white">{tier.name}</div>
               <div className="text-sm text-white/60 mt-1 mb-5">{tier.blurb}</div>
               <div className="flex items-baseline gap-1 mb-6">
-                <div className={`font-display text-5xl font-bold tabular-nums ${tier.featured ? "bg-gradient-to-r from-amber-300 to-yellow-500 bg-clip-text text-transparent" : "text-white"}`}>
+                <div className={`font-display text-5xl font-bold tabular-nums ${tier.featured ? "bg-gradient-to-r from-white via-[#f7e7b6] to-[#d4af37] bg-clip-text text-transparent" : "text-white"}`}>
                   ${tier.price}
                 </div>
                 <div className="text-sm text-white/55">/mo</div>
@@ -342,7 +344,7 @@ function Landing() {
                 to="/auth"
                 className={`block text-center w-full px-4 py-2.5 rounded-lg text-sm font-semibold mb-6 transition-colors ${
                   tier.featured
-                    ? "bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 hover:from-amber-300 hover:to-yellow-400"
+                    ? "bg-gradient-to-r from-white via-[#f7e7b6] to-[#d4af37] text-slate-950 hover:from-[#fffdf7] hover:to-[#c89e2f]"
                     : "border border-white/15 bg-white/5 text-white hover:bg-white/10"
                 }`}
               >
@@ -351,7 +353,7 @@ function Landing() {
               <ul className="space-y-2.5 mt-auto">
                 {tier.features.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-white/85">
-                    <Check className={`h-4 w-4 shrink-0 mt-0.5 ${tier.featured ? "text-amber-300" : "text-emerald-400"}`} />
+                    <Check className={`h-4 w-4 shrink-0 mt-0.5 ${tier.featured ? "text-[#d4af37]" : "text-[#f7e7b6]"}`} />
                     <span>{f}</span>
                   </li>
                 ))}
