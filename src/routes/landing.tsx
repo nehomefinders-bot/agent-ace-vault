@@ -95,7 +95,7 @@ const tiers = [
 
 const features = [
   { icon: Car, title: "Live mileage tracker", body: "Tap start, drive, tap stop. Or punch in two addresses.", glow: "from-white via-[#f7e7b6] to-[#d4af37]" },
-  { icon: BookOpen, title: "Bookeeping", body: "Tracking your business from lead to close. Log expenses across all of your financial accounts, and pull a Schedule C and a profit and loss statement from your own bookkeeping system.", glow: "from-white via-[#efe1bb] to-[#b48a3d]" },
+  { icon: BookOpen, title: "Book Keeping", body: "Tracking your business from lead to close. Log expenses across all of your financial accounts, and pull a Schedule C and a profit and loss statement from your own bookkeeping system.", glow: "from-white via-[#efe1bb] to-[#b48a3d]" },
   { icon: ScanLine, title: "Receipt scanner", body: "Snap, categorize, file. Everything ready come April.", glow: "from-white via-[#f7e6dc] to-[#c07b4a]" },
   { icon: ShieldCheck, title: "Cancel anytime", body: "Credit card is not charged until after the 14-day trial. Cancel anytime.", glow: "from-white via-[#e8f5ee] to-[#4d7c5f]" },
 ];
@@ -150,7 +150,7 @@ function Landing() {
             <Link to="/auth" className="text-sm font-medium px-2.5 sm:px-4 py-2 text-white/80 hover:text-white transition-colors">Sign in</Link>
             <Link
               to="/auth"
-              className="px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-gradient-to-r from-white via-[#f7e7b6] to-[#d4af37] text-slate-950 shadow-[0_8px_24px_-8px_rgba(212,175,55,0.55)] hover:from-[#fffdf7] hover:to-[#c89e2f] transition-colors"
+              className="px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-gradient-to-r from-[#f7e7b6] via-[#e7c86b] to-[#d4af37] text-slate-950 shadow-[0_8px_24px_-8px_rgba(212,175,55,0.55)] hover:from-[#e9d391] hover:to-[#c89e2f] transition-colors"
             >
               Get started
             </Link>
@@ -173,7 +173,7 @@ function Landing() {
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             to="/auth"
-            className="px-7 py-3.5 rounded-lg text-sm font-semibold inline-flex items-center gap-2 bg-gradient-to-r from-white via-[#f7e7b6] to-[#d4af37] text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] hover:from-[#fffdf7] hover:to-[#c89e2f] transition-colors"
+            className="px-7 py-3.5 rounded-lg text-sm font-semibold inline-flex items-center gap-2 bg-gradient-to-r from-[#f7e7b6] via-[#e7c86b] to-[#d4af37] text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] hover:from-[#e9d391] hover:to-[#c89e2f] transition-colors"
           >
             Start your free 14-day trial <ArrowRight className="h-4 w-4" />
           </Link>
@@ -333,7 +333,7 @@ function Landing() {
                 to="/auth"
                 className={`block text-center w-full px-4 py-2.5 rounded-lg text-sm font-semibold mb-6 transition-colors ${
                   tier.featured
-                    ? "bg-gradient-to-r from-white via-[#f7e7b6] to-[#d4af37] text-slate-950 hover:from-[#fffdf7] hover:to-[#c89e2f]"
+                    ? "bg-gradient-to-r from-[#f7e7b6] via-[#e7c86b] to-[#d4af37] text-slate-950 hover:from-[#e9d391] hover:to-[#c89e2f]"
                     : "border border-white/15 bg-white/5 text-white hover:bg-white/10"
                 }`}
               >
