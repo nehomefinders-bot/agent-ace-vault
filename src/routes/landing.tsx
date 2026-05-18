@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, type CSSProperties } from "react";
+import { useEffect } from "react";
 import {
   Check,
   BookOpen,
@@ -100,11 +100,6 @@ const features = [
   { icon: ShieldCheck, title: "Cancel anytime", body: "Credit card is not charged until after the 14-day trial. Cancel anytime.", glow: "from-white via-[#e8f5ee] to-[#4d7c5f]" },
 ];
 
-const landingTypographyStyle: CSSProperties & { "--font-display": string } = {
-  fontFamily: '"Abhaya Libre", serif',
-  "--font-display": '"Abhaya Libre", serif',
-};
-
 function Landing() {
   useEffect(() => {
     const root = document.documentElement;
@@ -118,10 +113,7 @@ function Landing() {
     };
   }, []);
   return (
-    <div
-      className="dark relative min-h-dvh w-full bg-[#050b22] text-white overflow-hidden"
-      style={landingTypographyStyle}
-    >
+    <div className="dark relative min-h-dvh w-full bg-[#050b22] text-white overflow-hidden">
       {/* Fixed luxury home background */}
       <div
         className="fixed inset-0 -z-20 bg-cover bg-center"
