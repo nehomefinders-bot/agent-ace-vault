@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, type CSSProperties } from "react";
 import {
   Check,
   BookOpen,
   Car,
   Receipt,
   ScanLine,
+  ShieldCheck,
   ArrowRight,
   Sparkles,
   TrendingUp,
@@ -93,11 +94,16 @@ const tiers = [
 ];
 
 const features = [
-  { icon: BookOpen, title: "Double-entry books", body: "Real bookkeeping under a friendly UI. Multiple bank accounts and cards.", glow: "from-amber-300 to-yellow-500" },
-  { icon: Car,      title: "Live mileage tracker", body: "Tap start, drive, tap stop. Or punch in two addresses.", glow: "from-sky-300 to-cyan-500" },
-  { icon: Receipt,  title: "Stripe invoicing", body: "Send invoices, get paid, books update automatically.", glow: "from-emerald-300 to-teal-500" },
-  { icon: ScanLine, title: "Receipt capture", body: "Snap, categorize, file. Everything ready come April.", glow: "from-fuchsia-300 to-rose-500" },
+  { icon: Car, title: "Live mileage tracker", body: "Tap start, drive, tap stop. Or punch in two addresses.", glow: "from-sky-300 to-cyan-500" },
+  { icon: BookOpen, title: "Normal bookkeeping", body: "Tracking your business from lead to close. Log expenses across all of your financial accounts, and pull a Schedule C and a profit and loss statement from your own bookkeeping system.", glow: "from-amber-300 to-yellow-500" },
+  { icon: ScanLine, title: "Receipt scanner", body: "Snap, categorize, file. Everything ready come April.", glow: "from-fuchsia-300 to-rose-500" },
+  { icon: ShieldCheck, title: "Cancel anytime", body: "Credit card is not charged until after the 14-day trial. Cancel anytime.", glow: "from-emerald-300 to-teal-500" },
 ];
+
+const landingTypographyStyle: CSSProperties & { "--font-display": string } = {
+  fontFamily: '"Abhaya Libre", serif',
+  "--font-display": '"Abhaya Libre", serif',
+};
 
 function Landing() {
   useEffect(() => {
@@ -112,7 +118,10 @@ function Landing() {
     };
   }, []);
   return (
-    <div className="dark relative min-h-dvh w-full bg-[#050b22] text-white overflow-hidden">
+    <div
+      className="dark relative min-h-dvh w-full bg-[#050b22] text-white overflow-hidden"
+      style={landingTypographyStyle}
+    >
       {/* Fixed luxury home background */}
       <div
         className="fixed inset-0 -z-20 bg-cover bg-center"
@@ -190,7 +199,7 @@ function Landing() {
       </section>
 
       {/* Glassmorphism Features */}
-      <section className="relative max-w-6xl mx-auto px-6 py-16 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      <section className="relative max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         {features.map((f) => (
           <div
             key={f.title}
