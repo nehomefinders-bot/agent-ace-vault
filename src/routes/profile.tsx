@@ -2,33 +2,47 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import {
   Activity,
-  ArrowRightLeft,
   BadgeCheck,
+  BriefcaseBusiness,
   Building2,
   Camera,
+  CarFront,
   Copy,
+  DollarSign,
   Download,
+  ExternalLink,
   Facebook,
-  Instagram,
   ImagePlus,
+  Instagram,
   Loader2,
-  Mail,
   MapPin,
   PencilLine,
-  Phone,
   RefreshCw,
-  Search,
   Save,
+  ShieldCheck,
+  TrendingUp,
+  Wallet,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
 import { formatMoney, formatMoneyCents } from "@/hooks/use-books";
+import { supabase } from "@/integrations/supabase/client";
 import { normalizeStage } from "@/lib/pipeline-stages";
+import { cn } from "@/lib/utils";
 
 const IRS_RATE = 0.67;
 const PROFILE_NAME = "Jackie Connolly";
@@ -45,9 +59,15 @@ const REFERRAL_LINK = `https://endlessprospects.app/r/${REFERRAL_SLUG}`;
 const MLS_SEARCH_LINK = "https://h3i.mlspin.com/signin.asp?lstpgckhd=1#ath";
 const PROFILE_BIO =
   "Jackie is a relationship-first realtor who pairs calm guidance with fast follow-through, helping Massachusetts clients move with clarity and confidence.";
-type SummaryAccent = "cyan" | "emerald" | "violet";
-type MetricTone = "teal" | "blue" | "rose";
-type PillTone = "success" | "info" | "warning" | "muted";
+
+type ProfileTab = "professional" | "ghl" | "contact" | "financials";
+
+type ProfileTabConfig = {
+  value: ProfileTab;
+  label: string;
+  description: string;
+  icon: LucideIcon;
+};
 
 type ProfileRecord = {
   display_name: string | null;
@@ -79,6 +99,33 @@ type ListingRecord = {
   status: string;
 };
 
+const profileTabs: ProfileTabConfig[] = [
+  {
+    value: "professional",
+    label: "Professional Info",
+    description: "Licensing, public-facing profile details, and essential business links.",
+    icon: BriefcaseBusiness,
+  },
+  {
+    value: "ghl",
+    label: "GHL Integration",
+    description: "Connection status, sync health, and GoHighLevel location details.",
+    icon: Activity,
+  },
+  {
+    value: "contact",
+    label: "Contact & Location",
+    description: "Ready-to-share contact details for clients, referrals, and partners.",
+    icon: MapPin,
+  },
+  {
+    value: "financials",
+    label: "Tax & Financials",
+    description: "Commission, mileage, and tax-ready bookkeeping snapshots for the year.",
+    icon: Wallet,
+  },
+];
+
 export const Route = createFileRoute("/profile")({
   component: ProfilePage,
   head: () => ({
@@ -86,7 +133,7 @@ export const Route = createFileRoute("/profile")({
       { title: "Profile - Agent Business Tracker" },
       {
         name: "description",
-        content: "High-density agent profile with licensing, integrations, contact details, and yearly production.",
+        content: "Luxury dark-mode agent profile with licensing, integrations, contact details, and yearly performance.",
       },
     ],
   }),
@@ -113,6 +160,7 @@ function ProfilePage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [refreshSeed, setRefreshSeed] = useState(0);
   const [copiedReferral, setCopiedReferral] = useState(false);
+  const [activeTab, setActiveTab] = useState<ProfileTab>("professional");
 
   useEffect(() => {
     if (!user) {
@@ -212,23 +260,14 @@ function ProfilePage() {
   });
   const closedYtdDeals = ytdDeals.filter((deal) => normalizeStage(deal.status) === "closed");
   const ytdCommission = closedYtdDeals.reduce((sum, deal) => sum + calculateNetCommission(deal), 0);
-
-  const ytdMiles = mileageTrips.filter((trip) => {
-    const dateValue = new Date(trip.date);
-    return Number.isFinite(dateValue.getTime()) && dateValue.getFullYear() === currentYear;
-  }).reduce((sum, trip) => sum + Number(trip.miles), 0);
+  const ytdMiles = mileageTrips
+    .filter((trip) => {
+      const dateValue = new Date(trip.date);
+      return Number.isFinite(dateValue.getTime()) && dateValue.getFullYear() === currentYear;
+    })
+    .reduce((sum, trip) => sum + Number(trip.miles), 0);
   const mileageDeduction = ytdMiles * IRS_RATE;
-
   const leadConversionRate = ytdDeals.length > 0 ? (closedYtdDeals.length / ytdDeals.length) * 100 : 0;
-
-  const transactionClosedCount = deals.filter((deal) => normalizeStage(deal.status) === "closed").length;
-  const transactionTerminatedCount = deals.filter((deal) => normalizeStage(deal.status) === "no_response").length;
-  const transactionActiveCount = Math.max(deals.length - transactionClosedCount - transactionTerminatedCount, 0);
-
-  const listingActiveCount = listings.filter((listing) => listing.status === "Active" || listing.status === "Pending").length;
-  const listingClosedCount = listings.filter((listing) => listing.status === "Sold").length;
-  const listingTerminatedCount = listings.filter((listing) => listing.status === "Not on MLS").length;
-
   const avgSplit =
     deals.length > 0
       ? deals.reduce((sum, deal) => sum + Number(deal.agent_split_pct ?? 0), 0) / deals.length
@@ -237,7 +276,6 @@ function ProfilePage() {
     deals.length > 0
       ? deals.reduce((sum, deal) => sum + Number(deal.referral_pct ?? 0), 0) / deals.length
       : 0;
-
   const syncEnabled = integration?.enabled ?? false;
   const lastSyncLabel = integration?.last_full_sync_at
     ? new Date(integration.last_full_sync_at).toLocaleString(undefined, {
@@ -247,6 +285,8 @@ function ProfilePage() {
         minute: "2-digit",
       })
     : "Never";
+  const activeTabConfig = profileTabs.find((tab) => tab.value === activeTab) ?? profileTabs[0];
+  const avgTakePerClosedDeal = closedYtdDeals.length > 0 ? ytdCommission / closedYtdDeals.length : 0;
 
   async function copyReferralLink() {
     try {
@@ -428,8 +468,8 @@ function ProfilePage() {
   if (authLoading || loading) {
     return (
       <ProfileFrame>
-        <CenteredState title="Loading profile" subtitle="Fetching licensing, integrations, and production data...">
-          <Loader2 className="h-5 w-5 animate-spin text-cyan-300" />
+        <CenteredState title="Loading profile" subtitle="Pulling profile details, YTD performance, and integrations.">
+          <Loader2 className="h-5 w-5 animate-spin text-[#f4d27a]" />
         </CenteredState>
       </ProfileFrame>
     );
@@ -440,14 +480,14 @@ function ProfilePage() {
       <ProfileFrame>
         <CenteredState
           title="Sign in required"
-          subtitle="This profile page is part of the private agent workspace."
+          subtitle="This profile experience lives inside the private agent workspace."
           actions={
-            <Link
-              to="/auth"
-              className="inline-flex items-center justify-center rounded-xl bg-cyan-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+            <Button
+              asChild
+              className="rounded-full border border-[#d4af37]/30 bg-[#d4af37] px-5 text-slate-950 hover:bg-[#e2bf56]"
             >
-              Sign in
-            </Link>
+              <Link to="/auth">Sign in</Link>
+            </Button>
           }
         />
       </ProfileFrame>
@@ -461,81 +501,226 @@ function ProfilePage() {
           title="Profile data could not load"
           subtitle={loadError}
           actions={
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => setRefreshSeed((value) => value + 1)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/15"
+              className="rounded-full border-white/10 bg-white/5 px-5 text-white hover:bg-white/10 hover:text-white"
             >
               <RefreshCw className="h-4 w-4" />
               Retry
-            </button>
+            </Button>
           }
         />
       </ProfileFrame>
     );
   }
 
+  const headerAction =
+    activeTab === "contact" ? (
+      <Button
+        type="button"
+        size="icon"
+        onClick={downloadVCard}
+        aria-label="Download vCard"
+        className="rounded-full border border-[#d4af37]/25 bg-[#d4af37]/12 text-[#f4d27a] hover:bg-[#d4af37]/20"
+      >
+        <Download className="h-4 w-4" />
+      </Button>
+    ) : activeTab === "ghl" ? (
+      <Badge className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-emerald-100">
+        {syncEnabled ? "Sync live" : "Sync paused"}
+      </Badge>
+    ) : activeTab === "financials" ? (
+      <Badge className="rounded-full border border-[#d4af37]/25 bg-[#d4af37]/10 px-3 py-1 text-[#f4d27a]">
+        {currentYear} tax year
+      </Badge>
+    ) : (
+      <Badge className="rounded-full border border-[#d4af37]/25 bg-[#d4af37]/10 px-3 py-1 text-[#f4d27a]">
+        Public profile
+      </Badge>
+    );
+
+  const panelContent = (() => {
+    if (activeTab === "professional") {
+      return (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <SettingField label="MA License Number" value={LICENSE_NUMBER} />
+          <SettingField label="Expiration Date" value={LICENSE_EXPIRATION} />
+          <SettingField
+            label="MLS Website Link"
+            value={MLS_SEARCH_LINK}
+            mono
+            action={
+              <Button
+                asChild
+                variant="outline"
+                className="rounded-full border-[#d4af37]/20 bg-[#d4af37]/10 text-[#f4d27a] hover:bg-[#d4af37]/18 hover:text-[#f8e2a6]"
+              >
+                <a href={MLS_SEARCH_LINK} target="_blank" rel="noreferrer">
+                  <ExternalLink className="h-4 w-4" />
+                  Open
+                </a>
+              </Button>
+            }
+          />
+          <SettingField
+            label="Referral Link"
+            value={REFERRAL_LINK}
+            mono
+            action={
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => void copyReferralLink()}
+                className="rounded-full border-[#d4af37]/20 bg-[#d4af37]/10 text-[#f4d27a] hover:bg-[#d4af37]/18 hover:text-[#f8e2a6]"
+              >
+                {copiedReferral ? <BadgeCheck className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                {copiedReferral ? "Copied" : "Copy"}
+              </Button>
+            }
+          />
+        </div>
+      );
+    }
+
+    if (activeTab === "ghl") {
+      return (
+        <div className="space-y-4">
+          <div className="rounded-[1.75rem] border border-[#d4af37]/20 bg-[linear-gradient(135deg,rgba(212,175,55,0.16),rgba(15,23,42,0.14))] p-5 sm:p-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="space-y-2">
+                <p className="text-[11px] uppercase tracking-[0.28em] text-[#f4d27a]">GoHighLevel Sync</p>
+                <h3 className="text-2xl font-semibold text-white">Connection health at a glance</h3>
+                <p className="max-w-2xl text-sm leading-6 text-slate-300">
+                  Keep this integration visible so lead activity and closed business stay tied back to the profile workflow.
+                </p>
+              </div>
+              <Badge
+                className={cn(
+                  "rounded-full px-3.5 py-1.5 text-sm",
+                  syncEnabled
+                    ? "border border-emerald-400/20 bg-emerald-500/10 text-emerald-100"
+                    : "border border-amber-400/20 bg-amber-500/10 text-amber-100",
+                )}
+              >
+                {syncEnabled ? "Connected" : "Needs setup"}
+              </Badge>
+            </div>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-3">
+            <SettingField label="GHL Location ID" value={integration?.location_id || "Not configured yet"} mono />
+            <SettingField label="Sync Status" value={syncEnabled ? "Realtime sync enabled" : "Sync paused"} />
+            <SettingField label="Last Sync Timestamp" value={lastSyncLabel} />
+          </div>
+        </div>
+      );
+    }
+
+    if (activeTab === "contact") {
+      return (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <SettingField label="Phone" value={PHONE_NUMBER} />
+          <SettingField label="Professional Email" value={PROFESSIONAL_EMAIL} />
+          <SettingField label="Office Address" value={OFFICE_ADDRESS} multiline className="lg:col-span-2" />
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid gap-4 xl:grid-cols-2">
+        <Card className="rounded-[1.75rem] border border-white/10 bg-slate-950/55 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] sm:p-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#d4af37]/25 bg-[#d4af37]/12 text-[#f4d27a]">
+              <TrendingUp className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.24em] text-[#cbb67b]">Commission Snapshot</p>
+              <h3 className="text-lg font-semibold text-white">Closed production</h3>
+            </div>
+          </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <SettingField label="Total YTD Commission" value={formatMoney(ytdCommission)} compact />
+            <SettingField label="Closed Deals" value={`${closedYtdDeals.length}`} compact />
+            <SettingField label="Average Take per Closed Deal" value={formatMoney(avgTakePerClosedDeal)} compact />
+            <SettingField label="Lead Conversion Rate" value={`${leadConversionRate.toFixed(1)}%`} compact />
+            <SettingField label="Average Agent Split" value={`${avgSplit.toFixed(0)}%`} compact />
+            <SettingField label="Average Referral Fee" value={`${avgReferral.toFixed(0)}%`} compact />
+          </div>
+        </Card>
+
+        <Card className="rounded-[1.75rem] border border-white/10 bg-slate-950/55 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] sm:p-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#d4af37]/25 bg-[#d4af37]/12 text-[#f4d27a]">
+              <ShieldCheck className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.24em] text-[#cbb67b]">Tax-Ready Mileage</p>
+              <h3 className="text-lg font-semibold text-white">Bookkeeping support</h3>
+            </div>
+          </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <SettingField label="Total Miles Logged" value={`${ytdMiles.toFixed(1)} mi`} compact />
+            <SettingField label="Mileage Deduction" value={formatMoneyCents(mileageDeduction)} compact />
+            <SettingField label="IRS Mileage Rate" value={`$${IRS_RATE.toFixed(2)} / mi`} compact />
+            <SettingField label="Listings Logged" value={`${listings.length}`} compact />
+          </div>
+        </Card>
+      </div>
+    );
+  })();
+
   return (
     <ProfileFrame>
-      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300/75">Endless Prospects</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">Agent Profile</h1>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <ProfilePill tone="info">
-            <Activity className="h-3.5 w-3.5" />
+      <div className="space-y-6 lg:space-y-8">
+        <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.34em] text-[#cbb67b]">Endless Prospects</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">Agent Profile</h1>
+          </div>
+          <Badge className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-500/10 px-4 py-2 text-emerald-100 shadow-[0_0_22px_rgba(74,222,128,0.16)]">
+            <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
             Active
-          </ProfilePill>
-        </div>
-      </div>
+          </Badge>
+        </header>
 
-      <section className="grid gap-4 xl:grid-cols-[1.05fr_1.15fr_0.95fr]">
-        <Card className={glassCardClass}>
-          <div className="flex h-full flex-col p-5 sm:p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="space-y-1">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Profile Header</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <ProfileIconBadge label="Facebook" icon={<Facebook className="h-4 w-4" />} />
-                <ProfileIconBadge label="Instagram" icon={<Instagram className="h-4 w-4" />} />
-              </div>
+        <section className={cn(glassCardClass, "overflow-hidden")}>
+          <div className="relative">
+            <div className="relative h-56 sm:h-72 lg:h-80">
+              {coverUrl ? (
+                <img src={coverUrl} alt={`${displayName} cover`} className="absolute inset-0 h-full w-full object-cover" />
+              ) : (
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.28),transparent_30%),linear-gradient(135deg,rgba(15,23,42,0.95),rgba(2,6,23,0.88),rgba(23,37,84,0.75))]" />
+              )}
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.15),rgba(2,6,23,0.45),rgba(2,6,23,0.92))]" />
+              <button
+                type="button"
+                onClick={openCoverPicker}
+                disabled={coverBusy}
+                aria-label="Edit cover image"
+                className="absolute inset-0 cursor-pointer transition disabled:cursor-not-allowed"
+              >
+                <span className="absolute right-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/75 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm">
+                  {coverBusy ? <Loader2 className="h-4 w-4 animate-spin text-[#f4d27a]" /> : <ImagePlus className="h-4 w-4 text-[#f4d27a]" />}
+                  Edit cover
+                </span>
+              </button>
+              <input
+                ref={coverInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(event) => void handleCoverChange(event)}
+              />
             </div>
 
-            <div className="mt-5">
-              <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/55 shadow-[0_18px_50px_rgba(0,0,0,0.2)]">
-                <div className="relative h-44 sm:h-52">
-                  {coverUrl ? (
-                    <img src={coverUrl} alt={`${displayName} cover`} className="absolute inset-0 h-full w-full object-cover" />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/25 via-slate-900 to-indigo-500/20" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
-                  <button
-                    type="button"
-                    onClick={openCoverPicker}
-                    disabled={coverBusy}
-                    aria-label="Edit cover image"
-                    className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-slate-950/75 text-white shadow-lg transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    {coverBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImagePlus className="h-3.5 w-3.5" />}
-                  </button>
-                  <input
-                    ref={coverInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(event) => void handleCoverChange(event)}
-                  />
-                </div>
-              </div>
-
-              <div className="relative -mt-16 flex justify-center">
+            <div className="relative px-4 pb-6 sm:px-8 sm:pb-8">
+              <div className="relative -mt-16 flex justify-center sm:-mt-20">
                 <div className="relative">
-                  <Avatar className="h-36 w-36 border border-white/10 bg-slate-900 shadow-[0_20px_60px_rgba(0,0,0,0.35)] ring-4 ring-slate-950 sm:h-44 sm:w-44">
+                  <Avatar className="h-32 w-32 border border-white/10 bg-slate-900 shadow-[0_30px_80px_rgba(2,6,23,0.7)] ring-4 ring-slate-950 sm:h-40 sm:w-40">
                     {avatarUrl ? <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" /> : null}
-                    <AvatarFallback className="bg-gradient-to-br from-cyan-400/35 via-sky-500/35 to-indigo-500/35 text-3xl font-bold text-white">
+                    <AvatarFallback className="bg-[radial-gradient(circle_at_top,rgba(244,210,122,0.55),rgba(120,53,15,0.32),rgba(15,23,42,0.9))] text-3xl font-semibold text-white">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
@@ -544,9 +729,9 @@ function ProfilePage() {
                     onClick={openAvatarPicker}
                     disabled={avatarBusy}
                     aria-label="Edit profile photo"
-                    className="absolute bottom-2 right-2 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-slate-950/90 text-white shadow-lg transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-70"
+                    className="absolute -bottom-1 -right-1 inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#d4af37]/25 bg-slate-950 text-[#f4d27a] shadow-[0_18px_40px_rgba(2,6,23,0.6)] transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-70"
                   >
-                    {avatarBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+                    {avatarBusy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Camera className="h-5 w-5" />}
                   </button>
                   <input
                     ref={avatarInputRef}
@@ -558,368 +743,147 @@ function ProfilePage() {
                 </div>
               </div>
 
-              <div className="mt-5 space-y-2 text-center">
-                <h2 className="text-3xl font-bold tracking-tight text-white sm:text-[2.5rem]">{displayName}</h2>
-                <p className="text-sm font-medium uppercase tracking-[0.22em] text-slate-300">{PROFILE_TITLE}</p>
-                <div className="mx-auto mt-4 w-full max-w-sm rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-left shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
-                  <div className="relative">
+              <div className="mx-auto mt-6 max-w-3xl text-center">
+                <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">{displayName}</h2>
+                <p className="mt-2 text-sm font-medium uppercase tracking-[0.32em] text-[#f4d27a]">{PROFILE_TITLE}</p>
+
+                <div className="mt-4 flex items-center justify-center gap-3">
+                  <ProfileSocialBadge label="Facebook" icon={<Facebook className="h-4 w-4" />} />
+                  <ProfileSocialBadge label="Instagram" icon={<Instagram className="h-4 w-4" />} />
+                </div>
+
+                <div className="mt-8 rounded-[1.75rem] border border-white/10 bg-slate-950/65 p-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] backdrop-blur-md sm:p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.28em] text-[#cbb67b]">Bio / Description</p>
+                    </div>
+
                     {!bioEditing ? (
-                      <button
+                      <Button
                         type="button"
+                        size="icon"
                         onClick={() => {
                           setBioDraft(bioText);
                           setBioEditing(true);
                         }}
                         aria-label="Edit bio"
-                        className="absolute right-0 top-0 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white"
+                        className="rounded-full border border-[#d4af37]/20 bg-[#d4af37]/10 text-[#f4d27a] hover:bg-[#d4af37]/18"
                       >
-                        <PencilLine className="h-3.5 w-3.5" />
-                      </button>
+                        <PencilLine className="h-4 w-4" />
+                      </Button>
                     ) : (
-                      <div className="absolute right-0 top-0 flex items-center gap-1.5">
-                        <button
+                      <div className="flex items-center gap-2">
+                        <Button
                           type="button"
+                          size="icon"
                           onClick={() => void saveBio()}
                           disabled={bioBusy}
                           aria-label="Save bio"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-400 text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-70"
+                          className="rounded-full border border-[#d4af37]/30 bg-[#d4af37] text-slate-950 hover:bg-[#e2bf56]"
                         >
-                          {bioBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                        </button>
-                        <button
+                          {bioBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                        </Button>
+                        <Button
                           type="button"
+                          size="icon"
+                          variant="outline"
                           onClick={cancelBioEdit}
                           disabled={bioBusy}
                           aria-label="Cancel bio edit"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
+                          className="rounded-full border-white/10 bg-white/5 text-white hover:bg-white/10 hover:text-white"
                         >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
+                          <X className="h-4 w-4" />
+                        </Button>
                       </div>
                     )}
-
-                    <div className={bioEditing ? "pr-20" : "pr-12"}>
-                      {bioEditing ? (
-                        <textarea
-                          value={bioDraft}
-                          onChange={(event) => setBioDraft(event.target.value)}
-                          rows={5}
-                          placeholder="Write a short bio about you..."
-                          className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400/40 focus:ring-2 focus:ring-cyan-400/20"
-                        />
-                      ) : (
-                        <p className="whitespace-pre-line text-sm leading-6 text-slate-400">{bioText}</p>
-                      )}
-                    </div>
                   </div>
-                </div>
-              </div>
 
-              <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-                <ProfilePill tone="muted">
-                  <MapPin className="h-3.5 w-3.5" />
-                  Massachusetts
-                </ProfilePill>
-                <button
-                  type="button"
-                  onClick={() => {
-                    window.location.href = MLS_SEARCH_LINK;
-                  }}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200 transition hover:bg-cyan-400/15"
-                  aria-label="Search MLS"
-                >
-                  <Search className="h-3.5 w-3.5" />
-                  Search MLS
-                </button>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        <div className="grid gap-4">
-          <Card className={glassCardClass}>
-            <div className="p-5 sm:p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Professional Credentials</p>
-                  <h2 className="mt-1 text-xl font-bold text-white">Licensing and referral access</h2>
-                </div>
-              </div>
-
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <InfoBlock label="MA License Number" value={LICENSE_NUMBER} />
-                <InfoBlock label="Expiration Date" value={LICENSE_EXPIRATION} />
-                <InfoBlock label="Professional Email" value={PROFESSIONAL_EMAIL} icon={<Mail className="h-3.5 w-3.5" />} />
-                <div className="sm:col-span-2">
-                  <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
-                    <div className="mb-1 text-[11px] uppercase tracking-[0.18em] text-slate-400">Referral Link</div>
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                      <div className="flex-1 overflow-hidden rounded-xl border border-white/10 bg-white/5 px-3 py-2 font-mono text-xs text-slate-200">
-                        {REFERRAL_LINK}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => void copyReferralLink()}
-                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-cyan-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
-                      >
-                        {copiedReferral ? <BadgeCheck className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                        {copiedReferral ? "Copied" : "Copy Referral Link"}
-                      </button>
-                    </div>
+                  <div className="mt-4">
+                    {bioEditing ? (
+                      <Textarea
+                        value={bioDraft}
+                        onChange={(event) => setBioDraft(event.target.value)}
+                        rows={5}
+                        placeholder="Write a short bio about you..."
+                        className="rounded-[1.25rem] border-white/10 bg-slate-900/70 px-4 py-3 text-sm leading-6 text-white placeholder:text-slate-500 focus-visible:border-[#d4af37]/35 focus-visible:ring-[#d4af37]/35"
+                      />
+                    ) : (
+                      <p className="whitespace-pre-line text-base leading-7 text-slate-300">{bioText}</p>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
-          </Card>
-
-          <Card className={glassCardClass}>
-            <div className="p-5 sm:p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Business Integration</p>
-                  <h2 className="mt-1 text-xl font-bold text-white">GoHighLevel sync</h2>
-                </div>
-                <ProfilePill tone={syncEnabled ? "success" : "warning"}>
-                  <Activity className="h-3.5 w-3.5" />
-                  {syncEnabled ? "Realtime" : "Paused"}
-                </ProfilePill>
-              </div>
-
-              <div className="mt-5 grid gap-3 sm:grid-cols-[1.1fr_0.9fr]">
-                <InfoBlock label="GHL Location ID" value={integration?.location_id || "Not configured yet"} mono />
-                <InfoBlock label="Realtime Sync Status" value={syncEnabled ? "Enabled" : "Not active"} />
-              </div>
-              <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/40 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Last full sync</div>
-                    <div className="mt-1 text-sm font-medium text-white">{lastSyncLabel}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Provider</div>
-                    <div className="mt-1 text-sm font-medium text-white">GoHighLevel</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        <div className="grid gap-4">
-          <Card className={glassCardClass}>
-            <div className="p-5 sm:p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Contact & Location</p>
-                  <h2 className="mt-1 text-xl font-bold text-white">Direct contact details</h2>
-                </div>
-                <button
-                  type="button"
-                  onClick={downloadVCard}
-                  aria-label="Download V-Card"
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-100 transition hover:bg-white/10"
-                >
-                  <Download className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="mt-5 space-y-3">
-                <ContactRow icon={<Phone className="h-4 w-4" />} label="Phone" value={PHONE_NUMBER} />
-                <ContactRow icon={<Mail className="h-4 w-4" />} label="Personal Email" value={PERSONAL_EMAIL} />
-                <ContactRow
-                  icon={<MapPin className="h-4 w-4" />}
-                  label="Office Address"
-                  value={OFFICE_ADDRESS}
-                  multiline
-                />
-              </div>
-            </div>
-          </Card>
-
-          <Card className={glassCardClass}>
-            <div className="p-5 sm:p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Performance Metrics</p>
-                  <h2 className="mt-1 text-xl font-bold text-white">Transactions and listings</h2>
-                </div>
-                <ProfilePill tone="info">
-                  <ArrowRightLeft className="h-3.5 w-3.5" />
-                  Portfolio
-                </ProfilePill>
-              </div>
-
-              <div className="mt-5 space-y-4">
-                <MetricRow
-                  title="Transactions"
-                  icon={<ArrowRightLeft className="h-4 w-4" />}
-                  active={transactionActiveCount}
-                  closed={transactionClosedCount}
-                  terminated={transactionTerminatedCount}
-                />
-                <MetricRow
-                  title="Listings"
-                  icon={<Building2 className="h-4 w-4" />}
-                  active={listingActiveCount}
-                  closed={listingClosedCount}
-                  terminated={listingTerminatedCount}
-                />
-              </div>
-            </div>
-          </Card>
-        </div>
-      </section>
-
-      <Tabs defaultValue="overview" className="space-y-5 pt-2">
-        <div className="overflow-x-auto rounded-3xl border border-white/10 bg-white/5 p-1 shadow-2xl shadow-black/20 backdrop-blur-md">
-          <TabsList className="w-max min-w-full justify-start gap-1 bg-transparent p-0">
-            <TabsTrigger className="rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-300 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-none" value="overview">
-              Overview
-            </TabsTrigger>
-            <TabsTrigger className="rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-300 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-none" value="professional">
-              Professional Profile
-            </TabsTrigger>
-            <TabsTrigger className="rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-300 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-none" value="financial">
-              Financial/Tax Settings
-            </TabsTrigger>
-            <TabsTrigger className="rounded-2xl px-4 py-2.5 text-sm font-medium text-slate-300 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-none" value="integrations">
-              App Integrations
-            </TabsTrigger>
-          </TabsList>
-        </div>
-
-        <section className="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-2xl shadow-black/20 backdrop-blur-md sm:p-6">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Yearly Summary</p>
-              <h2 className="mt-1 text-2xl font-bold text-white">{currentYear} YTD</h2>
-            </div>
-          </div>
-          <div className="mt-4 grid gap-4 md:grid-cols-3">
-            <SummaryCard
-              label="Total YTD Commission"
-              value={formatMoney(ytdCommission)}
-              subtext={`${closedYtdDeals.length} closed deals this year`}
-              accent="cyan"
-            />
-            <SummaryCard
-              label="Total Miles Logged"
-              value={`${ytdMiles.toFixed(1)} mi`}
-              subtext={`${formatMoneyCents(mileageDeduction)} IRS deduction value`}
-              accent="emerald"
-            />
-            <SummaryCard
-              label="Lead Conversion Rate"
-              value={`${leadConversionRate.toFixed(1)}%`}
-              subtext={`${closedYtdDeals.length} closed / ${ytdDeals.length} opportunities`}
-              accent="violet"
-            />
           </div>
         </section>
 
-        <TabsContent value="overview" className="mt-0" />
+        <section className={cn(glassCardClass, "px-4 py-4 sm:px-6 sm:py-5")}>
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center">
+            <div className="xl:min-w-[220px]">
+              <p className="text-[11px] uppercase tracking-[0.28em] text-[#cbb67b]">YTD Performance</p>
+              <h3 className="mt-2 text-2xl font-semibold text-white">{currentYear} performance bar</h3>
+            </div>
 
-        <TabsContent value="professional" className="mt-0 space-y-4">
-          <div className="grid gap-4 lg:grid-cols-2">
-            <GlassPanel title="Licensing" icon={<BadgeCheck className="h-4 w-4" />}>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <InfoBlock label="MA License Number" value={LICENSE_NUMBER} />
-                <InfoBlock label="Expiration" value={LICENSE_EXPIRATION} />
-                <InfoBlock label="Professional Email" value={PROFESSIONAL_EMAIL} icon={<Mail className="h-3.5 w-3.5" />} />
-                <InfoBlock label="Office Market" value="Boston, North Shore, Metro West" />
-              </div>
-            </GlassPanel>
-
-            <GlassPanel title="Professional footprint" icon={<MapPin className="h-4 w-4" />}>
-              <div className="space-y-3 text-sm text-slate-300">
-                <DetailLine label="Primary title" value={PROFILE_TITLE} />
-                <DetailLine label="Office" value={OFFICE_ADDRESS} />
-                <DetailLine label="Profile image" value="Photo, camera edit overlay, and premium avatar treatment" />
-              </div>
-            </GlassPanel>
+            <div className="grid flex-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <MetricPill icon={DollarSign} label="Total YTD Commission" value={formatMoney(ytdCommission)} />
+              <MetricPill icon={TrendingUp} label="Deals Closed" value={`${closedYtdDeals.length}`} />
+              <MetricPill icon={Building2} label="Listings Logged" value={`${listings.length}`} />
+              <MetricPill icon={CarFront} label="Total Miles Logged" value={`${ytdMiles.toFixed(1)} mi`} />
+            </div>
           </div>
-        </TabsContent>
+        </section>
 
-        <TabsContent value="financial" className="mt-0 space-y-4">
-          <div className="grid gap-4 lg:grid-cols-2">
-            <GlassPanel title="Commission profile" icon={<Activity className="h-4 w-4" />}>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <InfoBlock label="Average agent split" value={`${avgSplit.toFixed(0)}%`} />
-                <InfoBlock label="Average referral fee" value={`${avgReferral.toFixed(0)}%`} />
-                <InfoBlock label="Closed YTD commission" value={formatMoney(ytdCommission)} />
-                <InfoBlock label="Average take per closed deal" value={formatMoney(closedYtdDeals.length ? ytdCommission / closedYtdDeals.length : 0)} />
-              </div>
-            </GlassPanel>
-
-            <GlassPanel title="Tax-ready mileage" icon={<Building2 className="h-4 w-4" />}>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <InfoBlock label="IRS mileage rate" value={`$${IRS_RATE.toFixed(2)} / mi`} />
-                <InfoBlock label="Miles logged this year" value={`${ytdMiles.toFixed(1)} mi`} />
-                <InfoBlock label="Deduction value" value={formatMoneyCents(mileageDeduction)} />
-                <InfoBlock label="Tax note" value="Keep trip logs synced for deduction support" />
-              </div>
-            </GlassPanel>
+        <section className="grid gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
+          <div className="lg:hidden">
+            <label className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.28em] text-[#cbb67b]">
+              Menu
+            </label>
+            <Select value={activeTab} onValueChange={(value) => setActiveTab(value as ProfileTab)}>
+              <SelectTrigger className="h-12 rounded-[1.25rem] border-white/10 bg-white/5 px-4 text-left text-white shadow-[0_18px_40px_rgba(2,6,23,0.35)] focus:ring-[#d4af37]/35">
+                <SelectValue placeholder="Select a section" />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl border-white/10 bg-slate-950 text-white">
+                {profileTabs.map((tab) => (
+                  <SelectItem key={tab.value} value={tab.value} className="rounded-xl focus:bg-[#d4af37]/10 focus:text-[#f4d27a]">
+                    {tab.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        </TabsContent>
 
-        <TabsContent value="integrations" className="mt-0 space-y-4">
-          <div className="grid gap-4 lg:grid-cols-2">
-            <GlassPanel title="GoHighLevel" icon={<Building2 className="h-4 w-4" />}>
-              <div className="space-y-4">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <InfoBlock label="GHL Location ID" value={integration?.location_id || "Not configured yet"} mono />
-                  <InfoBlock label="Realtime Sync" value={syncEnabled ? "Enabled" : "Paused"} />
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-slate-950/35 p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Last full sync</div>
-                      <div className="mt-1 text-sm font-medium text-white">{lastSyncLabel}</div>
-                    </div>
-                    <ProfilePill tone={syncEnabled ? "success" : "warning"}>
-                      <Activity className="h-3.5 w-3.5" />
-                      {syncEnabled ? "Healthy" : "Needs setup"}
-                    </ProfilePill>
-                  </div>
-                </div>
-              </div>
-            </GlassPanel>
+          <Card className={cn(glassCardClass, "hidden h-fit p-3 lg:block")}>
+            <div className="mb-3 px-2 pt-2">
+              <p className="text-[11px] uppercase tracking-[0.28em] text-[#cbb67b]">Workflow Menu</p>
+            </div>
+            <div className="space-y-2">
+              {profileTabs.map((tab) => (
+                <SettingsNavItem
+                  key={tab.value}
+                  active={tab.value === activeTab}
+                  label={tab.label}
+                  description={tab.description}
+                  icon={tab.icon}
+                  onClick={() => setActiveTab(tab.value)}
+                />
+              ))}
+            </div>
+          </Card>
 
-            <GlassPanel title="Export tools" icon={<Download className="h-4 w-4" />}>
-              <div className="space-y-4">
-                <div className="rounded-2xl border border-white/10 bg-slate-950/35 p-4">
-                  <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Referral handoff</div>
-                  <div className="mt-1 font-mono text-xs text-slate-200">{REFERRAL_LINK}</div>
-                  <button
-                    type="button"
-                    onClick={() => void copyReferralLink()}
-                    className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-cyan-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
-                  >
-                    {copiedReferral ? <BadgeCheck className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    {copiedReferral ? "Copied" : "Copy Referral Link"}
-                  </button>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-slate-950/35 p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <div className="text-xs uppercase tracking-[0.18em] text-slate-400">V-Card</div>
-                      <div className="mt-1 text-sm font-medium text-white">Download contact card for iPhone, Outlook, or Google Contacts</div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={downloadVCard}
-                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                    >
-                      <Download className="h-4 w-4" />
-                      Download
-                    </button>
-                  </div>
-                </div>
+          <Card className={cn(glassCardClass, "p-5 sm:p-6 lg:p-7")}>
+            <div className="flex flex-col gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.28em] text-[#cbb67b]">Structured Settings</p>
+                <h2 className="mt-2 text-2xl font-semibold text-white">{activeTabConfig.label}</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">{activeTabConfig.description}</p>
               </div>
-            </GlassPanel>
-          </div>
-        </TabsContent>
-      </Tabs>
+              <div className="shrink-0">{headerAction}</div>
+            </div>
+
+            <div className="mt-6">{panelContent}</div>
+          </Card>
+        </section>
+      </div>
     </ProfileFrame>
   );
 }
@@ -971,17 +935,18 @@ function ProfileFrame({ children }: { children: ReactNode }) {
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-50">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-[-8rem] top-[-8rem] h-96 w-96 rounded-full bg-cyan-500/12 blur-3xl" />
-        <div className="absolute right-[-5rem] top-24 h-[28rem] w-[28rem] rounded-full bg-sky-500/10 blur-3xl" />
+        <div className="absolute left-[-12rem] top-[-8rem] h-[28rem] w-[28rem] rounded-full bg-[#d4af37]/14 blur-3xl" />
+        <div className="absolute right-[-10rem] top-20 h-[30rem] w-[30rem] rounded-full bg-amber-700/12 blur-3xl" />
+        <div className="absolute bottom-[-10rem] left-1/2 h-[26rem] w-[26rem] -translate-x-1/2 rounded-full bg-blue-900/18 blur-3xl" />
         <div
           className="absolute inset-0"
           style={{
             backgroundImage:
-              "radial-gradient(circle at top, rgba(34,211,238,0.12), transparent 30%), radial-gradient(circle at bottom right, rgba(56,189,248,0.09), transparent 32%), linear-gradient(180deg, rgba(2,6,23,0.98), rgba(2,6,23,0.92))",
+              "radial-gradient(circle at top, rgba(212,175,55,0.16), transparent 28%), radial-gradient(circle at bottom right, rgba(59,130,246,0.08), transparent 30%), linear-gradient(180deg, rgba(2,6,23,0.98), rgba(2,6,23,0.94))",
           }}
         />
       </div>
-      <div className="relative mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</div>
+      <div className="relative mx-auto max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</div>
     </div>
   );
 }
@@ -999,11 +964,11 @@ function CenteredState({
 }) {
   return (
     <div className="flex min-h-[60dvh] items-center justify-center">
-      <div className="w-full max-w-xl rounded-3xl border border-white/10 bg-white/5 p-6 text-center shadow-2xl shadow-black/20 backdrop-blur-md">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/10">
-          {children ?? <Loader2 className="h-5 w-5 animate-spin text-cyan-300" />}
+      <div className="w-full max-w-xl rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 text-center shadow-[0_24px_80px_rgba(2,6,23,0.6)] backdrop-blur-xl">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#d4af37]/20 bg-[#d4af37]/10">
+          {children ?? <Loader2 className="h-5 w-5 animate-spin text-[#f4d27a]" />}
         </div>
-        <h2 className="mt-5 text-2xl font-bold tracking-tight text-white">{title}</h2>
+        <h2 className="mt-5 text-2xl font-semibold tracking-tight text-white">{title}</h2>
         <p className="mt-2 text-sm leading-6 text-slate-300">{subtitle}</p>
         {actions && <div className="mt-5 flex justify-center">{actions}</div>}
       </div>
@@ -1011,191 +976,10 @@ function CenteredState({
   );
 }
 
-function GlassPanel({
-  title,
-  icon,
-  children,
-}: {
-  title: string;
-  icon: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <Card className={`${glassCardClass} p-5 sm:p-6`}>
-      <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-cyan-200">
-          {icon}
-        </div>
-        <h3 className="text-lg font-bold text-white">{title}</h3>
-      </div>
-      <div className="mt-5">{children}</div>
-    </Card>
-  );
-}
-
-function SummaryCard({
-  label,
-  value,
-  subtext,
-  accent,
-}: {
-  label: string;
-  value: string;
-  subtext: string;
-  accent: SummaryAccent;
-}) {
-  const styles: Record<SummaryAccent, string> = {
-    cyan: "from-cyan-400/15 via-cyan-400/10 to-transparent text-cyan-200",
-    emerald: "from-emerald-400/15 via-emerald-400/10 to-transparent text-emerald-200",
-    violet: "from-violet-400/15 via-violet-400/10 to-transparent text-violet-200",
-  };
-
-  return (
-    <Card className={`${glassCardClass} bg-gradient-to-br ${styles[accent]} p-5 sm:p-6`}>
-      <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">{label}</div>
-      <div className="mt-3 text-3xl font-bold tracking-tight text-white tabular-nums sm:text-[2.15rem]">{value}</div>
-      <p className="mt-2 text-sm text-slate-300">{subtext}</p>
-    </Card>
-  );
-}
-
-function MetricRow({
-  title,
-  icon,
-  active,
-  closed,
-  terminated,
-}: {
-  title: string;
-  icon: ReactNode;
-  active: number;
-  closed: number;
-  terminated: number;
-}) {
-  return (
-    <div className="rounded-3xl border border-white/10 bg-slate-950/35 p-4">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm font-semibold text-white">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-cyan-200">
-            {icon}
-          </div>
-          {title}
-        </div>
-      </div>
-      <div className="mt-3 grid grid-cols-3 gap-2">
-        <MiniMetric tone="teal" label="Active" value={active} />
-        <MiniMetric tone="blue" label="Closed" value={closed} />
-        <MiniMetric tone="rose" label="Terminated" value={terminated} />
-      </div>
-    </div>
-  );
-}
-
-function MiniMetric({
-  tone,
-  label,
-  value,
-}: {
-  tone: MetricTone;
-  label: string;
-  value: number;
-}) {
-  const tones: Record<MetricTone, string> = {
-    teal: "border-teal-400/20 bg-teal-400/10 text-teal-100",
-    blue: "border-sky-400/20 bg-sky-400/10 text-sky-100",
-    rose: "border-rose-400/20 bg-rose-400/10 text-rose-100",
-  };
-
-  return (
-    <div className={`rounded-2xl border px-3 py-3 ${tones[tone]}`}>
-      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-current/80">{label}</div>
-      <div className="mt-1 text-2xl font-bold tracking-tight tabular-nums text-white">{value}</div>
-    </div>
-  );
-}
-
-function InfoBlock({
-  label,
-  value,
-  icon,
-  mono = false,
-}: {
-  label: string;
-  value: string;
-  icon?: ReactNode;
-  mono?: boolean;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
-      <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-slate-400">
-        {icon}
-        <span>{label}</span>
-      </div>
-      <div className={`mt-2 break-words text-sm font-medium text-white ${mono ? "font-mono text-xs" : ""}`}>{value}</div>
-    </div>
-  );
-}
-
-function ContactRow({
-  icon,
-  label,
-  value,
-  multiline = false,
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-  multiline?: boolean;
-}) {
-  return (
-    <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-slate-950/40 p-4">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-cyan-200">
-        {icon}
-      </div>
-      <div className="min-w-0">
-        <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">{label}</div>
-        <div className={`mt-1 text-sm font-medium text-white ${multiline ? "whitespace-pre-line leading-6" : "break-words"}`}>
-          {value}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DetailLine({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-start justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3">
-      <span className="text-xs uppercase tracking-[0.18em] text-slate-400">{label}</span>
-      <span className="max-w-[60%] break-words text-right text-sm font-medium text-white">{value}</span>
-    </div>
-  );
-}
-
-function ProfilePill({
-  children,
-  tone,
-}: {
-  children: ReactNode;
-  tone: PillTone;
-}) {
-  const tones: Record<PillTone, string> = {
-    success: "border-emerald-400/20 bg-emerald-400/10 text-emerald-200",
-    info: "border-cyan-400/20 bg-cyan-400/10 text-cyan-200",
-    warning: "border-amber-400/20 bg-amber-400/10 text-amber-200",
-    muted: "border-white/10 bg-white/5 text-slate-200",
-  };
-
-  return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${tones[tone]}`}>
-      {children}
-    </span>
-  );
-}
-
-function ProfileIconBadge({ label, icon }: { label: string; icon: ReactNode }) {
+function ProfileSocialBadge({ label, icon }: { label: string; icon: ReactNode }) {
   return (
     <div
-      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-100"
+      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[#f4d27a] shadow-[0_10px_30px_rgba(2,6,23,0.25)]"
       title={label}
       aria-label={label}
     >
@@ -1204,4 +988,117 @@ function ProfileIconBadge({ label, icon }: { label: string; icon: ReactNode }) {
   );
 }
 
-const glassCardClass = "rounded-3xl border border-white/10 bg-white/5 shadow-2xl shadow-black/20 backdrop-blur-md";
+function MetricPill({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/60 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+      <div className="flex items-start gap-3">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#d4af37]/25 bg-[#d4af37]/12 text-[#f4d27a]">
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-[#cbb67b]">{label}</p>
+          <p className="mt-2 text-2xl font-semibold tracking-tight text-white">{value}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SettingsNavItem({
+  active,
+  label,
+  description,
+  icon: Icon,
+  onClick,
+}: {
+  active: boolean;
+  label: string;
+  description: string;
+  icon: LucideIcon;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "w-full rounded-[1.5rem] border px-4 py-4 text-left transition",
+        active
+          ? "border-[#d4af37]/25 bg-[#d4af37]/12 shadow-[0_18px_40px_rgba(212,175,55,0.08)]"
+          : "border-white/8 bg-white/[0.03] hover:border-white/15 hover:bg-white/[0.05]",
+      )}
+    >
+      <div className="flex items-start gap-3">
+        <div
+          className={cn(
+            "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border",
+            active
+              ? "border-[#d4af37]/25 bg-[#d4af37]/14 text-[#f4d27a]"
+              : "border-white/10 bg-white/5 text-slate-300",
+          )}
+        >
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="min-w-0">
+          <div className={cn("text-base font-semibold", active ? "text-white" : "text-slate-100")}>{label}</div>
+          <div className="mt-1 text-sm leading-6 text-slate-400">{description}</div>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function SettingField({
+  label,
+  value,
+  action,
+  mono = false,
+  multiline = false,
+  compact = false,
+  className,
+}: {
+  label: string;
+  value: string;
+  action?: ReactNode;
+  mono?: boolean;
+  multiline?: boolean;
+  compact?: boolean;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-[1.5rem] border border-white/10 bg-slate-950/55 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]",
+        className,
+      )}
+    >
+      <div className={cn("flex gap-3", compact ? "flex-col" : "flex-col sm:flex-row sm:items-start sm:justify-between")}>
+        <div className="min-w-0">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-[#cbb67b]">{label}</p>
+          <div
+            className={cn(
+              "mt-2 break-words text-white",
+              compact ? "text-lg font-semibold" : "text-base font-medium sm:text-lg",
+              mono ? "font-mono text-xs sm:text-sm" : "",
+              multiline ? "whitespace-pre-line leading-7" : "",
+            )}
+          >
+            {value}
+          </div>
+        </div>
+        {action ? <div className="shrink-0">{action}</div> : null}
+      </div>
+    </div>
+  );
+}
+
+const glassCardClass =
+  "rounded-[2rem] border border-white/10 bg-white/[0.06] shadow-[0_24px_80px_rgba(2,6,23,0.6)] backdrop-blur-xl";
