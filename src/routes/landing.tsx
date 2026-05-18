@@ -163,14 +163,14 @@ function Landing() {
           <Sparkles className="h-3 w-3" /> Built for real estate agents
         </div>
         <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight max-w-4xl mx-auto leading-[1.02] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]">
-          QuickBooks built for the way{" "}
+          Your Real Estate Business at a Glance{" "}
           <span className="bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
-            agents actually work
+            all in one place
           </span>
           .
         </h1>
         <p className="text-lg md:text-xl text-white/75 mt-8 max-w-2xl mx-auto leading-relaxed">
-          Track commissions, write off every mile, log expenses across all your cards, and hand your CPA a tax-ready Schedule C — without the QuickBooks learning curve.
+          Clients, Deals, Trackable milage, commission statements, Listings, Leads, and Book Keeping for end of the day reports all in one spot.
         </p>
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
