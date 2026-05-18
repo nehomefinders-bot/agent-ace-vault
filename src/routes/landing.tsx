@@ -95,9 +95,9 @@ const tiers = [
 
 const features = [
   { icon: Car, title: "Live mileage tracker", body: "Tap start, drive, tap stop. Or punch in two addresses.", glow: "from-white via-[#f7e7b6] to-[#d4af37]" },
-  { icon: BookOpen, title: "Normal bookkeeping", body: "Tracking your business from lead to close. Log expenses across all of your financial accounts, and pull a Schedule C and a profit and loss statement from your own bookkeeping system.", glow: "from-white via-[#f7e7b6] to-[#d4af37]" },
-  { icon: ScanLine, title: "Receipt scanner", body: "Snap, categorize, file. Everything ready come April.", glow: "from-white via-[#f7e7b6] to-[#d4af37]" },
-  { icon: ShieldCheck, title: "Cancel anytime", body: "Credit card is not charged until after the 14-day trial. Cancel anytime.", glow: "from-white via-[#f7e7b6] to-[#d4af37]" },
+  { icon: BookOpen, title: "Bookeeping", body: "Tracking your business from lead to close. Log expenses across all of your financial accounts, and pull a Schedule C and a profit and loss statement from your own bookkeeping system.", glow: "from-white via-[#efe1bb] to-[#b48a3d]" },
+  { icon: ScanLine, title: "Receipt scanner", body: "Snap, categorize, file. Everything ready come April.", glow: "from-white via-[#f7e6dc] to-[#c07b4a]" },
+  { icon: ShieldCheck, title: "Cancel anytime", body: "Credit card is not charged until after the 14-day trial. Cancel anytime.", glow: "from-white via-[#e8f5ee] to-[#4d7c5f]" },
 ];
 
 const landingTypographyStyle: CSSProperties & { "--font-display": string } = {
@@ -236,7 +236,7 @@ function Landing() {
               <span className="h-3 w-3 rounded-full bg-red-400/80" />
               <span className="h-3 w-3 rounded-full bg-[#d4af37]/80" />
               <span className="h-3 w-3 rounded-full bg-green-400/80" />
-              <div className="ml-4 text-xs text-white/50 font-mono">endlessprospects.app/dashboard</div>
+              <div className="ml-4 text-xs text-white/50 font-display">endlessprospects.app/dashboard</div>
             </div>
             {/* Dashboard body */}
             <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-3 gap-4">
