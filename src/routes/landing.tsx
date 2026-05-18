@@ -172,11 +172,8 @@ function Landing() {
           <Sparkles className="h-3 w-3" /> Built for real estate agents
         </div>
         <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight max-w-4xl mx-auto leading-[1.02] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]">
-          Your Real Estate Business at a Glance{" "}
-          <span className="bg-gradient-to-r from-white via-[#f7e7b6] to-[#d4af37] bg-clip-text text-transparent">
-            all in one place
-          </span>
-          .
+          <span className="text-white">Your Real Estate Business at a Glance</span>{" "}
+          <span className="text-[#d4af37]">all in one place.</span>
         </h1>
         <p className="text-lg md:text-xl text-white/75 mt-8 max-w-2xl mx-auto leading-relaxed">
           Clients, Deals, Trackable milage, commission statements, Listings, Leads, and Book Keeping for end of the day reports all in one spot.
