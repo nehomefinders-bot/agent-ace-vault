@@ -15,7 +15,7 @@ import {
   PieChart,
 } from "lucide-react";
 import endlessProspectsLogo from "@/assets/endless-prospects-logo.png";
-import maHomeBg from "@/assets/landing-hero-bg.png";
+import maColonialHeroBg from "@/assets/ma-colonial-hero-bg.png";
 
 export const Route = createFileRoute("/landing")({
   component: Landing,
@@ -115,25 +115,6 @@ function Landing() {
   }, []);
   return (
     <div className="dark relative min-h-dvh w-full bg-[#050b22] text-white overflow-hidden">
-      {/* Fixed luxury home background */}
-      <div
-        className="fixed inset-0 -z-20 bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${maHomeBg})`,
-          backgroundAttachment: "fixed",
-        }}
-        aria-hidden
-      />
-      {/* Subtle bottom gradient + light top scrim for text legibility */}
-      <div
-        className="fixed inset-0 -z-10"
-        style={{
-          background:
-            "linear-gradient(to bottom, rgba(3,7,20,0.55) 0%, rgba(3,7,20,0.35) 30%, rgba(3,7,20,0.65) 70%, rgba(2,4,12,0.95) 100%)",
-        }}
-        aria-hidden
-      />
-
       <header className="relative border-b border-white/10 backdrop-blur-md bg-black/20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
           <Link to="/landing" className="flex items-center gap-2 sm:gap-2.5 min-w-0">
@@ -160,7 +141,24 @@ function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="relative max-w-6xl mx-auto px-6 pt-24 sm:pt-32 pb-20 text-center">
+      <section className="relative overflow-hidden bg-[#050b22]">
+        <div
+          className="absolute inset-0 -z-20 bg-cover bg-center opacity-[0.15]"
+          style={{
+            backgroundImage: `url(${maColonialHeroBg})`,
+            filter: "grayscale(80%)",
+          }}
+          aria-hidden
+        />
+        <div
+          className="absolute inset-0 -z-10"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 15, 45, 0.85) 50%, rgba(0, 0, 0, 0.98) 100%)",
+          }}
+          aria-hidden
+        />
+        <div className="relative max-w-6xl mx-auto px-6 pt-24 sm:pt-32 pb-20 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 backdrop-blur-md border border-white/15 text-xs font-medium mb-8 text-[#d4af37]">
           <Sparkles className="h-3 w-3" /> Built for real estate agents
         </div>
@@ -186,6 +184,7 @@ function Landing() {
           </Link>
         </div>
         <p className="text-xs text-white/55 mt-5">No credit card required · Cancel anytime</p>
+        </div>
       </section>
 
       {/* Glassmorphism Features */}
