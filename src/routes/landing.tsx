@@ -141,9 +141,9 @@ function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-[#050b22]">
+      <section className="relative isolate overflow-hidden bg-[#050b22]">
         <div
-          className="absolute inset-0 -z-20 bg-cover bg-center opacity-[0.15]"
+          className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center opacity-[0.15]"
           style={{
             backgroundImage: `url(${maColonialHeroBg})`,
             filter: "grayscale(80%)",
@@ -151,15 +151,15 @@ function Landing() {
           aria-hidden
         />
         <div
-          className="absolute inset-0 -z-10"
+          className="pointer-events-none absolute inset-0 z-0"
           style={{
             background:
               "linear-gradient(180deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 15, 45, 0.85) 50%, rgba(0, 0, 0, 0.98) 100%)",
           }}
           aria-hidden
         />
-        <div className="relative max-w-6xl mx-auto px-6 pt-24 sm:pt-32 pb-20 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 backdrop-blur-md border border-white/15 text-xs font-medium mb-8 text-[#d4af37]">
+        <div className="relative z-10 max-w-6xl mx-auto px-6 pt-24 sm:pt-32 pb-20 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 backdrop-blur-md border border-white/15 text-xs font-medium mb-8 text-[#d4af37]">
           <Sparkles className="h-3 w-3" /> Built for real estate agents
         </div>
         <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight max-w-4xl mx-auto leading-[1.02] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]">
