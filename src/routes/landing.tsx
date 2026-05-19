@@ -154,7 +154,7 @@ function Landing() {
           className="pointer-events-none absolute inset-0 z-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 15, 45, 0.85) 50%, rgba(0, 0, 0, 0.98) 100%)",
+              "linear-gradient(180deg, rgba(0, 0, 0, 0.82) 0%, rgba(0, 15, 45, 0.62) 50%, rgba(0, 0, 0, 0.9) 100%)",
           }}
           aria-hidden
         />
@@ -183,7 +183,7 @@ function Landing() {
             See live demo
           </Link>
         </div>
-        <p className="text-xs text-white/55 mt-5">No credit card required · Cancel anytime</p>
+        <p className="text-xs text-white/55 mt-5">No charge until day 15 &bull; Cancel anytime</p>
         </div>
       </section>
 
