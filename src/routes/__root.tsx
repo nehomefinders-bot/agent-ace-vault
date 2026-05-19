@@ -2,6 +2,7 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts, useRouterState } f
 import { useEffect } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { PaywallGate } from "@/components/paywall-gate";
+import { SupportFab } from "@/components/support-fab";
 import { applyTheme, createThemeSync, getStoredTheme, getThemeBootstrapScript } from "@/lib/theme";
 import { installServerFnAuth } from "@/integrations/supabase/server-fn-auth";
 import appCss from "../styles.css?url";
@@ -77,6 +78,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const bare = path === "/auth" || path === "/landing";
+  const showSupportFab = !bare;
   return (
     <>
       <ThemeBridge />
@@ -96,6 +98,7 @@ function RootComponent() {
           </main>
         </div>
       )}
+      {showSupportFab ? <SupportFab /> : null}
     </>
   );
 }
