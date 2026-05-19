@@ -280,4 +280,38 @@
   .row-hover-blue:hover {
     background-color: color-mix(in oklab, var(--color-primary) 8%, transparent);
   }
+
+  .tracker-scale :where(.text-xs) {
+    font-size: 0.82rem;
+    line-height: 1.25rem;
+  }
+  .tracker-scale :where(.text-sm) {
+    font-size: 0.96rem;
+    line-height: 1.45rem;
+  }
+  .tracker-scale :where(.text-base) {
+    font-size: 1.06rem;
+    line-height: 1.6rem;
+  }
+  .tracker-scale :where(.text-lg) {
+    font-size: 1.16rem;
+    line-height: 1.7rem;
+  }
+  .tracker-scale :where(.text-xl) {
+    font-size: 1.34rem;
+    line-height: 1.85rem;
+  }
+  .tracker-scale :where(.text-2xl) {
+    font-size: 1.7rem;
+    line-height: 2.1rem;
+  }
+  .tracker-scale :where(.text-3xl) {
+    font-size: 2.05rem;
+    line-height: 2.35rem;
+  }
+  .tracker-scale .input,
+  .tracker-scale .btn-primary,
+  .tracker-scale .btn-secondary {
+    font-size: 0.96rem;
+  }
 }

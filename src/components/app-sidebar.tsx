@@ -18,7 +18,7 @@ const sections = [
       { to: "/pipeline", label: "Pipeline", icon: TrendingUp },
       { to: "/deals", label: "Deals & Commissions", icon: Calculator },
       { to: "/listings", label: "Listings", icon: Home },
-      { to: "/clients", label: "Clients", icon: Users },
+      { to: "/clients", label: "Directory", icon: Users },
       { to: "/tasks", label: "Tasks", icon: ListTodo },
       { to: "/documents", label: "Documents", icon: FolderOpen },
     ],
@@ -92,8 +92,8 @@ export function AppSidebar() {
             />
           </div>
           <div>
-            <div className="font-display font-bold text-sm leading-none">Agent</div>
-            <div className="text-[10px] uppercase tracking-wider text-sidebar-foreground/75 mt-1">Business Tracker</div>
+            <div className="font-display font-bold text-base leading-none">Agent</div>
+            <div className="mt-1 text-xs uppercase tracking-wider text-sidebar-foreground/75">Business Tracker</div>
           </div>
         </div>
         <button
@@ -109,7 +109,7 @@ export function AppSidebar() {
       <nav className="flex-1 min-h-0 px-2.5 space-y-4 overflow-y-auto overscroll-contain">
         {sections.map((section) => (
           <div key={section.label}>
-            <div className="px-2.5 mb-1.5 text-[10px] uppercase tracking-[0.14em] text-sidebar-foreground/70 font-medium">
+            <div className="mb-1.5 px-2.5 text-xs font-medium uppercase tracking-[0.14em] text-sidebar-foreground/70">
               {section.label}
             </div>
             <div className="space-y-0.5">
@@ -119,7 +119,7 @@ export function AppSidebar() {
                   <Link
                     key={to}
                     to={to}
-                    className={`group flex items-center gap-2.5 px-2.5 py-3 lg:py-2 rounded-lg text-sm transition-colors min-h-11 ${
+                    className={`group flex min-h-11 items-center gap-2.5 rounded-lg px-2.5 py-3 text-base transition-colors lg:py-2 ${
                       active
                         ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
                         : "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -137,18 +137,18 @@ export function AppSidebar() {
 
       <div className="m-3 p-4 rounded-xl bg-sidebar-accent/60 border border-sidebar-border space-y-3 shrink-0">
         <div>
-          <div className="text-xs uppercase tracking-wider text-sidebar-foreground/75 mb-1">Plan</div>
-          <div className="text-sm font-medium text-sidebar-foreground">{planLabel}</div>
+          <div className="mb-1 text-xs uppercase tracking-wider text-sidebar-foreground/75">Plan</div>
+          <div className="text-base font-medium text-sidebar-foreground">{planLabel}</div>
         </div>
         {user ? (
           <div className="pt-2 border-t border-sidebar-border">
-            <div className="text-xs leading-4 text-sidebar-foreground/75 break-all mb-2">{user.email}</div>
+            <div className="mb-2 break-all text-sm leading-5 text-sidebar-foreground/75">{user.email}</div>
             <button
               onClick={async () => {
                 await signOut();
                 nav({ to: "/landing" });
               }}
-              className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 min-h-11 rounded-lg text-xs font-medium border border-sidebar-border hover:bg-sidebar-accent"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-sidebar-border px-3 py-2.5 text-sm font-medium hover:bg-sidebar-accent"
             >
               <LogOut className="h-3.5 w-3.5" /> Sign out
             </button>
@@ -156,7 +156,7 @@ export function AppSidebar() {
         ) : (
           <Link
             to="/auth"
-            className="w-full inline-flex items-center justify-center gap-2 px-3 py-2.5 min-h-11 rounded-lg text-xs font-medium bg-sidebar-primary text-sidebar-primary-foreground"
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-sidebar-primary px-3 py-2.5 text-sm font-medium text-sidebar-primary-foreground"
           >
             <LogIn className="h-3.5 w-3.5" /> Sign in
           </Link>
@@ -186,7 +186,7 @@ export function AppSidebar() {
               className="h-full w-full object-cover"
             />
           </div>
-          <span className="font-display font-bold text-sm">Agent</span>
+          <span className="font-display font-bold text-base">Agent</span>
         </div>
         <Link
           to="/"

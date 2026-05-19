@@ -87,7 +87,7 @@ function RootComponent() {
           <Outlet />
         </div>
       ) : (
-        <div className="flex min-h-dvh w-full flex-col lg:flex-row bg-background">
+        <div className="tracker-scale flex min-h-dvh w-full flex-col bg-background lg:flex-row">
           <AppSidebar />
           <main className="app-content-backdrop relative isolate flex-1 min-w-0 w-full overflow-x-hidden">
             <div className="relative z-10">
