@@ -143,7 +143,7 @@ function Landing() {
       {/* Hero */}
       <section className="relative isolate overflow-hidden bg-[#050b22]">
         <div
-          className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center opacity-[0.15]"
+          className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center opacity-[0.24]"
           style={{
             backgroundImage: `url(${maColonialHeroBg})`,
             filter: "grayscale(80%)",
