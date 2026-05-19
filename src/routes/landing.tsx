@@ -124,15 +124,15 @@ function Landing() {
               className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-cover shrink-0 ring-1 ring-white/20"
             />
             <div className="min-w-0">
-              <div className="font-display font-bold text-sm sm:text-base leading-none truncate text-white">Endless Prospects</div>
-              <div className="text-[10px] uppercase tracking-[0.2em] text-[#d4af37] opacity-80 mt-1 hidden sm:block">Business Tracker</div>
+              <div className="font-display font-bold text-base sm:text-lg leading-none truncate text-white">Endless Prospects</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-[#d4af37] opacity-80 mt-1 hidden sm:block">Business Tracker</div>
             </div>
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <Link to="/auth" className="text-sm font-medium px-2.5 sm:px-4 py-2 text-white/80 hover:text-white transition-colors">Sign in</Link>
+            <Link to="/auth" className="text-base font-medium px-2.5 sm:px-4 py-2 text-white/80 hover:text-white transition-colors">Sign in</Link>
             <Link
               to="/auth"
-              className="px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-[#d4af37] text-slate-950 shadow-[0_8px_24px_-8px_rgba(212,175,55,0.55)] hover:bg-[#c89e2f] transition-colors"
+              className="px-3 sm:px-4 py-2 rounded-lg text-base font-semibold whitespace-nowrap bg-[#d4af37] text-slate-950 shadow-[0_8px_24px_-8px_rgba(212,175,55,0.55)] hover:bg-[#c89e2f] transition-colors"
             >
               Get started
             </Link>
@@ -159,31 +159,31 @@ function Landing() {
           aria-hidden
         />
         <div className="relative z-10 max-w-6xl mx-auto px-6 pt-24 sm:pt-32 pb-20 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 backdrop-blur-md border border-white/15 text-xs font-medium mb-8 text-[#d4af37]">
-          <Sparkles className="h-3 w-3" /> Built for real estate agents
-        </div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 backdrop-blur-md border border-white/15 text-sm font-medium mb-8 text-[#d4af37]">
+            <Sparkles className="h-3 w-3" /> Built for real estate agents
+          </div>
         <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight max-w-4xl mx-auto leading-[1.02] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]">
           <span className="text-white">Your Real Estate Business at a Glance</span>{" "}
           <span className="text-[#d4af37]">all in one place.</span>
         </h1>
-        <p className="text-lg md:text-xl text-white/75 mt-8 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-xl md:text-2xl text-white/75 mt-8 max-w-3xl mx-auto leading-relaxed">
           Clients, Deals, Trackable milage, commission statements, Listings, Leads, and Book Keeping for end of the day reports all in one spot.
         </p>
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             to="/auth"
-            className="px-7 py-3.5 rounded-lg text-sm font-semibold inline-flex items-center gap-2 bg-[#d4af37] text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] hover:bg-[#c89e2f] transition-colors"
+            className="px-7 py-3.5 rounded-lg text-base font-semibold inline-flex items-center gap-2 bg-[#d4af37] text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] hover:bg-[#c89e2f] transition-colors"
           >
             Start your free 14-day trial <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
             to="/"
-            className="px-7 py-3.5 rounded-lg text-sm font-semibold border border-white/20 bg-white/5 backdrop-blur-md text-white hover:bg-white/10 transition-colors"
+            className="px-7 py-3.5 rounded-lg text-base font-semibold border border-white/20 bg-white/5 backdrop-blur-md text-white hover:bg-white/10 transition-colors"
           >
             See live demo
           </Link>
         </div>
-        <p className="text-xs text-white/55 mt-5">No charge until day 15 &bull; Cancel anytime</p>
+        <p className="text-sm text-white/55 mt-5">No charge until day 15 &bull; Cancel anytime</p>
         </div>
       </section>
 
@@ -198,8 +198,8 @@ function Landing() {
             <div className={`h-11 w-11 rounded-xl bg-gradient-to-br ${f.glow} flex items-center justify-center mb-4 shadow-[0_8px_24px_-4px_rgba(0,0,0,0.5)]`}>
               <f.icon className="h-5 w-5 text-slate-950" strokeWidth={2.5} />
             </div>
-            <div className="font-display font-bold mb-1.5 text-white">{f.title}</div>
-            <div className="text-sm text-white/65 leading-relaxed">{f.body}</div>
+            <div className="font-display font-bold text-lg mb-1.5 text-white">{f.title}</div>
+            <div className="text-base text-white/65 leading-relaxed">{f.body}</div>
           </div>
         ))}
       </section>
@@ -207,13 +207,13 @@ function Landing() {
       {/* Floating Dashboard Preview */}
       <section className="relative max-w-6xl mx-auto px-6 py-16 sm:py-24">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 backdrop-blur-md border border-white/15 text-xs font-medium mb-4 text-[#d4af37]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 backdrop-blur-md border border-white/15 text-sm font-medium mb-4 text-[#d4af37]">
             Live preview
           </div>
-          <h2 className="font-display text-3xl md:text-5xl font-bold text-white">
+          <h2 className="font-display text-4xl md:text-6xl font-bold text-white">
             Your business, at a <span className="text-[#d4af37]">glance.</span>
           </h2>
-          <p className="text-white/65 mt-3 max-w-xl mx-auto">A real-time view of commissions earned, expenses logged, and miles driven.</p>
+          <p className="text-lg text-white/65 mt-3 max-w-2xl mx-auto">A real-time view of commissions earned, expenses logged, and miles driven.</p>
         </div>
 
         <div className="relative mx-auto max-w-5xl perspective-1000">
@@ -228,7 +228,7 @@ function Landing() {
               <span className="h-3 w-3 rounded-full bg-red-400/80" />
               <span className="h-3 w-3 rounded-full bg-[#d4af37]/80" />
               <span className="h-3 w-3 rounded-full bg-green-400/80" />
-              <div className="ml-4 text-xs text-white/50 font-display">endlessprospects.app/dashboard</div>
+              <div className="ml-4 text-sm text-white/50 font-display">endlessprospects.app/dashboard</div>
             </div>
             {/* Dashboard body */}
             <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -238,21 +238,21 @@ function Landing() {
                 { icon: Car,        label: "Miles driven",    value: "8,431",    delta: "+248",   color: "text-[#d4af37]"     },
               ].map((k) => (
                 <div key={k.label} className="rounded-xl border border-white/10 bg-white/5 p-4">
-                  <div className="flex items-center justify-between text-white/60 text-xs uppercase tracking-wider">
+                  <div className="flex items-center justify-between text-white/60 text-sm uppercase tracking-wider">
                     <span>{k.label}</span>
                     <k.icon className="h-4 w-4" />
                   </div>
-                  <div className="font-display text-2xl font-bold text-white mt-2 tabular-nums">{k.value}</div>
-                  <div className={`text-xs mt-1 ${k.color}`}>{k.delta}</div>
+                  <div className="font-display text-3xl font-bold text-white mt-2 tabular-nums">{k.value}</div>
+                  <div className={`text-sm mt-1 ${k.color}`}>{k.delta}</div>
                 </div>
               ))}
 
               <div className="md:col-span-2 rounded-xl border border-white/10 bg-white/5 p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2 text-sm font-medium text-white">
+                  <div className="flex items-center gap-2 text-base font-medium text-white">
                     <TrendingUp className="h-4 w-4 text-[#d4af37]" /> Revenue · last 6 months
                   </div>
-                  <span className="text-xs text-white/50">2025</span>
+                  <span className="text-sm text-white/50">2025</span>
                 </div>
                 <div className="flex items-end gap-3 h-32">
                   {[40, 62, 55, 78, 70, 92].map((h, i) => (
@@ -262,7 +262,7 @@ function Landing() {
               </div>
 
               <div className="rounded-xl border border-white/10 bg-white/5 p-5">
-                <div className="flex items-center gap-2 text-sm font-medium text-white mb-4">
+                <div className="flex items-center gap-2 text-base font-medium text-white mb-4">
                   <PieChart className="h-4 w-4 text-[#d4af37]" /> Expense mix
                 </div>
                 <div className="space-y-2.5">
@@ -273,7 +273,7 @@ function Landing() {
                     { l: "Office",    v: 12, c: "bg-[#b8912a]" },
                   ].map((r) => (
                     <div key={r.l}>
-                      <div className="flex justify-between text-xs text-white/70 mb-1">
+                      <div className="flex justify-between text-sm text-white/70 mb-1">
                         <span>{r.l}</span><span>{r.v}%</span>
                       </div>
                       <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
@@ -291,8 +291,8 @@ function Landing() {
       {/* Pricing — Navy & Gold */}
       <section className="relative max-w-6xl mx-auto px-6 py-20" id="pricing">
         <div className="text-center mb-14">
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-white">Simple pricing, real value</h2>
-          <p className="text-white/65 mt-3">Less than a single closing gift per month.</p>
+          <h2 className="font-display text-5xl md:text-6xl font-bold text-white">Simple pricing, real value</h2>
+          <p className="text-lg text-white/65 mt-3">Less than a single closing gift per month.</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
@@ -318,20 +318,20 @@ function Landing() {
                   {tier.badge}
                 </div>
               )}
-              <div className="font-display font-bold text-lg text-white">{tier.name}</div>
-              <div className="text-sm text-white/60 mt-1 mb-5 min-h-[5.5rem]">{tier.blurb}</div>
+              <div className="font-display font-bold text-xl text-white">{tier.name}</div>
+              <div className="text-base text-white/60 mt-1 mb-5 min-h-[5.5rem]">{tier.blurb}</div>
               <div className="flex items-baseline gap-1 mb-6">
                 <div className={`font-display text-5xl font-bold tabular-nums ${tier.featured ? "bg-gradient-to-r from-white via-[#f7e7b6] to-[#d4af37] bg-clip-text text-transparent" : "text-white"}`}>
                   ${tier.price}
                 </div>
-                <div className="text-sm text-white/55">/mo</div>
+                <div className="text-base text-white/55">/mo</div>
               </div>
-              <div className="text-xs text-white/55 mb-4 min-h-[1rem]">
+              <div className="text-sm text-white/55 mb-4 min-h-[1rem]">
                 {tier.seat ? `+ $${tier.seat}/agent seat` : null}
               </div>
               <Link
                 to="/auth"
-                className={`block text-center w-full px-4 py-2.5 rounded-lg text-sm font-semibold mb-6 transition-colors ${
+                className={`block text-center w-full px-4 py-2.5 rounded-lg text-base font-semibold mb-6 transition-colors ${
                   tier.featured
                     ? "bg-[#d4af37] text-slate-950 hover:bg-[#c89e2f]"
                     : "border border-white/15 bg-white/5 text-white hover:bg-white/10"
@@ -341,7 +341,7 @@ function Landing() {
               </Link>
               <ul className="space-y-2.5">
                 {tier.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-white/85">
+                  <li key={f} className="flex items-start gap-2 text-base text-white/85">
                     <Check className={`h-4 w-4 shrink-0 mt-0.5 ${tier.featured ? "text-[#d4af37]" : "text-[#f7e7b6]"}`} />
                     <span>{f}</span>
                   </li>
@@ -351,13 +351,13 @@ function Landing() {
           ))}
         </div>
 
-        <p className="text-center text-xs text-white/55 mt-8">
+        <p className="text-center text-sm text-white/55 mt-8">
           All plans include unlimited transactions, secure cloud backup, and free updates.
         </p>
       </section>
 
       <footer className="relative border-t border-white/10 mt-12 backdrop-blur-md bg-black/30">
-        <div className="max-w-6xl mx-auto px-6 py-8 text-xs text-white/55 flex justify-between">
+        <div className="max-w-6xl mx-auto px-6 py-8 text-sm text-white/55 flex flex-col gap-3 sm:flex-row sm:justify-between">
           <div>© {new Date().getFullYear()} Endless Prospects · Agent Business Tracker</div>
           <div className="flex gap-4">
             <Link to="/auth" className="hover:text-white">Sign in</Link>
