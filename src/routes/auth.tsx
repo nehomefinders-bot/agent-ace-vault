@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { Building2, Mail, Lock, Loader2 } from "lucide-react";
+import { Mail, Lock, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
+import endlessProspectsLogo from "@/assets/endless-prospects-logo.png";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
@@ -78,11 +79,13 @@ function AuthPage() {
     <div className="min-h-dvh w-full flex items-center justify-center px-4 bg-background">
       <div className="w-full max-w-md">
         <Link to="/landing" className="flex items-center gap-2.5 mb-8 justify-center">
-          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground">
-            <Building2 className="h-5 w-5" />
-          </div>
+          <img
+            src={endlessProspectsLogo}
+            alt="Endless Prospects"
+            className="h-10 w-10 rounded-xl object-cover ring-1 ring-border"
+          />
           <div>
-            <div className="font-display font-bold text-base leading-none">Agent</div>
+            <div className="font-display font-bold text-lg leading-none">Endless Prospects</div>
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">Business Tracker</div>
           </div>
         </Link>
