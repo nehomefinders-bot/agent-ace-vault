@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AlertCircle,
   Check,
@@ -107,8 +107,10 @@ export const Route = createFileRoute("/clients")({
 function DirectoryPage() {
   const { user, loading: authLoading } = useAuth();
   const pushOne = useServerFn(pushClientToGhl);
+  const phoneFileInputRef = useRef<HTMLInputElement>(null);
 
   const [rows, setRows] = useState<Client[]>([]);
+  const [directoryFilter, setDirectoryFilter] = useState<"all" | "phone_sync">("all");
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Client | null>(null);
@@ -116,9 +118,11 @@ function DirectoryPage() {
   const [phoneSyncing, setPhoneSyncing] = useState(false);
   const [phoneImporting, setPhoneImporting] = useState(false);
   const [phoneDesyncing, setPhoneDesyncing] = useState(false);
+  const [phoneConverting, setPhoneConverting] = useState(false);
   const [phoneReviewOpen, setPhoneReviewOpen] = useState(false);
   const [phoneCandidates, setPhoneCandidates] = useState<PhoneImportCandidate[]>([]);
-  const [phoneSelectedIds, setPhoneSelectedIds] = useState<string[]>([]);
+  const [phoneCandidateSelectedIds, setPhoneCandidateSelectedIds] = useState<string[]>([]);
+  const [selectedPhoneSyncIds, setSelectedPhoneSyncIds] = useState<string[]>([]);
   const [phoneSkippedCount, setPhoneSkippedCount] = useState(0);
 
   const [form, setForm] = useState({
@@ -151,6 +155,12 @@ function DirectoryPage() {
     locality: "",
   };
 
+  function resetPhoneReviewState() {
+    setPhoneCandidates([]);
+    setPhoneCandidateSelectedIds([]);
+    setPhoneSkippedCount(0);
+  }
+
   async function load() {
     if (!user) return;
     setLoading(true);
@@ -168,6 +178,12 @@ function DirectoryPage() {
   useEffect(() => {
     if (user) load();
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    setSelectedPhoneSyncIds((current) =>
+      current.filter((id) => rows.some((row) => row.id === id && row.source === "phone_sync")),
+    );
+  }, [rows]);
 
   function openNew() {
     setEditing(null);
@@ -255,7 +271,7 @@ function DirectoryPage() {
 
     const contactsApi = (navigator as ContactPickerNavigator).contacts;
     if (!contactsApi?.select) {
-      toast.error("Phone contact sync is supported in compatible mobile browsers. You can still import contacts with CSV.");
+      phoneFileInputRef.current?.click();
       return;
     }
 
@@ -263,20 +279,17 @@ function DirectoryPage() {
     try {
       const selected = await contactsApi.select(["name", "email", "tel"], { multiple: true });
       if (!selected.length) return;
-      const review = buildPhoneImportCandidates(selected, rows);
-      if (!review.candidates.length) {
-        toast.error("No usable contacts were returned from your phone.");
-        return;
-      }
-
-      setPhoneCandidates(review.candidates);
-      setPhoneSelectedIds(review.candidates.filter((candidate) => !candidate.duplicate).map((candidate) => candidate.id));
-      setPhoneSkippedCount(review.skippedWithoutDetails);
-      setPhoneReviewOpen(true);
+      openPhoneReview(selected);
     } catch (error: unknown) {
       if (error instanceof DOMException && error.name === "AbortError") return;
       if (error instanceof DOMException && error.name === "NotAllowedError") {
-        toast.error("Contact access was blocked. Please allow contact permissions and try again.");
+        toast.error("Contact access was blocked. You can still import an exported phone contacts file instead.");
+        phoneFileInputRef.current?.click();
+        return;
+      }
+      if (error instanceof TypeError) {
+        toast.error("Direct contact access is not available in this browser. Import an exported phone contacts file instead.");
+        phoneFileInputRef.current?.click();
         return;
       }
       toast.error(error instanceof Error ? error.message : "Could not sync phone contacts");
@@ -285,11 +298,47 @@ function DirectoryPage() {
     }
   }
 
+  function openPhoneReview(selected: DeviceContact[]) {
+    const review = buildPhoneImportCandidates(selected, rows);
+    if (!review.candidates.length) {
+      toast.error("No usable contacts were found to add to the tracker.");
+      return;
+    }
+
+    setPhoneCandidates(review.candidates);
+    setPhoneCandidateSelectedIds(
+      review.candidates.filter((candidate) => !candidate.duplicate).map((candidate) => candidate.id),
+    );
+    setPhoneSkippedCount(review.skippedWithoutDetails);
+    setPhoneReviewOpen(true);
+  }
+
+  async function handlePhoneContactsFile(file: File) {
+    if (!user) return;
+
+    setPhoneSyncing(true);
+    try {
+      const importedContacts = await parsePhoneContactsFile(file);
+      if (!importedContacts.length) {
+        toast.error("No contacts were found in that file.");
+        return;
+      }
+
+      openPhoneReview(importedContacts);
+      toast.success(`Loaded ${importedContacts.length} contact${importedContacts.length === 1 ? "" : "s"} from file`);
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Could not read the contact file");
+    } finally {
+      setPhoneSyncing(false);
+      if (phoneFileInputRef.current) phoneFileInputRef.current.value = "";
+    }
+  }
+
   async function importSelectedPhoneContacts() {
     if (!user) return;
 
     const selectedCandidates = phoneCandidates.filter(
-      (candidate) => phoneSelectedIds.includes(candidate.id) && !candidate.duplicate,
+      (candidate) => phoneCandidateSelectedIds.includes(candidate.id) && !candidate.duplicate,
     );
 
     if (!selectedCandidates.length) {
@@ -323,9 +372,7 @@ function DirectoryPage() {
         `Added ${selectedCandidates.length} phone contact${selectedCandidates.length === 1 ? "" : "s"} to your directory`,
       );
       setPhoneReviewOpen(false);
-      setPhoneCandidates([]);
-      setPhoneSelectedIds([]);
-      setPhoneSkippedCount(0);
+      resetPhoneReviewState();
       void load();
     } finally {
       setPhoneImporting(false);
@@ -339,6 +386,8 @@ function DirectoryPage() {
       ? target
       : target
         ? [target]
+        : selectedPhoneSyncIds.length
+          ? rows.filter((row) => selectedPhoneSyncIds.includes(row.id))
         : rows.filter((row) => row.source === "phone_sync");
     const removable = targets.filter((row) => row.source === "phone_sync");
 
@@ -365,6 +414,8 @@ function DirectoryPage() {
       const { error } = await query;
       if (error) return toast.error(error.message);
 
+      setSelectedPhoneSyncIds((current) => current.filter((id) => !removable.some((row) => row.id === id)));
+
       toast.success(
         removable.length === 1
           ? `${removable[0].name} was removed from phone sync`
@@ -376,13 +427,71 @@ function DirectoryPage() {
     }
   }
 
-  function togglePhoneCandidate(candidateId: string, checked: boolean) {
-    setPhoneSelectedIds((current) =>
+  async function convertPhoneSyncedContacts(target?: Client | Client[]) {
+    if (!user) return;
+
+    const targets = Array.isArray(target)
+      ? target
+      : target
+        ? [target]
+        : selectedPhoneSyncIds.length
+          ? rows.filter((row) => selectedPhoneSyncIds.includes(row.id))
+          : [];
+    const convertible = targets.filter((row) => row.source === "phone_sync");
+
+    if (!convertible.length) {
+      toast.error("Select at least one phone-synced contact to convert.");
+      return;
+    }
+
+    const message =
+      convertible.length === 1
+        ? `Convert ${convertible[0].name} to a manual tracker contact? They will stay in the directory and future phone desync will not remove them.`
+        : `Convert ${convertible.length} phone-synced contacts to manual tracker contacts? They will stay in the directory and future phone desync will not remove them.`;
+    if (!confirm(message)) return;
+
+    setPhoneConverting(true);
+    try {
+      const { error } = await supabase
+        .from("clients")
+        .update({ source: "manual" })
+        .eq("source", "phone_sync")
+        .in("id", convertible.map((row) => row.id));
+      if (error) return toast.error(error.message);
+
+      setSelectedPhoneSyncIds((current) => current.filter((id) => !convertible.some((row) => row.id === id)));
+      toast.success(
+        convertible.length === 1
+          ? `${convertible[0].name} is now a manual tracker contact`
+          : `Converted ${convertible.length} contacts to manual`,
+      );
+      void load();
+    } finally {
+      setPhoneConverting(false);
+    }
+  }
+
+  function togglePhoneCandidateSelection(candidateId: string, checked: boolean) {
+    setPhoneCandidateSelectedIds((current) =>
       checked ? Array.from(new Set([...current, candidateId])) : current.filter((id) => id !== candidateId),
     );
   }
 
+  function togglePhoneSyncSelection(contactId: string, checked: boolean) {
+    setSelectedPhoneSyncIds((current) =>
+      checked ? Array.from(new Set([...current, contactId])) : current.filter((id) => id !== contactId),
+    );
+  }
+
   const phoneSyncedRows = rows.filter((row) => row.source === "phone_sync");
+  const visibleRows = directoryFilter === "phone_sync" ? phoneSyncedRows : rows;
+  const visiblePhoneSyncedRows = visibleRows.filter((row) => row.source === "phone_sync");
+  const allVisiblePhoneSyncSelected =
+    visiblePhoneSyncedRows.length > 0 &&
+    visiblePhoneSyncedRows.every((row) => selectedPhoneSyncIds.includes(row.id));
+  const someVisiblePhoneSyncSelected =
+    !allVisiblePhoneSyncSelected &&
+    visiblePhoneSyncedRows.some((row) => selectedPhoneSyncIds.includes(row.id));
   const selectablePhoneCandidates = phoneCandidates.filter((candidate) => !candidate.duplicate);
   const duplicatePhoneCandidates = phoneCandidates.filter((candidate) => candidate.duplicate);
 
@@ -470,7 +579,16 @@ function DirectoryPage() {
             className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-muted disabled:opacity-60"
           >
             {phoneDesyncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-            Desync phone contacts
+            {selectedPhoneSyncIds.length > 0 ? `Desync selected (${selectedPhoneSyncIds.length})` : "Desync phone contacts"}
+          </button>
+          <button
+            type="button"
+            onClick={() => void convertPhoneSyncedContacts()}
+            disabled={phoneConverting || selectedPhoneSyncIds.length === 0}
+            className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-muted disabled:opacity-60"
+          >
+            {phoneConverting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+            Convert selected to manual
           </button>
           <button
             type="button"
@@ -490,11 +608,55 @@ function DirectoryPage() {
               Phone-synced contacts in tracker: {phoneSyncedRows.length}
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              Sync opens your device contact picker first, then lets you review, select, or deselect contacts before adding them here. Desync only removes tracker copies with the <span className="font-medium text-foreground">Phone sync</span> source.
+              Sync opens your device contact picker when the browser allows it, or falls back to importing an exported contacts file. In both cases, users can review, select, or deselect contacts before adding them here. Desync only removes tracker copies with the <span className="font-medium text-foreground">Phone sync</span> source.
             </p>
           </div>
           <div className="text-xs text-muted-foreground">
             Manual, imported, and GHL-linked contacts stay untouched.
+          </div>
+        </div>
+        <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-2">
+            {([
+              { value: "all" as const, label: `All contacts (${rows.length})` },
+              { value: "phone_sync" as const, label: `Phone sync only (${phoneSyncedRows.length})` },
+            ]).map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setDirectoryFilter(option.value)}
+                className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                  directoryFilter === option.value
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background hover:bg-muted"
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <span>{selectedPhoneSyncIds.length} phone-synced contact{selectedPhoneSyncIds.length === 1 ? "" : "s"} selected</span>
+            <button
+              type="button"
+              onClick={() =>
+                setSelectedPhoneSyncIds((current) =>
+                  Array.from(new Set([...current, ...visiblePhoneSyncedRows.map((row) => row.id)])),
+                )
+              }
+              disabled={visiblePhoneSyncedRows.length === 0}
+              className="rounded-md border border-border px-2.5 py-1.5 text-xs font-medium hover:bg-muted disabled:opacity-60"
+            >
+              Select visible phone sync
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedPhoneSyncIds([])}
+              disabled={selectedPhoneSyncIds.length === 0}
+              className="rounded-md border border-border px-2.5 py-1.5 text-xs font-medium hover:bg-muted disabled:opacity-60"
+            >
+              Clear selected
+            </button>
           </div>
         </div>
       </div>
@@ -504,15 +666,31 @@ function DirectoryPage() {
           <div className="flex justify-center py-16">
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
-        ) : rows.length === 0 ? (
+        ) : visibleRows.length === 0 ? (
           <div className="px-6 py-16 text-center text-sm text-muted-foreground">
-            No contacts yet. Add one, import a list, or sync your phone contacts on a supported device.
+            {directoryFilter === "phone_sync"
+              ? "No phone-synced contacts yet. Sync your phone contacts on a supported device to see them here."
+              : "No contacts yet. Add one, import a list, or sync your phone contacts on a supported device."}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-sm">
               <thead>
                 <tr className="bg-muted/40 text-[11px] uppercase tracking-wider text-muted-foreground">
+                  <th className="px-4 py-3 text-left font-medium">
+                    <Checkbox
+                      checked={allVisiblePhoneSyncSelected ? true : someVisiblePhoneSyncSelected ? "indeterminate" : false}
+                      disabled={visiblePhoneSyncedRows.length === 0}
+                      onCheckedChange={(checked) =>
+                        setPhoneSelectedIds((current) =>
+                          checked === true
+                            ? Array.from(new Set([...current, ...visiblePhoneSyncedRows.map((row) => row.id)]))
+                            : current.filter((id) => !visiblePhoneSyncedRows.some((row) => row.id === id))
+                        )
+                      }
+                      aria-label="Select visible phone synced contacts"
+                    />
+                  </th>
                   <th className="px-6 py-3 text-left font-medium">Name</th>
                   <th className="py-3 text-left font-medium">Contact</th>
                   <th className="py-3 text-left font-medium">Type</th>
@@ -521,8 +699,19 @@ function DirectoryPage() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((client) => (
+                {visibleRows.map((client) => (
                   <tr key={client.id} className="row-hover-blue border-t border-border">
+                    <td className="px-4 py-4">
+                      {client.source === "phone_sync" ? (
+                        <Checkbox
+                          checked={selectedPhoneSyncIds.includes(client.id)}
+                          onCheckedChange={(checked) => togglePhoneSyncSelection(client.id, checked === true)}
+                          aria-label={`Select ${client.name}`}
+                        />
+                      ) : (
+                        <span className="text-xs text-muted-foreground">-</span>
+                      )}
+                    </td>
                     <td className="px-6 py-4">
                       <button type="button" onClick={() => openEdit(client)} className="flex items-center gap-3 text-left">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
@@ -598,8 +787,20 @@ function DirectoryPage() {
                             onClick={() => void desyncPhoneContacts(client)}
                             title="Desync from phone contacts"
                             className="rounded-md px-2 py-1.5 text-xs font-medium text-amber-600 hover:bg-muted"
+                            disabled={phoneDesyncing}
                           >
                             Desync
+                          </button>
+                        ) : null}
+                        {client.source === "phone_sync" ? (
+                          <button
+                            type="button"
+                            onClick={() => void convertPhoneSyncedContacts(client)}
+                            title="Convert to manual contact"
+                            className="rounded-md px-2 py-1.5 text-xs font-medium text-green-600 hover:bg-muted"
+                            disabled={phoneConverting}
+                          >
+                            Convert
                           </button>
                         ) : null}
                         <button
@@ -636,6 +837,17 @@ function DirectoryPage() {
           </div>
         )}
       </div>
+
+      <input
+        ref={phoneFileInputRef}
+        type="file"
+        accept=".vcf,.csv,.xlsx,.xls"
+        className="hidden"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          if (file) void handlePhoneContactsFile(file);
+        }}
+      />
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">
@@ -796,9 +1008,7 @@ function DirectoryPage() {
         onOpenChange={(nextOpen) => {
           setPhoneReviewOpen(nextOpen);
           if (!nextOpen && !phoneImporting) {
-            setPhoneCandidates([]);
-            setPhoneSelectedIds([]);
-            setPhoneSkippedCount(0);
+            resetPhoneReviewState();
           }
         }}
       >
@@ -814,7 +1024,7 @@ function DirectoryPage() {
             <div className="flex flex-col gap-3 rounded-xl border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-sm font-medium text-foreground">
-                  {phoneSelectedIds.length} selected of {selectablePhoneCandidates.length} new contacts
+                  {phoneCandidateSelectedIds.length} selected of {selectablePhoneCandidates.length} new contacts
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {duplicatePhoneCandidates.length} already in your directory or repeated in this batch.
@@ -824,7 +1034,7 @@ function DirectoryPage() {
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => setPhoneSelectedIds(selectablePhoneCandidates.map((candidate) => candidate.id))}
+                  onClick={() => setPhoneCandidateSelectedIds(selectablePhoneCandidates.map((candidate) => candidate.id))}
                   disabled={!selectablePhoneCandidates.length}
                   className="rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-muted disabled:opacity-60"
                 >
@@ -832,8 +1042,8 @@ function DirectoryPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setPhoneSelectedIds([])}
-                  disabled={!phoneSelectedIds.length}
+                  onClick={() => setPhoneCandidateSelectedIds([])}
+                  disabled={!phoneCandidateSelectedIds.length}
                   className="rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-muted disabled:opacity-60"
                 >
                   Deselect all
@@ -858,9 +1068,9 @@ function DirectoryPage() {
                       <tr key={candidate.id} className="border-t border-border">
                         <td className="px-4 py-3">
                           <Checkbox
-                            checked={phoneSelectedIds.includes(candidate.id)}
+                            checked={phoneCandidateSelectedIds.includes(candidate.id)}
                             disabled={candidate.duplicate}
-                            onCheckedChange={(checked) => togglePhoneCandidate(candidate.id, checked === true)}
+                            onCheckedChange={(checked) => togglePhoneCandidateSelection(candidate.id, checked === true)}
                             aria-label={`Select ${candidate.name}`}
                           />
                         </td>
@@ -894,15 +1104,123 @@ function DirectoryPage() {
               type="button"
               className="btn-primary"
               onClick={() => void importSelectedPhoneContacts()}
-              disabled={phoneImporting || phoneSelectedIds.length === 0}
+              disabled={phoneImporting || phoneCandidateSelectedIds.length === 0}
             >
-              {phoneImporting ? "Adding contacts..." : `Add selected (${phoneSelectedIds.length})`}
+              {phoneImporting ? "Adding contacts..." : `Add selected (${phoneCandidateSelectedIds.length})`}
             </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </PageShell>
   );
+}
+
+async function parsePhoneContactsFile(file: File): Promise<DeviceContact[]> {
+  const lowerName = file.name.toLowerCase();
+
+  if (lowerName.endsWith(".vcf")) {
+    const text = await file.text();
+    return parseVcfContacts(text);
+  }
+
+  if (lowerName.endsWith(".csv") || lowerName.endsWith(".xlsx") || lowerName.endsWith(".xls")) {
+    const XLSX = await import("xlsx");
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: "array" });
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, { defval: "" });
+    return rows
+      .map((row) => {
+        const entries = Object.entries(row).reduce<Record<string, string>>((acc, [key, value]) => {
+          acc[normalizeHeaderKey(key)] = String(value ?? "").trim();
+          return acc;
+        }, {});
+
+        const name = extractSpreadsheetContactName(entries);
+        const email = extractSpreadsheetContactValue(entries, ["email", "mail"]);
+        const phone = extractSpreadsheetContactValue(entries, ["phone", "mobile", "telephone", "tel", "cell"]);
+
+        return {
+          name: name ? [name] : [],
+          email: email ? [email] : [],
+          tel: phone ? [phone] : [],
+        } satisfies DeviceContact;
+      })
+      .filter((contact) => firstValue(contact.name) || firstValue(contact.email) || firstValue(contact.tel));
+  }
+
+  throw new Error("Unsupported contact file. Please choose a .vcf, .csv, or Excel contact export.");
+}
+
+function parseVcfContacts(text: string): DeviceContact[] {
+  const chunks = text
+    .split(/END:VCARD/i)
+    .map((chunk) => chunk.trim())
+    .filter(Boolean);
+
+  return chunks
+    .map((chunk) => {
+      const lines = chunk
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+      const unfolded: string[] = [];
+
+      for (const line of lines) {
+        if ((line.startsWith(" ") || line.startsWith("\t")) && unfolded.length) {
+          unfolded[unfolded.length - 1] += line.trim();
+        } else {
+          unfolded.push(line);
+        }
+      }
+
+      const names: string[] = [];
+      const emails: string[] = [];
+      const phones: string[] = [];
+
+      for (const line of unfolded) {
+        const separatorIndex = line.indexOf(":");
+        if (separatorIndex === -1) continue;
+
+        const rawKey = line.slice(0, separatorIndex).toUpperCase();
+        const rawValue = decodeVcfValue(line.slice(separatorIndex + 1));
+
+        if (!rawValue) continue;
+
+        if (rawKey.startsWith("FN")) {
+          names.push(rawValue);
+          continue;
+        }
+
+        if (rawKey.startsWith("N") && !names.length) {
+          const joined = rawValue
+            .split(";")
+            .map((part) => part.trim())
+            .filter(Boolean)
+            .reverse()
+            .join(" ")
+            .trim();
+          if (joined) names.push(joined);
+          continue;
+        }
+
+        if (rawKey.startsWith("EMAIL")) {
+          emails.push(rawValue);
+          continue;
+        }
+
+        if (rawKey.startsWith("TEL")) {
+          phones.push(rawValue);
+        }
+      }
+
+      return {
+        name: names,
+        email: emails,
+        tel: phones,
+      } satisfies DeviceContact;
+    })
+    .filter((contact) => firstValue(contact.name) || firstValue(contact.email) || firstValue(contact.tel));
 }
 
 function buildPhoneImportCandidates(selected: DeviceContact[], existingRows: Client[]) {
@@ -966,6 +1284,58 @@ function buildPhoneImportCandidates(selected: DeviceContact[], existingRows: Cli
 
 function firstValue(values?: string[]) {
   return values?.map((value) => value.trim()).find(Boolean) || "";
+}
+
+function normalizeHeaderKey(value: string) {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function extractSpreadsheetContactName(record: Record<string, string>) {
+  const directName = pickFirst(record, [
+    "name",
+    "fullname",
+    "full_name",
+    "displayname",
+    "display_name",
+    "formattedname",
+    "fn",
+  ]);
+  if (directName) return directName;
+
+  const first = pickFirst(record, ["firstname", "first_name", "givenname", "given_name"]);
+  const last = pickFirst(record, ["lastname", "last_name", "familyname", "family_name", "surname"]);
+  return [first, last].filter(Boolean).join(" ").trim();
+}
+
+function extractSpreadsheetContactValue(record: Record<string, string>, tokens: string[]) {
+  const direct = pickFirst(record, tokens);
+  if (direct) return direct;
+
+  for (const [key, value] of Object.entries(record)) {
+    if (!value) continue;
+    if (tokens.some((token) => key.includes(normalizeHeaderKey(token)))) {
+      return value;
+    }
+  }
+
+  return "";
+}
+
+function pickFirst(record: Record<string, string>, keys: string[]) {
+  for (const key of keys) {
+    const value = record[normalizeHeaderKey(key)];
+    if (value) return value;
+  }
+  return "";
+}
+
+function decodeVcfValue(value: string) {
+  return value
+    .replace(/=0D=0A/gi, "")
+    .replace(/\\,/g, ",")
+    .replace(/\\;/g, ";")
+    .replace(/\\n/gi, " ")
+    .trim();
 }
 
 function normalizePhone(value: string | null | undefined) {
