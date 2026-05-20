@@ -11,11 +11,25 @@ function getSafeStorage(): Storage | undefined {
   }
 }
 
+function getSupabaseConfig() {
+  return {
+    url: import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL,
+    publishableKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY,
+  };
+}
+
+export function getSupabaseAuthStorageKey(url = getSupabaseConfig().url): string | undefined {
+  if (!url) return undefined;
+  try {
+    const projectRef = new URL(url).hostname.split(".")[0];
+    return `sb-${projectRef}-auth-token`;
+  } catch {
+    return undefined;
+  }
+}
+
 function createSupabaseClient() {
-  // Use import.meta.env for client-side (Vite build-time replacement)
-  // Fall back to process.env for SSR (server-side rendering)
-  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-  const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
+  const { url: SUPABASE_URL, publishableKey: SUPABASE_PUBLISHABLE_KEY } = getSupabaseConfig();
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     const missing = [
@@ -29,6 +43,7 @@ function createSupabaseClient() {
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: {
+      storageKey: getSupabaseAuthStorageKey(SUPABASE_URL),
       storage: getSafeStorage(),
       persistSession: true,
       autoRefreshToken: true,

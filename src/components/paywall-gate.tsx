@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Lock, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
+import { supabase } from "@/integrations/supabase/client";
 
 // Routes that are always accessible without auth or active subscription.
 // NOTE: "/" is the dashboard (auth-required) and is intentionally NOT here.
@@ -21,7 +22,25 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
     if (authLoading) return;
     if (user) return;
     if (PUBLIC_PATHS.includes(path)) return;
-    nav({ to: "/landing" });
+
+    let cancelled = false;
+    const timeoutId = window.setTimeout(async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (cancelled) return;
+        if (session?.user) return;
+        nav({ to: "/landing", replace: true });
+      } catch {
+        if (!cancelled) {
+          nav({ to: "/landing", replace: true });
+        }
+      }
+    }, 250);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [authLoading, user, path, nav]);
 
   // Public pages: pass through.

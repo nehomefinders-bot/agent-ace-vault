@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import {
   Check,
@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import endlessProspectsLogo from "@/assets/endless-prospects-logo.png";
 import maColonialHeroBg from "@/assets/ma-colonial-hero-bg-updated.png";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/landing")({
   component: Landing,
@@ -102,6 +103,9 @@ const features = [
 ];
 
 function Landing() {
+  const nav = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+
   useEffect(() => {
     const root = document.documentElement;
     const prevClass = root.classList.contains("dark");
@@ -113,6 +117,13 @@ function Landing() {
       root.style.colorScheme = prevScheme;
     };
   }, []);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) return;
+    nav({ to: "/", replace: true });
+  }, [authLoading, user, nav]);
+
   return (
     <div className="dark relative min-h-dvh w-full bg-[#050b22] text-white overflow-hidden">
       <header className="relative border-b border-white/10 backdrop-blur-md bg-black/20">
