@@ -326,7 +326,7 @@ function DirectoryPage() {
     setSmsSaving(false);
   }
 
-  function openNativeSmsApp() {
+  async function openNativeSmsApp() {
     if (!smsClient?.phone) {
       toast.error("This contact does not have a phone number.");
       return;
@@ -338,7 +338,26 @@ function DirectoryPage() {
 
     const nextBody = smsDraft.trim();
     setSmsPendingLogBody(nextBody);
-    window.location.href = buildSmsHref(smsClient.phone, nextBody);
+    const opened = launchSmsComposer(smsClient.phone, nextBody);
+
+    if (!opened) {
+      try {
+        await copySmsFallback(smsClient.phone, nextBody);
+      } catch {
+        // ignore clipboard fallback failures
+      }
+      toast.error("This device could not open an SMS app automatically. The phone number and message were copied so you can paste them manually.");
+      return;
+    }
+
+    if (!isProbablyMobileDevice()) {
+      try {
+        await copySmsFallback(smsClient.phone, nextBody);
+      } catch {
+        // ignore clipboard fallback failures
+      }
+      toast.success("Tried to open your SMS app. The message was also copied in case your desktop browser does not handle SMS links.");
+    }
   }
 
   async function saveSmsToConversation() {
@@ -1622,6 +1641,48 @@ function buildSmsHref(phone: string, body: string) {
     /iPad|iPhone|iPod/i.test(navigator.userAgent);
   const separator = isAppleDevice ? "&" : "?";
   return `sms:${cleaned}${body ? `${separator}body=${encodeURIComponent(body)}` : ""}`;
+}
+
+function buildAlternateSmsHref(phone: string, body: string) {
+  const cleaned = phone.replace(/[^\d+]/g, "");
+  const encodedBody = encodeURIComponent(body);
+  return cleaned ? `smsto:${cleaned}${body ? `?body=${encodedBody}` : ""}` : `smsto:?body=${encodedBody}`;
+}
+
+function launchSmsComposer(phone: string, body: string) {
+  if (typeof window === "undefined" || typeof document === "undefined") return false;
+
+  const hrefs = [buildSmsHref(phone, body), buildAlternateSmsHref(phone, body)];
+  for (const href of hrefs) {
+    try {
+      const link = document.createElement("a");
+      link.href = href;
+      link.style.position = "absolute";
+      link.style.left = "-9999px";
+      link.style.width = "1px";
+      link.style.height = "1px";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      return true;
+    } catch {
+      // try the next scheme
+    }
+  }
+
+  return false;
+}
+
+async function copySmsFallback(phone: string, body: string) {
+  if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) return;
+  const lines = [`Phone: ${phone}`, "", body];
+  await navigator.clipboard.writeText(lines.join("\n"));
+}
+
+function isProbablyMobileDevice() {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
 }
 
 function formatDateTime(value: string) {
