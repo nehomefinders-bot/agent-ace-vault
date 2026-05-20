@@ -21,10 +21,12 @@ import { TableExportButton } from "@/components/table-export-button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { pushClientToGhl } from "@/utils/ghl.functions";
@@ -80,6 +82,15 @@ type Client = {
   locality: string | null;
 };
 
+type PhoneImportCandidate = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  duplicate: boolean;
+  duplicateReason: string | null;
+};
+
 export const Route = createFileRoute("/clients")({
   component: DirectoryPage,
   head: () => ({
@@ -103,6 +114,12 @@ function DirectoryPage() {
   const [editing, setEditing] = useState<Client | null>(null);
   const [syncing, setSyncing] = useState<string | null>(null);
   const [phoneSyncing, setPhoneSyncing] = useState(false);
+  const [phoneImporting, setPhoneImporting] = useState(false);
+  const [phoneDesyncing, setPhoneDesyncing] = useState(false);
+  const [phoneReviewOpen, setPhoneReviewOpen] = useState(false);
+  const [phoneCandidates, setPhoneCandidates] = useState<PhoneImportCandidate[]>([]);
+  const [phoneSelectedIds, setPhoneSelectedIds] = useState<string[]>([]);
+  const [phoneSkippedCount, setPhoneSkippedCount] = useState(0);
 
   const [form, setForm] = useState({
     name: "",
@@ -246,95 +263,16 @@ function DirectoryPage() {
     try {
       const selected = await contactsApi.select(["name", "email", "tel"], { multiple: true });
       if (!selected.length) return;
-
-      const existingPhones = new Set(rows.map((row) => normalizePhone(row.phone)).filter(Boolean) as string[]);
-      const existingEmails = new Set(rows.map((row) => normalizeEmail(row.email)).filter(Boolean) as string[]);
-      const existingNames = new Set(rows.map((row) => normalizeName(row.name)).filter(Boolean) as string[]);
-      const batchPhones = new Set<string>();
-      const batchEmails = new Set<string>();
-      const batchNames = new Set<string>();
-
-      let skipped = 0;
-      const inserts: Array<{
-        user_id: string;
-        name: string;
-        email: string | null;
-        phone: string | null;
-        company: string | null;
-        notes: string | null;
-        client_type: null;
-        timeline: null;
-        address: null;
-        pre_approved: null;
-        budget_min: null;
-        budget_max: null;
-        locality: null;
-        source: string;
-      }> = [];
-
-      for (const contact of selected) {
-        const name = firstValue(contact.name);
-        const email = firstValue(contact.email);
-        const phone = firstValue(contact.tel);
-        const displayName = name || phone || email;
-
-        if (!displayName) {
-          skipped += 1;
-          continue;
-        }
-
-        const normalizedPhone = normalizePhone(phone);
-        const normalizedEmail = normalizeEmail(email);
-        const normalizedName = normalizeName(displayName);
-        const duplicate =
-          (normalizedPhone && (existingPhones.has(normalizedPhone) || batchPhones.has(normalizedPhone))) ||
-          (normalizedEmail && (existingEmails.has(normalizedEmail) || batchEmails.has(normalizedEmail))) ||
-          (!normalizedPhone &&
-            !normalizedEmail &&
-            normalizedName &&
-            (existingNames.has(normalizedName) || batchNames.has(normalizedName)));
-
-        if (duplicate) {
-          skipped += 1;
-          continue;
-        }
-
-        inserts.push({
-          user_id: user.id,
-          name: displayName,
-          email: email || null,
-          phone: phone || null,
-          company: null,
-          notes: null,
-          client_type: null,
-          timeline: null,
-          address: null,
-          pre_approved: null,
-          budget_min: null,
-          budget_max: null,
-          locality: null,
-          source: "phone_sync",
-        });
-
-        if (normalizedPhone) batchPhones.add(normalizedPhone);
-        if (normalizedEmail) batchEmails.add(normalizedEmail);
-        if (normalizedName) batchNames.add(normalizedName);
-      }
-
-      if (!inserts.length) {
-        toast.success(skipped > 0 ? "All selected contacts were already in your directory" : "No contacts were selected");
+      const review = buildPhoneImportCandidates(selected, rows);
+      if (!review.candidates.length) {
+        toast.error("No usable contacts were returned from your phone.");
         return;
       }
 
-      const { error } = await supabase.from("clients").insert(inserts);
-      if (error) return toast.error(error.message);
-
-      toast.success(
-        skipped > 0
-          ? `Synced ${inserts.length} contacts and skipped ${skipped} duplicates`
-          : `Synced ${inserts.length} contacts`,
-      );
-      void load();
+      setPhoneCandidates(review.candidates);
+      setPhoneSelectedIds(review.candidates.filter((candidate) => !candidate.duplicate).map((candidate) => candidate.id));
+      setPhoneSkippedCount(review.skippedWithoutDetails);
+      setPhoneReviewOpen(true);
     } catch (error: unknown) {
       if (error instanceof DOMException && error.name === "AbortError") return;
       if (error instanceof DOMException && error.name === "NotAllowedError") {
@@ -346,6 +284,107 @@ function DirectoryPage() {
       setPhoneSyncing(false);
     }
   }
+
+  async function importSelectedPhoneContacts() {
+    if (!user) return;
+
+    const selectedCandidates = phoneCandidates.filter(
+      (candidate) => phoneSelectedIds.includes(candidate.id) && !candidate.duplicate,
+    );
+
+    if (!selectedCandidates.length) {
+      toast.error("Select at least one new contact to add to the directory.");
+      return;
+    }
+
+    setPhoneImporting(true);
+    try {
+      const inserts = selectedCandidates.map((candidate) => ({
+        user_id: user.id,
+        name: candidate.name,
+        email: candidate.email || null,
+        phone: candidate.phone || null,
+        company: null,
+        notes: null,
+        client_type: null,
+        timeline: null,
+        address: null,
+        pre_approved: null,
+        budget_min: null,
+        budget_max: null,
+        locality: null,
+        source: "phone_sync",
+      }));
+
+      const { error } = await supabase.from("clients").insert(inserts);
+      if (error) return toast.error(error.message);
+
+      toast.success(
+        `Added ${selectedCandidates.length} phone contact${selectedCandidates.length === 1 ? "" : "s"} to your directory`,
+      );
+      setPhoneReviewOpen(false);
+      setPhoneCandidates([]);
+      setPhoneSelectedIds([]);
+      setPhoneSkippedCount(0);
+      void load();
+    } finally {
+      setPhoneImporting(false);
+    }
+  }
+
+  async function desyncPhoneContacts(target?: Client | Client[]) {
+    if (!user) return;
+
+    const targets = Array.isArray(target)
+      ? target
+      : target
+        ? [target]
+        : rows.filter((row) => row.source === "phone_sync");
+    const removable = targets.filter((row) => row.source === "phone_sync");
+
+    if (!removable.length) {
+      toast.error("No phone-synced contacts were found to remove.");
+      return;
+    }
+
+    const message =
+      removable.length === 1
+        ? `Remove ${removable[0].name} from the tracker? This will not delete them from your phone address book.`
+        : `Remove ${removable.length} phone-synced contacts from the tracker? This will not delete anything from your phone address book.`;
+    if (!confirm(message)) return;
+
+    setPhoneDesyncing(true);
+    try {
+      let query = supabase.from("clients").delete().eq("source", "phone_sync");
+      if (removable.length === 1) {
+        query = query.eq("id", removable[0].id);
+      } else {
+        query = query.in("id", removable.map((row) => row.id));
+      }
+
+      const { error } = await query;
+      if (error) return toast.error(error.message);
+
+      toast.success(
+        removable.length === 1
+          ? `${removable[0].name} was removed from phone sync`
+          : `Removed ${removable.length} phone-synced contacts`,
+      );
+      void load();
+    } finally {
+      setPhoneDesyncing(false);
+    }
+  }
+
+  function togglePhoneCandidate(candidateId: string, checked: boolean) {
+    setPhoneSelectedIds((current) =>
+      checked ? Array.from(new Set([...current, candidateId])) : current.filter((id) => id !== candidateId),
+    );
+  }
+
+  const phoneSyncedRows = rows.filter((row) => row.source === "phone_sync");
+  const selectablePhoneCandidates = phoneCandidates.filter((candidate) => !candidate.duplicate);
+  const duplicatePhoneCandidates = phoneCandidates.filter((candidate) => candidate.duplicate);
 
   if (authLoading) {
     return (
@@ -426,6 +465,15 @@ function DirectoryPage() {
           </button>
           <button
             type="button"
+            onClick={() => void desyncPhoneContacts()}
+            disabled={phoneDesyncing || phoneSyncedRows.length === 0}
+            className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-muted disabled:opacity-60"
+          >
+            {phoneDesyncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+            Desync phone contacts
+          </button>
+          <button
+            type="button"
             onClick={openNew}
             className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground"
           >
@@ -435,6 +483,22 @@ function DirectoryPage() {
         </div>
       }
     >
+      <div className="mb-5 rounded-2xl border border-border bg-card p-4 shadow-card">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="text-sm font-medium text-foreground">
+              Phone-synced contacts in tracker: {phoneSyncedRows.length}
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Sync opens your device contact picker first, then lets you review, select, or deselect contacts before adding them here. Desync only removes tracker copies with the <span className="font-medium text-foreground">Phone sync</span> source.
+            </p>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Manual, imported, and GHL-linked contacts stay untouched.
+          </div>
+        </div>
+      </div>
+
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
         {loading ? (
           <div className="flex justify-center py-16">
@@ -527,6 +591,16 @@ function DirectoryPage() {
                           >
                             <PhoneCall className="h-4 w-4" />
                           </a>
+                        ) : null}
+                        {client.source === "phone_sync" ? (
+                          <button
+                            type="button"
+                            onClick={() => void desyncPhoneContacts(client)}
+                            title="Desync from phone contacts"
+                            className="rounded-md px-2 py-1.5 text-xs font-medium text-amber-600 hover:bg-muted"
+                          >
+                            Desync
+                          </button>
                         ) : null}
                         <button
                           type="button"
@@ -716,8 +790,178 @@ function DirectoryPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={phoneReviewOpen}
+        onOpenChange={(nextOpen) => {
+          setPhoneReviewOpen(nextOpen);
+          if (!nextOpen && !phoneImporting) {
+            setPhoneCandidates([]);
+            setPhoneSelectedIds([]);
+            setPhoneSkippedCount(0);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Review phone contacts before syncing</DialogTitle>
+            <DialogDescription>
+              Choose which contacts from your phone should be added to the tracker directory. Contacts already in the directory stay unchecked so you do not accidentally duplicate them.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="flex flex-col gap-3 rounded-xl border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="text-sm font-medium text-foreground">
+                  {phoneSelectedIds.length} selected of {selectablePhoneCandidates.length} new contacts
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {duplicatePhoneCandidates.length} already in your directory or repeated in this batch.
+                  {phoneSkippedCount > 0 ? ` ${phoneSkippedCount} contact${phoneSkippedCount === 1 ? "" : "s"} had no usable details and were skipped.` : ""}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPhoneSelectedIds(selectablePhoneCandidates.map((candidate) => candidate.id))}
+                  disabled={!selectablePhoneCandidates.length}
+                  className="rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-muted disabled:opacity-60"
+                >
+                  Select all
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPhoneSelectedIds([])}
+                  disabled={!phoneSelectedIds.length}
+                  className="rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-muted disabled:opacity-60"
+                >
+                  Deselect all
+                </button>
+              </div>
+            </div>
+
+            <div className="overflow-hidden rounded-xl border border-border">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[760px] text-sm">
+                  <thead>
+                    <tr className="bg-muted/40 text-[11px] uppercase tracking-wider text-muted-foreground">
+                      <th className="px-4 py-3 text-left font-medium">Select</th>
+                      <th className="py-3 text-left font-medium">Name</th>
+                      <th className="py-3 text-left font-medium">Email</th>
+                      <th className="py-3 text-left font-medium">Phone</th>
+                      <th className="pr-4 py-3 text-left font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {phoneCandidates.map((candidate) => (
+                      <tr key={candidate.id} className="border-t border-border">
+                        <td className="px-4 py-3">
+                          <Checkbox
+                            checked={phoneSelectedIds.includes(candidate.id)}
+                            disabled={candidate.duplicate}
+                            onCheckedChange={(checked) => togglePhoneCandidate(candidate.id, checked === true)}
+                            aria-label={`Select ${candidate.name}`}
+                          />
+                        </td>
+                        <td className="py-3 font-medium text-foreground">{candidate.name}</td>
+                        <td className="py-3 text-muted-foreground">{candidate.email || "-"}</td>
+                        <td className="py-3 text-muted-foreground">{candidate.phone || "-"}</td>
+                        <td className="pr-4 py-3">
+                          <span
+                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                              candidate.duplicate
+                                ? "bg-amber-500/10 text-amber-600"
+                                : "bg-green-500/10 text-green-600"
+                            }`}
+                          >
+                            {candidate.duplicate ? candidate.duplicateReason ?? "Already in directory" : "Ready to add"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <button type="button" className="btn-secondary" onClick={() => setPhoneReviewOpen(false)} disabled={phoneImporting}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => void importSelectedPhoneContacts()}
+              disabled={phoneImporting || phoneSelectedIds.length === 0}
+            >
+              {phoneImporting ? "Adding contacts..." : `Add selected (${phoneSelectedIds.length})`}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageShell>
   );
+}
+
+function buildPhoneImportCandidates(selected: DeviceContact[], existingRows: Client[]) {
+  const existingPhones = new Set(existingRows.map((row) => normalizePhone(row.phone)).filter(Boolean) as string[]);
+  const existingEmails = new Set(existingRows.map((row) => normalizeEmail(row.email)).filter(Boolean) as string[]);
+  const existingNames = new Set(existingRows.map((row) => normalizeName(row.name)).filter(Boolean) as string[]);
+  const batchPhones = new Set<string>();
+  const batchEmails = new Set<string>();
+  const batchNames = new Set<string>();
+
+  let skippedWithoutDetails = 0;
+  const candidates: PhoneImportCandidate[] = [];
+
+  selected.forEach((contact, index) => {
+    const name = firstValue(contact.name);
+    const email = firstValue(contact.email);
+    const phone = firstValue(contact.tel);
+    const displayName = name || phone || email;
+
+    if (!displayName) {
+      skippedWithoutDetails += 1;
+      return;
+    }
+
+    const normalizedPhone = normalizePhone(phone);
+    const normalizedEmail = normalizeEmail(email);
+    const normalizedName = normalizeName(displayName);
+    let duplicateReason: string | null = null;
+
+    if (normalizedPhone && (existingPhones.has(normalizedPhone) || batchPhones.has(normalizedPhone))) {
+      duplicateReason = existingPhones.has(normalizedPhone) ? "Already in directory" : "Duplicate in this batch";
+    } else if (normalizedEmail && (existingEmails.has(normalizedEmail) || batchEmails.has(normalizedEmail))) {
+      duplicateReason = existingEmails.has(normalizedEmail) ? "Already in directory" : "Duplicate in this batch";
+    } else if (
+      !normalizedPhone &&
+      !normalizedEmail &&
+      normalizedName &&
+      (existingNames.has(normalizedName) || batchNames.has(normalizedName))
+    ) {
+      duplicateReason = existingNames.has(normalizedName) ? "Already in directory" : "Duplicate in this batch";
+    }
+
+    candidates.push({
+      id: `${index}-${normalizedName}-${normalizedEmail}-${normalizedPhone}`,
+      name: displayName,
+      email,
+      phone,
+      duplicate: !!duplicateReason,
+      duplicateReason,
+    });
+
+    if (!duplicateReason) {
+      if (normalizedPhone) batchPhones.add(normalizedPhone);
+      if (normalizedEmail) batchEmails.add(normalizedEmail);
+      if (normalizedName) batchNames.add(normalizedName);
+    }
+  });
+
+  return { candidates, skippedWithoutDetails };
 }
 
 function firstValue(values?: string[]) {
