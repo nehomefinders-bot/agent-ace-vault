@@ -5,11 +5,13 @@ import {
   Check,
   Loader2,
   Mail,
+  MessageSquare,
   Pencil,
   Phone,
   PhoneCall,
   Plus,
   RefreshCw,
+  Send,
   Smartphone,
   Trash2,
 } from "lucide-react";
@@ -91,6 +93,16 @@ type PhoneImportCandidate = {
   duplicateReason: string | null;
 };
 
+type SmsMessage = {
+  id: string;
+  client_id: string;
+  user_id: string;
+  direction: string;
+  status: string;
+  body: string;
+  created_at: string;
+};
+
 export const Route = createFileRoute("/clients")({
   component: DirectoryPage,
   head: () => ({
@@ -124,6 +136,13 @@ function DirectoryPage() {
   const [phoneCandidateSelectedIds, setPhoneCandidateSelectedIds] = useState<string[]>([]);
   const [selectedPhoneSyncIds, setSelectedPhoneSyncIds] = useState<string[]>([]);
   const [phoneSkippedCount, setPhoneSkippedCount] = useState(0);
+  const [smsClient, setSmsClient] = useState<Client | null>(null);
+  const [smsMessages, setSmsMessages] = useState<SmsMessage[]>([]);
+  const [smsLoading, setSmsLoading] = useState(false);
+  const [smsDraft, setSmsDraft] = useState("");
+  const [smsReplyDraft, setSmsReplyDraft] = useState("");
+  const [smsPendingLogBody, setSmsPendingLogBody] = useState("");
+  const [smsSaving, setSmsSaving] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -263,6 +282,115 @@ function DirectoryPage() {
       toast.error(error instanceof Error ? error.message : "Sync failed");
     } finally {
       setSyncing(null);
+    }
+  }
+
+  async function loadSmsThread(clientId: string) {
+    if (!user) return;
+
+    setSmsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("client_sms_messages")
+        .select("id,client_id,user_id,direction,status,body,created_at")
+        .eq("client_id", clientId)
+        .order("created_at", { ascending: true });
+      if (error) return toast.error(error.message);
+      setSmsMessages((data ?? []) as SmsMessage[]);
+    } finally {
+      setSmsLoading(false);
+    }
+  }
+
+  function openSmsDialog(client: Client) {
+    if (!client.phone) {
+      toast.error("Add a phone number before sending SMS.");
+      return;
+    }
+
+    setSmsClient(client);
+    setSmsDraft("");
+    setSmsReplyDraft("");
+    setSmsPendingLogBody("");
+    setSmsMessages([]);
+    void loadSmsThread(client.id);
+  }
+
+  function closeSmsDialog() {
+    setSmsClient(null);
+    setSmsMessages([]);
+    setSmsDraft("");
+    setSmsReplyDraft("");
+    setSmsPendingLogBody("");
+    setSmsLoading(false);
+    setSmsSaving(false);
+  }
+
+  function openNativeSmsApp() {
+    if (!smsClient?.phone) {
+      toast.error("This contact does not have a phone number.");
+      return;
+    }
+    if (!smsDraft.trim()) {
+      toast.error("Write an SMS first.");
+      return;
+    }
+
+    const nextBody = smsDraft.trim();
+    setSmsPendingLogBody(nextBody);
+    window.location.href = buildSmsHref(smsClient.phone, nextBody);
+  }
+
+  async function saveSmsToConversation() {
+    if (!user || !smsClient) return;
+    if (!smsPendingLogBody.trim()) {
+      toast.error("Open the SMS app first, then save the sent message here.");
+      return;
+    }
+
+    setSmsSaving(true);
+    try {
+      const { error } = await supabase.from("client_sms_messages").insert({
+        user_id: user.id,
+        client_id: smsClient.id,
+        direction: "outbound",
+        status: "sent",
+        body: smsPendingLogBody.trim(),
+      });
+      if (error) return toast.error(error.message);
+
+      toast.success("SMS saved to the conversation.");
+      setSmsDraft("");
+      setSmsPendingLogBody("");
+      void loadSmsThread(smsClient.id);
+    } finally {
+      setSmsSaving(false);
+    }
+  }
+
+  async function saveReceivedReplyToConversation() {
+    if (!user || !smsClient) return;
+    if (!smsReplyDraft.trim()) {
+      toast.error("Write the received reply before saving it.");
+      return;
+    }
+
+    setSmsSaving(true);
+    try {
+      const { error } = await supabase.from("client_sms_messages").insert({
+        user_id: user.id,
+        client_id: smsClient.id,
+        direction: "inbound",
+        status: "received",
+        body: smsReplyDraft.trim(),
+      });
+      if (error) return toast.error(error.message);
+
+      toast.success("Received reply saved to the conversation.");
+      setSmsReplyDraft("");
+      void loadSmsThread(smsClient.id);
+    } finally {
+      setSmsSaving(false);
     }
   }
 
@@ -682,7 +810,7 @@ function DirectoryPage() {
                       checked={allVisiblePhoneSyncSelected ? true : someVisiblePhoneSyncSelected ? "indeterminate" : false}
                       disabled={visiblePhoneSyncedRows.length === 0}
                       onCheckedChange={(checked) =>
-                        setPhoneSelectedIds((current) =>
+                        setSelectedPhoneSyncIds((current) =>
                           checked === true
                             ? Array.from(new Set([...current, ...visiblePhoneSyncedRows.map((row) => row.id)]))
                             : current.filter((id) => !visiblePhoneSyncedRows.some((row) => row.id === id))
@@ -780,6 +908,16 @@ function DirectoryPage() {
                           >
                             <PhoneCall className="h-4 w-4" />
                           </a>
+                        ) : null}
+                        {client.phone ? (
+                          <button
+                            type="button"
+                            onClick={() => openSmsDialog(client)}
+                            title={`SMS ${client.name}`}
+                            className="rounded-md p-2 text-primary hover:bg-muted"
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                          </button>
                         ) : null}
                         {client.source === "phone_sync" ? (
                           <button
@@ -998,6 +1136,143 @@ function DirectoryPage() {
             </button>
             <button type="button" className="btn-primary" onClick={() => void save()}>
               {editing ? "Save" : "Add"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!smsClient}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) closeSmsDialog();
+        }}
+      >
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              SMS conversation{smsClient ? ` · ${smsClient.name}` : ""}
+            </DialogTitle>
+            <DialogDescription>
+              Open your phone’s SMS app from here and save sent messages back into this tracker conversation. Replies from the native SMS app are not pulled in automatically.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="rounded-xl border border-border bg-muted/20 p-4">
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">Phone number</div>
+              <div className="mt-1 font-medium text-foreground">{smsClient?.phone ?? "-"}</div>
+            </div>
+
+            <div className="rounded-xl border border-border bg-card">
+              <div className="border-b border-border px-4 py-3 text-sm font-medium text-foreground">
+                Conversation log
+              </div>
+              <div className="max-h-64 space-y-3 overflow-y-auto p-4">
+                {smsLoading ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : smsMessages.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
+                    No SMS saved in the tracker yet. Send one from here and save it to start the conversation log.
+                  </div>
+                ) : (
+                  smsMessages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex ${message.direction === "outbound" ? "justify-end" : "justify-start"}`}
+                    >
+                      <div
+                        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm ${
+                          message.direction === "outbound"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-foreground"
+                        }`}
+                      >
+                        <div className="whitespace-pre-wrap break-words">{message.body}</div>
+                        <div
+                          className={`mt-2 text-[11px] ${
+                            message.direction === "outbound"
+                              ? "text-primary-foreground/80"
+                              : "text-muted-foreground"
+                          }`}
+                        >
+                          {formatDateTime(message.created_at)}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-3 rounded-xl border border-border bg-card p-4">
+              <div>
+                <div className="text-sm font-medium text-foreground">Compose SMS</div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Step 1: open the SMS app with your message. Step 2: come back and save it to the tracker conversation.
+                </p>
+              </div>
+
+              <textarea
+                className="input min-h-28"
+                placeholder="Write your message here..."
+                value={smsDraft}
+                onChange={(event) => setSmsDraft(event.target.value)}
+              />
+
+              {smsPendingLogBody ? (
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+                  SMS app opened with your latest draft. If you sent it, click <span className="font-medium">Save sent SMS</span> to add it to the tracker conversation.
+                </div>
+              ) : null}
+            </div>
+
+            <div className="space-y-3 rounded-xl border border-border bg-card p-4">
+              <div>
+                <div className="text-sm font-medium text-foreground">Log received reply</div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  If the contact replied in your phone messages, paste or type that reply here so the tracker conversation stays complete.
+                </p>
+              </div>
+
+              <textarea
+                className="input min-h-24"
+                placeholder="Type the reply you received..."
+                value={smsReplyDraft}
+                onChange={(event) => setSmsReplyDraft(event.target.value)}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <button type="button" className="btn-secondary" onClick={closeSmsDialog} disabled={smsSaving}>
+              Close
+            </button>
+            <button
+              type="button"
+              className="btn-secondary inline-flex items-center gap-2"
+              onClick={openNativeSmsApp}
+              disabled={!smsDraft.trim() || smsSaving}
+            >
+              <Send className="h-4 w-4" />
+              Open SMS app
+            </button>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => void saveSmsToConversation()}
+              disabled={!smsPendingLogBody || smsSaving}
+            >
+              {smsSaving ? "Saving..." : "Save sent SMS"}
+            </button>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => void saveReceivedReplyToConversation()}
+              disabled={!smsReplyDraft.trim() || smsSaving}
+            >
+              {smsSaving ? "Saving..." : "Log received reply"}
             </button>
           </DialogFooter>
         </DialogContent>
@@ -1336,6 +1611,26 @@ function decodeVcfValue(value: string) {
     .replace(/\\;/g, ";")
     .replace(/\\n/gi, " ")
     .trim();
+}
+
+function buildSmsHref(phone: string, body: string) {
+  const cleaned = phone.replace(/[^\d+]/g, "");
+  if (!cleaned) return `sms:?body=${encodeURIComponent(body)}`;
+
+  const isAppleDevice =
+    typeof navigator !== "undefined" &&
+    /iPad|iPhone|iPod/i.test(navigator.userAgent);
+  const separator = isAppleDevice ? "&" : "?";
+  return `sms:${cleaned}${body ? `${separator}body=${encodeURIComponent(body)}` : ""}`;
+}
+
+function formatDateTime(value: string) {
+  return new Date(value).toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 function normalizePhone(value: string | null | undefined) {

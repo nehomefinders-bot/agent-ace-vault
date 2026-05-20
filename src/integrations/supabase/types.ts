@@ -167,6 +167,44 @@ export type Database = {
         }
         Relationships: []
       }
+      client_sms_messages: {
+        Row: {
+          body: string
+          client_id: string
+          created_at: string
+          direction: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          client_id: string
+          created_at?: string
+          direction?: string
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          client_id?: string
+          created_at?: string
+          direction?: string
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_sms_messages_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deals: {
         Row: {
           address: string
