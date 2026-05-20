@@ -139,8 +139,8 @@ function BillingPage() {
               <div className="mb-5 bg-primary/10 border border-primary/30 text-primary rounded-lg px-3 py-2.5 text-sm flex items-start gap-2">
                 <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" />
                 <div>
-                  <strong>Beta program active</strong> — your $9.99/mo beta access ends on{" "}
-                  {new Date((subscription as any).cancel_at).toLocaleDateString()}. You can switch to a regular plan anytime from "Change plan", and pick one back up after the beta ends too.
+                  <strong>Founders Program active</strong> — your $9.99/mo Founders Program access ends on{" "}
+                  {new Date((subscription as any).cancel_at).toLocaleDateString()}. You can switch to a regular plan anytime from "Change plan", and pick one back up after the program ends too.
                 </div>
               </div>
             )}

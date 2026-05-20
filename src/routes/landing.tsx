@@ -31,7 +31,7 @@ export const Route = createFileRoute("/landing")({
 
 const tiers = [
   {
-    name: "Beta Tester",
+    name: "Founders Program",
     price: 10,
     blurb: "All features unlocked for 6 months while we gather feedback.",
     features: [
@@ -41,9 +41,9 @@ const tiers = [
       "Direct line to the founders",
       "Priority bug-fix turnaround",
     ],
-    cta: "Join the beta",
+    cta: "Join founders program",
     featured: false,
-    badge: "Limited beta",
+    badge: "Founders access",
   },
   {
     name: "Solo Agent",

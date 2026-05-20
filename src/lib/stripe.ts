@@ -36,7 +36,7 @@ export interface Plan {
 export const PLANS: Plan[] = [
   {
     id: "beta_tester",
-    name: "Beta Tester",
+    name: "Founders Program",
     tagline: "All features unlocked. Limited to 6 months while we gather feedback.",
     monthly: { priceId: "beta_monthly", amount: 10 },
     yearly: { priceId: "beta_monthly", amount: 10 },
