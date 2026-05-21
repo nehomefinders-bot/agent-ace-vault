@@ -238,13 +238,13 @@ function Landing() {
         </div>
       </section>
 
-      <section className="bg-[#e9eef1] text-slate-900">
+      <section className="bg-[#efe3c9] text-slate-900">
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
             {features.map((f) => (
               <div
                 key={f.title}
-                className="group relative rounded-2xl border border-[#d6dde5] bg-[#f5f3ed] p-5 shadow-[0_18px_45px_-28px_rgba(15,23,42,0.2)] transition-all duration-200 hover:-translate-y-1 hover:border-[#b8c3d0] hover:bg-slate-900 hover:shadow-[0_28px_56px_-26px_rgba(15,23,42,0.48)] active:-translate-y-0.5 active:border-[#b8c3d0] active:bg-slate-900 active:shadow-[0_24px_46px_-24px_rgba(15,23,42,0.42)] sm:p-6"
+                className="group relative rounded-2xl border border-[#dcccae] bg-[#faf4e7] p-5 shadow-[0_18px_45px_-28px_rgba(96,72,18,0.18)] transition-all duration-200 hover:-translate-y-1 hover:border-[#cfb77a] hover:bg-slate-900 hover:shadow-[0_28px_56px_-26px_rgba(15,23,42,0.48)] active:-translate-y-0.5 active:border-[#cfb77a] active:bg-slate-900 active:shadow-[0_24px_46px_-24px_rgba(15,23,42,0.42)] sm:p-6"
               >
                 <div
                   className={`absolute -inset-px -z-10 rounded-2xl bg-gradient-to-br ${f.glow} opacity-0 blur-xl transition-opacity duration-200 group-hover:opacity-30 group-active:opacity-30`}
@@ -264,7 +264,7 @@ function Landing() {
             ))}
           </div>
 
-          <div className="mt-10 rounded-3xl border border-[#d6dde5] bg-[#f5f3ed] px-6 py-6 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.16)] sm:px-8 sm:py-7">
+          <div className="mt-10 rounded-3xl border border-[#dcccae] bg-[#fbf5e8] px-6 py-6 shadow-[0_24px_60px_-36px_rgba(96,72,18,0.14)] sm:px-8 sm:py-7">
             <div className="flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
               <h2 className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">
                 Ready to track your Real Estate Business?
@@ -379,7 +379,7 @@ function Landing() {
         </div>
       </section>
 
-      <section className="bg-stone-50 text-slate-900">
+      <section className="bg-[#f7efdc] text-slate-900">
         <div className="relative mx-auto max-w-6xl scroll-mt-28 px-6 py-20" id="pricing">
           <div className="mb-14 text-center">
             <h2 className="font-display text-5xl font-bold text-slate-900 md:text-6xl">Simple pricing, real value</h2>
@@ -390,10 +390,12 @@ function Landing() {
             {tiers.map((tier) => (
               <div
                 key={tier.name}
-                className={`relative flex flex-col rounded-2xl border bg-white p-7 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.25)] transition-all ${
+                className={`relative flex flex-col rounded-2xl border p-7 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.18)] transition-all ${
                   tier.featured
-                    ? "border-[#b88918] shadow-[0_0_0_1px_rgba(184,137,24,0.22),0_28px_70px_-32px_rgba(184,137,24,0.45)] lg:-translate-y-2"
-                    : "border-slate-200 hover:border-slate-300"
+                    ? "border-[#b88918] bg-[linear-gradient(180deg,#fff9ed_0%,#f5e7c1_100%)] shadow-[0_0_0_1px_rgba(184,137,24,0.22),0_28px_70px_-32px_rgba(184,137,24,0.45)] lg:-translate-y-2"
+                    : tier.name === "Founders Program"
+                      ? "border-[#d0bb82] bg-[linear-gradient(180deg,#fffaf0_0%,#f7edd5_100%)] shadow-[0_0_0_1px_rgba(208,187,130,0.18),0_24px_54px_-34px_rgba(184,137,24,0.28)]"
+                      : "border-[#ddd1bf] bg-[#fffaf1] hover:border-[#c9b48b]"
                 }`}
               >
                 {tier.featured && (
@@ -405,14 +407,16 @@ function Landing() {
                   </>
                 )}
                 {tier.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#d4af37] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-950">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#d8bb66] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-950 shadow-[0_8px_22px_-10px_rgba(184,137,24,0.55)]">
                     {tier.badge}
                   </div>
                 )}
                 <div className="font-display text-xl font-bold text-slate-900">{tier.name}</div>
                 <div className="mt-1 mb-5 min-h-[5.5rem] text-base text-slate-600">{tier.blurb}</div>
                 <div className="mb-6 flex items-baseline gap-1">
-                  <div className={`font-display text-5xl font-bold tabular-nums ${tier.featured ? "text-[#a97900]" : "text-slate-900"}`}>
+                  <div className={`font-display text-5xl font-bold tabular-nums ${
+                    tier.featured ? "text-[#a97900]" : tier.name === "Founders Program" ? "text-[#8f6b12]" : "text-slate-900"
+                  }`}>
                     ${tier.price}
                   </div>
                   <div className="text-base text-slate-500">/mo</div>
@@ -425,7 +429,9 @@ function Landing() {
                   className={`mb-6 block w-full rounded-lg px-4 py-2.5 text-center text-base font-semibold transition-colors ${
                     tier.featured
                       ? "bg-[#d4af37] text-slate-950 hover:bg-[#c89e2f]"
-                      : "border border-slate-300 bg-slate-900 text-white hover:bg-slate-800"
+                      : tier.name === "Founders Program"
+                        ? "border border-[#c9b48b] bg-slate-900 text-white hover:bg-slate-800"
+                        : "border border-slate-300 bg-slate-900 text-white hover:bg-slate-800"
                   }`}
                 >
                   {tier.cta}
@@ -433,7 +439,11 @@ function Landing() {
                 <ul className="space-y-2.5">
                   {tier.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-base text-slate-700">
-                      <Check className={`mt-0.5 h-4 w-4 shrink-0 ${tier.featured ? "text-[#b88918]" : "text-[#d4af37]"}`} />
+                      <Check
+                        className={`mt-0.5 h-4 w-4 shrink-0 ${
+                          tier.featured ? "text-[#b88918]" : tier.name === "Founders Program" ? "text-[#c59a22]" : "text-[#d4af37]"
+                        }`}
+                      />
                       <span>{f}</span>
                     </li>
                   ))}
