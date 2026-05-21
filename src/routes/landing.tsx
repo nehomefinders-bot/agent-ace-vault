@@ -238,7 +238,7 @@ function Landing() {
         </div>
       </section>
 
-      <section className="bg-[#efe3c9] text-slate-900">
+      <section className="bg-[#ecd59a] text-slate-900">
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
             {features.map((f) => (
@@ -379,7 +379,7 @@ function Landing() {
         </div>
       </section>
 
-      <section className="bg-[#f7efdc] text-slate-900">
+      <section className="bg-[#efd28a] text-slate-900">
         <div className="relative mx-auto max-w-6xl scroll-mt-28 px-6 py-20" id="pricing">
           <div className="mb-14 text-center">
             <h2 className="font-display text-5xl font-bold text-slate-900 md:text-6xl">Simple pricing, real value</h2>
