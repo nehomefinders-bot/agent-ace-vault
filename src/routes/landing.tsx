@@ -214,17 +214,17 @@ function Landing() {
           aria-hidden
         />
         <div className="relative z-10 mx-auto max-w-6xl px-6 pt-24 pb-20 text-center sm:pt-32 sm:pb-24 lg:pt-36">
-          <div className="relative mx-auto max-w-4xl p-6 sm:p-10">
+          <div className="relative mx-auto max-w-5xl px-4 py-6 sm:px-8 sm:py-8">
             <div
-              className="pointer-events-none absolute inset-x-0 inset-y-2 rounded-[3rem] bg-[radial-gradient(circle_at_top,rgba(30,41,59,0.92)_0%,rgba(15,23,42,0.88)_34%,rgba(2,6,23,0.84)_64%,rgba(0,0,0,0.82)_100%)] blur-2xl"
+              className="pointer-events-none absolute left-1/2 top-[42%] h-[24rem] w-[96%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(15,23,42,0.84)_0%,rgba(2,6,23,0.74)_36%,rgba(2,6,23,0.44)_62%,rgba(2,6,23,0.14)_80%,transparent_100%)] blur-3xl"
               aria-hidden
             />
             <div
-              className="pointer-events-none absolute inset-x-3 inset-y-4 rounded-[2.75rem] bg-[linear-gradient(180deg,rgba(15,23,42,0.58)_0%,rgba(8,15,34,0.48)_46%,rgba(0,0,0,0.56)_100%)] backdrop-blur-md"
+              className="pointer-events-none absolute left-1/2 top-[58%] h-[18rem] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.62)_0%,rgba(2,6,23,0.3)_58%,transparent_100%)] blur-2xl"
               aria-hidden
             />
             <div
-              className="pointer-events-none absolute left-1/2 top-1/2 h-[72%] w-[76%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(2,6,23,0.42)] blur-3xl"
+              className="pointer-events-none absolute left-1/2 top-10 h-24 w-64 -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(30,41,59,0.45)_0%,rgba(15,23,42,0.2)_60%,transparent_100%)] blur-2xl"
               aria-hidden
             />
             <div className="relative">
