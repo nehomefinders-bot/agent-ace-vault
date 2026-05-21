@@ -14,7 +14,7 @@ import {
   PieChart,
 } from "lucide-react";
 import endlessProspectsLogo from "@/assets/endless-prospects-logo.png";
-import maColonialHeroBg from "@/assets/ma-colonial-hero-bg-updated.png";
+import maColonialHeroBg from "@/assets/landing-house-autumn.jpeg";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/landing")({
