@@ -166,19 +166,19 @@ function Landing() {
 
   return (
     <div className="dark min-h-dvh w-full overflow-x-hidden bg-slate-950 text-white">
-      <nav className="sticky top-0 z-50 border-b border-slate-200/90 bg-slate-50/95 backdrop-blur-xl">
+      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#050b22]/88 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <Link to="/landing" className="flex min-w-0 items-center gap-2 sm:gap-2.5">
             <img
               src={endlessProspectsLogo}
               alt="Endless Prospects"
-              className="h-9 w-9 shrink-0 rounded-xl object-cover ring-1 ring-slate-200 sm:h-10 sm:w-10"
+              className="h-9 w-9 shrink-0 rounded-xl object-cover ring-1 ring-white/20 sm:h-10 sm:w-10"
             />
             <div className="min-w-0">
-              <div className="truncate font-display text-base leading-none font-bold text-slate-900 sm:text-lg">
+              <div className="truncate font-display text-base leading-none font-bold text-white sm:text-lg">
                 Endless Prospects
               </div>
-              <div className="mt-1 hidden text-xs uppercase tracking-[0.2em] text-[#b88918] sm:block">
+              <div className="mt-1 hidden text-xs uppercase tracking-[0.2em] text-[#d4af37] sm:block">
                 Business Tracker
               </div>
             </div>
@@ -187,15 +187,9 @@ function Landing() {
           <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
             <Link
               to="/auth"
-              className="px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:text-slate-950 sm:px-4 sm:text-base"
+              className="whitespace-nowrap rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_-18px_rgba(0,0,0,0.55)] transition-colors hover:bg-white/10 sm:px-4 sm:text-base"
             >
               Sign in
-            </Link>
-            <Link
-              to="/auth"
-              className="whitespace-nowrap rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-[0_10px_24px_-18px_rgba(15,23,42,0.45)] transition-colors hover:bg-slate-100 sm:px-4 sm:text-base"
-            >
-              Get started
             </Link>
             <Link
               to="/auth"
@@ -474,15 +468,15 @@ function Landing() {
         </div>
       </section>
 
-      <footer className="border-t border-slate-200 bg-slate-50">
-        <div className="mx-auto grid max-w-6xl gap-8 px-6 py-8 text-sm text-slate-600 md:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] md:items-center">
+      <footer className="border-t border-white/10 bg-black/30 backdrop-blur-md">
+        <div className="mx-auto grid max-w-6xl gap-8 px-6 py-8 text-sm text-white/55 md:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] md:items-center">
           <div className="flex flex-col gap-3">
             <div>&copy; {new Date().getFullYear()} Endless Prospects &middot; Agent Business Tracker</div>
             <div className="flex flex-wrap gap-4">
-              <Link to="/auth" className="transition-colors hover:text-slate-900">
+              <Link to="/auth" className="transition-colors hover:text-white">
                 Sign in
               </Link>
-              <Link to="/help" className="transition-colors hover:text-slate-900">
+              <Link to="/help" className="transition-colors hover:text-white">
                 Help
               </Link>
             </div>
@@ -490,11 +484,11 @@ function Landing() {
 
           <form
             onSubmit={handleNewsletterSubmit}
-            className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.25)]"
+            className="rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_18px_45px_-32px_rgba(0,0,0,0.45)] backdrop-blur-md"
           >
             <div className="mb-3">
-              <div className="font-display text-lg font-bold text-slate-900">Stay in the loop</div>
-              <p className="mt-1 text-sm text-slate-600">Low-volume product updates for agents and teams.</p>
+              <div className="font-display text-lg font-bold text-white">Stay in the loop</div>
+              <p className="mt-1 text-sm text-white/60">Low-volume product updates for agents and teams.</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <input
@@ -502,11 +496,11 @@ function Landing() {
                 value={newsletterEmail}
                 onChange={(event) => setNewsletterEmail(event.target.value)}
                 placeholder="Enter your email"
-                className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-[#d4af37] focus:ring-2 focus:ring-[#d4af37]/25"
+                className="min-w-0 flex-1 rounded-lg border border-white/12 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-[#d4af37] focus:ring-2 focus:ring-[#d4af37]/25"
               />
               <button
                 type="submit"
-                className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
+                className="inline-flex items-center justify-center rounded-lg bg-[#d4af37] px-4 py-2.5 text-sm font-semibold text-slate-950 transition-colors hover:bg-[#c89e2f]"
               >
                 Get updates
               </button>
