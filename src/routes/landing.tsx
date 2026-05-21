@@ -231,7 +231,7 @@ function Landing() {
             >
               See live demo
             </Link>
-            <p className="mt-5 text-sm font-medium text-white/90 drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] lg:absolute lg:bottom-8 lg:left-1/2 lg:mt-0 lg:-translate-x-1/2">
+            <p className="mt-5 text-sm font-semibold text-[#ffe066] drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] lg:absolute lg:bottom-8 lg:left-1/2 lg:mt-0 lg:-translate-x-1/2">
               No charge until day 15 &bull; Cancel anytime
             </p>
           </div>
@@ -267,13 +267,13 @@ function Landing() {
           <div className="mt-10 rounded-3xl border border-[#d6dde5] bg-[#f5f3ed] px-6 py-6 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.16)] sm:px-8 sm:py-7">
             <div className="flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
               <h2 className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">
-                Ready to automate your admin?
+                Ready to track your Real Estate Business?
               </h2>
               <Link
                 to="/auth"
                 className="inline-flex items-center justify-center rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_28px_-14px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f]"
               >
-                Try All Features Free
+                Join the Founder Program
               </Link>
             </div>
           </div>
