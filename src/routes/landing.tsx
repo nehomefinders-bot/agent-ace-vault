@@ -207,53 +207,33 @@ function Landing() {
           style={{ backgroundImage: `url(${maColonialHeroBg})` }}
           aria-hidden
         />
-        <div className="relative z-10 mx-auto max-w-6xl px-6 pt-24 pb-20 text-center sm:pt-32 sm:pb-24 lg:pt-36">
-          <div className="relative mx-auto max-w-5xl px-4 py-6 sm:px-8 sm:py-8">
-            <div
-              className="pointer-events-none absolute left-1/2 top-[44%] h-[30rem] w-[108%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(2,6,23,0.96)_0%,rgba(15,23,42,0.9)_30%,rgba(2,6,23,0.72)_56%,rgba(2,6,23,0.34)_78%,transparent_100%)] blur-3xl"
-              aria-hidden
-            />
-            <div
-              className="pointer-events-none absolute left-1/2 top-[60%] h-[22rem] w-[84%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.82)_0%,rgba(2,6,23,0.58)_46%,rgba(2,6,23,0.22)_74%,transparent_100%)] blur-3xl"
-              aria-hidden
-            />
-            <div
-              className="pointer-events-none absolute left-1/2 top-8 h-28 w-72 -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(30,41,59,0.62)_0%,rgba(15,23,42,0.34)_58%,transparent_100%)] blur-2xl"
-              aria-hidden
-            />
-            <div
-              className="pointer-events-none absolute left-1/2 top-[74%] h-28 w-[44%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.72)_0%,rgba(2,6,23,0.36)_58%,transparent_100%)] blur-2xl"
-              aria-hidden
-            />
-            <div className="relative">
-              <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-sm font-medium text-[#d4af37] backdrop-blur-md">
-                <Sparkles className="h-3 w-3" /> Built for real estate agents
-              </div>
-              <h1 className="mx-auto max-w-4xl font-display text-5xl leading-[1.02] font-bold tracking-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)] md:text-7xl">
-                <span className="text-white">Your Real Estate Business at a Glance</span>{" "}
-                <span className="text-[#d4af37]">all in one place.</span>
-              </h1>
-              <p className="mx-auto mt-8 max-w-3xl text-xl leading-relaxed text-white/75 md:text-2xl">
-                Clients, Deals, Trackable milage, commission statements, Listings, Leads, and Book Keeping for end of the day reports all in one spot.
-              </p>
-              <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Link
-                  to="/auth"
-                  className="inline-flex items-center gap-2 rounded-lg bg-[#d4af37] px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-colors hover:bg-[#c89e2f]"
-                >
-                  Start your free 14-day trial <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link
-                  to="/"
-                  className="rounded-lg border border-white/20 bg-white/5 px-7 py-3.5 text-base font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/10"
-                >
-                  See live demo
-                </Link>
-              </div>
-              <p className="mt-5 inline-flex items-center rounded-full border border-white/15 bg-slate-950/55 px-4 py-2 text-sm font-medium text-[#f3e6b2] shadow-[0_14px_32px_-18px_rgba(2,6,23,0.8)] backdrop-blur-sm">
-                No charge until day 15 &bull; Cancel anytime
-              </p>
+        <div className="relative z-10 mx-auto max-w-7xl px-6 pt-16 pb-12 text-center sm:pt-24 sm:pb-16 lg:pt-10 lg:pb-10">
+          <div className="relative flex min-h-[34rem] flex-col items-center sm:min-h-[40rem] lg:min-h-[46rem]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-slate-950/55 px-4 py-1.5 text-sm font-semibold text-[#f0cf6a] shadow-[0_16px_36px_-18px_rgba(0,0,0,0.75)] backdrop-blur-sm lg:absolute lg:top-6 lg:left-1/2 lg:-translate-x-1/2">
+              <Sparkles className="h-3.5 w-3.5" /> Built for real estate agents
             </div>
+            <h1 className="mt-10 max-w-5xl font-display text-5xl leading-[1.02] font-bold tracking-tight text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.82)] sm:mt-14 md:text-6xl lg:absolute lg:top-16 lg:left-1/2 lg:mt-0 lg:w-full lg:max-w-6xl lg:-translate-x-1/2 lg:text-[4.7rem] xl:text-[5.2rem]">
+              <span className="text-white">Your Real Estate Business at a Glance</span>{" "}
+              <span className="text-[#d4af37]">all in one place.</span>
+            </h1>
+            <p className="mt-auto max-w-4xl text-lg leading-relaxed text-white/90 drop-shadow-[0_4px_14px_rgba(0,0,0,0.85)] sm:text-xl lg:absolute lg:bottom-[11.5rem] lg:left-1/2 lg:mt-0 lg:w-full lg:-translate-x-1/2 lg:text-[2rem]">
+              Clients, Deals, Trackable milage, commission statements, Listings, Leads, and Book Keeping for end of the day reports all in one spot.
+            </p>
+            <Link
+              to="/auth"
+              className="mt-8 inline-flex items-center gap-2 rounded-lg bg-[#d4af37] px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-colors hover:bg-[#c89e2f] lg:absolute lg:bottom-20 lg:left-10 lg:mt-0 xl:left-16"
+            >
+              Start your free 14-day trial <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              to="/"
+              className="mt-3 rounded-lg border border-white/25 bg-slate-950/35 px-7 py-3.5 text-base font-semibold text-white shadow-[0_12px_30px_-14px_rgba(0,0,0,0.7)] backdrop-blur-sm transition-colors hover:bg-slate-950/50 lg:absolute lg:right-10 lg:bottom-20 lg:mt-0 xl:right-16"
+            >
+              See live demo
+            </Link>
+            <p className="mt-5 text-sm font-medium text-white/90 drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] lg:absolute lg:bottom-8 lg:left-1/2 lg:mt-0 lg:-translate-x-1/2">
+              No charge until day 15 &bull; Cancel anytime
+            </p>
           </div>
         </div>
       </section>
