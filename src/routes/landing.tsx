@@ -216,15 +216,19 @@ function Landing() {
         <div className="relative z-10 mx-auto max-w-6xl px-6 pt-24 pb-20 text-center sm:pt-32 sm:pb-24 lg:pt-36">
           <div className="relative mx-auto max-w-5xl px-4 py-6 sm:px-8 sm:py-8">
             <div
-              className="pointer-events-none absolute left-1/2 top-[42%] h-[24rem] w-[96%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(15,23,42,0.84)_0%,rgba(2,6,23,0.74)_36%,rgba(2,6,23,0.44)_62%,rgba(2,6,23,0.14)_80%,transparent_100%)] blur-3xl"
+              className="pointer-events-none absolute left-1/2 top-[44%] h-[30rem] w-[108%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(2,6,23,0.96)_0%,rgba(15,23,42,0.9)_30%,rgba(2,6,23,0.72)_56%,rgba(2,6,23,0.34)_78%,transparent_100%)] blur-3xl"
               aria-hidden
             />
             <div
-              className="pointer-events-none absolute left-1/2 top-[58%] h-[18rem] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.62)_0%,rgba(2,6,23,0.3)_58%,transparent_100%)] blur-2xl"
+              className="pointer-events-none absolute left-1/2 top-[60%] h-[22rem] w-[84%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.82)_0%,rgba(2,6,23,0.58)_46%,rgba(2,6,23,0.22)_74%,transparent_100%)] blur-3xl"
               aria-hidden
             />
             <div
-              className="pointer-events-none absolute left-1/2 top-10 h-24 w-64 -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(30,41,59,0.45)_0%,rgba(15,23,42,0.2)_60%,transparent_100%)] blur-2xl"
+              className="pointer-events-none absolute left-1/2 top-8 h-28 w-72 -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(30,41,59,0.62)_0%,rgba(15,23,42,0.34)_58%,transparent_100%)] blur-2xl"
+              aria-hidden
+            />
+            <div
+              className="pointer-events-none absolute left-1/2 top-[74%] h-28 w-[44%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.72)_0%,rgba(2,6,23,0.36)_58%,transparent_100%)] blur-2xl"
               aria-hidden
             />
             <div className="relative">
