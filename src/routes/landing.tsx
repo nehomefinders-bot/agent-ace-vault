@@ -390,24 +390,27 @@ function Landing() {
             {tiers.map((tier) => (
               <div
                 key={tier.name}
-                className={`relative flex flex-col rounded-2xl border p-7 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.18)] transition-all ${
+                className={`relative overflow-hidden flex flex-col rounded-2xl border p-7 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.18)] transition-all ${
                   tier.featured
-                    ? "border-[#b88918] bg-[linear-gradient(180deg,#fff9ed_0%,#f5e7c1_100%)] shadow-[0_0_0_1px_rgba(184,137,24,0.22),0_28px_70px_-32px_rgba(184,137,24,0.45)] lg:-translate-y-2"
+                    ? "border-[#b88918] bg-[linear-gradient(180deg,#fffaf0_0%,#f6e1a9_100%)] shadow-[0_0_0_1px_rgba(184,137,24,0.28),0_34px_84px_-30px_rgba(184,137,24,0.55)] lg:-translate-y-3 lg:scale-[1.04]"
                     : tier.name === "Founders Program"
-                      ? "border-[#d0bb82] bg-[linear-gradient(180deg,#fffaf0_0%,#f7edd5_100%)] shadow-[0_0_0_1px_rgba(208,187,130,0.18),0_24px_54px_-34px_rgba(184,137,24,0.28)]"
+                      ? "border-[#cfb15a] bg-[linear-gradient(180deg,#fffaf1_0%,#f4e4b4_100%)] shadow-[0_0_0_1px_rgba(207,177,90,0.24),0_30px_72px_-36px_rgba(184,137,24,0.38)] lg:-translate-y-1"
                       : "border-[#ddd1bf] bg-[#fffaf1] hover:border-[#c9b48b]"
                 }`}
               >
                 {tier.featured && (
                   <>
-                    <div className="pointer-events-none absolute -inset-px rounded-2xl bg-gradient-to-b from-[#d4af37]/20 via-transparent to-transparent" />
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#d4af37] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-950 shadow-[0_8px_24px_-4px_rgba(212,175,55,0.6)]">
+                    <div className="pointer-events-none absolute -inset-px rounded-2xl bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.24)_0%,rgba(255,244,207,0.14)_28%,transparent_72%)]" />
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#d4af37] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-950 shadow-[0_10px_28px_-6px_rgba(212,175,55,0.72)]">
                       Most popular
                     </div>
                   </>
                 )}
+                {tier.name === "Founders Program" && (
+                  <div className="pointer-events-none absolute -inset-px rounded-2xl bg-[radial-gradient(circle_at_top,rgba(219,191,107,0.2)_0%,rgba(255,247,227,0.12)_30%,transparent_75%)]" />
+                )}
                 {tier.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#d8bb66] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-950 shadow-[0_8px_22px_-10px_rgba(184,137,24,0.55)]">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#d8bb66] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-950 shadow-[0_10px_28px_-12px_rgba(184,137,24,0.75)]">
                     {tier.badge}
                   </div>
                 )}
@@ -428,9 +431,9 @@ function Landing() {
                   to="/auth"
                   className={`mb-6 block w-full rounded-lg px-4 py-2.5 text-center text-base font-semibold transition-colors ${
                     tier.featured
-                      ? "bg-[#d4af37] text-slate-950 hover:bg-[#c89e2f]"
+                      ? "bg-[#d4af37] text-slate-950 shadow-[0_16px_34px_-14px_rgba(212,175,55,0.8)] hover:bg-[#c89e2f]"
                       : tier.name === "Founders Program"
-                        ? "border border-[#c9b48b] bg-slate-900 text-white hover:bg-slate-800"
+                        ? "border border-[#cfb15a] bg-[#17233e] text-[#f3dd8a] shadow-[0_14px_32px_-18px_rgba(184,137,24,0.45)] hover:bg-[#1c2b4a]"
                         : "border border-slate-300 bg-slate-900 text-white hover:bg-slate-800"
                   }`}
                 >
