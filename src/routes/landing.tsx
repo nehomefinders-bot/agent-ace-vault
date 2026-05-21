@@ -50,7 +50,7 @@ const tiers = [
     ],
     cta: "Join founders program",
     featured: false,
-    badge: "Founders access",
+    badge: "Founders program",
   },
   {
     name: "Solo Agent",
