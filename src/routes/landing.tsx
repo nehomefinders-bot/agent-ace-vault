@@ -214,32 +214,46 @@ function Landing() {
           aria-hidden
         />
         <div className="relative z-10 mx-auto max-w-6xl px-6 pt-24 pb-20 text-center sm:pt-32 sm:pb-24 lg:pt-36">
-          <div className="mx-auto max-w-4xl rounded-[2rem] bg-slate-950/70 p-6 shadow-[0_32px_90px_-30px_rgba(2,6,23,0.85)] ring-1 ring-white/10 backdrop-blur-sm sm:p-10">
-            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-sm font-medium text-[#d4af37] backdrop-blur-md">
-              <Sparkles className="h-3 w-3" /> Built for real estate agents
+          <div className="relative mx-auto max-w-4xl p-6 sm:p-10">
+            <div
+              className="pointer-events-none absolute inset-x-0 inset-y-2 rounded-[3rem] bg-[radial-gradient(circle_at_top,rgba(30,41,59,0.92)_0%,rgba(15,23,42,0.88)_34%,rgba(2,6,23,0.84)_64%,rgba(0,0,0,0.82)_100%)] blur-2xl"
+              aria-hidden
+            />
+            <div
+              className="pointer-events-none absolute inset-x-3 inset-y-4 rounded-[2.75rem] bg-[linear-gradient(180deg,rgba(15,23,42,0.58)_0%,rgba(8,15,34,0.48)_46%,rgba(0,0,0,0.56)_100%)] backdrop-blur-md"
+              aria-hidden
+            />
+            <div
+              className="pointer-events-none absolute left-1/2 top-1/2 h-[72%] w-[76%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(2,6,23,0.42)] blur-3xl"
+              aria-hidden
+            />
+            <div className="relative">
+              <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-sm font-medium text-[#d4af37] backdrop-blur-md">
+                <Sparkles className="h-3 w-3" /> Built for real estate agents
+              </div>
+              <h1 className="mx-auto max-w-4xl font-display text-5xl leading-[1.02] font-bold tracking-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)] md:text-7xl">
+                <span className="text-white">Your Real Estate Business at a Glance</span>{" "}
+                <span className="text-[#d4af37]">all in one place.</span>
+              </h1>
+              <p className="mx-auto mt-8 max-w-3xl text-xl leading-relaxed text-white/75 md:text-2xl">
+                Clients, Deals, Trackable milage, commission statements, Listings, Leads, and Book Keeping for end of the day reports all in one spot.
+              </p>
+              <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <Link
+                  to="/auth"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#d4af37] px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-colors hover:bg-[#c89e2f]"
+                >
+                  Start your free 14-day trial <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  to="/"
+                  className="rounded-lg border border-white/20 bg-white/5 px-7 py-3.5 text-base font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/10"
+                >
+                  See live demo
+                </Link>
+              </div>
+              <p className="mt-5 text-sm text-white/55">No charge until day 15 &bull; Cancel anytime</p>
             </div>
-            <h1 className="mx-auto max-w-4xl font-display text-5xl leading-[1.02] font-bold tracking-tight text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)] md:text-7xl">
-              <span className="text-white">Your Real Estate Business at a Glance</span>{" "}
-              <span className="text-[#d4af37]">all in one place.</span>
-            </h1>
-            <p className="mx-auto mt-8 max-w-3xl text-xl leading-relaxed text-white/75 md:text-2xl">
-              Clients, Deals, Trackable milage, commission statements, Listings, Leads, and Book Keeping for end of the day reports all in one spot.
-            </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Link
-                to="/auth"
-                className="inline-flex items-center gap-2 rounded-lg bg-[#d4af37] px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-colors hover:bg-[#c89e2f]"
-              >
-                Start your free 14-day trial <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/"
-                className="rounded-lg border border-white/20 bg-white/5 px-7 py-3.5 text-base font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/10"
-              >
-                See live demo
-              </Link>
-            </div>
-            <p className="mt-5 text-sm text-white/55">No charge until day 15 &bull; Cancel anytime</p>
           </div>
         </div>
       </section>
