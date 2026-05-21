@@ -256,35 +256,41 @@ function Landing() {
                   See live demo
                 </Link>
               </div>
-              <p className="mt-5 text-sm text-white/55">No charge until day 15 &bull; Cancel anytime</p>
+              <p className="mt-5 inline-flex items-center rounded-full border border-white/15 bg-slate-950/55 px-4 py-2 text-sm font-medium text-[#f3e6b2] shadow-[0_14px_32px_-18px_rgba(2,6,23,0.8)] backdrop-blur-sm">
+                No charge until day 15 &bull; Cancel anytime
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-slate-100 text-slate-900">
+      <section className="bg-[#e9eef1] text-slate-900">
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
             {features.map((f) => (
               <div
                 key={f.title}
-                className="group relative rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_18px_45px_-28px_rgba(15,23,42,0.28)] transition-all hover:-translate-y-1 hover:border-slate-300 hover:shadow-[0_24px_50px_-24px_rgba(15,23,42,0.22)] sm:p-6"
+                className="group relative rounded-2xl border border-[#d6dde5] bg-[#f5f3ed] p-5 shadow-[0_18px_45px_-28px_rgba(15,23,42,0.2)] transition-all duration-200 hover:-translate-y-1 hover:border-[#b8c3d0] hover:bg-slate-900 hover:shadow-[0_28px_56px_-26px_rgba(15,23,42,0.48)] active:-translate-y-0.5 active:border-[#b8c3d0] active:bg-slate-900 active:shadow-[0_24px_46px_-24px_rgba(15,23,42,0.42)] sm:p-6"
               >
                 <div
-                  className={`absolute -inset-px -z-10 rounded-2xl bg-gradient-to-br ${f.glow} opacity-0 blur-xl transition-opacity group-hover:opacity-30`}
+                  className={`absolute -inset-px -z-10 rounded-2xl bg-gradient-to-br ${f.glow} opacity-0 blur-xl transition-opacity duration-200 group-hover:opacity-30 group-active:opacity-30`}
                 />
                 <div
-                  className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${f.glow} shadow-[0_12px_28px_-10px_rgba(15,23,42,0.35)]`}
+                  className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${f.glow} shadow-[0_12px_28px_-10px_rgba(15,23,42,0.24)] ring-1 ring-black/5 transition-all duration-200 group-hover:scale-105 group-hover:ring-white/10 group-active:scale-105 group-active:ring-white/10`}
                 >
                   <f.icon className="h-5 w-5 text-slate-950" strokeWidth={2.5} />
                 </div>
-                <div className="mb-1.5 font-display text-lg font-bold text-slate-900">{f.title}</div>
-                <div className="text-base leading-relaxed text-slate-600">{f.body}</div>
+                <div className="mb-1.5 font-display text-lg font-bold text-slate-900 transition-colors duration-200 group-hover:text-white group-active:text-white">
+                  {f.title}
+                </div>
+                <div className="text-base leading-relaxed text-slate-600 transition-colors duration-200 group-hover:text-slate-200 group-active:text-slate-200">
+                  {f.body}
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-10 rounded-3xl border border-slate-200 bg-white px-6 py-6 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.2)] sm:px-8 sm:py-7">
+          <div className="mt-10 rounded-3xl border border-[#d6dde5] bg-[#f5f3ed] px-6 py-6 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.16)] sm:px-8 sm:py-7">
             <div className="flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
               <h2 className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">
                 Ready to automate your admin?
