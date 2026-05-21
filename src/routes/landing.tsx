@@ -212,11 +212,11 @@ function Landing() {
             <div className="inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-slate-950/55 px-4 py-1.5 text-sm font-semibold text-[#f0cf6a] shadow-[0_16px_36px_-18px_rgba(0,0,0,0.75)] backdrop-blur-sm lg:absolute lg:top-6 lg:left-1/2 lg:-translate-x-1/2">
               <Sparkles className="h-3.5 w-3.5" /> Built for real estate agents
             </div>
-            <h1 className="mt-10 max-w-5xl font-display text-5xl leading-[1.02] font-bold tracking-tight text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.82)] sm:mt-14 md:text-6xl lg:absolute lg:top-16 lg:left-1/2 lg:mt-0 lg:w-full lg:max-w-6xl lg:-translate-x-1/2 lg:text-[4.7rem] xl:text-[5.2rem]">
+            <h1 className="mt-10 max-w-5xl font-display text-5xl leading-[1.01] font-bold tracking-tight text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.9)] sm:mt-14 md:text-6xl lg:absolute lg:top-14 lg:left-1/2 lg:mt-0 lg:w-full lg:max-w-6xl lg:-translate-x-1/2 lg:text-[5.15rem] xl:text-[5.7rem]">
               <span className="text-white">Your Real Estate Business at a Glance</span>{" "}
               <span className="text-[#d4af37]">all in one place.</span>
             </h1>
-            <p className="mt-auto max-w-4xl text-lg leading-relaxed text-white/90 drop-shadow-[0_4px_14px_rgba(0,0,0,0.85)] sm:text-xl lg:absolute lg:bottom-[11.5rem] lg:left-1/2 lg:mt-0 lg:w-full lg:-translate-x-1/2 lg:text-[2rem]">
+            <p className="mt-auto max-w-4xl text-lg leading-relaxed text-white/90 drop-shadow-[0_5px_16px_rgba(0,0,0,0.88)] sm:text-xl lg:absolute lg:bottom-[9.5rem] lg:left-1/2 lg:mt-0 lg:w-full lg:max-w-5xl lg:-translate-x-1/2 lg:text-[1.45rem] xl:text-[1.65rem]">
               Clients, Deals, Trackable milage, commission statements, Listings, Leads, and Book Keeping for end of the day reports all in one spot.
             </p>
             <Link
