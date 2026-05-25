@@ -22,6 +22,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as MileageRouteImport } from './routes/mileage'
+import { Route as MediaStorageRouteImport } from './routes/media-storage'
 import { Route as ListingsRouteImport } from './routes/listings'
 import { Route as LandingRouteImport } from './routes/landing'
 import { Route as HelpRouteImport } from './routes/help'
@@ -109,6 +110,11 @@ const PipelineRoute = PipelineRouteImport.update({
 const MileageRoute = MileageRouteImport.update({
   id: '/mileage',
   path: '/mileage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MediaStorageRoute = MediaStorageRouteImport.update({
+  id: '/media-storage',
+  path: '/media-storage',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ListingsRoute = ListingsRouteImport.update({
@@ -243,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/help': typeof HelpRoute
   '/landing': typeof LandingRoute
   '/listings': typeof ListingsRoute
+  '/media-storage': typeof MediaStorageRoute
   '/mileage': typeof MileageRoute
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
@@ -280,6 +287,7 @@ export interface FileRoutesByTo {
   '/help': typeof HelpRoute
   '/landing': typeof LandingRoute
   '/listings': typeof ListingsRoute
+  '/media-storage': typeof MediaStorageRoute
   '/mileage': typeof MileageRoute
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
@@ -319,6 +327,7 @@ export interface FileRoutesById {
   '/help': typeof HelpRoute
   '/landing': typeof LandingRoute
   '/listings': typeof ListingsRoute
+  '/media-storage': typeof MediaStorageRoute
   '/mileage': typeof MileageRoute
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
@@ -359,6 +368,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/landing'
     | '/listings'
+    | '/media-storage'
     | '/mileage'
     | '/pipeline'
     | '/pricing'
@@ -396,6 +406,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/landing'
     | '/listings'
+    | '/media-storage'
     | '/mileage'
     | '/pipeline'
     | '/pricing'
@@ -434,6 +445,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/landing'
     | '/listings'
+    | '/media-storage'
     | '/mileage'
     | '/pipeline'
     | '/pricing'
@@ -473,6 +485,7 @@ export interface RootRouteChildren {
   HelpRoute: typeof HelpRoute
   LandingRoute: typeof LandingRoute
   ListingsRoute: typeof ListingsRoute
+  MediaStorageRoute: typeof MediaStorageRoute
   MileageRoute: typeof MileageRoute
   PipelineRoute: typeof PipelineRoute
   PricingRoute: typeof PricingRoute
@@ -582,6 +595,13 @@ declare module '@tanstack/react-router' {
       path: '/mileage'
       fullPath: '/mileage'
       preLoaderRoute: typeof MileageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/media-storage': {
+      id: '/media-storage'
+      path: '/media-storage'
+      fullPath: '/media-storage'
+      preLoaderRoute: typeof MediaStorageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/listings': {
@@ -784,6 +804,7 @@ const rootRouteChildren: RootRouteChildren = {
   HelpRoute: HelpRoute,
   LandingRoute: LandingRoute,
   ListingsRoute: ListingsRoute,
+  MediaStorageRoute: MediaStorageRoute,
   MileageRoute: MileageRoute,
   PipelineRoute: PipelineRoute,
   PricingRoute: PricingRoute,
@@ -804,3 +825,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

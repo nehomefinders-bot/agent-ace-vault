@@ -279,6 +279,7 @@ export type Database = {
           folder: string
           id: string
           labels: string[]
+          library_scope: string
           mime_type: string | null
           name: string
           signed_at: string | null
@@ -294,6 +295,7 @@ export type Database = {
           folder?: string
           id?: string
           labels?: string[]
+          library_scope?: string
           mime_type?: string | null
           name: string
           signed_at?: string | null
@@ -309,6 +311,7 @@ export type Database = {
           folder?: string
           id?: string
           labels?: string[]
+          library_scope?: string
           mime_type?: string | null
           name?: string
           signed_at?: string | null

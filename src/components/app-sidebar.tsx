@@ -30,7 +30,7 @@ const sections = [
       { to: "/commissions", label: "Commissions", icon: Receipt },
       { to: "/expenses", label: "Expenses", icon: Wallet },
       { to: "/mileage", label: "Mileage", icon: Car },
-      { to: "/documents", label: "Media Storage", icon: Image },
+      { to: "/media-storage", label: "Media Storage", icon: Image },
     ],
   },
   {
