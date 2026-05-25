@@ -65,7 +65,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     const customerEmail = (claims as any)?.email as string | undefined;
 
     const isBeta = data.priceId === "beta_monthly";
-    // Founders Program: hard 6-month cap, no trial — they pay $9.99 immediately and
+    // Founders' Program: hard 6-month cap, no trial — they pay $9.99 immediately and
     // Stripe auto-cancels the subscription after 6 monthly renewals.
     const sixMonthsFromNow = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30 * 6;
 

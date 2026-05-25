@@ -39,7 +39,7 @@ export const Route = createFileRoute("/landing")({
 
 const tiers = [
   {
-    name: "Founders Program",
+    name: "Founders' Program",
     price: 10,
     blurb: "All features unlocked for 6 months while we gather feedback.",
     features: [
@@ -310,7 +310,7 @@ function Landing() {
                 to="/auth"
                 className="inline-flex items-center justify-center rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_28px_-14px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f]"
               >
-                Join the Founder Program
+                Join the Founders' Program
               </Link>
             </div>
           </div>
@@ -430,7 +430,7 @@ function Landing() {
                 className={`relative overflow-visible flex flex-col rounded-2xl border p-7 pt-9 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.18)] transition-all ${
                   tier.featured
                     ? "border-[#b88918] bg-[linear-gradient(180deg,#fffaf0_0%,#f6e1a9_100%)] shadow-[0_0_0_1px_rgba(184,137,24,0.28),0_34px_84px_-30px_rgba(184,137,24,0.55)] lg:-translate-y-3 lg:scale-[1.04]"
-                    : tier.name === "Founders Program"
+                    : tier.name === "Founders' Program"
                       ? "border-[#cfb15a] bg-[linear-gradient(180deg,#fffaf1_0%,#f4e4b4_100%)] shadow-[0_0_0_1px_rgba(207,177,90,0.24),0_30px_72px_-36px_rgba(184,137,24,0.38)] lg:-translate-y-1 lg:scale-[1.015]"
                       : "border-[#ddd1bf] bg-[#fffaf1] hover:border-[#c9b48b]"
                 }`}
@@ -443,7 +443,7 @@ function Landing() {
                     </div>
                   </>
                 )}
-                {tier.name === "Founders Program" && (
+                {tier.name === "Founders' Program" && (
                   <div className="pointer-events-none absolute -inset-px rounded-2xl bg-[radial-gradient(circle_at_top,rgba(219,191,107,0.2)_0%,rgba(255,247,227,0.12)_30%,transparent_75%)]" />
                 )}
                 {tier.badge && (
@@ -455,7 +455,7 @@ function Landing() {
                 <div className="mt-1 mb-5 min-h-[5.5rem] text-base text-slate-600">{tier.blurb}</div>
                 <div className="mb-6 flex items-baseline gap-1">
                   <div className={`font-display text-5xl font-bold tabular-nums ${
-                    tier.featured ? "text-[#a97900]" : tier.name === "Founders Program" ? "text-[#8f6b12]" : "text-slate-900"
+                    tier.featured ? "text-[#a97900]" : tier.name === "Founders' Program" ? "text-[#8f6b12]" : "text-slate-900"
                   }`}>
                     ${tier.price}
                   </div>
@@ -469,7 +469,7 @@ function Landing() {
                   className={`mb-6 block w-full rounded-lg px-4 py-2.5 text-center text-base font-semibold transition-colors ${
                     tier.featured
                       ? "bg-[#d4af37] text-slate-950 shadow-[0_16px_34px_-14px_rgba(212,175,55,0.8)] hover:bg-[#c89e2f]"
-                      : tier.name === "Founders Program"
+                      : tier.name === "Founders' Program"
                         ? "border border-[#cfb15a] bg-[#17233e] text-[#f3dd8a] shadow-[0_14px_32px_-18px_rgba(184,137,24,0.45)] hover:bg-[#1c2b4a]"
                         : "border border-slate-300 bg-slate-900 text-white hover:bg-slate-800"
                   }`}
@@ -481,7 +481,7 @@ function Landing() {
                     <li key={f} className="flex items-start gap-2 text-base text-slate-700">
                       <Check
                         className={`mt-0.5 h-4 w-4 shrink-0 ${
-                          tier.featured ? "text-[#b88918]" : tier.name === "Founders Program" ? "text-[#c59a22]" : "text-[#d4af37]"
+                          tier.featured ? "text-[#b88918]" : tier.name === "Founders' Program" ? "text-[#c59a22]" : "text-[#d4af37]"
                         }`}
                       />
                       <span>{f}</span>
