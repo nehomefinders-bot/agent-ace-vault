@@ -12,6 +12,7 @@ import {
   DollarSign,
   Wallet,
   PieChart,
+  X,
 } from "lucide-react";
 import endlessProspectsLogo from "@/assets/endless-prospects-logo.png";
 import maColonialHeroBg from "@/assets/landing-house-autumn.jpeg";
@@ -167,6 +168,7 @@ function Landing() {
   const { user, loading: authLoading } = useAuth();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [legalDoc, setLegalDoc] = useState<LegalDocumentKind | null>(null);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -185,6 +187,19 @@ function Landing() {
     if (!user) return;
     nav({ to: "/", replace: true });
   }, [authLoading, user, nav]);
+
+  useEffect(() => {
+    if (!isVideoOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsVideoOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isVideoOpen]);
 
   const handleNewsletterSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -262,18 +277,51 @@ function Landing() {
             >
               Start your free 14-day trial <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link
-              to="/"
-              className="mt-3 rounded-lg border border-white/70 bg-white/90 px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_16px_34px_-16px_rgba(0,0,0,0.55)] backdrop-blur-sm transition-colors hover:bg-white lg:absolute lg:right-10 lg:bottom-20 lg:mt-0 xl:right-16"
+            <button
+              type="button"
+              onClick={() => setIsVideoOpen(true)}
+              className="mt-3 rounded-lg border border-white/80 bg-white/92 px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_16px_34px_-16px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-colors hover:bg-white hover:shadow-[0_18px_40px_-16px_rgba(255,255,255,0.22)] lg:absolute lg:right-10 lg:bottom-20 lg:mt-0 xl:right-16"
             >
               See live demo
-            </Link>
+            </button>
             <p className="mt-5 text-sm font-semibold text-[#ffe066] drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] lg:absolute lg:bottom-8 lg:left-1/2 lg:mt-0 lg:-translate-x-1/2">
               No charge until day 15 &bull; Cancel anytime
             </p>
           </div>
         </div>
       </section>
+
+      {isVideoOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md"
+          onClick={() => setIsVideoOpen(false)}
+          role="presentation"
+        >
+          <div
+            className="relative aspect-video w-full max-w-4xl overflow-hidden rounded-xl border border-white/10 bg-black shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Live demo video"
+          >
+            <button
+              type="button"
+              onClick={() => setIsVideoOpen(false)}
+              className="absolute -top-3 -right-3 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-slate-950/90 text-white/70 shadow-lg transition hover:bg-slate-900 hover:text-white"
+              aria-label="Close video"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <iframe
+              className="h-full w-full"
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0"
+              title="Endless Prospects live demo"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </div>
+      )}
 
       <section className="bg-[#ecd59a] text-slate-900">
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
