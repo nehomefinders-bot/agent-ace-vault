@@ -465,7 +465,14 @@ function Landing() {
 
       <footer className="border-t border-white/10 bg-black/30 backdrop-blur-md">
         <div className="mx-auto grid max-w-6xl gap-8 px-6 py-8 text-sm text-white/55 md:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] md:items-center">
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col items-start gap-5">
+            <Link to="/landing" className="inline-flex shrink-0">
+              <img
+                src={endlessProspectsLogo}
+                alt="Endless Prospects"
+                className="h-32 w-32 rounded-3xl border border-white/10 bg-black/50 object-cover shadow-[0_20px_50px_-28px_rgba(0,0,0,0.8)] sm:h-36 sm:w-36 lg:h-40 lg:w-40"
+              />
+            </Link>
             <div>&copy; {new Date().getFullYear()} Endless Prospects &middot; Agent Business Tracker</div>
             <div className="flex flex-wrap gap-4">
               <Link to="/auth" className="transition-colors hover:text-white">
