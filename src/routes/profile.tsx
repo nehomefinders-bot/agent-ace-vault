@@ -320,7 +320,7 @@ function ProfilePage() {
       const dataUrl = await readFileAsDataUrl(file);
       const { error } = await supabase
         .from("profiles")
-        .upsert({ id: authedUser.id, avatar_url: dataUrl }, { onConflict: "id" });
+        .upsert({ id: user.id, avatar_url: dataUrl }, { onConflict: "id" });
       if (error) throw error;
 
       setAvatarUrl(dataUrl);
@@ -368,7 +368,7 @@ function ProfilePage() {
       const dataUrl = await readFileAsDataUrl(file);
       const { error } = await supabase
         .from("profiles")
-        .upsert({ id: authedUser.id, cover_url: dataUrl }, { onConflict: "id" });
+        .upsert({ id: user.id, cover_url: dataUrl }, { onConflict: "id" });
       if (error) throw error;
 
       setCoverUrl(dataUrl);
