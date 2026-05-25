@@ -1,7 +1,7 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import {
-  LifeBuoy, Search, BookOpen, Receipt, Wallet, Car, ScanLine,
+  LifeBuoy, Search, BookOpen, Receipt, Wallet, Car, Image,
   FileBarChart, HandCoins, ArrowRightLeft, Plus, Download, ChevronDown,
 } from "lucide-react";
 
@@ -167,19 +167,19 @@ const sections: Section[] = [
     ],
   },
   {
-    label: "Receipts",
-    icon: ScanLine,
+    label: "Media Storage",
+    icon: Image,
     articles: [
       {
-        id: "scan-receipt",
-        title: "Scan a receipt",
-        summary: "Snap a photo and let the app pull out the amount and vendor.",
+        id: "media-storage",
+        title: "Organize your files",
+        summary: "Keep PDFs, spreadsheets, slides, and images in one organized vault.",
         steps: [
-          "Go to Receipts.",
-          'Click "Scan receipt" and either take a photo or upload an image.',
-          "Review the extracted vendor, date, and amount — fix anything that's off.",
-          "Pick a category and the account it was paid from, then Save.",
-          "The receipt image stays attached to the transaction for audit backup.",
+          "Go to Media Storage.",
+          'Click "Upload Media" and choose any file type you want to keep.',
+          "Create a folder name on the fly to organize the upload.",
+          "Add labels to make files easier to search later.",
+          "Use preview, download, or delete right from the list.",
         ],
       },
     ],

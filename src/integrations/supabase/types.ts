@@ -278,6 +278,7 @@ export type Database = {
           file_path: string
           folder: string
           id: string
+          labels: string[] | null
           mime_type: string | null
           name: string
           signed_at: string | null
@@ -292,6 +293,7 @@ export type Database = {
           file_path: string
           folder?: string
           id?: string
+          labels?: string[] | null
           mime_type?: string | null
           name: string
           signed_at?: string | null
@@ -306,6 +308,7 @@ export type Database = {
           file_path?: string
           folder?: string
           id?: string
+          labels?: string[] | null
           mime_type?: string | null
           name?: string
           signed_at?: string | null

@@ -2,7 +2,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard, TrendingUp, Home, Users, Receipt,
-  Wallet, Car, ScanLine, FolderOpen, BookOpen, LifeBuoy, LogOut, LogIn, Calculator,
+  Wallet, Car, Image, FolderOpen, BookOpen, LifeBuoy, LogOut, LogIn, Calculator,
   CreditCard, Sparkles, Settings, ListTodo, Menu, X,
   User,
 } from "lucide-react";
@@ -30,7 +30,7 @@ const sections = [
       { to: "/commissions", label: "Commissions", icon: Receipt },
       { to: "/expenses", label: "Expenses", icon: Wallet },
       { to: "/mileage", label: "Mileage", icon: Car },
-      { to: "/receipts", label: "Receipts", icon: ScanLine },
+      { to: "/documents", label: "Media Storage", icon: Image },
     ],
   },
   {

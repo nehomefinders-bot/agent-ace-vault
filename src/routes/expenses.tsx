@@ -123,6 +123,17 @@ function Expenses() {
       subtitle="Track deductible business spend, with receipts attached."
       actions={
         <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={() => setAddOpen(true)}
+            className="h-11 w-11 rounded-xl border-[#d4af37]/40 bg-[#d4af37] text-slate-950 shadow-[0_12px_30px_-14px_rgba(212,175,55,0.8)] hover:bg-[#c89e2f] hover:text-slate-950"
+            aria-label="Quick scan receipt"
+            title="Quick scan receipt"
+          >
+            <Camera className="h-4 w-4" />
+          </Button>
           <TableExportButton
             filename="expenses"
             sheetName="Expenses"

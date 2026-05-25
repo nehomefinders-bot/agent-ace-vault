@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { Loader2, Pencil, Plus, TrendingDown, TrendingUp, Trash2, Wallet } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Loader2, Paperclip, Pencil, Plus, TrendingDown, TrendingUp, Trash2, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { BooksTransactionDialog, type BooksTransactionDraft } from "@/components/books-transaction-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -14,6 +14,8 @@ import { useBooks, formatMoneyCents, formatMoney } from "@/hooks/use-books";
 import { classifyTxn } from "@/lib/books-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { ReceiptPreviewDialog } from "@/components/receipt-preview-dialog";
+import { getReceiptFileName, getReceiptPreviewKind } from "@/lib/receipt-preview";
 import { TableFilterBar, useTableFilters, applyTableFilters } from "@/components/table-filter-bar";
 import { TableExportButton } from "@/components/table-export-button";
 
@@ -28,8 +30,20 @@ export const Route = createFileRoute("/books/")({
 
 function BooksOverview() {
   const { accounts, transactions, accountById, addTransaction, updateTransaction, deleteTransaction, setCleared } = useBooks();
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<{ id: string; draft: BooksTransactionDraft } | null>(null);
+  const [expenseReceipts, setExpenseReceipts] = useState<
+    Record<string, { receipt_path: string; vendor: string | null; date: string | null; category: string | null }>
+  >({});
+  const [preview, setPreview] = useState<{
+    title: string;
+    subtitle: string;
+    fileUrl: string;
+    fileName: string;
+    kind: "image" | "pdf" | "other";
+  } | null>(null);
+  const [previewingTxnId, setPreviewingTxnId] = useState<string | null>(null);
 
   const now = new Date();
   const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -51,6 +65,52 @@ function BooksOverview() {
 
   const [filters, setFilters, resetFilters] = useTableFilters();
 
+  useEffect(() => {
+    let active = true;
+
+    async function loadExpenseReceipts() {
+      if (!user) {
+        setExpenseReceipts({});
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("expenses")
+        .select("transaction_id,receipt_path,vendor,date,category")
+        .eq("user_id", user.id);
+
+      if (!active) return;
+      if (error) {
+        toast.error(error.message);
+        setExpenseReceipts({});
+        return;
+      }
+
+      const next: Record<string, { receipt_path: string; vendor: string | null; date: string | null; category: string | null }> = {};
+      for (const row of (data ?? []) as Array<{
+        transaction_id: string | null;
+        receipt_path: string | null;
+        vendor: string | null;
+        date: string | null;
+        category: string | null;
+      }>) {
+        if (!row.transaction_id || !row.receipt_path) continue;
+        next[row.transaction_id] = {
+          receipt_path: row.receipt_path,
+          vendor: row.vendor,
+          date: row.date,
+          category: row.category,
+        };
+      }
+      setExpenseReceipts(next);
+    }
+
+    void loadExpenseReceipts();
+    return () => {
+      active = false;
+    };
+  }, [user]);
+
   const ledger = useMemo(() => {
     const sorted = [...transactions].sort((a, b) => b.date.localeCompare(a.date));
     return applyTableFilters(sorted, filters, {
@@ -67,8 +127,45 @@ function BooksOverview() {
 
   const monthLabel = now.toLocaleDateString("en-US", { month: "long", year: "numeric" });
 
+  async function openReceiptPreview(transactionId: string) {
+    const receipt = expenseReceipts[transactionId];
+    if (!receipt?.receipt_path) return;
+
+    setPreviewingTxnId(transactionId);
+    try {
+      const { data, error } = await supabase.storage.from("receipts").createSignedUrl(receipt.receipt_path, 60 * 30);
+      if (error || !data?.signedUrl) {
+        throw new Error(error?.message ?? "Could not open receipt");
+      }
+
+      setPreview({
+        title: receipt.vendor ? `${receipt.vendor} receipt` : "Receipt preview",
+        subtitle: [receipt.category, receipt.date].filter(Boolean).join(" - "),
+        fileUrl: data.signedUrl,
+        fileName: getReceiptFileName(receipt.receipt_path),
+        kind: getReceiptPreviewKind(receipt.receipt_path),
+      });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not open receipt");
+    } finally {
+      setPreviewingTxnId(null);
+    }
+  }
+
   return (
     <div>
+      <ReceiptPreviewDialog
+        open={!!preview}
+        onOpenChange={(open) => {
+          if (!open) setPreview(null);
+        }}
+        title={preview?.title ?? "Receipt preview"}
+        subtitle={preview?.subtitle}
+        fileUrl={preview?.fileUrl ?? null}
+        fileName={preview?.fileName}
+        kind={preview?.kind}
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <SummaryCard
           label="Net Profit"
@@ -113,6 +210,7 @@ function BooksOverview() {
                 const acc = accountById(k === "income" ? t.creditAccountId : t.debitAccountId);
                 return acc?.name ?? "";
               } },
+              { header: "Receipt", accessor: (t) => (expenseReceipts[t.id]?.receipt_path ? "Attached" : "Missing") },
               { header: "Amount", accessor: (t) => Number(t.amount) },
               { header: "Cleared", accessor: (t) => (t.cleared ? "Yes" : "No") },
             ]}
@@ -180,6 +278,7 @@ function BooksOverview() {
                     <th className="text-left font-semibold py-3 px-4 w-24">Date</th>
                     <th className="text-left font-semibold py-3 px-4">Description</th>
                     <th className="text-left font-semibold py-3 px-4">Category</th>
+                    <th className="text-left font-semibold py-3 px-4 w-28">Receipt</th>
                     <th className="text-left font-semibold py-3 px-4 w-24">Type</th>
                     <th className="text-right font-semibold py-3 px-4 w-32">Amount</th>
                     <th className="text-center font-semibold py-3 px-4 w-20">Cleared</th>
@@ -194,6 +293,7 @@ function BooksOverview() {
                     const kind = classifyTxn(t, accountById);
                     const isIncome = kind === "income";
                     const category = isIncome ? credit : debit;
+                    const receipt = expenseReceipts[t.id];
                     return (
                       <tr
                         key={t.id}
@@ -210,6 +310,23 @@ function BooksOverview() {
                           <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted text-xs font-medium">
                             {category.name}
                           </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          {receipt ? (
+                            <button
+                              type="button"
+                              onClick={() => openReceiptPreview(t.id)}
+                              disabled={previewingTxnId === t.id}
+                              className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 text-xs font-medium text-success transition hover:bg-success/15 disabled:opacity-60"
+                            >
+                              {previewingTxnId === t.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Paperclip className="h-3 w-3" />}
+                              Receipt
+                            </button>
+                          ) : (
+                            <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                              Missing
+                            </span>
+                          )}
                         </td>
                         <td className="py-3 px-4">
                           <span
@@ -274,6 +391,7 @@ function BooksOverview() {
                 const kind = classifyTxn(t, accountById);
                 const isIncome = kind === "income";
                 const category = isIncome ? credit : debit;
+                const receipt = expenseReceipts[t.id];
                 return (
                   <div key={t.id} className={`p-4 ${i % 2 === 0 ? "bg-background" : "bg-muted/20"}`}>
                     <div className="flex items-start justify-between gap-3">
@@ -290,6 +408,23 @@ function BooksOverview() {
                         </div>
                         <div className="font-medium truncate">{t.memo}</div>
                         <div className="text-xs text-muted-foreground mt-0.5">{category.name}</div>
+                        <div className="mt-2">
+                          {receipt ? (
+                            <button
+                              type="button"
+                              onClick={() => openReceiptPreview(t.id)}
+                              disabled={previewingTxnId === t.id}
+                              className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 text-[11px] font-medium text-success transition hover:bg-success/15 disabled:opacity-60"
+                            >
+                              {previewingTxnId === t.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Paperclip className="h-3 w-3" />}
+                              Receipt attached
+                            </button>
+                          ) : (
+                            <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                              Receipt missing
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div className={`text-right tabular-nums font-semibold ${isIncome ? "text-success" : ""}`}>
                         {isIncome ? "+" : "-"}
