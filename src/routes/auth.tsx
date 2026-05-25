@@ -24,6 +24,7 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [hasConsent, setHasConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -39,6 +40,12 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
     e.preventDefault();
     setError(null);
     setInfo(null);
+
+    if (mode === "signup" && !hasConsent) {
+      setError("Please confirm that you agree to the Terms and Conditions and Privacy Policy.");
+      return;
+    }
+
     setLoading(true);
     try {
       if (mode === "signup") {
@@ -68,6 +75,12 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
   async function signInWithGoogle() {
     setError(null);
     setInfo(null);
+
+    if (mode === "signup" && !hasConsent) {
+      setError("Please confirm that you agree to the Terms and Conditions and Privacy Policy.");
+      return;
+    }
+
     setLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
@@ -158,12 +171,42 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
               />
             </Field>
 
+            {mode === "signup" && (
+              <label className="flex items-start gap-3 rounded-xl border border-border bg-background/60 px-3 py-3 text-[11px] leading-relaxed text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={hasConsent}
+                  onChange={(e) => setHasConsent(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                />
+                <span>
+                  I have read and agree to the{" "}
+                  <button
+                    type="button"
+                    onClick={() => setLegalDoc("terms")}
+                    className="font-medium underline underline-offset-4 hover:text-foreground"
+                  >
+                    Terms and Conditions
+                  </button>{" "}
+                  and{" "}
+                  <button
+                    type="button"
+                    onClick={() => setLegalDoc("privacy")}
+                    className="font-medium underline underline-offset-4 hover:text-foreground"
+                  >
+                    Privacy Policy
+                  </button>
+                  .
+                </span>
+              </label>
+            )}
+
             {error && <div className="text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg">{error}</div>}
             {info && <div className="text-xs text-success bg-success/10 px-3 py-2 rounded-lg">{info}</div>}
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || (mode === "signup" && !hasConsent)}
               className="w-full bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium inline-flex items-center justify-center gap-2 disabled:opacity-60"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
