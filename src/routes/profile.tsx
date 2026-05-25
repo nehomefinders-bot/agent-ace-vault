@@ -183,10 +183,13 @@ function ProfilePage() {
     }
 
     let cancelled = false;
+    const authedUser = user;
 
     async function load() {
       setLoading(true);
       setLoadError(null);
+
+
 
       try {
         const [profileRes, integrationRes, dealsRes, mileageRes, listingsRes] = await Promise.all([
