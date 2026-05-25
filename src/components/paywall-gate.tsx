@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Routes that are always accessible without auth or active subscription.
 // NOTE: "/" is the dashboard (auth-required) and is intentionally NOT here.
-const PUBLIC_PATHS = ["/landing", "/auth", "/forgot-password", "/reset-password", "/terms", "/privacy"];
+const PUBLIC_PATHS = ["/landing", "/auth", "/signup", "/forgot-password", "/reset-password", "/terms", "/privacy"];
 // Account-management and sandbox routes that signed-in users may reach without an active subscription.
 const ACCOUNT_PATHS = ["/pricing", "/billing", "/help", "/settings", "/test"];
 

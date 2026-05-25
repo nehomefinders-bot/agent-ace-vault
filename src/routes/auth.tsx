@@ -5,12 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
 import endlessProspectsLogo from "@/assets/endless-prospects-logo.png";
+import { LegalDocumentModal, type LegalDocumentKind } from "@/components/legal-documents";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
   head: () => ({
     meta: [
-      { title: "Sign in — Agent Business Tracker" },
+      { title: "Sign in - Agent Business Tracker" },
       { name: "description", content: "Sign in or create your Agent Business Tracker account to track commissions, expenses and mileage." },
     ],
   }),
@@ -26,6 +27,7 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [legalDoc, setLegalDoc] = useState<LegalDocumentKind | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -35,11 +37,14 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    setError(null); setInfo(null); setLoading(true);
+    setError(null);
+    setInfo(null);
+    setLoading(true);
     try {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
-          email, password,
+          email,
+          password,
           options: {
             emailRedirectTo: window.location.origin,
             data: { display_name: name || email.split("@")[0] },
@@ -61,13 +66,15 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
   }
 
   async function signInWithGoogle() {
-    setError(null); setInfo(null); setLoading(true);
+    setError(null);
+    setInfo(null);
+    setLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin,
       });
       if (result.error) throw result.error;
-      if (result.redirected) return; // browser will navigate away
+      if (result.redirected) return;
       nav({ to: "/" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Google sign-in failed");
@@ -105,10 +112,14 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
             className="w-full mb-3 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-border bg-background text-sm font-medium hover:bg-muted disabled:opacity-60"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="#EA4335" d="M12 11v3.2h5.5c-.2 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.6 14.6 2.7 12 2.7 6.9 2.7 2.8 6.8 2.8 12s4.1 9.3 9.2 9.3c5.3 0 8.8-3.7 8.8-9 0-.6-.1-1.1-.2-1.6H12z"/>
+              <path
+                fill="#EA4335"
+                d="M12 11v3.2h5.5c-.2 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.6 14.6 2.7 12 2.7 6.9 2.7 2.8 6.8 2.8 12s4.1 9.3 9.2 9.3c5.3 0 8.8-3.7 8.8-9 0-.6-.1-1.1-.2-1.6H12z"
+              />
             </svg>
             Continue with Google
           </button>
+
           <div className="relative my-3 text-center text-[10px] uppercase tracking-wider text-muted-foreground">
             <span className="bg-card px-2 relative z-10">or with email</span>
             <div className="absolute inset-x-0 top-1/2 border-t border-border -z-0" />
@@ -117,24 +128,44 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
           <form onSubmit={onSubmit} className="space-y-3">
             {mode === "signup" && (
               <Field label="Name">
-                <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Agent"
-                  className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Jane Agent"
+                  className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm"
+                />
               </Field>
             )}
             <Field label="Email" icon={Mail}>
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@brokerage.com"
-                className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@brokerage.com"
+                className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-background text-sm"
+              />
             </Field>
             <Field label="Password" icon={Lock}>
-              <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••"
-                className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="password"
+                className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-background text-sm"
+              />
             </Field>
 
             {error && <div className="text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg">{error}</div>}
             {info && <div className="text-xs text-success bg-success/10 px-3 py-2 rounded-lg">{info}</div>}
 
-            <button type="submit" disabled={loading}
-              className="w-full bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium inline-flex items-center justify-center gap-2 disabled:opacity-60">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium inline-flex items-center justify-center gap-2 disabled:opacity-60"
+            >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               {mode === "signin" ? "Sign in" : "Create account"}
             </button>
@@ -143,31 +174,81 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
           <div className="mt-6 text-center text-sm text-muted-foreground space-y-2">
             <div>
               {mode === "signin" ? (
-                <>New here? <button onClick={() => setMode("signup")} className="text-foreground font-medium hover:underline">Create an account</button></>
+                <>
+                  New here?{" "}
+                  <button onClick={() => setMode("signup")} className="text-foreground font-medium hover:underline">
+                    Create an account
+                  </button>
+                </>
               ) : (
-                <>Already have an account? <button onClick={() => setMode("signin")} className="text-foreground font-medium hover:underline">Sign in</button></>
+                <>
+                  Already have an account?{" "}
+                  <button onClick={() => setMode("signin")} className="text-foreground font-medium hover:underline">
+                    Sign in
+                  </button>
+                </>
               )}
             </div>
             {mode === "signin" && (
               <div>
-                <Link to="/forgot-password" className="text-xs text-muted-foreground hover:text-foreground">Forgot your password?</Link>
+                <Link to="/forgot-password" className="text-xs text-muted-foreground hover:text-foreground">
+                  Forgot your password?
+                </Link>
               </div>
             )}
           </div>
-          <div className="mt-4 text-center text-[11px] text-muted-foreground">
-            By continuing you agree to our <Link to="/terms" className="underline hover:text-foreground">Terms</Link> and <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>.
-          </div>
+
+          {mode === "signup" && (
+            <div className="mt-4 text-center text-[11px] text-muted-foreground">
+              By continuing you agree to our{" "}
+              <button
+                type="button"
+                onClick={() => setLegalDoc("terms")}
+                className="underline underline-offset-4 hover:text-foreground"
+              >
+                Terms
+              </button>{" "}
+              and{" "}
+              <button
+                type="button"
+                onClick={() => setLegalDoc("privacy")}
+                className="underline underline-offset-4 hover:text-foreground"
+              >
+                Privacy Policy
+              </button>
+              .
+            </div>
+          )}
         </div>
 
         <div className="text-center mt-6">
-          <Link to="/landing" className="text-xs text-muted-foreground hover:text-foreground">← Back to home</Link>
+          <Link to="/landing" className="text-xs text-muted-foreground hover:text-foreground">
+            Back to home
+          </Link>
         </div>
       </div>
+
+      <LegalDocumentModal
+        open={legalDoc !== null}
+        onOpenChange={(open) => {
+          if (!open) setLegalDoc(null);
+        }}
+        kind={legalDoc ?? "terms"}
+        onKindChange={setLegalDoc}
+      />
     </div>
   );
 }
 
-function Field({ label, icon: Icon, children }: { label: string; icon?: React.ComponentType<{ className?: string }>; children: React.ReactNode }) {
+function Field({
+  label,
+  icon: Icon,
+  children,
+}: {
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
       <span className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5 block">{label}</span>

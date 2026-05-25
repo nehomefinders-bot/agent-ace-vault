@@ -16,6 +16,7 @@ import {
 import endlessProspectsLogo from "@/assets/endless-prospects-logo.png";
 import maColonialHeroBg from "@/assets/landing-house-autumn.jpeg";
 import { useAuth } from "@/hooks/use-auth";
+import { LegalDocumentModal, type LegalDocumentKind } from "@/components/legal-documents";
 
 export const Route = createFileRoute("/landing")({
   component: Landing,
@@ -128,7 +129,14 @@ const features = [
   },
 ];
 
-const footerColumns = [
+type FooterLink = { label: string; to: string } | { label: string; doc: LegalDocumentKind };
+
+type FooterColumn = {
+  title: string;
+  links: FooterLink[];
+};
+
+const footerColumns: FooterColumn[] = [
   {
     title: "App Modules",
     links: [
@@ -148,16 +156,17 @@ const footerColumns = [
   {
     title: "Trust & Privacy",
     links: [
-      { label: "Privacy Policy", to: "/privacy" },
-      { label: "Terms & Conditions", to: "/terms" },
+      { label: "Privacy Policy", doc: "privacy" },
+      { label: "Terms & Conditions", doc: "terms" },
     ],
   },
-] as const;
+];
 
 function Landing() {
   const nav = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [legalDoc, setLegalDoc] = useState<LegalDocumentKind | null>(null);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -255,7 +264,7 @@ function Landing() {
             </Link>
             <Link
               to="/"
-              className="mt-3 rounded-lg border border-white/25 bg-slate-950/35 px-7 py-3.5 text-base font-semibold text-white shadow-[0_12px_30px_-14px_rgba(0,0,0,0.7)] backdrop-blur-sm transition-colors hover:bg-slate-950/50 lg:absolute lg:right-10 lg:bottom-20 lg:mt-0 xl:right-16"
+              className="mt-3 rounded-lg border border-white/70 bg-white/90 px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_16px_34px_-16px_rgba(0,0,0,0.55)] backdrop-blur-sm transition-colors hover:bg-white lg:absolute lg:right-10 lg:bottom-20 lg:mt-0 xl:right-16"
             >
               See live demo
             </Link>
@@ -530,13 +539,24 @@ function Landing() {
                   </div>
                   <div className="space-y-3">
                     {column.links.map((link) => (
-                      <Link
-                        key={link.label}
-                        to={link.to}
-                        className="block font-display text-base text-slate-200 transition-colors hover:text-white"
-                      >
-                        {link.label}
-                      </Link>
+                      "to" in link ? (
+                        <Link
+                          key={link.label}
+                          to={link.to}
+                          className="block font-display text-base text-slate-200 transition-colors hover:text-white"
+                        >
+                          {link.label}
+                        </Link>
+                      ) : (
+                        <button
+                          key={link.label}
+                          type="button"
+                          onClick={() => setLegalDoc(link.doc)}
+                          className="block w-full text-left font-display text-base text-slate-200 transition-colors hover:text-white"
+                        >
+                          {link.label}
+                        </button>
+                      )
                     ))}
                   </div>
                 </div>
@@ -575,6 +595,15 @@ function Landing() {
             </div>
           </div>
         </div>
+
+        <LegalDocumentModal
+          open={legalDoc !== null}
+          onOpenChange={(open) => {
+            if (!open) setLegalDoc(null);
+          }}
+          kind={legalDoc ?? "terms"}
+          onKindChange={setLegalDoc}
+        />
       </footer>
     </div>
   );
