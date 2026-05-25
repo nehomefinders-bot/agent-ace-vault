@@ -183,26 +183,29 @@ function ProfilePage() {
     }
 
     let cancelled = false;
+    const authedUser = user;
 
     async function load() {
       setLoading(true);
       setLoadError(null);
 
+
+
       try {
         const [profileRes, integrationRes, dealsRes, mileageRes, listingsRes] = await Promise.all([
-          supabase.from("profiles").select("display_name, avatar_url, cover_url").eq("id", user.id).maybeSingle(),
+          supabase.from("profiles").select("display_name, avatar_url, cover_url").eq("id", authedUser.id).maybeSingle(),
           supabase
             .from("integration_settings")
             .select("location_id, enabled, last_full_sync_at")
-            .eq("user_id", user.id)
+            .eq("user_id", authedUser.id)
             .maybeSingle(),
           supabase
             .from("deals")
             .select("gross_commission, agent_split_pct, referral_pct, status, close_date, created_at")
-            .eq("user_id", user.id)
+            .eq("user_id", authedUser.id)
             .order("created_at", { ascending: false }),
-          supabase.from("mileage_trips").select("miles, date").eq("user_id", user.id).order("date", { ascending: false }),
-          supabase.from("listings").select("status").eq("user_id", user.id),
+          supabase.from("mileage_trips").select("miles, date").eq("user_id", authedUser.id).order("date", { ascending: false }),
+          supabase.from("listings").select("status").eq("user_id", authedUser.id),
         ]);
 
         const error =
@@ -222,8 +225,8 @@ function ProfilePage() {
         setAvatarUrl(profileRes.data?.avatar_url?.trim() || "");
         setCoverUrl(profileRes.data?.cover_url?.trim() || "");
         const nextBio =
-          typeof user.user_metadata?.bio === "string" && user.user_metadata.bio.trim()
-            ? user.user_metadata.bio.trim()
+          typeof authedUser.user_metadata?.bio === "string" && authedUser.user_metadata.bio.trim()
+            ? authedUser.user_metadata.bio.trim()
             : PROFILE_BIO;
         setBioText(nextBio);
         setBioDraft(nextBio);
