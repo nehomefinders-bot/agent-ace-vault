@@ -130,16 +130,27 @@ const features = [
 
 const footerColumns = [
   {
-    title: "Features",
-    links: ["Smart Bookkeeping", "Live Mileage Tracker", "GHL Automation"],
+    title: "App Modules",
+    links: [
+      { label: "Smart Bookkeeping", to: "/books" },
+      { label: "Live Mileage Tracker", to: "/mileage" },
+      { label: "Pipeline Management", to: "/pipeline" },
+    ],
   },
   {
     title: "Support",
-    links: ["Help Center", "System Status", "Contact Support"],
+    links: [
+      { label: "Help Center", to: "/help" },
+      { label: "Contact Support", to: "/support" },
+      { label: "Sign In", to: "/auth" },
+    ],
   },
   {
     title: "Trust & Privacy",
-    links: ["Privacy Policy", "Terms of Service", "Security Infrastructure"],
+    links: [
+      { label: "Privacy Policy", to: "/privacy" },
+      { label: "Terms & Conditions", to: "/terms" },
+    ],
   },
 ] as const;
 
@@ -478,14 +489,14 @@ function Landing() {
         </div>
       </section>
 
-      <footer className="border-t border-slate-200 bg-slate-50 text-slate-900">
+      <footer className="border-t border-white/10 bg-[#030712] text-slate-100">
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
-          <div className="rounded-[2rem] border border-amber-200/70 bg-white px-6 py-10 text-center shadow-[0_18px_50px_-32px_rgba(15,23,42,0.18)] sm:px-10 sm:py-12">
+          <div className="rounded-[2rem] border border-[#d4af37]/30 bg-[linear-gradient(180deg,rgba(10,16,36,0.98)_0%,rgba(4,8,20,0.98)_100%)] px-6 py-10 text-center shadow-[0_22px_60px_-36px_rgba(0,0,0,0.75)] sm:px-10 sm:py-12">
             <div className="mx-auto max-w-3xl">
-              <h2 className="font-display text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+              <h2 className="font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
                 Stop losing hours to messy spreadsheets.
               </h2>
-              <p className="mt-3 text-base leading-7 text-slate-600 sm:text-lg">
+              <p className="mt-3 text-base leading-7 text-slate-300 sm:text-lg">
                 Join elite agents automating their real estate business. Set up your workspace in 60 seconds.
               </p>
               <Link
@@ -503,10 +514,10 @@ function Landing() {
                 <img
                   src={endlessProspectsLogo}
                   alt="Endless Prospects"
-                  className="h-32 w-32 rounded-3xl border border-slate-200 bg-white object-cover shadow-[0_20px_50px_-28px_rgba(15,23,42,0.18)] sm:h-36 sm:w-36 lg:h-40 lg:w-40"
+                  className="h-32 w-32 rounded-3xl border border-white/10 bg-black object-cover shadow-[0_20px_50px_-28px_rgba(0,0,0,0.8)] sm:h-36 sm:w-36 lg:h-40 lg:w-40"
                 />
               </Link>
-              <div className="text-sm text-slate-500">
+              <div className="font-display text-sm text-slate-300">
                 &copy; {new Date().getFullYear()} Endless Prospects &middot; Agent Business Tracker
               </div>
             </div>
@@ -514,15 +525,17 @@ function Landing() {
             <div className="grid gap-8 sm:grid-cols-3">
               {footerColumns.map((column) => (
                 <div key={column.title} className="space-y-4">
-                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">{column.title}</div>
+                  <div className="font-display text-xs font-semibold uppercase tracking-[0.24em] text-[#d4af37]">
+                    {column.title}
+                  </div>
                   <div className="space-y-3">
-                    {column.links.map((label) => (
+                    {column.links.map((link) => (
                       <Link
-                        key={label}
-                        to="/signup"
-                        className="block text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
+                        key={link.label}
+                        to={link.to}
+                        className="block font-display text-base text-slate-200 transition-colors hover:text-white"
                       >
-                        {label}
+                        {link.label}
                       </Link>
                     ))}
                   </div>
@@ -531,7 +544,7 @@ function Landing() {
             </div>
 
             <div className="justify-self-stretch xl:justify-self-end">
-              <div className="rounded-[2rem] border border-slate-200 bg-white/80 p-2 shadow-[0_20px_50px_-34px_rgba(15,23,42,0.18)] backdrop-blur-sm">
+              <div className="rounded-[2rem] border border-white/10 bg-white/5 p-2 shadow-[0_20px_50px_-34px_rgba(0,0,0,0.55)] backdrop-blur-sm">
                 <div className="rounded-[1.5rem] bg-slate-950/95 p-0.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
                   <form
                     onSubmit={handleNewsletterSubmit}
