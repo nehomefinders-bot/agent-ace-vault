@@ -128,6 +128,21 @@ const features = [
   },
 ];
 
+const footerColumns = [
+  {
+    title: "Features",
+    links: ["Smart Bookkeeping", "Live Mileage Tracker", "GHL Automation"],
+  },
+  {
+    title: "Support",
+    links: ["Help Center", "System Status", "Contact Support"],
+  },
+  {
+    title: "Trust & Privacy",
+    links: ["Privacy Policy", "Terms of Service", "Security Infrastructure"],
+  },
+] as const;
+
 function Landing() {
   const nav = useNavigate();
   const { user, loading: authLoading } = useAuth();
@@ -463,51 +478,89 @@ function Landing() {
         </div>
       </section>
 
-      <footer className="border-t border-white/10 bg-black/30 backdrop-blur-md">
-        <div className="mx-auto grid max-w-6xl gap-8 px-6 py-8 text-sm text-white/55 md:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] md:items-center">
-          <div className="flex flex-col items-start gap-5">
-            <Link to="/landing" className="inline-flex shrink-0">
-              <img
-                src={endlessProspectsLogo}
-                alt="Endless Prospects"
-                className="h-32 w-32 rounded-3xl border border-white/10 bg-black/50 object-cover shadow-[0_20px_50px_-28px_rgba(0,0,0,0.8)] sm:h-36 sm:w-36 lg:h-40 lg:w-40"
-              />
-            </Link>
-            <div>&copy; {new Date().getFullYear()} Endless Prospects &middot; Agent Business Tracker</div>
-            <div className="flex flex-wrap gap-4">
-              <Link to="/auth" className="transition-colors hover:text-white">
-                Sign in
-              </Link>
-              <Link to="/help" className="transition-colors hover:text-white">
-                Help
+      <footer className="border-t border-slate-200 bg-slate-50 text-slate-900">
+        <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+          <div className="rounded-[2rem] border border-amber-200/70 bg-white px-6 py-10 text-center shadow-[0_18px_50px_-32px_rgba(15,23,42,0.18)] sm:px-10 sm:py-12">
+            <div className="mx-auto max-w-3xl">
+              <h2 className="font-display text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+                Stop losing hours to messy spreadsheets.
+              </h2>
+              <p className="mt-3 text-base leading-7 text-slate-600 sm:text-lg">
+                Join elite agents automating their real estate business. Set up your workspace in 60 seconds.
+              </p>
+              <Link
+                to="/signup"
+                className="mt-8 inline-flex items-center justify-center rounded-full bg-[#d4af37] px-6 py-3 text-sm font-semibold text-slate-950 shadow-[0_14px_36px_-16px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f]"
+              >
+                Start Your 14-Day Free Trial
               </Link>
             </div>
           </div>
 
-          <form
-            onSubmit={handleNewsletterSubmit}
-            className="rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_18px_45px_-32px_rgba(0,0,0,0.45)] backdrop-blur-md"
-          >
-            <div className="mb-3">
-              <div className="font-display text-lg font-bold text-white">Stay in the loop</div>
-              <p className="mt-1 text-sm text-white/60">Low-volume product updates for agents and teams.</p>
+          <div className="mt-12 grid gap-10 xl:grid-cols-[minmax(220px,280px)_minmax(0,1fr)_minmax(320px,420px)] xl:items-start">
+            <div className="flex flex-col items-start gap-5">
+              <Link to="/landing" className="inline-flex shrink-0">
+                <img
+                  src={endlessProspectsLogo}
+                  alt="Endless Prospects"
+                  className="h-32 w-32 rounded-3xl border border-slate-200 bg-white object-cover shadow-[0_20px_50px_-28px_rgba(15,23,42,0.18)] sm:h-36 sm:w-36 lg:h-40 lg:w-40"
+                />
+              </Link>
+              <div className="text-sm text-slate-500">
+                &copy; {new Date().getFullYear()} Endless Prospects &middot; Agent Business Tracker
+              </div>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <input
-                type="email"
-                value={newsletterEmail}
-                onChange={(event) => setNewsletterEmail(event.target.value)}
-                placeholder="Enter your email"
-                className="min-w-0 flex-1 rounded-lg border border-white/12 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-[#d4af37] focus:ring-2 focus:ring-[#d4af37]/25"
-              />
-              <button
-                type="submit"
-                className="inline-flex items-center justify-center rounded-lg bg-[#d4af37] px-4 py-2.5 text-sm font-semibold text-slate-950 transition-colors hover:bg-[#c89e2f]"
-              >
-                Get updates
-              </button>
+
+            <div className="grid gap-8 sm:grid-cols-3">
+              {footerColumns.map((column) => (
+                <div key={column.title} className="space-y-4">
+                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">{column.title}</div>
+                  <div className="space-y-3">
+                    {column.links.map((label) => (
+                      <Link
+                        key={label}
+                        to="/signup"
+                        className="block text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-          </form>
+
+            <div className="justify-self-stretch xl:justify-self-end">
+              <div className="rounded-[2rem] border border-slate-200 bg-white/80 p-2 shadow-[0_20px_50px_-34px_rgba(15,23,42,0.18)] backdrop-blur-sm">
+                <div className="rounded-[1.5rem] bg-slate-950/95 p-0.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+                  <form
+                    onSubmit={handleNewsletterSubmit}
+                    className="rounded-[1.5rem] border border-white/10 bg-white/5 p-4 shadow-[0_18px_45px_-32px_rgba(0,0,0,0.45)] backdrop-blur-md"
+                  >
+                    <div className="mb-3">
+                      <div className="font-display text-lg font-bold text-white">Stay in the loop</div>
+                      <p className="mt-1 text-sm text-white/60">Low-volume product updates for agents and teams.</p>
+                    </div>
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                      <input
+                        type="email"
+                        value={newsletterEmail}
+                        onChange={(event) => setNewsletterEmail(event.target.value)}
+                        placeholder="Enter your email"
+                        className="min-w-0 flex-1 rounded-lg border border-white/12 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-[#d4af37] focus:ring-2 focus:ring-[#d4af37]/25"
+                      />
+                      <button
+                        type="submit"
+                        className="inline-flex items-center justify-center rounded-lg bg-[#d4af37] px-4 py-2.5 text-sm font-semibold text-slate-950 transition-colors hover:bg-[#c89e2f]"
+                      >
+                        Get updates
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

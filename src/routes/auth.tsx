@@ -16,10 +16,10 @@ export const Route = createFileRoute("/auth")({
   }),
 });
 
-function AuthPage() {
+export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | "signup" }) {
   const nav = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
