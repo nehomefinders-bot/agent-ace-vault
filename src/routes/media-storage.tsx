@@ -39,7 +39,7 @@ interface MediaItem {
   folder: string;
   file_path: string;
   labels: string[];
-  library_scope: string;
+  library_scope?: string;
   mime_type: string | null;
   size_bytes: number | null;
   created_at: string;
@@ -99,21 +99,33 @@ function MediaStorage() {
     }
 
     setLoading(true);
-    const { data, error } = await supabase
+    const scopedQuery = await supabase
       .from("documents")
       .select("id,name,folder,file_path,labels,library_scope,mime_type,size_bytes,created_at")
       .eq("library_scope", "media")
       .order("created_at", { ascending: false });
 
-    if (error) {
-      toast.error(error.message);
-      setItems([]);
-      setPreviewUrls({});
-      setLoading(false);
-      return;
+    let nextItems: MediaItem[] = [];
+
+    if (scopedQuery.error) {
+      const fallback = await supabase
+        .from("documents")
+        .select("id,name,folder,file_path,labels,mime_type,size_bytes,created_at")
+        .order("created_at", { ascending: false });
+
+      if (fallback.error) {
+        toast.error(fallback.error.message);
+        setItems([]);
+        setPreviewUrls({});
+        setLoading(false);
+        return;
+      }
+
+      nextItems = ((fallback.data ?? []) as MediaItem[]).filter((item) => item.file_path.includes("/media/"));
+    } else {
+      nextItems = (scopedQuery.data ?? []) as MediaItem[];
     }
 
-    const nextItems = (data ?? []) as MediaItem[];
     setItems(nextItems);
 
     const signedEntries = await Promise.all(
@@ -203,22 +215,42 @@ function MediaStorage() {
       return;
     }
 
-    const { error } = await supabase.from("documents").insert({
+    const basePayload = {
       user_id: user.id,
       name: name.trim() || file.name,
       folder: targetFolder,
-      labels,
-      library_scope: "media",
       file_path: upload.data.path,
       size_bytes: file.size,
       mime_type: file.type || null,
-      status: "media",
-    });
+      status: "pending",
+    };
+
+    let insertError = (
+      await supabase.from("documents").insert({
+        ...basePayload,
+        labels,
+        library_scope: "media",
+      })
+    ).error;
+
+    if (insertError?.message?.toLowerCase().includes("library_scope")) {
+      insertError = (
+        await supabase.from("documents").insert({
+          ...basePayload,
+          labels,
+        })
+      ).error;
+    }
+
+    if (insertError?.message?.toLowerCase().includes("labels")) {
+      insertError = (await supabase.from("documents").insert(basePayload)).error;
+    }
 
     setSaving(false);
 
-    if (error) {
-      toast.error(error.message);
+    if (insertError) {
+      await supabase.storage.from("documents").remove([upload.data.path]);
+      toast.error(insertError.message);
       return;
     }
 
