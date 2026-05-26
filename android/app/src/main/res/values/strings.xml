@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Endless Prospects</string>
+    <string name="title_activity_main">Endless Prospects</string>
+    <string name="package_name">com.endlessprospects.app</string>
+    <string name="custom_url_scheme">com.endlessprospects.app</string>
+</resources>
