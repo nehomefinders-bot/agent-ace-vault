@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "appflow:build": "npm run build"
+    "appflow:build": "vite build && vite build --ssr"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.4",
