@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "build:mobile": "npm run build && node make-placeholder.js"
+    "build:mobile": "npm run build && node make-placeholder.cjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.4",
