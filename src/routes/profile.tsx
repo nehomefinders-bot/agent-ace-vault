@@ -261,7 +261,7 @@ function ProfilePage() {
     const dateSource = deal.close_date ?? deal.created_at;
     return Number.isFinite(new Date(dateSource).getTime()) && new Date(dateSource).getFullYear() === currentYear;
   });
-  const closedYtdDeals = ytdDeals.filter((deal) => normalizeStage(deal.status) === "closed");
+  const closedYtdDeals = ytdDeals.filter((deal) => normalizeStage(deal.status) === "sold");
   const ytdCommission = closedYtdDeals.reduce((sum, deal) => sum + calculateNetCommission(deal), 0);
   const ytdMiles = mileageTrips
     .filter((trip) => {

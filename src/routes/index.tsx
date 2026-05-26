@@ -47,7 +47,7 @@ const statusTone: Record<string, "success" | "warning" | "danger" | "muted"> = {
 
 function stagePillClasses(status: string) {
   const k = normalizeStage(status);
-  if (k === "closed") return "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/30";
+  if (k === "sold") return "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/30";
   if (k === "contract_signed" || k === "under_agreement" || k === "commitment" || k === "clear_to_close")
     return "bg-amber-500/15 text-amber-700 dark:text-amber-400 ring-1 ring-amber-500/30";
   if (k === "no_response") return "bg-rose-500/15 text-rose-600 dark:text-rose-400 ring-1 ring-rose-500/30";
@@ -94,8 +94,8 @@ function Dashboard() {
     })();
   }, [user]);
 
-  const activeDeals = deals.filter((d) => normalizeStage(d.status) !== "closed").length;
-  const pipelineValue = deals.filter((d) => normalizeStage(d.status) !== "closed").reduce((s, d) => s + Number(d.sale_price), 0);
+  const activeDeals = deals.filter((d) => normalizeStage(d.status) !== "sold").length;
+  const pipelineValue = deals.filter((d) => normalizeStage(d.status) !== "sold").reduce((s, d) => s + Number(d.sale_price), 0);
 
   const deleteDeal = async (dealId: string) => {
     const { error } = await supabase.from("deals").delete().eq("id", dealId);
@@ -158,7 +158,7 @@ function Dashboard() {
           <div className="text-xs mt-2 font-medium text-destructive">{invoices.filter(i => i.status === "Overdue").length} overdue</div>
         </div>
         <DealsClosedRingCard
-          closed={deals.filter((d) => d.status === "closed").length || kpis.closedDealsMTD}
+          closed={deals.filter((d) => d.status === "sold").length || kpis.closedDealsMTD}
           goal={10}
         />
       </div>
