@@ -1,0 +1,8 @@
+{
+  "apps": [
+    {
+      "appId": "fb896138",
+      "webBuildCommand": "npm run build:mobile"
+    }
+  ]
+}
