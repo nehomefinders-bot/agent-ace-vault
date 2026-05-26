@@ -451,9 +451,16 @@ function DealDialog({
             <input value={client} onChange={(e) => setClient(e.target.value)} placeholder="Sarah Chen" className="inp" />
           </FormField>
           <FormField label="Side">
-            <select value={side} onChange={(e) => setSide(e.target.value)} className="inp">
-              <option value="buy">Buyer side</option><option value="sell">Seller side</option><option value="both">Both sides</option>
-            </select>
+            <Select value={side} onValueChange={setSide}>
+              <SelectTrigger className="inp">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="buy">Buyer side</SelectItem>
+                <SelectItem value="sell">Seller side</SelectItem>
+                <SelectItem value="both">Both sides</SelectItem>
+              </SelectContent>
+            </Select>
           </FormField>
           <FormField label="Sale price">
             <input type="number" value={salePrice} onChange={(e) => setSalePrice(e.target.value)} className="inp tabular-nums" />
