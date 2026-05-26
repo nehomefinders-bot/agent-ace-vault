@@ -20,14 +20,14 @@ import { TableExportButton } from "@/components/table-export-button";
 const DEAL_IMPORT_COLUMNS: ImportColumn[] = [
   { key: "address", label: "Address", required: true, sample: "123 Main St" },
   { key: "client_name", label: "Client Name", sample: "Jane Smith" },
-  { key: "side", label: "Side", enumValues: ["buy", "sell"], sample: "buy" },
+  { key: "side", label: "Side", enumValues: ["buy", "sell", "both"], sample: "buy" },
   { key: "sale_price", label: "Sale Price", type: "number", sample: 500000 },
   { key: "gross_commission", label: "Gross Commission", type: "number", sample: 15000 },
   { key: "agent_split_pct", label: "Agent Split %", type: "number", sample: 80 },
   { key: "brokerage_split_pct", label: "Brokerage Split %", type: "number", sample: 20 },
   { key: "referral_pct", label: "Referral %", type: "number", sample: 0 },
   { key: "referral_to", label: "Referral To", sample: "" },
-  { key: "status", label: "Status", enumValues: ["new_lead", "no_response", "in_conversation", "contract_signed", "under_agreement", "commitment", "clear_to_close", "closed"], sample: "new_lead" },
+  { key: "status", label: "Status", enumValues: PIPELINE_STAGES.map((stage) => stage.key), sample: "new_lead" },
   { key: "close_date", label: "Close Date", type: "date", sample: "2025-01-15" },
   { key: "agent_name", label: "Agent Name", sample: "" },
   { key: "notes", label: "Notes", sample: "" },
@@ -66,8 +66,6 @@ type DealFormValues = {
   status: string;
   closeDate: string;
 };
-
-const STATUSES = PIPELINE_STAGES.map((s) => s.key);
 
 function DealsPage() {
   const { user } = useAuth();
@@ -115,15 +113,17 @@ function DealsPage() {
     setSelected(new Set());
   };
 
-  const closed = deals.filter((d) => normalizeStage(d.status) === "closed");
-  const pipeline = deals.filter((d) => normalizeStage(d.status) !== "closed");
+  const sold = deals.filter((d) => normalizeStage(d.status) === "sold");
+  const pipeline = deals.filter((d) => normalizeStage(d.status) !== "sold");
+  const buyerSideCount = deals.filter((d) => d.side === "buy" || d.side === "both").length;
+  const sellerSideCount = deals.filter((d) => d.side === "sell" || d.side === "both").length;
 
   const calcAgentTake = (d: Deal) => {
     const afterReferral = d.gross_commission * (1 - d.referral_pct / 100);
     return afterReferral * (d.agent_split_pct / 100);
   };
 
-  const earnedYTD = closed.reduce((s, d) => s + calcAgentTake(d), 0);
+  const earnedYTD = sold.reduce((s, d) => s + calcAgentTake(d), 0);
   const pipelineValue = pipeline.reduce((s, d) => s + calcAgentTake(d), 0);
 
   if (!user) {
@@ -177,9 +177,9 @@ function DealsPage() {
       }
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Stat label="Closed YTD (your take)" value={formatMoney(earnedYTD)} accent="success" sub={`${closed.length} deals`} />
+        <Stat label="Sold YTD (your take)" value={formatMoney(earnedYTD)} accent="success" sub={`${sold.length} deals`} />
         <Stat label="Pipeline (your take)" value={formatMoney(pipelineValue)} accent="primary" sub={`${pipeline.length} active`} />
-        <Stat label="Total deals" value={String(deals.length)} accent="muted" />
+        <Stat label="Total deals" value={String(deals.length)} accent="muted" sub={`${buyerSideCount} buyer · ${sellerSideCount} seller`} />
       </div>
 
       <DealDialog
@@ -252,7 +252,7 @@ function DealsPage() {
       <BulkStatusBar
         count={selected.size}
         itemLabel="deals"
-        options={STATUSES.map((s) => ({ value: s, label: s.replace("_", " ") }))}
+        options={PIPELINE_STAGES.map((s) => ({ value: s.key, label: s.label }))}
         onApply={bulkUpdateStatus}
         onClear={() => setSelected(new Set())}
       />
@@ -274,6 +274,7 @@ function DealsPage() {
                   <Checkbox checked={selected.size === deals.length && deals.length > 0} onCheckedChange={toggleAll} aria-label="Select all" />
                 </th>
                 <th className="text-left font-medium py-3 pl-2">Property</th>
+                <th className="text-left font-medium py-3">Side</th>
                 <th className="text-left font-medium py-3">Status</th>
                 <th className="text-right font-medium py-3">Sale price</th>
                 <th className="text-right font-medium py-3">Gross comm.</th>
@@ -295,14 +296,18 @@ function DealsPage() {
                       <div className="font-medium">{d.address}</div>
                       <div className="text-xs text-muted-foreground">
                         {d.client_name && <>{d.client_name} · </>}
-                        {d.side} side
                         {d.close_date && <> · {d.close_date}</>}
                       </div>
                     </td>
                     <td className="py-4">
+                      <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
+                        {formatSideLabel(d.side)}
+                      </span>
+                    </td>
+                    <td className="py-4">
                       <Select value={normalizeStage(d.status)} onValueChange={(v) => updateStatus(d.id, v)}>
                         <SelectTrigger className={`h-7 w-[170px] text-xs border-0 px-2 ${
-                          normalizeStage(d.status) === "closed" ? "bg-success/10 text-success" :
+                          normalizeStage(d.status) === "sold" ? "bg-success/10 text-success" :
                           "bg-primary/10 text-primary"
                         }`}>
                           <SelectValue>{stageLabel(d.status)}</SelectValue>
@@ -447,7 +452,7 @@ function DealDialog({
           </FormField>
           <FormField label="Side">
             <select value={side} onChange={(e) => setSide(e.target.value)} className="inp">
-              <option value="buy">Buy side</option><option value="sell">Sell / List side</option><option value="both">Both sides</option>
+              <option value="buy">Buyer side</option><option value="sell">Seller side</option><option value="both">Both sides</option>
             </select>
           </FormField>
           <FormField label="Sale price">
@@ -530,4 +535,10 @@ function dealToForm(d: Deal): DealFormValues {
     status: normalizeStage(d.status),
     closeDate: d.close_date ?? "",
   };
+}
+
+function formatSideLabel(side: string) {
+  if (side === "sell") return "Seller";
+  if (side === "both") return "Both";
+  return "Buyer";
 }

@@ -30,6 +30,7 @@ interface Deal {
   id: string;
   address: string;
   status: string;
+  side: string | null;
   sale_price: number;
   gross_commission: number;
   client_name: string | null;
@@ -50,6 +51,7 @@ function Pipeline() {
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [clientPhone, setClientPhone] = useState("");
+  const [side, setSide] = useState("buy");
   const [stage, setStage] = useState<Stage>("new_lead");
   const [closeDate, setCloseDate] = useState("");
   const [salePrice, setSalePrice] = useState("");
@@ -65,7 +67,7 @@ function Pipeline() {
     setLoading(true);
     const { data, error } = await supabase
       .from("deals")
-      .select("id,address,status,sale_price,gross_commission,client_name,client_email,client_phone,close_date")
+      .select("id,address,status,side,sale_price,gross_commission,client_name,client_email,client_phone,close_date")
       .order("created_at", { ascending: false });
 
     if (error) toast.error(error.message);
@@ -126,7 +128,7 @@ function Pipeline() {
       client_name: clientName.trim() || null,
       client_email: clientEmail.trim() || null,
       client_phone: clientPhone.trim() || null,
-      side: "buy",
+      side,
       status: stage,
       sale_price: sale,
       gross_commission: sale * 0.025,
@@ -144,6 +146,7 @@ function Pipeline() {
     setClientName("");
     setClientEmail("");
     setClientPhone("");
+    setSide("buy");
     setSalePrice("");
     setCloseDate("");
     setStage("new_lead");
@@ -230,6 +233,19 @@ function Pipeline() {
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label>Side</Label>
+                    <Select value={side} onValueChange={setSide}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="buy">Buyer side</SelectItem>
+                        <SelectItem value="sell">Seller side</SelectItem>
+                        <SelectItem value="both">Both sides</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <div className="space-y-1.5">
                     <Label>Stage</Label>
                     <Select value={stage} onValueChange={(v) => setStage(v as Stage)}>
@@ -374,6 +390,9 @@ function DealCard({
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="font-medium text-sm truncate">{deal.address}</div>
+          <div className="mt-1 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+            {formatSideLabel(deal.side)}
+          </div>
         </div>
         <button
           type="button"
@@ -436,6 +455,12 @@ function DealCard({
       </div>
     </li>
   );
+}
+
+function formatSideLabel(side: string | null | undefined) {
+  if (side === "sell") return "Seller Side";
+  if (side === "both") return "Buyer + Seller";
+  return "Buyer Side";
 }
 
 

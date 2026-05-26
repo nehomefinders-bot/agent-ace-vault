@@ -25,6 +25,7 @@ import { ImportButton, type ImportColumn } from "@/components/import-button";
 const COMMISSION_IMPORT_COLUMNS: ImportColumn[] = [
   { key: "address", label: "Property", required: true, sample: "123 Main St" },
   { key: "agent_name", label: "Agent Name", sample: "Jane Smith" },
+  { key: "side", label: "Side", enumValues: ["buy", "sell", "both"], sample: "buy" },
   { key: "sale_price", label: "Sale Price", type: "number", sample: 500000 },
   { key: "commission_pct", label: "Commission %", type: "number", sample: 3 },
   { key: "broker_split_pct", label: "Broker Split %", type: "number", sample: 80 },
@@ -41,6 +42,7 @@ interface CommissionRow {
   dealId: string;
   shortId: string;
   property: string;
+  side: string;
   agentName: string;
   closingDate: string;
   salePrice: number;
@@ -54,6 +56,7 @@ interface CommissionRow {
 interface CommissionFormValues {
   property: string;
   agentName: string;
+  side: string;
   salePrice: string;
   commissionPct: string;
   brokerSplit: string;
@@ -125,6 +128,7 @@ function CommissionDialog({
 }) {
   const [property, setProperty] = useState(initial?.property ?? "");
   const [agentName, setAgentName] = useState(initial?.agentName ?? defaultAgentName);
+  const [side, setSide] = useState(initial?.side ?? "buy");
   const [salePrice, setSalePrice] = useState(initial?.salePrice ?? "");
   const [commissionPct, setCommissionPct] = useState(initial?.commissionPct ?? "3");
   const [brokerSplit, setBrokerSplit] = useState(initial?.brokerSplit ?? "70");
@@ -135,6 +139,7 @@ function CommissionDialog({
     if (!open) return;
     setProperty(initial?.property ?? "");
     setAgentName(initial?.agentName ?? defaultAgentName);
+    setSide(initial?.side ?? "buy");
     setSalePrice(initial?.salePrice ?? "");
     setCommissionPct(initial?.commissionPct ?? "3");
     setBrokerSplit(initial?.brokerSplit ?? "70");
@@ -162,6 +167,7 @@ function CommissionDialog({
       await onSubmit({
         property: property.trim(),
         agentName: agentName.trim(),
+        side,
         salePrice,
         commissionPct,
         brokerSplit,
@@ -205,6 +211,20 @@ function CommissionDialog({
               value={agentName}
               onChange={(e) => setAgentName(e.target.value)}
             />
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label htmlFor="side">Side</Label>
+            <Select value={side} onValueChange={setSide}>
+              <SelectTrigger id="side">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="buy">Buyer side</SelectItem>
+                <SelectItem value="sell">Seller side</SelectItem>
+                <SelectItem value="both">Both sides</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -316,8 +336,8 @@ function Commissions() {
     setLoading(true);
     const { data, error } = await supabase
       .from("deals")
-      .select("id,address,agent_name,close_date,sale_price,gross_commission,agent_split_pct,status,notes,created_at")
-      .eq("status", "closed")
+      .select("id,address,side,agent_name,close_date,sale_price,gross_commission,agent_split_pct,status,notes,created_at")
+      .in("status", ["sold", "closed"])
       .order("close_date", { ascending: false, nullsFirst: false });
 
     if (error) toast.error(error.message);
@@ -332,6 +352,7 @@ function Commissions() {
         dealId: d.id,
         shortId: d.id.slice(0, 8),
         property: d.address,
+        side: d.side ?? "buy",
         agentName: d.agent_name ?? "",
         closingDate: d.close_date ?? d.created_at?.slice(0, 10) ?? "",
         salePrice: sale,
@@ -477,8 +498,8 @@ function Commissions() {
               return {
                 address: r.address,
                 agent_name: r.agent_name ?? null,
-                side: "buy",
-                status: "closed",
+                side: r.side ?? "buy",
+                status: "sold",
                 sale_price: sale,
                 gross_commission: sale * (cPct / 100),
                 agent_split_pct: bSplit,
@@ -510,8 +531,8 @@ function Commissions() {
           const { error } = await supabase.from("deals").insert({
             user_id: user.id,
             address: input.property.trim(),
-            side: "buy",
-            status: "closed",
+            side: input.side,
+            status: "sold",
             sale_price: sale,
             gross_commission: gci,
             agent_split_pct: bSplit,
@@ -545,6 +566,7 @@ function Commissions() {
           const { error } = await supabase.from("deals").update({
             address: input.property.trim(),
             agent_name: input.agentName.trim() || null,
+            side: input.side,
             sale_price: sale,
             gross_commission: gci,
             agent_split_pct: bSplit,
@@ -613,8 +635,10 @@ function Commissions() {
               <li key={r.dealId} className="px-4 py-4 space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="font-medium text-sm">{r.property}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">{r.agentName || "Unknown agent"}</div>
+                <div className="font-medium text-sm">{r.property}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {r.agentName || "Unknown agent"} · {formatSideLabel(r.side)}
+                    </div>
                     <div className="text-xs text-muted-foreground font-mono mt-0.5">
                       {r.shortId} - {formatDate(r.closingDate)}
                     </div>
@@ -687,6 +711,7 @@ function Commissions() {
                   <Checkbox checked={selected.size === rows.length && rows.length > 0} onCheckedChange={toggleAll} aria-label="Select all" />
                 </th>
                 <th className="text-left font-medium py-3 pl-2">Property Address</th>
+                <th className="text-left font-medium py-3">Side</th>
                 <th className="text-left font-medium py-3">Agent Name</th>
                 <th className="text-left font-medium py-3">Closing Date</th>
                 <th className="text-right font-medium py-3">Sale Price</th>
@@ -710,6 +735,11 @@ function Commissions() {
                     <td className="py-4 pl-2">
                       <div className="font-medium">{r.property}</div>
                       <div className="text-xs text-muted-foreground font-mono mt-0.5">{r.shortId}</div>
+                    </td>
+                    <td className="py-4">
+                      <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
+                        {formatSideLabel(r.side)}
+                      </span>
                     </td>
                     <td className="py-4">
                       <div className="font-medium">{r.agentName || "Unknown agent"}</div>
@@ -752,7 +782,7 @@ function Commissions() {
             </tbody>
             <tfoot>
               <tr className="border-t border-border bg-muted/30 text-sm">
-                <td className="py-3 px-6 font-medium" colSpan={4}>Totals</td>
+                <td className="py-3 px-6 font-medium" colSpan={5}>Totals</td>
                 <td className="py-3 text-right tabular-nums font-semibold">{formatMoney(totalGci)}</td>
                 <td />
                 <td className="py-3 text-right tabular-nums text-destructive">-{formatMoney(rows.reduce((sum, row) => sum + row.deductions, 0))}</td>
@@ -772,9 +802,16 @@ function commissionToForm(r: CommissionRow): CommissionFormValues {
   return {
     property: r.property,
     agentName: r.agentName,
+    side: r.side,
     salePrice: String(r.salePrice),
     commissionPct: String(r.commissionPct || 0),
     brokerSplit: String(r.brokerSplit),
     deductions: String(r.deductions),
   };
+}
+
+function formatSideLabel(side: string) {
+  if (side === "sell") return "Seller";
+  if (side === "both") return "Both";
+  return "Buyer";
 }
