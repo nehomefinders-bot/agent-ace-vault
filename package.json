@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "build:mobile": "vite build --config vite.mobile.config.ts"
+    "build:mobile": "npm run build && node make-placeholder.js"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.4",
