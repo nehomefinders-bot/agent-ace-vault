@@ -99,6 +99,15 @@ const VIEW_OPTIONS: Array<{ value: CalendarView; label: string }> = [
   { value: "timeGridDay", label: "Day" },
 ];
 
+const MONTH_YEAR_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  year: "numeric",
+});
+
+function formatMonthYear(date: Date) {
+  return MONTH_YEAR_FORMATTER.format(date);
+}
+
 function dateOnly(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -166,6 +175,7 @@ function CalendarPage() {
   const [saving, setSaving] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleConnected, setGoogleConnected] = useState(false);
+  const [calendarHeading, setCalendarHeading] = useState(formatMonthYear(new Date()));
   const [dateRange, setDateRange] = useState<{ start: Date; end: Date } | null>(null);
   const [selectedItem, setSelectedItem] = useState<SelectedCalendarItem | null>(null);
   const [taskDraft, setTaskDraft] = useState({
@@ -373,16 +383,11 @@ function CalendarPage() {
   }
 
   async function connectGoogleCalendar() {
-    const redirectTo = `${window.location.origin}/calendar`;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo,
+        redirectTo: window.location.origin + "/calendar",
         scopes: "https://www.googleapis.com/auth/calendar.events",
-        queryParams: {
-          access_type: "offline",
-          prompt: "consent",
-        },
       },
     });
 
@@ -451,6 +456,7 @@ function CalendarPage() {
 
   function handleDatesSet(info: DatesSetArg) {
     setDateRange({ start: info.start, end: info.end });
+    setCalendarHeading(formatMonthYear(info.view.calendar.getDate()));
   }
 
   async function saveSelectedTask() {
@@ -692,6 +698,7 @@ function CalendarPage() {
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
+              <h2 className="px-2 text-lg font-bold tracking-wide text-slate-100">{calendarHeading}</h2>
               <Button
                 type="button"
                 onClick={() => setNewTaskOpen(true)}
