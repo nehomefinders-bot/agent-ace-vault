@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import {
   LayoutDashboard, TrendingUp, Home, Users, Receipt,
   Wallet, Car, Image, FolderOpen, BookOpen, LifeBuoy, LogOut, LogIn, Calculator,
-  CreditCard, Sparkles, Settings, ListTodo, Menu, X,
+  CreditCard, Sparkles, Settings, ListTodo, Menu, X, CalendarDays,
   User,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -20,6 +20,7 @@ const sections = [
       { to: "/listings", label: "Listings", icon: Home },
       { to: "/clients", label: "Directory", icon: Users },
       { to: "/tasks", label: "Tasks", icon: ListTodo },
+      { to: "/calendar", label: "Calendar", icon: CalendarDays },
       { to: "/documents", label: "Documents", icon: FolderOpen },
     ],
   },

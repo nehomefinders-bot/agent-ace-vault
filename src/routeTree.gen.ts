@@ -32,6 +32,7 @@ import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as DealsRouteImport } from './routes/deals'
 import { Route as CommissionsRouteImport } from './routes/commissions'
 import { Route as ClientsRouteImport } from './routes/clients'
+import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -162,6 +163,11 @@ const ClientsRoute = ClientsRouteImport.update({
   path: '/clients',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CalendarRoute = CalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BooksRoute = BooksRouteImport.update({
   id: '/books',
   path: '/books',
@@ -240,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/billing': typeof BillingRoute
   '/books': typeof BooksRouteWithChildren
+  '/calendar': typeof CalendarRoute
   '/clients': typeof ClientsRoute
   '/commissions': typeof CommissionsRoute
   '/deals': typeof DealsRoute
@@ -278,6 +285,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/billing': typeof BillingRoute
+  '/calendar': typeof CalendarRoute
   '/clients': typeof ClientsRoute
   '/commissions': typeof CommissionsRoute
   '/deals': typeof DealsRoute
@@ -318,6 +326,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/billing': typeof BillingRoute
   '/books': typeof BooksRouteWithChildren
+  '/calendar': typeof CalendarRoute
   '/clients': typeof ClientsRoute
   '/commissions': typeof CommissionsRoute
   '/deals': typeof DealsRoute
@@ -359,6 +368,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/billing'
     | '/books'
+    | '/calendar'
     | '/clients'
     | '/commissions'
     | '/deals'
@@ -397,6 +407,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/billing'
+    | '/calendar'
     | '/clients'
     | '/commissions'
     | '/deals'
@@ -436,6 +447,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/billing'
     | '/books'
+    | '/calendar'
     | '/clients'
     | '/commissions'
     | '/deals'
@@ -476,6 +488,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   BillingRoute: typeof BillingRoute
   BooksRoute: typeof BooksRouteWithChildren
+  CalendarRoute: typeof CalendarRoute
   ClientsRoute: typeof ClientsRoute
   CommissionsRoute: typeof CommissionsRoute
   DealsRoute: typeof DealsRoute
@@ -667,6 +680,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClientsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/books': {
       id: '/books'
       path: '/books'
@@ -795,6 +815,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   BillingRoute: BillingRoute,
   BooksRoute: BooksRouteWithChildren,
+  CalendarRoute: CalendarRoute,
   ClientsRoute: ClientsRoute,
   CommissionsRoute: CommissionsRoute,
   DealsRoute: DealsRoute,
