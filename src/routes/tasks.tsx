@@ -260,7 +260,7 @@ function TasksPage() {
                   onChange={(event) => setTitle(event.target.value)}
                   required
                   autoFocus
-                  placeholder="Follow up with Smith offer"
+                  placeholder="Enter task title"
                 />
               </div>
               <div className="space-y-1.5">

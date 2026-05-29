@@ -257,7 +257,7 @@ function HelpPage() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder='Search - try "invoice", "mileage", "1099"...'
+          placeholder="Search help topics"
           className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-card text-sm shadow-card focus:outline-none focus:ring-2 focus:ring-primary/30"
         />
       </div>

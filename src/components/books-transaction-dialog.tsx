@@ -97,15 +97,15 @@ export function BooksTransactionDialog({
           </div>
           <div className="space-y-1.5">
             <Label>Vendor</Label>
-            <Input value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Vendor" />
+            <Input value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Enter vendor name" />
           </div>
           <div className="space-y-1.5">
             <Label>Amount</Label>
-            <Input value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" placeholder="Enter amount here" />
+            <Input value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" placeholder="Enter amount" />
           </div>
           <div className="space-y-1.5 md:col-span-2">
             <Label>Memo</Label>
-            <Input value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="Transaction memo" />
+            <Input value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="Enter transaction memo" />
           </div>
           <div className="space-y-1.5">
             <Label>Debit account</Label>

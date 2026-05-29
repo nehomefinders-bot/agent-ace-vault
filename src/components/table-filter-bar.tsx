@@ -244,7 +244,7 @@ export function TableFilterBar({
                 <Input
                   type="number"
                   inputMode="decimal"
-                  placeholder="0"
+                  placeholder="Min amount"
                   value={filters.amountMin}
                   onChange={(e) => onChange({ amountMin: e.target.value })}
                 />
@@ -254,7 +254,7 @@ export function TableFilterBar({
                 <Input
                   type="number"
                   inputMode="decimal"
-                  placeholder="∞"
+                  placeholder="Max amount"
                   value={filters.amountMax}
                   onChange={(e) => onChange({ amountMax: e.target.value })}
                 />

@@ -527,7 +527,7 @@ function NewListingDialog({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="lp">List Price *</Label>
-            <Input id="lp" type="number" min="0" required value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Enter sale price here" className="tabular-nums" />
+            <Input id="lp" type="number" min="0" required value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Enter sale price" className="tabular-nums" />
           </div>
           <div className="space-y-1.5">
             <Label>Status</Label>
@@ -552,19 +552,19 @@ function NewListingDialog({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="sn">Name</Label>
-              <Input id="sn" value={sellerName} onChange={(e) => setSellerName(e.target.value)} placeholder="Jane Doe" />
+              <Input id="sn" value={sellerName} onChange={(e) => setSellerName(e.target.value)} placeholder="Enter seller name" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="sp">Phone</Label>
-              <Input id="sp" type="tel" value={sellerPhone} onChange={(e) => setSellerPhone(e.target.value)} placeholder="(555) 123-4567" />
+              <Input id="sp" type="tel" value={sellerPhone} onChange={(e) => setSellerPhone(e.target.value)} placeholder="Enter seller phone number" />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="se">Email</Label>
-              <Input id="se" type="email" value={sellerEmail} onChange={(e) => setSellerEmail(e.target.value)} placeholder="seller@email.com" />
+              <Input id="se" type="email" value={sellerEmail} onChange={(e) => setSellerEmail(e.target.value)} placeholder="Enter seller email" />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="sna">Seller's New Address</Label>
-              <Input id="sna" value={sellerNewAddress} onChange={(e) => setSellerNewAddress(e.target.value)} placeholder="Where the seller is moving to" />
+              <Input id="sna" value={sellerNewAddress} onChange={(e) => setSellerNewAddress(e.target.value)} placeholder="Enter seller's new address" />
             </div>
           </div>
         </div>

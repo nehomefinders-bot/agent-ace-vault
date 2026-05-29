@@ -358,13 +358,13 @@ function TripDialog({
             </Select>
           </Field>
           <Field label="From address">
-            <Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Office" />
+            <Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Enter starting location" />
           </Field>
           <Field label="To address">
-            <Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Enter destination here" />
+            <Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Enter destination" />
           </Field>
           <Field label="Miles">
-            <Input value={miles} onChange={(e) => setMiles(e.target.value)} placeholder="Enter miles here" inputMode="decimal" className="tabular-nums" />
+            <Input value={miles} onChange={(e) => setMiles(e.target.value)} placeholder="Enter miles driven" inputMode="decimal" className="tabular-nums" />
           </Field>
           <Field label="Purpose">
             <Select value={purpose} onValueChange={setPurpose}>
@@ -500,8 +500,8 @@ function LiveTracker({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
 
       {status === "stopped" && (
         <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-3">
-          <Field label="From"><Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Office" /></Field>
-          <Field label="To"><Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Enter destination here" /></Field>
+          <Field label="From"><Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Enter starting location" /></Field>
+          <Field label="To"><Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Enter destination" /></Field>
           <Field label="Purpose">
             <Select value={purpose} onValueChange={setPurpose}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -568,7 +568,7 @@ function RouteCalc({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
           <Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Enter starting address here" />
         </Field>
         <Field label="To address" className="md:col-span-2">
-          <Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Enter destination here" />
+          <Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Enter destination" />
         </Field>
         <div className="flex items-end">
           <button onClick={calc} disabled={!from || !to || loading} className="w-full bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50">
@@ -625,9 +625,9 @@ function ManualEntry({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
   return (
     <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-        <Field label="From"><Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Office" /></Field>
-        <Field label="To"><Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Enter destination here" /></Field>
-        <Field label="Miles"><Input value={miles} onChange={(e) => setMiles(e.target.value)} placeholder="Enter miles here" inputMode="decimal" className="tabular-nums" /></Field>
+        <Field label="From"><Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Enter starting location" /></Field>
+        <Field label="To"><Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Enter destination" /></Field>
+        <Field label="Miles"><Input value={miles} onChange={(e) => setMiles(e.target.value)} placeholder="Enter miles driven" inputMode="decimal" className="tabular-nums" /></Field>
         <Field label="Purpose">
           <Select value={purpose} onValueChange={setPurpose}>
             <SelectTrigger><SelectValue /></SelectTrigger>

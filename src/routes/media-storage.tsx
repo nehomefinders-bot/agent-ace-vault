@@ -369,7 +369,7 @@ function MediaStorage() {
                     id="folder-name"
                     value={newFolderName}
                     onChange={(event) => setNewFolderName(event.target.value)}
-                    placeholder="Example: Listing 24 Evergreen"
+                    placeholder="Enter folder name"
                   />
                 </div>
                 <DialogFooter>
@@ -421,7 +421,7 @@ function MediaStorage() {
                     id="media-name"
                     value={name}
                     onChange={(event) => setName(event.target.value)}
-                    placeholder="Optional. Defaults to the file name."
+                    placeholder="Enter display name"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -445,7 +445,7 @@ function MediaStorage() {
                     id="media-labels"
                     value={labelsInput}
                     onChange={(event) => setLabelsInput(event.target.value)}
-                    placeholder="listing, spring-campaign, seller"
+                    placeholder="Enter labels separated by commas"
                   />
                 </div>
                 <DialogFooter>

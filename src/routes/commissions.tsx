@@ -155,9 +155,9 @@ function CommissionDialog({
   const [side, setSide] = useState(initial?.side ?? "buy");
   const [closingDate, setClosingDate] = useState(initial?.closingDate ?? "");
   const [salePrice, setSalePrice] = useState(initial?.salePrice ?? "");
-  const [commissionPct, setCommissionPct] = useState(initial?.commissionPct ?? "3");
+  const [commissionPct, setCommissionPct] = useState(initial?.commissionPct ?? "");
   const [concessions, setConcessions] = useState(initial?.concessions ?? "");
-  const [brokerSplit, setBrokerSplit] = useState(initial?.brokerSplit ?? "70");
+  const [brokerSplit, setBrokerSplit] = useState(initial?.brokerSplit ?? "");
   const [deductions, setDeductions] = useState(initial?.deductions ?? "");
   const [deductionNotes, setDeductionNotes] = useState(initial?.deductionNotes ?? "");
   const [saving, setSaving] = useState(false);
@@ -171,9 +171,9 @@ function CommissionDialog({
     setSide(initial?.side ?? "buy");
     setClosingDate(initial?.closingDate ?? "");
     setSalePrice(initial?.salePrice ?? "");
-    setCommissionPct(initial?.commissionPct ?? "3");
+    setCommissionPct(initial?.commissionPct ?? "");
     setConcessions(initial?.concessions ?? "");
-    setBrokerSplit(initial?.brokerSplit ?? "70");
+    setBrokerSplit(initial?.brokerSplit ?? "");
     setDeductions(initial?.deductions ?? "");
     setDeductionNotes(initial?.deductionNotes ?? "");
   }, [open, initial, defaultAgentName, dealOptions]);
@@ -186,9 +186,9 @@ function CommissionDialog({
     const sale = Number(selectedDeal.sale_price) || 0;
     const concessionsValue = meta.concessions || 0;
     const adjustedSale = Math.max(sale - concessionsValue, 0);
-    const derivedCommissionPct = adjustedSale > 0
+    const derivedCommissionPct = adjustedSale > 0 && Number(selectedDeal.gross_commission) > 0
       ? ((Number(selectedDeal.gross_commission) / adjustedSale) * 100).toFixed(2)
-      : "3";
+      : "";
 
     setAgentName(selectedDeal.agent_name ?? defaultAgentName);
     setSide(selectedDeal.side ?? "buy");
@@ -196,7 +196,7 @@ function CommissionDialog({
     setSalePrice(sale > 0 ? String(sale) : "");
     setCommissionPct(derivedCommissionPct);
     setConcessions(concessionsValue > 0 ? String(concessionsValue) : "");
-    setBrokerSplit(selectedDeal.agent_split_pct ? String(selectedDeal.agent_split_pct) : "70");
+    setBrokerSplit(selectedDeal.agent_split_pct ? String(selectedDeal.agent_split_pct) : "");
     setDeductions(meta.deductions > 0 ? String(meta.deductions) : "");
     setDeductionNotes(meta.deductionNotes);
   }, [dealId, defaultAgentName, dealOptions, initial?.dealId, open, selectedDeal]);
@@ -278,7 +278,7 @@ function CommissionDialog({
             <Label htmlFor="agent">Agent Name</Label>
             <Input
               id="agent"
-              placeholder="e.g. Pratyush Sharma"
+              placeholder="Enter agent name"
               value={agentName}
               onChange={(e) => setAgentName(e.target.value)}
             />
@@ -316,7 +316,7 @@ function CommissionDialog({
                 id="price"
                 type="number"
                 min="0"
-                placeholder="Enter sale price here"
+                placeholder="Enter sale price"
                 value={salePrice}
                 onChange={(e) => setSalePrice(e.target.value)}
               />
@@ -327,7 +327,7 @@ function CommissionDialog({
                 id="concessions"
                 type="number"
                 min="0"
-                placeholder="Seller credits, etc."
+                placeholder="Enter concession amount"
                 value={concessions}
                 onChange={(e) => setConcessions(e.target.value)}
               />
@@ -342,7 +342,7 @@ function CommissionDialog({
                 type="number"
                 min="0"
                 step="0.1"
-                placeholder="Enter commission % here"
+                placeholder="Enter commission percentage"
                 value={commissionPct}
                 onChange={(e) => setCommissionPct(e.target.value)}
               />
@@ -355,7 +355,7 @@ function CommissionDialog({
                 min="0"
                 max="100"
                 step="1"
-                placeholder="Enter your split % here"
+                placeholder="Enter broker split percentage"
                 value={brokerSplit}
                 onChange={(e) => setBrokerSplit(e.target.value)}
               />
@@ -369,7 +369,7 @@ function CommissionDialog({
                 id="ded"
                 type="number"
                 min="0"
-                placeholder="TC fees, etc."
+                placeholder="Enter flat deduction amount"
                 value={deductions}
                 onChange={(e) => setDeductions(e.target.value)}
               />
@@ -378,7 +378,7 @@ function CommissionDialog({
               <Label htmlFor="deduction-notes">Deduction Notes</Label>
               <Input
                 id="deduction-notes"
-                placeholder="Explain the deduction"
+                placeholder="Enter deduction details"
                 value={deductionNotes}
                 onChange={(e) => setDeductionNotes(e.target.value)}
               />

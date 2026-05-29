@@ -1015,25 +1015,25 @@ function DirectoryPage() {
           <div className="space-y-3">
             <input
               className="input"
-              placeholder="Name *"
+              placeholder="Enter full name"
               value={form.name}
               onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
             />
             <input
               className="input"
-              placeholder="Email"
+              placeholder="Enter email address"
               value={form.email}
               onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
             />
             <input
               className="input"
-              placeholder="Phone Number"
+              placeholder="Enter phone number"
               value={form.phone}
               onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
             />
             <input
               className="input"
-              placeholder="Company"
+              placeholder="Enter company name"
               value={form.company}
               onChange={(event) => setForm((current) => ({ ...current, company: event.target.value }))}
             />
@@ -1083,7 +1083,7 @@ function DirectoryPage() {
             {form.client_type === "seller" ? (
               <input
                 className="input"
-                placeholder="Property address"
+                placeholder="Enter property address"
                 value={form.address}
                 onChange={(event) => setForm((current) => ({ ...current, address: event.target.value }))}
               />
@@ -1135,7 +1135,7 @@ function DirectoryPage() {
             {form.client_type === "buyer" ? (
               <input
                 className="input"
-                placeholder="Town / locality"
+                placeholder="Enter town or locality"
                 value={form.locality}
                 onChange={(event) => setForm((current) => ({ ...current, locality: event.target.value }))}
               />
@@ -1143,7 +1143,7 @@ function DirectoryPage() {
 
             <textarea
               className="input min-h-24"
-              placeholder="Notes"
+              placeholder="Enter notes"
               value={form.notes}
               onChange={(event) => setForm((current) => ({ ...current, notes: event.target.value }))}
             />

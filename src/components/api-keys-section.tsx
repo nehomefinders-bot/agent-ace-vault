@@ -138,7 +138,7 @@ export function ApiKeysSection({ requireVerification }: ApiKeysSectionProps = {}
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Key name (e.g. Zapier integration)"
+          placeholder="Enter key name"
           className="input"
           maxLength={60}
         />

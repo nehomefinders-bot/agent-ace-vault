@@ -439,7 +439,7 @@ function SettingsPage() {
               <input
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Your name"
+                placeholder="Enter your name"
                 className="input"
                 disabled={!profileLoaded}
               />
@@ -487,7 +487,7 @@ function SettingsPage() {
                   type="email"
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder="new@email.com"
+                  placeholder="Enter new email address"
                   className="input"
                 />
                 <button onClick={() => void changeEmail()} disabled={emailBusy || !newEmail.trim()} className="btn-secondary">
@@ -505,14 +505,14 @@ function SettingsPage() {
                   type="password"
                   value={pw}
                   onChange={(e) => setPw(e.target.value)}
-                  placeholder="New password"
+                  placeholder="Enter new password"
                   className="input"
                 />
                 <input
                   type="password"
                   value={pw2}
                   onChange={(e) => setPw2(e.target.value)}
-                  placeholder="Confirm password"
+                  placeholder="Confirm new password"
                   className="input"
                 />
               </div>

@@ -448,7 +448,7 @@ function DealDialog({
             <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Enter property address here" className="inp" />
           </FormField>
           <FormField label="Client name">
-            <input value={client} onChange={(e) => setClient(e.target.value)} placeholder="Sarah Chen" className="inp" />
+            <input value={client} onChange={(e) => setClient(e.target.value)} placeholder="Enter client name" className="inp" />
           </FormField>
           <FormField label="Side">
             <Select value={side} onValueChange={setSide}>
@@ -475,7 +475,7 @@ function DealDialog({
             <input type="number" value={refPct} onChange={(e) => setRefPct(e.target.value)} className="inp tabular-nums" />
           </FormField>
           <FormField label="Referral to (optional)">
-            <input value={refTo} onChange={(e) => setRefTo(e.target.value)} placeholder="Coastal Realty" className="inp" />
+            <input value={refTo} onChange={(e) => setRefTo(e.target.value)} placeholder="Enter referral brokerage" className="inp" />
           </FormField>
           <FormField label="Status">
             <Select value={status} onValueChange={setStatus}>

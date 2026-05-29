@@ -59,7 +59,7 @@ function ForgotPage() {
                 <div className="relative">
                   <Mail className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@brokerage.com"
+                    placeholder="Enter your email"
                     className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
                 </div>
               </label>

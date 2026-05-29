@@ -205,7 +205,7 @@ function Pipeline() {
                   <Label htmlFor="client">Name</Label>
                   <Input
                     id="client"
-                    placeholder="Name of the Client"
+                    placeholder="Enter client name"
                     value={clientName}
                     onChange={(e) => setClientName(e.target.value)}
                   />
@@ -216,7 +216,7 @@ function Pipeline() {
                     <Input
                       id="email"
                       type="email"
-                      placeholder="lead@example.com"
+                      placeholder="Enter client email"
                       value={clientEmail}
                       onChange={(e) => setClientEmail(e.target.value)}
                     />
@@ -226,7 +226,7 @@ function Pipeline() {
                     <Input
                       id="phone"
                       type="tel"
-                      placeholder="(555) 123-4567"
+                      placeholder="Enter client phone number"
                       value={clientPhone}
                       onChange={(e) => setClientPhone(e.target.value)}
                     />
@@ -272,7 +272,7 @@ function Pipeline() {
                     id="sp"
                     type="number"
                     min="0"
-                    placeholder="Enter list price here"
+                    placeholder="Enter list price"
                     value={salePrice}
                     onChange={(e) => setSalePrice(e.target.value)}
                   />
@@ -547,7 +547,7 @@ function DealDialog({
             <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Enter property address here" className="inp" />
           </FormField>
           <FormField label="Client name">
-            <input value={client} onChange={(e) => setClient(e.target.value)} placeholder="Sarah Chen" className="inp" />
+            <input value={client} onChange={(e) => setClient(e.target.value)} placeholder="Enter client name" className="inp" />
           </FormField>
           <FormField label="Side">
             <select value={side} onChange={(e) => setSide(e.target.value)} className="inp">
@@ -569,7 +569,7 @@ function DealDialog({
             <input type="number" value={refPct} onChange={(e) => setRefPct(e.target.value)} className="inp tabular-nums" />
           </FormField>
           <FormField label="Referral to (optional)">
-            <input value={refTo} onChange={(e) => setRefTo(e.target.value)} placeholder="Coastal Realty" className="inp" />
+            <input value={refTo} onChange={(e) => setRefTo(e.target.value)} placeholder="Enter referral brokerage" className="inp" />
           </FormField>
           <FormField label="Status">
             <Select value={status} onValueChange={setStatus}>

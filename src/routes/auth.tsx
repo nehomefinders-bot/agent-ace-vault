@@ -144,7 +144,7 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Jane Agent"
+                  placeholder="Enter your full name"
                   className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm"
                 />
               </Field>
@@ -155,7 +155,7 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@brokerage.com"
+                placeholder="Enter your email"
                 className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-background text-sm"
               />
             </Field>
@@ -166,7 +166,7 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="password"
+                placeholder="Enter your password"
                 className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-background text-sm"
               />
             </Field>

@@ -684,7 +684,7 @@ function AddTransactionModal({
               required
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="Enter amount here"
+              placeholder="Enter amount"
               className="tabular-nums"
             />
           </div>
@@ -695,7 +695,7 @@ function AddTransactionModal({
               required
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
-              placeholder="e.g. Zillow Premier Agent - March"
+              placeholder="Enter transaction memo"
               rows={2}
             />
           </div>

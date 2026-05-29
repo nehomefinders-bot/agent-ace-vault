@@ -186,7 +186,7 @@ export function GhlIntegrationSection({
             <input
               value={locationId}
               onChange={(e) => setLocationId(e.target.value)}
-              placeholder="e.g. ve9EPM428h8vShlRW1KT"
+              placeholder="Enter location ID"
               className="input"
             />
           </label>
