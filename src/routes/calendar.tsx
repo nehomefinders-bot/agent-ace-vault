@@ -707,6 +707,12 @@ function CalendarPage() {
             box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
           }
 
+          .calendar-shell .fc-event-main,
+          .calendar-shell .fc-event-title,
+          .calendar-shell .fc-event-time {
+            color: inherit !important;
+          }
+
           .dark .calendar-shell .fc-event {
             box-shadow: 0 12px 30px rgba(2, 6, 23, 0.24);
           }
@@ -740,9 +746,9 @@ function CalendarPage() {
           }
 
           .calendar-shell .fc-event.abt-deal-event {
-            background: rgba(20, 184, 166, 0.14);
-            border-color: rgba(13, 148, 136, 0.48);
-            color: rgb(17, 94, 89);
+            background: rgba(204, 251, 241, 0.95);
+            border-color: rgba(13, 148, 136, 0.72);
+            color: rgb(17, 94, 89) !important;
           }
 
           .dark .calendar-shell .fc-event.abt-deal-event {
@@ -752,9 +758,9 @@ function CalendarPage() {
           }
 
           .calendar-shell .fc-event.abt-google-event {
-            background: rgba(99, 102, 241, 0.14);
-            border-color: rgba(99, 102, 241, 0.42);
-            color: rgb(49, 46, 129);
+            background: rgba(224, 231, 255, 0.92);
+            border-color: rgba(79, 70, 229, 0.56);
+            color: rgb(49, 46, 129) !important;
           }
 
           .dark .calendar-shell .fc-event.abt-google-event {
@@ -764,39 +770,39 @@ function CalendarPage() {
           }
 
           .calendar-shell .fc-event.abt-task-event.abt-event-palette-0 {
-            background: rgba(251, 191, 36, 0.2);
-            border-color: rgba(217, 119, 6, 0.45);
-            color: rgb(120, 53, 15);
+            background: rgba(254, 243, 199, 0.98);
+            border-color: rgba(217, 119, 6, 0.6);
+            color: rgb(120, 53, 15) !important;
           }
 
           .calendar-shell .fc-event.abt-task-event.abt-event-palette-1 {
-            background: rgba(59, 130, 246, 0.16);
-            border-color: rgba(37, 99, 235, 0.4);
-            color: rgb(30, 64, 175);
+            background: rgba(219, 234, 254, 0.96);
+            border-color: rgba(37, 99, 235, 0.55);
+            color: rgb(30, 64, 175) !important;
           }
 
           .calendar-shell .fc-event.abt-task-event.abt-event-palette-2 {
-            background: rgba(16, 185, 129, 0.16);
-            border-color: rgba(5, 150, 105, 0.4);
-            color: rgb(6, 95, 70);
+            background: rgba(209, 250, 229, 0.96);
+            border-color: rgba(5, 150, 105, 0.55);
+            color: rgb(6, 95, 70) !important;
           }
 
           .calendar-shell .fc-event.abt-task-event.abt-event-palette-3 {
-            background: rgba(236, 72, 153, 0.14);
-            border-color: rgba(219, 39, 119, 0.35);
-            color: rgb(157, 23, 77);
+            background: rgba(252, 231, 243, 0.96);
+            border-color: rgba(219, 39, 119, 0.5);
+            color: rgb(157, 23, 77) !important;
           }
 
           .calendar-shell .fc-event.abt-task-event.abt-event-palette-4 {
-            background: rgba(168, 85, 247, 0.16);
-            border-color: rgba(147, 51, 234, 0.36);
-            color: rgb(107, 33, 168);
+            background: rgba(243, 232, 255, 0.96);
+            border-color: rgba(147, 51, 234, 0.52);
+            color: rgb(107, 33, 168) !important;
           }
 
           .calendar-shell .fc-event.abt-task-event.abt-event-palette-5 {
-            background: rgba(249, 115, 22, 0.16);
-            border-color: rgba(234, 88, 12, 0.38);
-            color: rgb(154, 52, 18);
+            background: rgba(255, 237, 213, 0.96);
+            border-color: rgba(234, 88, 12, 0.52);
+            color: rgb(154, 52, 18) !important;
           }
 
           .dark .calendar-shell .fc-event.abt-task-event.abt-event-palette-0 {
