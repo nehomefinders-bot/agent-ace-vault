@@ -2,7 +2,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   LayoutDashboard, TrendingUp, Home, Users, Receipt,
-  Wallet, Car, Image, FolderOpen, BookOpen, LifeBuoy, LogOut, LogIn, Calculator,
+  Wallet, Car, Image, FolderOpen, BookOpen, LifeBuoy, LogOut, LogIn,
   CreditCard, Sparkles, Settings, ListTodo, Menu, X, CalendarDays,
   User,
 } from "lucide-react";
@@ -15,23 +15,23 @@ const sections = [
     label: "Business",
     items: [
       { to: "/", label: "Dashboard", icon: LayoutDashboard },
-      { to: "/pipeline", label: "Pipeline", icon: TrendingUp },
-      { to: "/deals", label: "Deals & Commissions", icon: Calculator },
+      { to: "/mileage", label: "Showing Tracker", icon: Car },
       { to: "/listings", label: "Listings", icon: Home },
-      { to: "/clients", label: "Directory", icon: Users },
+      { to: "/deals", label: "Deals", icon: Receipt },
       { to: "/tasks", label: "Tasks", icon: ListTodo },
-      { to: "/calendar", label: "Calendar", icon: CalendarDays },
       { to: "/documents", label: "Documents", icon: FolderOpen },
+      { to: "/expenses", label: "Expenses", icon: Wallet },
+      { to: "/media-storage", label: "Media Storage", icon: Image },
     ],
   },
   {
-    label: "Books",
+    label: "More",
     items: [
+      { to: "/pipeline", label: "Pipeline", icon: TrendingUp },
+      { to: "/clients", label: "Directory", icon: Users },
+      { to: "/calendar", label: "Calendar", icon: CalendarDays },
       { to: "/books", label: "Bookkeeping", icon: BookOpen },
       { to: "/commissions", label: "Commissions", icon: Receipt },
-      { to: "/expenses", label: "Expenses", icon: Wallet },
-      { to: "/mileage", label: "Mileage", icon: Car },
-      { to: "/media-storage", label: "Media Storage", icon: Image },
     ],
   },
   {

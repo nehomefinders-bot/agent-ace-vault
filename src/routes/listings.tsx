@@ -372,6 +372,11 @@ function ListingFullscreen({ listing: l, onClose }: { listing: Listing; onClose:
   const hasMulti = images.length > 1;
 
   useEffect(() => {
+    setIdx(0);
+    setShowInfo(true);
+  }, [l.id]);
+
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
       else if (e.key === "ArrowRight" && hasMulti) setIdx((i) => (i + 1) % images.length);
@@ -385,7 +390,7 @@ function ListingFullscreen({ listing: l, onClose }: { listing: Listing; onClose:
     <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center" onClick={onClose}>
       {cover ? (
         <img
-          src={publicUrl(cover)}
+          src={cover}
           alt={l.address}
           className="max-w-full max-h-full object-contain select-none"
           onClick={(e) => e.stopPropagation()}
