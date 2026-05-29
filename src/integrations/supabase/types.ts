@@ -448,13 +448,22 @@ export type Database = {
       listings: {
         Row: {
           address: string
+          agent_split_pct: number
           baths: number | null
+          brokerage_split_pct: number
+          client_name: string | null
+          close_date: string | null
           beds: number | null
           created_at: string
+          deal_id: string | null
+          deal_side: string | null
+          gross_commission: number
           id: string
           image_paths: string[]
           list_price: number
           notes: string | null
+          referral_pct: number
+          referral_to: string | null
           seller_email: string | null
           seller_name: string | null
           seller_new_address: string | null
@@ -466,13 +475,22 @@ export type Database = {
         }
         Insert: {
           address: string
+          agent_split_pct?: number
           baths?: number | null
+          brokerage_split_pct?: number
+          client_name?: string | null
+          close_date?: string | null
           beds?: number | null
           created_at?: string
+          deal_id?: string | null
+          deal_side?: string | null
+          gross_commission?: number
           id?: string
           image_paths?: string[]
           list_price?: number
           notes?: string | null
+          referral_pct?: number
+          referral_to?: string | null
           seller_email?: string | null
           seller_name?: string | null
           seller_new_address?: string | null
@@ -484,13 +502,22 @@ export type Database = {
         }
         Update: {
           address?: string
+          agent_split_pct?: number
           baths?: number | null
+          brokerage_split_pct?: number
+          client_name?: string | null
+          close_date?: string | null
           beds?: number | null
           created_at?: string
+          deal_id?: string | null
+          deal_side?: string | null
+          gross_commission?: number
           id?: string
           image_paths?: string[]
           list_price?: number
           notes?: string | null
+          referral_pct?: number
+          referral_to?: string | null
           seller_email?: string | null
           seller_name?: string | null
           seller_new_address?: string | null

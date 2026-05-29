@@ -33,6 +33,14 @@ export const Route = createFileRoute("/listings")({
 interface Listing {
   id: string;
   address: string;
+  client_name: string | null;
+  deal_side: string | null;
+  close_date: string | null;
+  gross_commission: number;
+  agent_split_pct: number;
+  brokerage_split_pct: number;
+  referral_pct: number;
+  referral_to: string | null;
   list_price: number;
   status: string;
   beds: number | null;
@@ -68,7 +76,7 @@ function Listings() {
     setLoading(true);
     const { data, error } = await supabase
       .from("listings")
-      .select("id,address,list_price,status,beds,baths,sqft,image_paths,seller_name,seller_phone,seller_email,seller_new_address")
+      .select("id,address,client_name,deal_side,close_date,gross_commission,agent_split_pct,brokerage_split_pct,referral_pct,referral_to,list_price,status,beds,baths,sqft,image_paths,seller_name,seller_phone,seller_email,seller_new_address")
       .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
     setRows((data ?? []) as Listing[]);
@@ -269,11 +277,37 @@ function ListingCard({
       <div className="p-5">
         <div className="text-2xl font-bold tabular-nums font-display">{formatMoney(Number(l.list_price))}</div>
         <div className="text-sm text-muted-foreground mt-1">{l.address}</div>
+        {(l.client_name || l.deal_side || l.close_date) && (
+          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            {l.client_name && <span>Client: {l.client_name}</span>}
+            {l.deal_side && <span>Side: {formatDealSide(l.deal_side)}</span>}
+            {l.close_date && <span>Close: {l.close_date}</span>}
+          </div>
+        )}
         <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
           {l.beds != null && <span className="inline-flex items-center gap-1.5"><Bed className="h-4 w-4" />{l.beds}</span>}
           {l.baths != null && <span className="inline-flex items-center gap-1.5"><Bath className="h-4 w-4" />{l.baths}</span>}
           {l.sqft != null && <span className="inline-flex items-center gap-1.5 tabular-nums"><Maximize2 className="h-4 w-4" />{l.sqft.toLocaleString()} sqft</span>}
         </div>
+
+        {(l.gross_commission || l.agent_split_pct || l.referral_pct || l.referral_to) && (
+          <div className="mt-4 grid grid-cols-2 gap-2 rounded-xl border border-border bg-muted/30 p-3 text-xs">
+            <div>
+              <div className="text-muted-foreground">Gross commission</div>
+              <div className="font-medium tabular-nums">{formatMoney(Number(l.gross_commission || 0))}</div>
+            </div>
+            <div>
+              <div className="text-muted-foreground">Split</div>
+              <div className="font-medium tabular-nums">{Number(l.agent_split_pct || 0)}/{Number(l.brokerage_split_pct || 0)}</div>
+            </div>
+            {Number(l.referral_pct || 0) > 0 && (
+              <div className="col-span-2">
+                <div className="text-muted-foreground">Referral</div>
+                <div className="font-medium">{l.referral_pct}%{l.referral_to ? ` to ${l.referral_to}` : ""}</div>
+              </div>
+            )}
+          </div>
+        )}
 
         {(l.seller_name || l.seller_email || l.seller_phone || l.seller_new_address) && (
           <div className="mt-4 pt-4 border-t border-border space-y-1.5 text-xs">
@@ -385,6 +419,13 @@ function ListingFullscreen({ listing: l, onClose }: { listing: Listing; onClose:
               <div>
                 <div className="text-3xl sm:text-4xl font-bold tabular-nums font-display">{formatMoney(Number(l.list_price))}</div>
                 <div className="text-sm text-white/80 mt-1">{l.address}</div>
+                {(l.client_name || l.deal_side || l.close_date) && (
+                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/80 sm:text-sm">
+                    {l.client_name && <span>Client: {l.client_name}</span>}
+                    {l.deal_side && <span>Side: {formatDealSide(l.deal_side)}</span>}
+                    {l.close_date && <span>Close date: {l.close_date}</span>}
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-4 text-sm text-white/85">
                 {l.beds != null && <span className="inline-flex items-center gap-1.5"><Bed className="h-4 w-4" />{l.beds}</span>}
@@ -396,6 +437,22 @@ function ListingFullscreen({ listing: l, onClose }: { listing: Listing; onClose:
                 }`}>{l.status}</span>
               </div>
             </div>
+            {(l.gross_commission || l.agent_split_pct || l.referral_pct || l.referral_to) && (
+              <div className="mt-4 grid grid-cols-1 gap-3 rounded-2xl border border-white/15 bg-black/25 p-4 text-xs sm:grid-cols-3 sm:text-sm">
+                <div>
+                  <div className="text-white/60">Gross commission</div>
+                  <div className="mt-1 font-display text-lg font-bold tabular-nums">{formatMoney(Number(l.gross_commission || 0))}</div>
+                </div>
+                <div>
+                  <div className="text-white/60">Split</div>
+                  <div className="mt-1 font-display text-lg font-bold tabular-nums">{Number(l.agent_split_pct || 0)}/{Number(l.brokerage_split_pct || 0)}</div>
+                </div>
+                <div>
+                  <div className="text-white/60">Referral</div>
+                  <div className="mt-1 font-medium">{Number(l.referral_pct || 0) > 0 ? `${l.referral_pct}%${l.referral_to ? ` to ${l.referral_to}` : ""}` : "No referral"}</div>
+                </div>
+              </div>
+            )}
             {(l.seller_name || l.seller_email || l.seller_phone || l.seller_new_address) && (
               <div className="mt-4 pt-4 border-t border-white/15 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs sm:text-sm text-white/85">
                 {l.seller_name && <div className="inline-flex items-center gap-2"><User className="h-4 w-4" />{l.seller_name}</div>}
@@ -642,4 +699,10 @@ function NewListingDialog({
       </form>
     </DialogContent>
   );
+}
+
+function formatDealSide(side: string) {
+  if (side === "sell") return "Seller side";
+  if (side === "both") return "Both sides";
+  return "Buyer side";
 }

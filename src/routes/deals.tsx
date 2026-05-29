@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Pencil, Plus, TrendingUp, Trash2, Home as HomeIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ImagePlus, Loader2, Pencil, Plus, TrendingUp, Trash2, Upload, Home as HomeIcon, X } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { ImportButton, type ImportColumn } from "@/components/import-button";
 import { STAGES as PIPELINE_STAGES, normalizeStage, stageLabel } from "@/lib/pipeline-stages";
 import { TableExportButton } from "@/components/table-export-button";
+import { syncDealToListing } from "@/lib/deal-listing-sync";
 
 const DEAL_IMPORT_COLUMNS: ImportColumn[] = [
   { key: "address", label: "Address", required: true, sample: "123 Main St" },
@@ -65,6 +66,7 @@ type DealFormValues = {
   refTo: string;
   status: string;
   closeDate: string;
+  images: File[];
 };
 
 function DealsPage() {
@@ -194,7 +196,7 @@ function DealsPage() {
           const agentSplit = parseFloat(input.agentSplit) || 0;
           const refPct = parseFloat(input.refPct) || 0;
           const gross = sale * (commPct / 100);
-          const { error } = await supabase.from("deals").insert({
+          const { data, error } = await supabase.from("deals").insert({
             user_id: user.id,
             address: input.address,
             client_name: input.client || null,
@@ -207,8 +209,25 @@ function DealsPage() {
             referral_to: input.refTo || null,
             status: input.status,
             close_date: input.closeDate || null,
-          });
+          }).select("id").single();
           if (error) throw error;
+          if (!data?.id) throw new Error("Could not create deal");
+          await syncDealToListing({
+            userId: user.id,
+            dealId: data.id,
+            address: input.address,
+            clientName: input.client || null,
+            side: input.side,
+            salePrice: sale,
+            grossCommission: gross,
+            agentSplitPct: agentSplit,
+            brokerageSplitPct: 100 - agentSplit,
+            referralPct: refPct,
+            referralTo: input.refTo || null,
+            closeDate: input.closeDate || null,
+            status: input.status,
+            images: input.images,
+          });
           toast.success("Deal added");
           await reload();
         }}
@@ -223,7 +242,7 @@ function DealsPage() {
         submitLabel="Save changes"
         initial={editing ? dealToForm(editing) : undefined}
         onSubmit={async (input) => {
-          if (!editing) return;
+          if (!editing || !user) return;
           const sale = parseFloat(input.salePrice) || 0;
           const commPct = parseFloat(input.commPct) || 0;
           const agentSplit = parseFloat(input.agentSplit) || 0;
@@ -243,6 +262,22 @@ function DealsPage() {
             close_date: input.closeDate || null,
           }).eq("id", editing.id);
           if (error) throw error;
+          await syncDealToListing({
+            userId: user.id,
+            dealId: editing.id,
+            address: input.address,
+            clientName: input.client || null,
+            side: input.side,
+            salePrice: sale,
+            grossCommission: gross,
+            agentSplitPct: agentSplit,
+            brokerageSplitPct: 100 - agentSplit,
+            referralPct: refPct,
+            referralTo: input.refTo || null,
+            closeDate: input.closeDate || null,
+            status: input.status,
+            images: input.images,
+          });
           setEditing(null);
           toast.success("Deal updated");
           await reload();
@@ -380,17 +415,21 @@ function DealDialog({
   initial?: DealFormValues;
   onSubmit: (values: DealFormValues) => Promise<void>;
 }) {
+  const MAX_FILE_MB = 8;
   const [address, setAddress] = useState(initial?.address ?? "");
   const [client, setClient] = useState(initial?.client ?? "");
   const [side, setSide] = useState(initial?.side ?? "buy");
   const [salePrice, setSalePrice] = useState(initial?.salePrice ?? "");
-  const [commPct, setCommPct] = useState(initial?.commPct ?? "2.5");
-  const [agentSplit, setAgentSplit] = useState(initial?.agentSplit ?? "80");
-  const [refPct, setRefPct] = useState(initial?.refPct ?? "0");
+  const [commPct, setCommPct] = useState(initial?.commPct ?? "");
+  const [agentSplit, setAgentSplit] = useState(initial?.agentSplit ?? "");
+  const [refPct, setRefPct] = useState(initial?.refPct ?? "");
   const [refTo, setRefTo] = useState(initial?.refTo ?? "");
   const [status, setStatus] = useState<string>(normalizeStage(initial?.status));
   const [closeDate, setCloseDate] = useState(initial?.closeDate ?? "");
+  const [images, setImages] = useState<Array<{ id: string; file: File; preview: string }>>([]);
+  const [dragOver, setDragOver] = useState(false);
   const [saving, setSaving] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -398,13 +437,51 @@ function DealDialog({
     setClient(initial?.client ?? "");
     setSide(initial?.side ?? "buy");
     setSalePrice(initial?.salePrice ?? "");
-    setCommPct(initial?.commPct ?? "2.5");
-    setAgentSplit(initial?.agentSplit ?? "80");
-    setRefPct(initial?.refPct ?? "0");
+    setCommPct(initial?.commPct ?? "");
+    setAgentSplit(initial?.agentSplit ?? "");
+    setRefPct(initial?.refPct ?? "");
     setRefTo(initial?.refTo ?? "");
     setStatus(normalizeStage(initial?.status));
     setCloseDate(initial?.closeDate ?? "");
+    setImages((current) => {
+      current.forEach((item) => URL.revokeObjectURL(item.preview));
+      return [];
+    });
   }, [open, initial]);
+
+  useEffect(() => {
+    return () => {
+      images.forEach((item) => URL.revokeObjectURL(item.preview));
+    };
+  }, [images]);
+
+  function addFiles(files: FileList | File[]) {
+    const next: Array<{ id: string; file: File; preview: string }> = [];
+    for (const file of Array.from(files)) {
+      if (!file.type.startsWith("image/")) {
+        toast.error(`${file.name} is not an image`);
+        continue;
+      }
+      if (file.size > MAX_FILE_MB * 1024 * 1024) {
+        toast.error(`${file.name} is larger than ${MAX_FILE_MB}MB`);
+        continue;
+      }
+      next.push({
+        id: `${file.name}-${file.size}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        file,
+        preview: URL.createObjectURL(file),
+      });
+    }
+    setImages((current) => [...current, ...next]);
+  }
+
+  function removeImage(id: string) {
+    setImages((current) => {
+      const found = current.find((item) => item.id === id);
+      if (found) URL.revokeObjectURL(found.preview);
+      return current.filter((item) => item.id !== id);
+    });
+  }
 
   const gross = (parseFloat(salePrice) || 0) * ((parseFloat(commPct) || 0) / 100);
   const yourTake = gross * (1 - (parseFloat(refPct) || 0) / 100) * ((parseFloat(agentSplit) || 0) / 100);
@@ -427,6 +504,7 @@ function DealDialog({
         refTo: refTo.trim(),
         status,
         closeDate,
+        images: images.map((item) => item.file),
       });
       onOpenChange(false);
     } catch (err) {
@@ -439,79 +517,168 @@ function DealDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-h-[90vh] max-w-5xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-          <FormField label="Property address">
-            <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Enter property address here" className="inp" />
-          </FormField>
-          <FormField label="Client name">
-            <input value={client} onChange={(e) => setClient(e.target.value)} placeholder="Enter client name" className="inp" />
-          </FormField>
-          <FormField label="Side">
-            <Select value={side} onValueChange={setSide}>
-              <SelectTrigger className="inp">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="buy">Buyer side</SelectItem>
-                <SelectItem value="sell">Seller side</SelectItem>
-                <SelectItem value="both">Both sides</SelectItem>
-              </SelectContent>
-            </Select>
-          </FormField>
-          <FormField label="Sale price">
-            <input type="number" value={salePrice} onChange={(e) => setSalePrice(e.target.value)} className="inp tabular-nums" />
-          </FormField>
-          <FormField label="Commission %">
-            <input type="number" step={0.25} value={commPct} onChange={(e) => setCommPct(e.target.value)} className="inp tabular-nums" />
-          </FormField>
-          <FormField label="Your split with brokerage %">
-            <input type="number" value={agentSplit} onChange={(e) => setAgentSplit(e.target.value)} className="inp tabular-nums" />
-          </FormField>
-          <FormField label="Referral % (off the top)">
-            <input type="number" value={refPct} onChange={(e) => setRefPct(e.target.value)} className="inp tabular-nums" />
-          </FormField>
-          <FormField label="Referral to (optional)">
-            <input value={refTo} onChange={(e) => setRefTo(e.target.value)} placeholder="Enter referral brokerage" className="inp" />
-          </FormField>
-          <FormField label="Status">
-            <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="inp"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {PIPELINE_STAGES.map((s) => <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </FormField>
-          <FormField label="Close date">
-            <input type="date" value={closeDate} onChange={(e) => setCloseDate(e.target.value)} className="inp" />
-          </FormField>
-        </div>
 
-        <div className="bg-muted/40 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm mb-4">
-          <div>
-            <div className="text-xs text-muted-foreground">Gross commission</div>
-            <div className="font-display font-bold tabular-nums">{formatMoney(gross)}</div>
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <FormField label="Property address">
+              <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Enter property address" />
+            </FormField>
+            <FormField label="Client name">
+              <Input value={client} onChange={(e) => setClient(e.target.value)} placeholder="Enter client name" />
+            </FormField>
+            <FormField label="Side">
+              <Select value={side} onValueChange={setSide}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select deal side" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="buy">Buyer side</SelectItem>
+                  <SelectItem value="sell">Seller side</SelectItem>
+                  <SelectItem value="both">Both sides</SelectItem>
+                </SelectContent>
+              </Select>
+            </FormField>
           </div>
-          <div>
-            <div className="text-xs text-muted-foreground">After referral & split</div>
-            <div className="font-display font-bold tabular-nums">{formatMoney(yourTake)}</div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <FormField label="Sale price">
+              <Input type="number" value={salePrice} onChange={(e) => setSalePrice(e.target.value)} placeholder="Enter sale price" className="tabular-nums" />
+            </FormField>
+            <FormField label="Commission %">
+              <Input type="number" step={0.25} value={commPct} onChange={(e) => setCommPct(e.target.value)} placeholder="Enter commission percentage" className="tabular-nums" />
+            </FormField>
+            <FormField label="Your split with brokerage %">
+              <Input type="number" value={agentSplit} onChange={(e) => setAgentSplit(e.target.value)} placeholder="Enter agent split percentage" className="tabular-nums" />
+            </FormField>
           </div>
-          <div>
-            <div className="text-xs text-muted-foreground">Effective rate on sale</div>
-            <div className="font-display font-bold tabular-nums">{salePrice ? ((yourTake / (parseFloat(salePrice) || 1)) * 100).toFixed(2) : "0.00"}%</div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <FormField label="Referral % (off the top)">
+              <Input type="number" value={refPct} onChange={(e) => setRefPct(e.target.value)} placeholder="Enter referral percentage" className="tabular-nums" />
+            </FormField>
+            <FormField label="Referral to">
+              <Input value={refTo} onChange={(e) => setRefTo(e.target.value)} placeholder="Enter referral brokerage" />
+            </FormField>
+            <FormField label="Status">
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select deal status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PIPELINE_STAGES.map((s) => <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </FormField>
+            <FormField label="Close date">
+              <Input type="date" value={closeDate} onChange={(e) => setCloseDate(e.target.value)} />
+            </FormField>
+          </div>
+
+          <div className="rounded-2xl border border-dashed border-border bg-muted/20 p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <div className="text-sm font-medium">Property photos</div>
+                <div className="text-xs text-muted-foreground">
+                  Upload property images here and they will appear in Listings with the synced deal details.
+                </div>
+              </div>
+              <Button type="button" variant="outline" onClick={() => fileRef.current?.click()}>
+                <ImagePlus className="mr-2 h-4 w-4" />
+                Add photos
+              </Button>
+            </div>
+
+            <div
+              onDragOver={(event) => { event.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={(event) => {
+                event.preventDefault();
+                setDragOver(false);
+                if (event.dataTransfer.files.length) addFiles(event.dataTransfer.files);
+              }}
+              onClick={() => fileRef.current?.click()}
+              className={`cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition ${
+                dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-muted/30"
+              }`}
+            >
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(event) => {
+                  if (event.target.files) addFiles(event.target.files);
+                  event.target.value = "";
+                }}
+              />
+              <Upload className="mx-auto mb-2 h-8 w-8 text-muted-foreground/70" />
+              <div className="text-sm font-medium">Drag and drop property photos here</div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                The first image becomes the main listing photo. Up to {MAX_FILE_MB}MB each.
+              </div>
+            </div>
+
+            {images.length > 0 && (
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                {images.map((image, index) => (
+                  <div key={image.id} className="group relative overflow-hidden rounded-xl border border-border bg-muted">
+                    <img src={image.preview} alt="" className="aspect-square w-full object-cover" />
+                    {index === 0 && (
+                      <div className="absolute bottom-2 left-2 rounded bg-primary/90 px-2 py-1 text-[10px] font-medium text-primary-foreground">
+                        Main photo
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={(event) => { event.stopPropagation(); removeImage(image.id); }}
+                      className="absolute right-2 top-2 rounded-full bg-black/70 p-1 text-white opacity-0 transition group-hover:opacity-100 hover:bg-destructive"
+                      aria-label="Remove image"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  className="flex aspect-square flex-col items-center justify-center rounded-xl border-2 border-dashed border-border text-xs text-muted-foreground hover:border-primary/60 hover:bg-muted/30"
+                >
+                  <ImagePlus className="mb-1 h-5 w-5" />
+                  Add more
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-border bg-muted/40 p-4">
+            <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-3">
+              <div>
+                <div className="text-xs text-muted-foreground">Gross commission</div>
+                <div className="font-display text-xl font-bold tabular-nums">{formatMoney(gross)}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">After referral and split</div>
+                <div className="font-display text-xl font-bold tabular-nums">{formatMoney(yourTake)}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Effective rate on sale</div>
+                <div className="font-display text-xl font-bold tabular-nums">{salePrice ? ((yourTake / (parseFloat(salePrice) || 1)) * 100).toFixed(2) : "0.00"}%</div>
+              </div>
+            </div>
           </div>
         </div>
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button onClick={save} disabled={saving || !address.trim()}>
-            {saving ? "Saving..." : submitLabel}
+            {saving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : submitLabel}
           </Button>
         </DialogFooter>
-        <style>{`.inp { width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); font-size: 0.875rem; }`}</style>
       </DialogContent>
     </Dialog>
   );
@@ -541,6 +708,7 @@ function dealToForm(d: Deal): DealFormValues {
     refTo: d.referral_to ?? "",
     status: normalizeStage(d.status),
     closeDate: d.close_date ?? "",
+    images: [],
   };
 }
 
