@@ -449,11 +449,10 @@ function DealDialog({
     });
   }, [open, initial]);
 
-  useEffect(() => {
-    return () => {
-      images.forEach((item) => URL.revokeObjectURL(item.preview));
-    };
-  }, [images]);
+  useEffect(() => () => {
+    images.forEach((item) => URL.revokeObjectURL(item.preview));
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, []);
 
   function addFiles(files: FileList | File[]) {
     const next: Array<{ id: string; file: File; preview: string }> = [];
