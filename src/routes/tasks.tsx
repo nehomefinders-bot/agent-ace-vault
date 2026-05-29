@@ -1,24 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Circle, Clock, Plus, Trash2, ListTodo } from "lucide-react";
+import { CheckCircle2, Circle, Clock, ListTodo, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { PageShell, StatusPill } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
-} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/tasks")({
   head: () => ({
     meta: [
-      { title: "Tasks — Agent Business Tracker" },
-      { name: "description", content: "Log and track your tasks. Update status, priority and due dates in one place." },
+      { title: "Tasks - Agent Business Tracker" },
+      { name: "description", content: "Log and track your tasks. Update status, priority, dates, and times in one place." },
     ],
   }),
   component: TasksPage,
@@ -35,6 +33,7 @@ interface Task {
   status: Status;
   priority: Priority;
   due_date: string | null;
+  due_at: string | null;
   completed_at: string | null;
   created_at: string;
   updated_at: string;
@@ -52,6 +51,72 @@ const PRIORITY_TONE: Record<Priority, "muted" | "primary" | "danger"> = {
   high: "danger",
 };
 
+function dateOnly(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function parseTaskDate(task: Pick<Task, "due_at" | "due_date">) {
+  if (task.due_at) return new Date(task.due_at);
+  if (!task.due_date) return null;
+  return new Date(`${task.due_date}T12:00:00`);
+}
+
+function getTaskDateValue(task: Pick<Task, "due_at" | "due_date">) {
+  if (task.due_at) return dateOnly(new Date(task.due_at));
+  return task.due_date ?? "";
+}
+
+function getTaskTimeValue(task: Pick<Task, "due_at">) {
+  if (!task.due_at) return "";
+  const dueAt = new Date(task.due_at);
+  const hours = String(dueAt.getHours()).padStart(2, "0");
+  const minutes = String(dueAt.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+}
+
+function buildDuePayload(dueDate: string, dueTime: string) {
+  if (!dueDate) {
+    return { due_date: null, due_at: null };
+  }
+
+  if (!dueTime) {
+    return { due_date: dueDate, due_at: null };
+  }
+
+  const dueAt = new Date(`${dueDate}T${dueTime}:00`);
+  return {
+    due_date: dueDate,
+    due_at: dueAt.toISOString(),
+  };
+}
+
+function formatTaskDue(task: Pick<Task, "due_at" | "due_date">) {
+  const dueAt = parseTaskDate(task);
+  if (!dueAt) return null;
+
+  if (task.due_at) {
+    return dueAt.toLocaleString([], {
+      month: "numeric",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }
+
+  return dueAt.toLocaleDateString();
+}
+
+function compareTasks(a: Task, b: Task) {
+  const aDate = parseTaskDate(a)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+  const bDate = parseTaskDate(b)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+  if (aDate !== bDate) return aDate - bDate;
+  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+}
+
 function TasksPage() {
   const { user, loading: authLoading } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -59,99 +124,162 @@ function TasksPage() {
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<"all" | Status>("all");
 
-  // form state
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("medium");
   const [dueDate, setDueDate] = useState("");
+  const [dueTime, setDueTime] = useState("");
   const [saving, setSaving] = useState(false);
 
   async function load() {
-    if (!user) { setTasks([]); setLoading(false); return; }
+    if (!user) {
+      setTasks([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
-    const { data, error } = await supabase
-      .from("tasks")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) toast.error(error.message);
-    else setTasks((data ?? []) as Task[]);
+    const { data, error } = await supabase.from("tasks").select("*").order("created_at", { ascending: false });
+    if (error) {
+      toast.error(error.message);
+    } else {
+      setTasks(((data ?? []) as Task[]).sort(compareTasks));
+    }
     setLoading(false);
   }
 
-  useEffect(() => { if (!authLoading) load(); /* eslint-disable-next-line */ }, [user, authLoading]);
+  useEffect(() => {
+    if (!authLoading) void load();
+  }, [authLoading, user]);
 
-  async function createTask(e: React.FormEvent) {
-    e.preventDefault();
+  useEffect(() => {
+    if (!user || authLoading) return;
+
+    const channel = supabase
+      .channel(`tasks-sync-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "tasks", filter: `user_id=eq.${user.id}` },
+        () => void load(),
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [authLoading, user]);
+
+  async function createTask(event: React.FormEvent) {
+    event.preventDefault();
     if (!user || !title.trim()) return;
+
     setSaving(true);
     const { error } = await supabase.from("tasks").insert({
       user_id: user.id,
       title: title.trim(),
       description: description.trim() || null,
       priority,
-      due_date: dueDate || null,
+      ...buildDuePayload(dueDate, dueTime),
     });
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
     toast.success("Task added");
-    setTitle(""); setDescription(""); setPriority("medium"); setDueDate("");
+    setTitle("");
+    setDescription("");
+    setPriority("medium");
+    setDueDate("");
+    setDueTime("");
     setOpen(false);
-    load();
+    void load();
   }
 
-  async function setStatus(t: Task, status: Status) {
+  async function setStatus(task: Task, status: Status) {
     const completed_at = status === "done" ? new Date().toISOString() : null;
-    const prev = tasks;
-    setTasks((cur) => cur.map((x) => x.id === t.id ? { ...x, status, completed_at } : x));
-    const { error } = await supabase
-      .from("tasks")
-      .update({ status, completed_at })
-      .eq("id", t.id);
-    if (error) { setTasks(prev); toast.error(error.message); }
+    const previous = tasks;
+    setTasks((current) => current.map((item) => (item.id === task.id ? { ...item, status, completed_at } : item)));
+
+    const { error } = await supabase.from("tasks").update({ status, completed_at }).eq("id", task.id);
+    if (error) {
+      setTasks(previous);
+      toast.error(error.message);
+    }
   }
 
-  async function remove(t: Task) {
-    const prev = tasks;
-    setTasks((cur) => cur.filter((x) => x.id !== t.id));
-    const { error } = await supabase.from("tasks").delete().eq("id", t.id);
-    if (error) { setTasks(prev); toast.error(error.message); return; }
+  async function remove(task: Task) {
+    const previous = tasks;
+    setTasks((current) => current.filter((item) => item.id !== task.id));
+    const { error } = await supabase.from("tasks").delete().eq("id", task.id);
+    if (error) {
+      setTasks(previous);
+      toast.error(error.message);
+      return;
+    }
+
     toast.success("Task deleted");
   }
 
   const counts = useMemo(() => ({
     all: tasks.length,
-    todo: tasks.filter((t) => t.status === "todo").length,
-    in_progress: tasks.filter((t) => t.status === "in_progress").length,
-    done: tasks.filter((t) => t.status === "done").length,
+    todo: tasks.filter((task) => task.status === "todo").length,
+    in_progress: tasks.filter((task) => task.status === "in_progress").length,
+    done: tasks.filter((task) => task.status === "done").length,
   }), [tasks]);
 
-  const visible = filter === "all" ? tasks : tasks.filter((t) => t.status === filter);
+  const visible = useMemo(() => {
+    const filtered = filter === "all" ? tasks : tasks.filter((task) => task.status === filter);
+    return [...filtered].sort(compareTasks);
+  }, [filter, tasks]);
 
   return (
     <PageShell
       title="Tasks"
       subtitle="Plan, track and complete your work."
-      actions={
+      actions={(
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-1.5" /> New task</Button>
+            <Button>
+              <Plus className="mr-1.5 h-4 w-4" />
+              New task
+            </Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>New task</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>New task</DialogTitle>
+            </DialogHeader>
             <form onSubmit={createTask} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="title">Title</Label>
-                <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required autoFocus placeholder="Follow up with Smith offer" />
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  required
+                  autoFocus
+                  placeholder="Follow up with Smith offer"
+                />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="desc">Description</Label>
-                <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="Optional notes" />
+                <Textarea
+                  id="desc"
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  rows={3}
+                  placeholder="Optional notes"
+                />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div className="space-y-1.5">
                   <Label>Priority</Label>
-                  <Select value={priority} onValueChange={(v) => setPriority(v as Priority)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Select value={priority} onValueChange={(value) => setPriority(value as Priority)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="low">Low</SelectItem>
                       <SelectItem value="medium">Medium</SelectItem>
@@ -161,19 +289,27 @@ function TasksPage() {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="due">Due date</Label>
-                  <Input id="due" type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+                  <Input id="due" type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="due-time">Due time</Label>
+                  <Input id="due-time" type="time" value={dueTime} onChange={(event) => setDueTime(event.target.value)} />
                 </div>
               </div>
               <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                <Button type="submit" disabled={saving || !title.trim()}>{saving ? "Saving…" : "Add task"}</Button>
+                <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={saving || !title.trim()}>
+                  {saving ? "Saving..." : "Add task"}
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
-      }
+      )}
     >
-      <div className="flex items-center gap-2 mb-6 flex-wrap">
+      <div className="mb-6 flex flex-wrap items-center gap-2">
         {([
           ["all", "All"],
           ["todo", "To do"],
@@ -183,71 +319,83 @@ function TasksPage() {
           <button
             key={key}
             onClick={() => setFilter(key)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+            className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
               filter === key
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-background text-muted-foreground border-border hover:bg-muted"
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border bg-background text-muted-foreground hover:bg-muted"
             }`}
           >
-            {label} <span className="opacity-70 ml-1">{counts[key]}</span>
+            {label}
+            <span className="ml-1 opacity-70">{counts[key]}</span>
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="text-sm text-muted-foreground py-12 text-center">Loading…</div>
+        <div className="py-12 text-center text-sm text-muted-foreground">Loading...</div>
       ) : !user ? (
-        <div className="text-sm text-muted-foreground py-12 text-center">Sign in to manage tasks.</div>
+        <div className="py-12 text-center text-sm text-muted-foreground">Sign in to manage tasks.</div>
       ) : visible.length === 0 ? (
-        <div className="border border-dashed rounded-xl py-16 text-center">
-          <ListTodo className="h-10 w-10 mx-auto text-muted-foreground/60 mb-3" />
+        <div className="rounded-xl border border-dashed py-16 text-center">
+          <ListTodo className="mx-auto mb-3 h-10 w-10 text-muted-foreground/60" />
           <div className="font-medium">No tasks here</div>
-          <div className="text-sm text-muted-foreground mt-1">
+          <div className="mt-1 text-sm text-muted-foreground">
             {filter === "all" ? "Add your first task to get started." : "Try another filter or add a new task."}
           </div>
         </div>
       ) : (
         <ul className="space-y-2">
-          {visible.map((t) => {
-            const overdue = t.due_date && t.status !== "done" && new Date(t.due_date) < new Date(new Date().toDateString());
+          {visible.map((task) => {
+            const dueAt = parseTaskDate(task);
+            const overdue = Boolean(dueAt && task.status !== "done" && dueAt.getTime() < Date.now());
+            const dueLabel = formatTaskDue(task);
+
             return (
               <li
-                key={t.id}
-                className="group flex items-start gap-3 p-4 rounded-xl border bg-card hover:shadow-sm transition-shadow"
+                key={task.id}
+                className="group flex items-start gap-3 rounded-xl border bg-card p-4 transition-shadow hover:shadow-sm"
               >
                 <button
-                  onClick={() => setStatus(t, t.status === "done" ? "todo" : "done")}
+                  onClick={() => setStatus(task, task.status === "done" ? "todo" : "done")}
                   className="mt-0.5 text-muted-foreground hover:text-primary"
                   aria-label="Toggle complete"
                 >
-                  {t.status === "done"
-                    ? <CheckCircle2 className="h-5 w-5 text-success" />
-                    : t.status === "in_progress"
-                    ? <Clock className="h-5 w-5 text-primary" />
-                    : <Circle className="h-5 w-5" />}
+                  {task.status === "done" ? (
+                    <CheckCircle2 className="h-5 w-5 text-success" />
+                  ) : task.status === "in_progress" ? (
+                    <Clock className="h-5 w-5 text-primary" />
+                  ) : (
+                    <Circle className="h-5 w-5" />
+                  )}
                 </button>
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`font-medium ${t.status === "done" ? "line-through text-muted-foreground" : ""}`}>
-                      {t.title}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`font-medium ${task.status === "done" ? "line-through text-muted-foreground" : ""}`}>
+                      {task.title}
                     </span>
-                    <StatusPill tone={PRIORITY_TONE[t.priority]}>{t.priority}</StatusPill>
-                    {t.due_date && (
-                      <span className={`text-xs ${overdue ? "text-destructive font-medium" : "text-muted-foreground"}`}>
-                        Due {new Date(t.due_date).toLocaleDateString()}
+                    <StatusPill tone={PRIORITY_TONE[task.priority]}>{task.priority}</StatusPill>
+                    {dueLabel && (
+                      <span className={`text-xs ${overdue ? "font-medium text-destructive" : "text-muted-foreground"}`}>
+                        Due {dueLabel}
                       </span>
                     )}
                   </div>
-                  {t.description && (
-                    <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{t.description}</p>
+                  {task.description && (
+                    <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">{task.description}</p>
+                  )}
+                  {task.due_date && (
+                    <div className="mt-2 flex flex-wrap gap-2 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                      <span>Date: {getTaskDateValue(task)}</span>
+                      {getTaskTimeValue(task) && <span>Time: {getTaskTimeValue(task)}</span>}
+                    </div>
                   )}
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
-                  <Select value={t.status} onValueChange={(v) => setStatus(t, v as Status)}>
+                <div className="flex shrink-0 items-center gap-2">
+                  <Select value={task.status} onValueChange={(value) => setStatus(task, value as Status)}>
                     <SelectTrigger className="h-8 w-[140px] text-xs">
-                      <SelectValue>{STATUS_LABEL[t.status]}</SelectValue>
+                      <SelectValue>{STATUS_LABEL[task.status]}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="todo">To do</SelectItem>
@@ -256,8 +404,8 @@ function TasksPage() {
                     </SelectContent>
                   </Select>
                   <button
-                    onClick={() => remove(t)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1"
+                    onClick={() => remove(task)}
+                    className="p-1 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
                     aria-label="Delete task"
                   >
                     <Trash2 className="h-4 w-4" />

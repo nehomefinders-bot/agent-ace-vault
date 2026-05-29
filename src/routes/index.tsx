@@ -4,6 +4,7 @@ import { ArrowUpRight, AlertCircle, Plus, Search, Pencil, Trash2, Home as HomeIc
 import { PageShell, StatusPill } from "@/components/page-shell";
 import { invoices, kpis, formatMoney } from "@/lib/mock-data";
 import { YtdCommissionCard, PipelineGaugeCard, DealsClosedRingCard } from "@/components/dashboard-kpis";
+import { parseCommissionNotes } from "@/lib/commission-notes";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
@@ -25,6 +26,9 @@ interface DashDeal {
   sale_price: number;
   status: string;
   close_date: string | null;
+  gross_commission: number | null;
+  agent_split_pct: number | null;
+  notes: string | null;
 }
 
 interface DashExpense {
@@ -86,7 +90,7 @@ function Dashboard() {
     if (!user) { setDeals([]); setExpenses([]); return; }
     (async () => {
       const [d, e] = await Promise.all([
-        supabase.from("deals").select("id,address,client_name,sale_price,status,close_date").order("created_at", { ascending: false }).limit(6),
+        supabase.from("deals").select("id,address,client_name,sale_price,status,close_date,gross_commission,agent_split_pct,notes").order("created_at", { ascending: false }),
         supabase.from("expenses").select("id,vendor,category,amount,date,receipt_path").order("date", { ascending: false }).limit(5),
       ]);
       setDeals((d.data ?? []) as DashDeal[]);
@@ -96,6 +100,19 @@ function Dashboard() {
 
   const activeDeals = deals.filter((d) => normalizeStage(d.status) !== "sold").length;
   const pipelineValue = deals.filter((d) => normalizeStage(d.status) !== "sold").reduce((s, d) => s + Number(d.sale_price), 0);
+  const recentDeals = deals.slice(0, 6);
+  const outstandingCommission = deals.reduce((sum, deal) => {
+    const meta = parseCommissionNotes(deal.notes);
+    if (meta.status === "Paid") return sum;
+    const gross = Number(deal.gross_commission) || 0;
+    const split = Number(deal.agent_split_pct) || 0;
+    return sum + gross * (split / 100) - meta.deductions;
+  }, 0);
+  const overdueCommissions = deals.filter((deal) => {
+    const meta = parseCommissionNotes(deal.notes);
+    if (meta.status === "Paid" || !deal.close_date) return false;
+    return deal.close_date < new Date().toISOString().slice(0, 10);
+  }).length;
 
   const deleteDeal = async (dealId: string) => {
     const { error } = await supabase.from("deals").delete().eq("id", dealId);
@@ -154,8 +171,8 @@ function Dashboard() {
               <AlertCircle className="h-4 w-4 text-primary" />
             </div>
           </div>
-          <div className="text-3xl font-bold tabular-nums font-display">{formatMoney(kpis.outstandingInvoices)}</div>
-          <div className="text-xs mt-2 font-medium text-destructive">{invoices.filter(i => i.status === "Overdue").length} overdue</div>
+          <div className="text-3xl font-bold tabular-nums font-display">{formatMoney(outstandingCommission)}</div>
+          <div className="text-xs mt-2 font-medium text-destructive">{overdueCommissions} overdue</div>
         </div>
         <DealsClosedRingCard
           closed={deals.filter((d) => d.status === "sold").length || kpis.closedDealsMTD}
@@ -174,14 +191,14 @@ function Dashboard() {
               View all <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </header>
-          {deals.length === 0 ? (
+          {recentDeals.length === 0 ? (
             <div className="px-6 py-10 text-center text-sm text-muted-foreground">
               No deals yet. <Link to="/deals" className="text-primary font-medium">Add your first deal</Link>
             </div>
           ) : (
             <>
               <ul className="md:hidden divide-y divide-border">
-                {deals.map((d) => (
+                {recentDeals.map((d) => (
                   <li key={d.id} className="px-4 py-4">
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <div className="flex items-start gap-3 min-w-0">
@@ -233,7 +250,7 @@ function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {deals.map((d) => (
+                    {recentDeals.map((d) => (
                       <tr key={d.id} className="border-t border-border row-hover-blue">
                         <td className="py-4 px-6 font-medium">
                           <div className="flex items-center gap-3 min-w-0">

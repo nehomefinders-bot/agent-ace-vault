@@ -169,15 +169,18 @@ export function AppSidebar() {
   return (
     <>
       {/* Mobile top bar with hamburger */}
-      <div className="lg:hidden sticky top-0 z-30 flex w-full items-center gap-3 px-4 h-14 bg-sidebar text-sidebar-foreground border-b border-sidebar-border">
+      <div className="lg:hidden sticky top-0 z-30 flex h-16 w-full items-center gap-3 border-b border-sidebar-border bg-sidebar px-4 text-sidebar-foreground">
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
           aria-label="Open menu"
           aria-expanded={mobileOpen}
-          className="h-11 w-11 -ml-2 inline-flex items-center justify-center rounded-lg hover:bg-sidebar-accent"
+          className="-ml-2 inline-flex h-12 w-12 flex-col items-center justify-center rounded-lg hover:bg-sidebar-accent"
         >
           <Menu className="h-5 w-5" />
+          <span className="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-sidebar-foreground/75">
+            Menu
+          </span>
         </button>
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg overflow-hidden border border-sidebar-border bg-black flex items-center justify-center shrink-0">

@@ -528,6 +528,7 @@ function AddTransactionModal({
 
   const [type, setType] = useState<"expense" | "income">("expense");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [vendor, setVendor] = useState("");
   const [memo, setMemo] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
@@ -605,8 +606,10 @@ function AddTransactionModal({
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const amt = parseFloat(amount);
+    if (!date) return toast.error("Pick a date");
+    if (!vendor.trim()) return toast.error("Add a vendor");
     if (!amt || amt <= 0) return toast.error("Enter a valid amount");
-    if (!memo.trim()) return toast.error("Add a description");
+    if (!memo.trim()) return toast.error("Add a memo");
     if (!effCategory || !effAccount) return toast.error("Pick a category and account");
     setSaving(true);
     try {
@@ -614,7 +617,14 @@ function AddTransactionModal({
       const categoryId = await resolveCategoryId(effCategory);
       const debit = type === "income" ? accountId : categoryId;
       const credit = type === "income" ? categoryId : accountId;
-      await onSubmit({ date, memo: memo.trim(), amount: amt, debitAccountId: debit, creditAccountId: credit });
+      await onSubmit({
+        date,
+        vendor: vendor.trim(),
+        memo: memo.trim(),
+        amount: amt,
+        debitAccountId: debit,
+        creditAccountId: credit,
+      });
       toast.success("Transaction saved");
       onClose();
     } catch (err) {
@@ -649,10 +659,20 @@ function AddTransactionModal({
           ))}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="date">Date</Label>
             <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="vendor">Vendor</Label>
+            <Input
+              id="vendor"
+              required
+              value={vendor}
+              onChange={(e) => setVendor(e.target.value)}
+              placeholder="Enter vendor name"
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="amount">Amount</Label>
@@ -666,6 +686,17 @@ function AddTransactionModal({
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter amount here"
               className="tabular-nums"
+            />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="memo">Memo</Label>
+            <Textarea
+              id="memo"
+              required
+              value={memo}
+              onChange={(e) => setMemo(e.target.value)}
+              placeholder="e.g. Zillow Premier Agent - March"
+              rows={2}
             />
           </div>
         </div>
@@ -724,19 +755,6 @@ function AddTransactionModal({
             />
           )}
         </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="memo">Description / Memo</Label>
-          <Textarea
-            id="memo"
-            required
-            value={memo}
-            onChange={(e) => setMemo(e.target.value)}
-            placeholder="e.g. Zillow Premier Agent - March"
-            rows={2}
-          />
-        </div>
-
         <DialogFooter>
           <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
           <Button type="submit" disabled={saving}>

@@ -17,6 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { BulkStatusBar } from "@/components/bulk-status-bar";
 import { formatMoney } from "@/lib/mock-data";
 import { exportCommissionsCsv, exportCommissionsExcel, exportCommissionsPdf, type CommissionExportRow } from "@/lib/commission-exports";
+import { mergeCommissionNotes, parseCommissionNotes } from "@/lib/commission-notes";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
@@ -49,18 +50,37 @@ interface CommissionRow {
   gci: number;
   commissionPct: number;
   brokerSplit: number;
+  concessions: number;
   deductions: number;
+  deductionNotes: string;
   status: "Paid" | "Pending";
 }
 
 interface CommissionFormValues {
+  dealId: string;
   property: string;
   agentName: string;
   side: string;
+  closingDate: string;
   salePrice: string;
   commissionPct: string;
+  concessions: string;
   brokerSplit: string;
   deductions: string;
+  deductionNotes: string;
+}
+
+interface DealOption {
+  id: string;
+  address: string;
+  side: string;
+  status?: string;
+  agent_name: string | null;
+  close_date: string | null;
+  sale_price: number;
+  gross_commission: number;
+  agent_split_pct: number;
+  notes: string | null;
 }
 
 function netCommission(r: CommissionRow): number {
@@ -115,7 +135,9 @@ function CommissionDialog({
   title,
   submitLabel,
   defaultAgentName,
+  dealOptions,
   initial,
+  lockDeal = false,
   onSubmit,
 }: {
   open: boolean;
@@ -123,39 +145,78 @@ function CommissionDialog({
   title: string;
   submitLabel: string;
   defaultAgentName: string;
+  dealOptions: DealOption[];
   initial?: CommissionFormValues;
+  lockDeal?: boolean;
   onSubmit: (input: CommissionFormValues) => Promise<void>;
 }) {
-  const [property, setProperty] = useState(initial?.property ?? "");
+  const [dealId, setDealId] = useState(initial?.dealId ?? "");
   const [agentName, setAgentName] = useState(initial?.agentName ?? defaultAgentName);
   const [side, setSide] = useState(initial?.side ?? "buy");
+  const [closingDate, setClosingDate] = useState(initial?.closingDate ?? "");
   const [salePrice, setSalePrice] = useState(initial?.salePrice ?? "");
   const [commissionPct, setCommissionPct] = useState(initial?.commissionPct ?? "3");
+  const [concessions, setConcessions] = useState(initial?.concessions ?? "");
   const [brokerSplit, setBrokerSplit] = useState(initial?.brokerSplit ?? "70");
   const [deductions, setDeductions] = useState(initial?.deductions ?? "");
+  const [deductionNotes, setDeductionNotes] = useState(initial?.deductionNotes ?? "");
   const [saving, setSaving] = useState(false);
+
+  const selectedDeal = dealOptions.find((deal) => deal.id === dealId);
 
   useEffect(() => {
     if (!open) return;
-    setProperty(initial?.property ?? "");
+    setDealId(initial?.dealId ?? dealOptions[0]?.id ?? "");
     setAgentName(initial?.agentName ?? defaultAgentName);
     setSide(initial?.side ?? "buy");
+    setClosingDate(initial?.closingDate ?? "");
     setSalePrice(initial?.salePrice ?? "");
     setCommissionPct(initial?.commissionPct ?? "3");
+    setConcessions(initial?.concessions ?? "");
     setBrokerSplit(initial?.brokerSplit ?? "70");
     setDeductions(initial?.deductions ?? "");
-  }, [open, initial, defaultAgentName]);
+    setDeductionNotes(initial?.deductionNotes ?? "");
+  }, [open, initial, defaultAgentName, dealOptions]);
+
+  useEffect(() => {
+    if (!selectedDeal || !open) return;
+    if (initial?.dealId === selectedDeal.id) return;
+
+    const meta = parseCommissionNotes(selectedDeal.notes);
+    const sale = Number(selectedDeal.sale_price) || 0;
+    const concessionsValue = meta.concessions || 0;
+    const adjustedSale = Math.max(sale - concessionsValue, 0);
+    const derivedCommissionPct = adjustedSale > 0
+      ? ((Number(selectedDeal.gross_commission) / adjustedSale) * 100).toFixed(2)
+      : "3";
+
+    setAgentName(selectedDeal.agent_name ?? defaultAgentName);
+    setSide(selectedDeal.side ?? "buy");
+    setClosingDate(selectedDeal.close_date ?? "");
+    setSalePrice(sale > 0 ? String(sale) : "");
+    setCommissionPct(derivedCommissionPct);
+    setConcessions(concessionsValue > 0 ? String(concessionsValue) : "");
+    setBrokerSplit(selectedDeal.agent_split_pct ? String(selectedDeal.agent_split_pct) : "70");
+    setDeductions(meta.deductions > 0 ? String(meta.deductions) : "");
+    setDeductionNotes(meta.deductionNotes);
+  }, [dealId, defaultAgentName, dealOptions, initial?.dealId, open, selectedDeal]);
 
   const sale = parseFloat(salePrice) || 0;
+  const concessionAmount = parseFloat(concessions) || 0;
   const cPct = parseFloat(commissionPct) || 0;
   const bSplit = parseFloat(brokerSplit) || 0;
   const ded = parseFloat(deductions) || 0;
-  const gci = sale * (cPct / 100);
+  const adjustedSale = Math.max(sale - concessionAmount, 0);
+  const gci = adjustedSale * (cPct / 100);
   const net = gci * (bSplit / 100) - ded;
 
   const save = async () => {
-    if (!property.trim()) {
-      toast.error("Please enter a property address");
+    if (!dealId) {
+      toast.error("Please choose a property");
+      return;
+    }
+    if (!closingDate) {
+      toast.error("Please add a closing date");
       return;
     }
     if (sale <= 0) {
@@ -165,13 +226,17 @@ function CommissionDialog({
     setSaving(true);
     try {
       await onSubmit({
-        property: property.trim(),
+        dealId,
+        property: selectedDeal?.address ?? initial?.property ?? "",
         agentName: agentName.trim(),
         side,
+        closingDate,
         salePrice,
         commissionPct,
+        concessions,
         brokerSplit,
         deductions,
+        deductionNotes: deductionNotes.trim(),
       });
       onOpenChange(false);
     } catch (err) {
@@ -195,12 +260,18 @@ function CommissionDialog({
         <div className="grid gap-4 py-2">
           <div className="grid gap-1.5">
             <Label htmlFor="prop">Property Name</Label>
-            <Input
-              id="prop"
-              placeholder="e.g. Oakwood Residence, 412 Oakwood Dr"
-              value={property}
-              onChange={(e) => setProperty(e.target.value)}
-            />
+            <Select value={dealId} onValueChange={setDealId} disabled={lockDeal}>
+              <SelectTrigger id="prop">
+                <SelectValue placeholder="Select a property from your deals" />
+              </SelectTrigger>
+              <SelectContent>
+                {dealOptions.map((deal) => (
+                  <SelectItem key={deal.id} value={deal.id}>
+                    {deal.address}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-1.5">
@@ -213,18 +284,29 @@ function CommissionDialog({
             />
           </div>
 
-          <div className="grid gap-1.5">
-            <Label htmlFor="side">Side</Label>
-            <Select value={side} onValueChange={setSide}>
-              <SelectTrigger id="side">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="buy">Buyer side</SelectItem>
-                <SelectItem value="sell">Seller side</SelectItem>
-                <SelectItem value="both">Both sides</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid gap-1.5">
+              <Label htmlFor="side">Side</Label>
+              <Select value={side} onValueChange={setSide}>
+                <SelectTrigger id="side">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="buy">Buyer side</SelectItem>
+                  <SelectItem value="sell">Seller side</SelectItem>
+                  <SelectItem value="both">Both sides</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="closing-date">Closing Date</Label>
+              <Input
+                id="closing-date"
+                type="date"
+                value={closingDate}
+                onChange={(e) => setClosingDate(e.target.value)}
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -240,6 +322,20 @@ function CommissionDialog({
               />
             </div>
             <div className="grid gap-1.5">
+              <Label htmlFor="concessions">Concessions ($)</Label>
+              <Input
+                id="concessions"
+                type="number"
+                min="0"
+                placeholder="Seller credits, etc."
+                value={concessions}
+                onChange={(e) => setConcessions(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid gap-1.5">
               <Label htmlFor="cpct">Commission %</Label>
               <Input
                 id="cpct"
@@ -251,9 +347,6 @@ function CommissionDialog({
                 onChange={(e) => setCommissionPct(e.target.value)}
               />
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="grid gap-1.5">
               <Label htmlFor="split">Broker Split %</Label>
               <Input
@@ -267,6 +360,9 @@ function CommissionDialog({
                 onChange={(e) => setBrokerSplit(e.target.value)}
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="grid gap-1.5">
               <Label htmlFor="ded">Flat Deductions ($)</Label>
               <Input
@@ -278,9 +374,22 @@ function CommissionDialog({
                 onChange={(e) => setDeductions(e.target.value)}
               />
             </div>
+            <div className="grid gap-1.5 sm:col-span-1">
+              <Label htmlFor="deduction-notes">Deduction Notes</Label>
+              <Input
+                id="deduction-notes"
+                placeholder="Explain the deduction"
+                value={deductionNotes}
+                onChange={(e) => setDeductionNotes(e.target.value)}
+              />
+            </div>
           </div>
 
           <div className="mt-2 rounded-xl border border-border bg-muted/40 p-4 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Adjusted Sale Price</span>
+              <span className="tabular-nums font-medium">{formatMoney(adjustedSale)}</span>
+            </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">GCI (Sale x Commission %)</span>
               <span className="tabular-nums font-medium">{formatMoney(gci)}</span>
@@ -304,7 +413,7 @@ function CommissionDialog({
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={save} disabled={!property.trim() || sale <= 0}>
+          <Button onClick={save} disabled={!dealId || !closingDate || sale <= 0}>
             {saving ? "Saving..." : submitLabel}
           </Button>
         </DialogFooter>
@@ -316,6 +425,7 @@ function CommissionDialog({
 function Commissions() {
   const { user, loading: authLoading } = useAuth();
   const [rows, setRows] = useState<CommissionRow[]>([]);
+  const [dealOptions, setDealOptions] = useState<DealOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [editing, setEditing] = useState<CommissionRow | null>(null);
@@ -334,20 +444,29 @@ function Commissions() {
     }
 
     setLoading(true);
-    const { data, error } = await supabase
+    const [{ data, error }, { data: optionData, error: optionError }] = await Promise.all([
+      supabase
       .from("deals")
       .select("id,address,side,agent_name,close_date,sale_price,gross_commission,agent_split_pct,status,notes,created_at")
-      .in("status", ["sold", "closed"])
-      .order("close_date", { ascending: false, nullsFirst: false });
+      .gt("gross_commission", 0)
+      .order("close_date", { ascending: false, nullsFirst: false }),
+      supabase
+        .from("deals")
+        .select("id,address,side,status,agent_name,close_date,sale_price,gross_commission,agent_split_pct,notes,created_at")
+        .order("created_at", { ascending: false }),
+    ]);
 
     if (error) toast.error(error.message);
+    if (optionError) toast.error(optionError.message);
+
+    setDealOptions((optionData ?? []) as DealOption[]);
 
     setRows((data ?? []).map((d: any) => {
-      const m = d.notes?.match(/Deductions:\s*([\d.]+)/);
+      const meta = parseCommissionNotes(d.notes);
       const sale = Number(d.sale_price);
       const gci = Number(d.gross_commission);
-      const commissionPct = sale > 0 ? (gci / sale) * 100 : 0;
-      const status: "Paid" | "Pending" = /Status:\s*Pending/i.test(d.notes ?? "") ? "Pending" : "Paid";
+      const adjustedSale = Math.max(sale - meta.concessions, 0);
+      const commissionPct = adjustedSale > 0 ? (gci / adjustedSale) * 100 : 0;
       return {
         dealId: d.id,
         shortId: d.id.slice(0, 8),
@@ -359,8 +478,10 @@ function Commissions() {
         gci,
         commissionPct,
         brokerSplit: Number(d.agent_split_pct),
-        deductions: m ? parseFloat(m[1]) : 0,
-        status,
+        concessions: meta.concessions,
+        deductions: meta.deductions,
+        deductionNotes: meta.deductionNotes,
+        status: meta.status,
       };
     }));
     setLoading(false);
@@ -369,10 +490,14 @@ function Commissions() {
   async function toggleStatus(r: CommissionRow, status: "Paid" | "Pending") {
     const prev = rows;
     setRows((cur) => cur.map((x) => (x.dealId === r.dealId ? { ...x, status } : x)));
-    const parts: string[] = [];
-    if (r.deductions > 0) parts.push(`Deductions: ${r.deductions}`);
-    parts.push(`Status: ${status}`);
-    const { error } = await supabase.from("deals").update({ notes: parts.join(" | ") }).eq("id", r.dealId);
+    const existing = dealOptions.find((deal) => deal.id === r.dealId);
+    const notes = mergeCommissionNotes(existing?.notes, {
+      status,
+      concessions: r.concessions,
+      deductions: r.deductions,
+      deductionNotes: r.deductionNotes,
+    });
+    const { error } = await supabase.from("deals").update({ notes }).eq("id", r.dealId);
     if (error) { setRows(prev); toast.error(error.message); }
   }
 
@@ -388,10 +513,14 @@ function Commissions() {
     const prev = rows;
     setRows((cur) => cur.map((r) => (selected.has(r.dealId) ? { ...r, status: newStatus } : r)));
     const updates = targets.map((r) => {
-      const parts: string[] = [];
-      if (r.deductions > 0) parts.push(`Deductions: ${r.deductions}`);
-      parts.push(`Status: ${newStatus}`);
-      return supabase.from("deals").update({ notes: parts.join(" | ") }).eq("id", r.dealId);
+      const existing = dealOptions.find((deal) => deal.id === r.dealId);
+      const notes = mergeCommissionNotes(existing?.notes, {
+        status: newStatus,
+        concessions: r.concessions,
+        deductions: r.deductions,
+        deductionNotes: r.deductionNotes,
+      });
+      return supabase.from("deals").update({ notes }).eq("id", r.dealId);
     });
     const results = await Promise.all(updates);
     const failed = results.find((r) => r.error);
@@ -521,26 +650,34 @@ function Commissions() {
         title="Add Commission"
         submitLabel="Save Commission"
         defaultAgentName={defaultAgentName}
+        dealOptions={dealOptions}
         onSubmit={async (input) => {
           if (!user) return;
           const sale = parseFloat(input.salePrice) || 0;
           const cPct = parseFloat(input.commissionPct) || 0;
+          const concessions = parseFloat(input.concessions) || 0;
           const bSplit = parseFloat(input.brokerSplit) || 0;
           const ded = parseFloat(input.deductions) || 0;
-          const gci = sale * (cPct / 100);
-          const { error } = await supabase.from("deals").insert({
-            user_id: user.id,
+          const gci = Math.max(sale - concessions, 0) * (cPct / 100);
+          const existing = dealOptions.find((deal) => deal.id === input.dealId);
+          const notes = mergeCommissionNotes(existing?.notes, {
+            status: "Pending",
+            concessions,
+            deductions: ded,
+            deductionNotes: input.deductionNotes,
+          });
+          const { error } = await supabase.from("deals").update({
             address: input.property.trim(),
             side: input.side,
-            status: "sold",
+            status: existing?.status ?? "sold",
             sale_price: sale,
             gross_commission: gci,
             agent_split_pct: bSplit,
             brokerage_split_pct: 100 - bSplit,
-            close_date: new Date().toISOString().slice(0, 10),
+            close_date: input.closingDate || null,
             agent_name: input.agentName.trim() || null,
-            notes: ded > 0 ? `Deductions: ${ded}` : null,
-          });
+            notes,
+          }).eq("id", input.dealId);
           if (error) throw error;
           toast.success("Commission saved");
           await load();
@@ -555,14 +692,24 @@ function Commissions() {
         title="Edit Commission"
         submitLabel="Save Changes"
         defaultAgentName={defaultAgentName}
+        dealOptions={dealOptions}
+        lockDeal
         initial={editing ? commissionToForm(editing) : undefined}
         onSubmit={async (input) => {
           if (!editing) return;
           const sale = parseFloat(input.salePrice) || 0;
           const cPct = parseFloat(input.commissionPct) || 0;
+          const concessions = parseFloat(input.concessions) || 0;
           const bSplit = parseFloat(input.brokerSplit) || 0;
           const ded = parseFloat(input.deductions) || 0;
-          const gci = sale * (cPct / 100);
+          const gci = Math.max(sale - concessions, 0) * (cPct / 100);
+          const existing = dealOptions.find((deal) => deal.id === editing.dealId);
+          const notes = mergeCommissionNotes(existing?.notes, {
+            status: editing.status,
+            concessions,
+            deductions: ded,
+            deductionNotes: input.deductionNotes,
+          });
           const { error } = await supabase.from("deals").update({
             address: input.property.trim(),
             agent_name: input.agentName.trim() || null,
@@ -571,7 +718,8 @@ function Commissions() {
             gross_commission: gci,
             agent_split_pct: bSplit,
             brokerage_split_pct: 100 - bSplit,
-            notes: ded > 0 ? `Deductions: ${ded}` : null,
+            close_date: input.closingDate || null,
+            notes,
           }).eq("id", editing.dealId);
           if (error) throw error;
           toast.success("Commission updated");
@@ -800,13 +948,17 @@ function Commissions() {
 
 function commissionToForm(r: CommissionRow): CommissionFormValues {
   return {
+    dealId: r.dealId,
     property: r.property,
     agentName: r.agentName,
     side: r.side,
+    closingDate: r.closingDate,
     salePrice: String(r.salePrice),
     commissionPct: String(r.commissionPct || 0),
+    concessions: String(r.concessions || 0),
     brokerSplit: String(r.brokerSplit),
     deductions: String(r.deductions),
+    deductionNotes: r.deductionNotes,
   };
 }
 
