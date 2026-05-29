@@ -388,15 +388,15 @@ function AddTxnForm({
         </div>
         <button onClick={onDone} className="text-xs text-muted-foreground">Cancel</button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-6">
         <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
           className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
-        <input value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="Memo"
-          className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm md:col-span-2" />
-        <input value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Vendor (optional)"
+        <input value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Vendor"
           className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
         <input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Enter amount here" inputMode="decimal"
           className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm tabular-nums" />
+        <input value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="Memo"
+          className="px-3 py-2.5 rounded-lg border border-border bg-background text-sm md:col-span-2" />
         <button onClick={save} disabled={saving}
           className="bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50">
           {saving ? "Saving..." : "Save"}

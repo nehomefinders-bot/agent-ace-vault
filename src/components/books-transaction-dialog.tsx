@@ -96,16 +96,16 @@ export function BooksTransactionDialog({
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
           <div className="space-y-1.5">
+            <Label>Vendor</Label>
+            <Input value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Vendor" />
+          </div>
+          <div className="space-y-1.5">
             <Label>Amount</Label>
             <Input value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" placeholder="Enter amount here" />
           </div>
           <div className="space-y-1.5 md:col-span-2">
             <Label>Memo</Label>
             <Input value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="Transaction memo" />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Vendor / Reference</Label>
-            <Input value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Optional" />
           </div>
           <div className="space-y-1.5">
             <Label>Debit account</Label>
