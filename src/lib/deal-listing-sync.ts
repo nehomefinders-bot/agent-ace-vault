@@ -66,14 +66,26 @@ export async function syncDealToListing(input: DealListingSyncInput) {
   const uploadedPaths = input.images?.length ? await uploadListingImages(input.userId, input.images) : [];
 
   try {
-    const { data: existingListing, error: existingError } = await supabase
+    const { data: byDealId, error: byDealError } = await supabase
       .from("listings")
       .select("id,image_paths,seller_name,seller_email,seller_phone,seller_new_address,beds,baths,sqft,notes")
-      .or(`deal_id.eq.${input.dealId},address.eq.${input.address}`)
+      .eq("deal_id", input.dealId)
       .eq("user_id", input.userId)
       .maybeSingle();
 
-    if (existingError) throw existingError;
+    if (byDealError) throw byDealError;
+
+    let existingListing = byDealId;
+    if (!existingListing) {
+      const { data: byAddress, error: byAddressError } = await supabase
+        .from("listings")
+        .select("id,image_paths,seller_name,seller_email,seller_phone,seller_new_address,beds,baths,sqft,notes")
+        .eq("address", input.address)
+        .eq("user_id", input.userId)
+        .maybeSingle();
+      if (byAddressError) throw byAddressError;
+      existingListing = byAddress;
+    }
 
     const listingPayload = {
       user_id: input.userId,

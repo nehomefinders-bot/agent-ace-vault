@@ -51,6 +51,7 @@ interface Listing {
   seller_phone: string | null;
   seller_email: string | null;
   seller_new_address: string | null;
+  image_urls?: string[];
 }
 
 const STATUS_OPTIONS = ["Active", "Pending", "Sold", "Not on MLS"] as const;
@@ -58,9 +59,23 @@ const STATUS_OPTIONS = ["Active", "Pending", "Sold", "Not on MLS"] as const;
 const BUCKET = "listing-images";
 const MAX_FILE_MB = 8;
 
-function publicUrl(path: string): string {
-  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
-  return data.publicUrl;
+async function attachSignedImageUrls(rows: Listing[]) {
+  const paths = rows.flatMap((row) => row.image_paths ?? []);
+  if (!paths.length) return rows.map((row) => ({ ...row, image_urls: [] }));
+
+  const signedEntries = await Promise.all(
+    paths.map(async (path) => {
+      const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 60 * 60);
+      if (error || !data?.signedUrl) return [path, ""] as const;
+      return [path, data.signedUrl] as const;
+    }),
+  );
+
+  const signedMap = new Map<string, string>(signedEntries);
+  return rows.map((row) => ({
+    ...row,
+    image_urls: (row.image_paths ?? []).map((path) => signedMap.get(path) ?? "").filter(Boolean),
+  }));
 }
 
 function Listings() {
@@ -78,8 +93,14 @@ function Listings() {
       .from("listings")
       .select("id,address,client_name,deal_side,close_date,gross_commission,agent_split_pct,brokerage_split_pct,referral_pct,referral_to,list_price,status,beds,baths,sqft,image_paths,seller_name,seller_phone,seller_email,seller_new_address")
       .order("created_at", { ascending: false });
-    if (error) toast.error(error.message);
-    setRows((data ?? []) as Listing[]);
+    if (error) {
+      toast.error(error.message);
+      setRows([]);
+      setLoading(false);
+      return;
+    }
+    const nextRows = await attachSignedImageUrls((data ?? []) as Listing[]);
+    setRows(nextRows);
     setSelected(new Set());
     setLoading(false);
   }
@@ -196,8 +217,9 @@ function ListingCard({
   onOpen: () => void;
 }) {
   const images = l.image_paths ?? [];
+  const imageUrls = l.image_urls ?? [];
   const [idx, setIdx] = useState(0);
-  const cover = images[idx];
+  const cover = imageUrls[idx];
   const hasMulti = images.length > 1;
 
   const next = (e: React.MouseEvent) => { e.stopPropagation(); setIdx((i) => (i + 1) % images.length); };
@@ -216,7 +238,7 @@ function ListingCard({
         </div>
         {cover && (
           <img
-            src={publicUrl(cover)}
+            src={cover}
             alt={l.address}
             loading="lazy"
             className="absolute inset-0 w-full h-full object-cover"
@@ -343,9 +365,10 @@ function ListingCard({
 
 function ListingFullscreen({ listing: l, onClose }: { listing: Listing; onClose: () => void }) {
   const images = l.image_paths ?? [];
+  const imageUrls = l.image_urls ?? [];
   const [idx, setIdx] = useState(0);
   const [showInfo, setShowInfo] = useState(true);
-  const cover = images[idx];
+  const cover = imageUrls[idx];
   const hasMulti = images.length > 1;
 
   useEffect(() => {
