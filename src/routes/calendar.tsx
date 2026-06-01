@@ -4,7 +4,8 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import type { DateClickArg, DatesSetArg, EventClickArg, EventDropArg } from "@fullcalendar/core";
+import type { DatesSetArg, EventClickArg, EventDropArg } from "@fullcalendar/core";
+import type { DateClickArg } from "@fullcalendar/interaction";
 import {
   CalendarDays,
   CheckCircle2,
