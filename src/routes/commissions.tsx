@@ -1228,12 +1228,12 @@ function CommissionDisbursementDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-h-[96vh] w-[96vw] max-w-7xl gap-0 overflow-hidden p-0">
-          <DialogHeader className="border-b border-border bg-background px-6 py-4">
-            <div className="flex flex-col gap-3 pr-8 lg:flex-row lg:items-center lg:justify-between">
+        <DialogContent className="!fixed !inset-0 !left-0 !top-0 !h-[100dvh] !max-h-[100dvh] !w-screen !max-w-none !translate-x-0 !translate-y-0 !overflow-hidden !rounded-none !border-0 !p-0 flex flex-col gap-0 bg-background">
+          <DialogHeader className="shrink-0 border-b border-border bg-background/95 px-4 py-4 backdrop-blur sm:px-8">
+            <div className="flex flex-col gap-3 pr-10 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <DialogTitle className="font-display text-2xl">Commission Form</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="font-display text-2xl sm:text-3xl">Commission Form</DialogTitle>
+                <DialogDescription className="max-w-2xl text-sm sm:text-base">
                   Auto-saved Commission Disbursement Request with signature, PDF, and email handoff.
                 </DialogDescription>
               </div>
@@ -1250,22 +1250,22 @@ function CommissionDisbursementDialog({
             </div>
           </DialogHeader>
 
-          <div className="max-h-[calc(96vh-145px)] overflow-y-auto bg-slate-100 p-4 dark:bg-slate-950 sm:p-6">
+          <div className="min-h-0 flex-1 overflow-y-auto bg-slate-100 px-3 py-5 dark:bg-slate-950 sm:px-6 lg:px-10">
             <div
               ref={documentRef}
-              className="mx-auto max-w-5xl space-y-5 rounded-lg border border-slate-200 bg-white p-5 text-slate-950 shadow-2xl dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50 sm:p-8"
+              className="mx-auto w-full max-w-6xl space-y-6 rounded-xl border border-slate-200 bg-white p-4 text-slate-950 shadow-2xl dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50 sm:p-6 lg:p-8"
             >
-              <section className="rounded-md border border-slate-300 p-5 dark:border-slate-700">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div>
+              <section className="overflow-hidden rounded-xl border border-slate-300 bg-slate-50/70 p-4 dark:border-slate-700 dark:bg-slate-950/40 sm:p-6">
+                <div className="grid gap-5 lg:grid-cols-[1fr_280px] lg:items-start">
+                  <div className="min-w-0">
                     <p className="text-xs font-semibold uppercase tracking-[0.26em] text-amber-600 dark:text-amber-300">
                       Agent Business Tracker
                     </p>
-                    <h2 className="mt-2 font-display text-3xl font-bold tracking-wide">
+                    <h2 className="mt-2 max-w-3xl font-display text-3xl font-bold leading-tight tracking-wide sm:text-4xl lg:text-5xl">
                       COMMISSION DISBURSEMENT REQUEST
                     </h2>
                   </div>
-                  <div className="grid gap-3 rounded-md border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/60">
+                  <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950/70">
                     <CheckLine
                       label="Selling Side Commission"
                       checked={draft.sellingSideCommission}
@@ -1283,7 +1283,7 @@ function CommissionDisbursementDialog({
               </section>
 
               <FormSection title="Core Transaction Data">
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-x-5 gap-y-4 md:grid-cols-2 xl:grid-cols-3">
                   <FormInput label="Property Address" value={draft.propertyAddress} disabled={locked} placeholder="Enter property address" onChange={(value) => updateDraft("propertyAddress", value)} />
                   <FormInput label="Closing Date" type="date" value={draft.closingDate} disabled={locked} onChange={(value) => updateDraft("closingDate", value)} />
                   <FormInput label="MLS#" value={draft.mlsNumber} disabled={locked} placeholder="Enter MLS number" onChange={(value) => updateDraft("mlsNumber", value)} />
@@ -1295,7 +1295,7 @@ function CommissionDisbursementDialog({
 
               <div className="grid gap-5 lg:grid-cols-2">
                 <FormSection title="Buyer Details">
-                  <div className="grid gap-4">
+                  <div className="grid gap-x-5 gap-y-4 md:grid-cols-2">
                     <FormInput label="Name" value={draft.buyerName} disabled={locked} placeholder="Enter buyer name" onChange={(value) => updateDraft("buyerName", value)} />
                     <FormInput label="Current Address" value={draft.buyerAddress} disabled={locked} placeholder="Enter buyer current address" onChange={(value) => updateDraft("buyerAddress", value)} />
                     <FormInput label="Phone" value={draft.buyerPhone} disabled={locked} placeholder="Enter buyer phone" onChange={(value) => updateDraft("buyerPhone", value)} />
@@ -1305,7 +1305,7 @@ function CommissionDisbursementDialog({
                 </FormSection>
 
                 <FormSection title="Seller Details">
-                  <div className="grid gap-4">
+                  <div className="grid gap-x-5 gap-y-4 md:grid-cols-2">
                     <FormInput label="Name" value={draft.sellerName} disabled={locked} placeholder="Enter seller name" onChange={(value) => updateDraft("sellerName", value)} />
                     <FormInput label="Current Address" value={draft.sellerAddress} disabled={locked} placeholder="Enter seller current address" onChange={(value) => updateDraft("sellerAddress", value)} />
                     <FormInput label="Phone" value={draft.sellerPhone} disabled={locked} placeholder="Enter seller phone" onChange={(value) => updateDraft("sellerPhone", value)} />
@@ -1316,7 +1316,7 @@ function CommissionDisbursementDialog({
 
               <FormSection title="Company & Agent Splits Calculator">
                 <div className="grid gap-5 xl:grid-cols-[1fr_1.25fr]">
-                  <div className="rounded-md border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/50">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/50 sm:p-5">
                     <h3 className="font-semibold">Referral Company</h3>
                     <div className="mt-4 grid gap-3 sm:grid-cols-2">
                       <CheckLine label="Listing side" checked={draft.referralListingSide} disabled={locked} onChange={(checked) => updateDraft("referralListingSide", checked)} />
@@ -1363,7 +1363,7 @@ function CommissionDisbursementDialog({
                   <AgentSplitCard title="Listing Agent 2" name={draft.listingAgent2Name} pct={draft.listingAgent2Pct} amount={totals.listingAgent2} disabled={locked} onName={(value) => updateDraft("listingAgent2Name", value)} onPct={(value) => updateDraft("listingAgent2Pct", value)} />
                 </div>
 
-                <div className="mt-5 rounded-md border border-amber-300 bg-amber-50 p-4 dark:border-amber-500/40 dark:bg-amber-500/10">
+                <div className="mt-5 rounded-xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-500/40 dark:bg-amber-500/10 sm:p-5">
                   <div className="grid gap-4 md:grid-cols-[1fr_180px_220px] md:items-end">
                     <FormInput label="Brokerage Commission %" type="number" value={draft.brokeragePct} disabled={locked} placeholder="Enter brokerage percentage" onChange={(value) => updateDraft("brokeragePct", value)} />
                     <Readout label="Brokerage amount" value={currency(totals.brokerage)} />
@@ -1376,13 +1376,13 @@ function CommissionDisbursementDialog({
                 <div className="grid gap-5 lg:grid-cols-[1.2fr_1fr]">
                   <div>
                     <Label className="mb-2 block">Authorized Signature</Label>
-                    <div className="overflow-hidden rounded-md border border-slate-300 bg-white dark:border-slate-700">
+                    <div className="touch-none overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-white dark:border-slate-700">
                       <SignatureCanvas
                         ref={signatureRef}
-                        penColor="#0f172a"
+                        penColor="black"
                         clearOnResize={false}
                         backgroundColor="#ffffff"
-                        canvasProps={{ className: `h-40 w-full ${locked ? "pointer-events-none opacity-80" : ""}` }}
+                        canvasProps={{ className: `h-48 w-full rounded-xl sm:h-56 ${locked ? "pointer-events-none opacity-80" : ""}` }}
                         onEnd={() => updateDraft("signatureDataUrl", signatureRef.current?.toDataURL("image/png") ?? "")}
                       />
                     </div>
@@ -1412,7 +1412,8 @@ function CommissionDisbursementDialog({
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-border bg-background px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="shrink-0 border-t border-border bg-background px-4 py-3 shadow-[0_-12px_30px_rgba(15,23,42,0.08)] sm:px-8">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-xs text-muted-foreground">
               Draft auto-saves locally on this device. {locked ? "Locked forms can be unlocked from the header." : "Save and lock when the request is ready."}
             </div>
@@ -1429,6 +1430,7 @@ function CommissionDisbursementDialog({
                 <Mail className="h-4 w-4" />
                 Send via Email
               </Button>
+            </div>
             </div>
           </div>
         </DialogContent>
@@ -1466,8 +1468,8 @@ function CommissionDisbursementDialog({
 
 function FormSection({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-md border border-slate-200 p-5 dark:border-slate-700">
-      <h3 className="mb-4 font-display text-xl font-bold">{title}</h3>
+    <section className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900 sm:p-6">
+      <h3 className="mb-5 font-display text-xl font-bold text-slate-950 dark:text-slate-50">{title}</h3>
       {children}
     </section>
   );
@@ -1489,15 +1491,15 @@ function FormInput({
   disabled?: boolean;
 }) {
   return (
-    <div className="grid gap-1.5">
-      <Label className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">{label}</Label>
+    <div className="grid min-w-0 gap-2">
+      <Label className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">{label}</Label>
       <Input
         type={type}
         value={value}
         disabled={disabled}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="border-slate-300 bg-white text-slate-950 placeholder:text-slate-400 disabled:opacity-80 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-50 dark:placeholder:text-slate-500"
+        className="h-12 min-w-0 rounded-xl border-slate-300 bg-white px-4 text-base text-slate-950 shadow-sm placeholder:text-slate-400 disabled:opacity-80 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-50 dark:placeholder:text-slate-500"
       />
     </div>
   );
@@ -1515,7 +1517,7 @@ function CheckLine({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <label className="flex items-center gap-2 text-sm font-medium">
+    <label className="flex min-w-0 items-center gap-3 text-sm font-medium text-slate-800 dark:text-slate-100">
       <Checkbox checked={checked} disabled={disabled} onCheckedChange={(value) => onChange(Boolean(value))} />
       <span>{label}</span>
     </label>
@@ -1524,8 +1526,8 @@ function CheckLine({
 
 function Readout({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
   return (
-    <div className="rounded-md border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-950">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">{label}</div>
+    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-950">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400">{label}</div>
       <div className={`mt-1 font-display tabular-nums ${strong ? "text-2xl font-bold text-amber-700 dark:text-amber-300" : "text-lg font-semibold"}`}>
         {value}
       </div>
@@ -1553,9 +1555,9 @@ function SplitCompanyRow({
   onAdjustments: (value: string) => void;
 }) {
   return (
-    <div className="rounded-md border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/50">
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/50 sm:p-5">
       <h3 className="font-semibold">{title}</h3>
-      <div className="mt-4 grid gap-4 md:grid-cols-4">
+      <div className="mt-4 grid gap-4 lg:grid-cols-2 2xl:grid-cols-4">
         <FormInput label="Total Commission % to Agent" type="number" value={pct} disabled={disabled} placeholder="Enter percentage" onChange={onPct} />
         <Readout label="Commission before fees" value={currency(beforeFees)} />
         <FormInput label="Other adjustments (+/-)" type="number" value={adjustments} disabled={disabled} placeholder="Enter adjustment" onChange={onAdjustments} />
@@ -1583,9 +1585,9 @@ function AgentSplitCard({
   onPct: (value: string) => void;
 }) {
   return (
-    <div className="rounded-md border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/50">
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/50 sm:p-5">
       <h4 className="font-semibold">{title}</h4>
-      <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_130px_150px] sm:items-end">
+      <div className="mt-4 grid gap-4 md:grid-cols-[1fr_130px_150px] md:items-end">
         <FormInput label="Agent Name" value={name} disabled={disabled} placeholder="Enter agent name" onChange={onName} />
         <FormInput label="Split %" type="number" value={pct} disabled={disabled} placeholder="Enter split" onChange={onPct} />
         <Readout label="Amount" value={currency(amount)} />
