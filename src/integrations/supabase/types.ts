@@ -450,10 +450,10 @@ export type Database = {
           address: string
           agent_split_pct: number
           baths: number | null
+          beds: number | null
           brokerage_split_pct: number
           client_name: string | null
           close_date: string | null
-          beds: number | null
           created_at: string
           deal_id: string | null
           deal_side: string | null
@@ -477,10 +477,10 @@ export type Database = {
           address: string
           agent_split_pct?: number
           baths?: number | null
+          beds?: number | null
           brokerage_split_pct?: number
           client_name?: string | null
           close_date?: string | null
-          beds?: number | null
           created_at?: string
           deal_id?: string | null
           deal_side?: string | null
@@ -504,10 +504,10 @@ export type Database = {
           address?: string
           agent_split_pct?: number
           baths?: number | null
+          beds?: number | null
           brokerage_split_pct?: number
           client_name?: string | null
           close_date?: string | null
-          beds?: number | null
           created_at?: string
           deal_id?: string | null
           deal_side?: string | null
