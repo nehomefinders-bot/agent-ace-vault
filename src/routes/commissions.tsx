@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import SignatureCanvas from "react-signature-canvas";
-import { ChevronDown, Download, FileText, Loader2, LockKeyhole, Mail, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { ChevronDown, Download, FileText, Loader2, LockKeyhole, Mail, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import {
@@ -1123,6 +1123,7 @@ function CommissionDisbursementDialog({
   const [pdfBusy, setPdfBusy] = useState(false);
   const documentRef = useRef<HTMLDivElement | null>(null);
   const signatureRef = useRef<SignatureCanvas | null>(null);
+  const signatureUploadRef = useRef<HTMLInputElement | null>(null);
   const totals = useMemo(() => calculateDisbursementDraft(draft), [draft]);
   const locked = draft.locked;
 
@@ -1141,6 +1142,7 @@ function CommissionDisbursementDialog({
 
   useEffect(() => {
     if (!open || !draft.signatureDataUrl || !signatureRef.current) return;
+    signatureRef.current.clear();
     signatureRef.current.fromDataURL(draft.signatureDataUrl);
   }, [draft.signatureDataUrl, open]);
 
@@ -1159,6 +1161,27 @@ function CommissionDisbursementDialog({
   const saveAndLock = () => {
     setDraft((current) => ({ ...current, locked: true }));
     toast.success("Commission form saved and locked");
+  };
+
+  const uploadSignature = (file: File | null | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Upload a PNG or JPG signature image");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result ?? "");
+      if (!dataUrl) return;
+      updateDraft("signatureDataUrl", dataUrl);
+      window.requestAnimationFrame(() => {
+        signatureRef.current?.clear();
+        signatureRef.current?.fromDataURL(dataUrl);
+      });
+      toast.success("Signature uploaded");
+    };
+    reader.onerror = () => toast.error("Could not read signature file");
+    reader.readAsDataURL(file);
   };
 
   const downloadPdf = async () => {
@@ -1376,6 +1399,16 @@ function CommissionDisbursementDialog({
                 <div className="grid gap-5 lg:grid-cols-[1.2fr_1fr]">
                   <div>
                     <Label className="mb-2 block">Authorized Signature</Label>
+                    <input
+                      ref={signatureUploadRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg"
+                      className="hidden"
+                      onChange={(event) => {
+                        uploadSignature(event.target.files?.[0]);
+                        event.currentTarget.value = "";
+                      }}
+                    />
                     <div className="touch-none overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-white dark:border-slate-700">
                       <SignatureCanvas
                         ref={signatureRef}
@@ -1386,17 +1419,30 @@ function CommissionDisbursementDialog({
                         onEnd={() => updateDraft("signatureDataUrl", signatureRef.current?.toDataURL("image/png") ?? "")}
                       />
                     </div>
-                    <button
-                      type="button"
-                      className="mt-2 text-sm font-medium text-amber-700 hover:text-amber-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-amber-300 dark:hover:text-amber-100"
-                      disabled={locked}
-                      onClick={() => {
-                        signatureRef.current?.clear();
-                        updateDraft("signatureDataUrl", "");
-                      }}
-                    >
-                      Clear Signature
-                    </button>
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                        disabled={locked}
+                        onClick={() => signatureUploadRef.current?.click()}
+                      >
+                        <Upload className="h-4 w-4" />
+                        Upload Signature
+                      </Button>
+                      <button
+                        type="button"
+                        className="text-sm font-medium text-amber-700 hover:text-amber-900 disabled:cursor-not-allowed disabled:opacity-50 dark:text-amber-300 dark:hover:text-amber-100"
+                        disabled={locked}
+                        onClick={() => {
+                          signatureRef.current?.clear();
+                          updateDraft("signatureDataUrl", "");
+                        }}
+                      >
+                        Clear Signature
+                      </button>
+                    </div>
                   </div>
                   <div className="grid content-start gap-4">
                     <FormInput label="Admin/Broker Name" value={draft.adminBrokerName} disabled={locked} placeholder="Enter admin or broker name" onChange={(value) => updateDraft("adminBrokerName", value)} />
