@@ -228,9 +228,9 @@ function Mileage() {
       </div>
 
       <div className="mb-8">
-        {mode === "live" && <LiveTracker onSave={addTrip} />}
-        {mode === "route" && <RouteCalc onSave={addTrip} />}
-        {mode === "manual" && <ManualEntry onSave={addTrip} />}
+        {mode === "live" && <LiveTracker onSave={addTrip} activeTabKey={mode} />}
+        {mode === "route" && <RouteCalc onSave={addTrip} activeTabKey={mode} />}
+        {mode === "manual" && <ManualEntry onSave={addTrip} activeTabKey={mode} />}
       </div>
 
       <TableFilterBar
@@ -421,7 +421,7 @@ function ModeTab({ active, onClick, icon: Icon, label }: { active: boolean; onCl
 
 type Status = "idle" | "running" | "stopped";
 
-function LiveTracker({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
+function LiveTracker({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise<void>; activeTabKey: string }) {
   const [status, setStatus] = useState<Status>("idle");
   const [miles, setMiles] = useState(0);
   const [seconds, setSeconds] = useState(0);
@@ -549,6 +549,7 @@ function LiveTracker({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
               onChange={setFrom}
               onSelect={(suggestion) => setFrom(suggestion.label)}
               placeholder={addressLoading ? "Finding starting location..." : "Enter starting location"}
+              activeTabKey={activeTabKey}
             />
           </Field>
           <Field label="To">
@@ -557,6 +558,7 @@ function LiveTracker({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
               onChange={setTo}
               onSelect={(suggestion) => setTo(suggestion.label)}
               placeholder={addressLoading ? "Finding destination..." : "Enter destination"}
+              activeTabKey={activeTabKey}
             />
           </Field>
           <Field label="Purpose">
@@ -585,16 +587,18 @@ function LiveTracker({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
         </div>
       )}
 
-      <div onClick={startBackgroundTracking} 
-  className="mt-5 text-xs bg-amber-500/20 border border-amber-500/30 text-amber-200 rounded-lg p-3 cursor-pointer hover:bg-amber-500/30 transition-all active:scale-[0.99]"
->
-  <strong className="text-amber-400">⚡ Live Tracking Enabled:</strong> Your native background foreground service is ready. Tap this card directly to arm the real-time background mileage logging pipeline.
+      <div
+        onClick={startBackgroundTracking}
+        className="mt-5 cursor-pointer rounded-lg border border-amber-300 bg-amber-100 px-3 py-3 text-xs text-amber-900 shadow-sm transition-all hover:bg-amber-200/80 active:scale-[0.99] dark:border-amber-400/30 dark:bg-amber-500/15 dark:text-amber-100 dark:hover:bg-amber-500/20"
+      >
+        <strong className="text-amber-900 dark:text-amber-300">Live Tracking Enabled:</strong>{" "}
+        Your native background foreground service is ready. Tap this card directly to arm the real-time background mileage logging pipeline.
       </div>
     </div>
   );
 }
 
-function RouteCalc({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
+function RouteCalc({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise<void>; activeTabKey: string }) {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [purpose, setPurpose] = useState("Showing");
@@ -627,6 +631,7 @@ function RouteCalc({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
             onChange={setFrom}
             onSelect={(suggestion) => setFrom(suggestion.label)}
             placeholder="Enter starting address here"
+            activeTabKey={activeTabKey}
           />
         </Field>
         <Field label="To address" className="md:col-span-2">
@@ -635,6 +640,7 @@ function RouteCalc({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
             onChange={setTo}
             onSelect={(suggestion) => setTo(suggestion.label)}
             placeholder="Enter destination"
+            activeTabKey={activeTabKey}
           />
         </Field>
         <div className="flex items-end">
@@ -676,7 +682,7 @@ function RouteCalc({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
   );
 }
 
-function ManualEntry({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
+function ManualEntry({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise<void>; activeTabKey: string }) {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [miles, setMiles] = useState("");
@@ -698,6 +704,7 @@ function ManualEntry({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
             onChange={setFrom}
             onSelect={(suggestion) => setFrom(suggestion.label)}
             placeholder="Enter starting location"
+            activeTabKey={activeTabKey}
           />
         </Field>
         <Field label="To">
@@ -706,6 +713,7 @@ function ManualEntry({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
             onChange={setTo}
             onSelect={(suggestion) => setTo(suggestion.label)}
             placeholder="Enter destination"
+            activeTabKey={activeTabKey}
           />
         </Field>
         <Field label="Miles"><Input value={miles} onChange={(e) => setMiles(e.target.value)} placeholder="Enter miles driven" inputMode="decimal" className="tabular-nums" /></Field>
@@ -744,25 +752,58 @@ function AddressAutocompleteInput({
   onChange,
   onSelect,
   placeholder,
+  activeTabKey,
 }: {
   value: string;
   onChange: (value: string) => void;
   onSelect: (suggestion: AddressSuggestion) => void;
   placeholder: string;
+  activeTabKey?: string;
 }) {
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [placesReady, setPlacesReady] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   // Google Places session token — groups all keystrokes of one query into a
   // single billable session. Rotated after a suggestion is chosen.
-  const sessionTokenRef = useRef<string>(newSessionToken());
+  const sessionTokenRef = useRef<any>(null);
   const lastSelectedRef = useRef<string>("");
 
   useEffect(() => {
+    let cancelled = false;
+
+    const bindPlaces = async () => {
+      try {
+        const googleApi = await loadGoogleMapsPlaces();
+        if (cancelled) return;
+        sessionTokenRef.current = new googleApi.maps.places.AutocompleteSessionToken();
+        setPlacesReady(true);
+      } catch (error) {
+        console.error("Could not initialize Google Places", error);
+        if (!cancelled) {
+          setPlacesReady(false);
+          setSuggestions([]);
+          setOpen(false);
+        }
+      }
+    };
+
+    void bindPlaces();
+
+    return () => {
+      cancelled = true;
+      setPlacesReady(false);
+      setSuggestions([]);
+      setOpen(false);
+      setHighlightedIndex(-1);
+    };
+  }, [activeTabKey]);
+
+  useEffect(() => {
     const trimmed = value.trim();
-    if (trimmed.length < 3) {
+    if (trimmed.length < 3 || !placesReady) {
       setSuggestions([]);
       setOpen(false);
       setLoading(false);
@@ -796,7 +837,7 @@ function AddressAutocompleteInput({
       controller.abort();
       window.clearTimeout(timer);
     };
-  }, [value]);
+  }, [placesReady, value]);
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
@@ -816,7 +857,9 @@ function AddressAutocompleteInput({
     setOpen(false);
     setHighlightedIndex(-1);
     // End of Places session — rotate token so next query starts a fresh one.
-    sessionTokenRef.current = newSessionToken();
+    if ((window as any).google?.maps?.places) {
+      sessionTokenRef.current = new (window as any).google.maps.places.AutocompleteSessionToken();
+    }
   };
 
   return (
@@ -903,6 +946,8 @@ function haversineMiles(lat1: number, lon1: number, lat2: number, lon2: number):
 }
 
 const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
+const GOOGLE_MAPS_SCRIPT_ID = "google-maps-places-script";
+let googleMapsPlacesPromise: Promise<any> | null = null;
 
 async function reverseGeocode(lat: number, lon: number): Promise<AddressSuggestion | null> {
   if (!GOOGLE_MAPS_KEY) {
@@ -945,64 +990,89 @@ function newSessionToken(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+function loadGoogleMapsPlaces(): Promise<any> {
+  const existingGoogle = (window as any).google;
+  if (existingGoogle?.maps?.places) {
+    return Promise.resolve(existingGoogle);
+  }
+
+  if (googleMapsPlacesPromise) {
+    return googleMapsPlacesPromise;
+  }
+
+  googleMapsPlacesPromise = new Promise((resolve, reject) => {
+    if (!GOOGLE_MAPS_KEY) {
+      reject(new Error("Missing VITE_GOOGLE_MAPS_API_KEY"));
+      return;
+    }
+
+    const existingScript = document.getElementById(GOOGLE_MAPS_SCRIPT_ID) as HTMLScriptElement | null;
+    if (existingScript) {
+      existingScript.addEventListener("load", () => resolve((window as any).google), { once: true });
+      existingScript.addEventListener("error", () => reject(new Error("Google Maps script failed to load")), { once: true });
+      return;
+    }
+
+    const callbackName = "__abtGoogleMapsPlacesLoaded";
+    (window as any)[callbackName] = () => {
+      resolve((window as any).google);
+      delete (window as any)[callbackName];
+    };
+
+    const script = document.createElement("script");
+    script.id = GOOGLE_MAPS_SCRIPT_ID;
+    script.async = true;
+    script.defer = true;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=places&loading=async&callback=${callbackName}`;
+    script.onerror = () => {
+      googleMapsPlacesPromise = null;
+      reject(new Error("Google Maps script failed to load"));
+    };
+    document.head.appendChild(script);
+  });
+
+  return googleMapsPlacesPromise;
+}
+
 async function searchAddressSuggestions(
   query: string,
   signal: AbortSignal,
-  sessionToken: string,
+  sessionToken: any,
 ): Promise<AddressSuggestion[]> {
-  if (!GOOGLE_MAPS_KEY) {
-    throw new Error("Missing VITE_GOOGLE_MAPS_API_KEY");
-  }
+  const googleApi = await loadGoogleMapsPlaces();
+  if (signal.aborted) throw new DOMException("Aborted", "AbortError");
 
   // Places API (New) — Autocomplete. Session token groups all keystrokes of
   // one query so Google bills it as a single autocomplete session.
-  const response = await fetch("https://places.googleapis.com/v1/places:autocomplete", {
-    method: "POST",
-    signal,
-    headers: {
-      "Content-Type": "application/json",
-      "X-Goog-Api-Key": GOOGLE_MAPS_KEY,
-    },
-    body: JSON.stringify({ input: query, sessionToken }),
+  const service = new googleApi.maps.places.AutocompleteService();
+
+  const predictions = await new Promise<any[]>((resolve, reject) => {
+    service.getPlacePredictions(
+      {
+        input: query,
+        sessionToken,
+      },
+      (results: any[] | null, status: string) => {
+        if (signal.aborted) {
+          reject(new DOMException("Aborted", "AbortError"));
+          return;
+        }
+        if (status !== googleApi.maps.places.PlacesServiceStatus.OK || !results) {
+          if (status === googleApi.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+            resolve([]);
+            return;
+          }
+          reject(new Error(`Could not load address suggestions: ${status}`));
+          return;
+        }
+        resolve(results);
+      },
+    );
   });
 
-  if (!response.ok) {
-    let detail = "";
-    try {
-      const err = await response.json();
-      detail = err?.error?.message ? `: ${err.error.message}` : "";
-    } catch {
-      /* ignore */
-    }
-    throw new Error(`Could not load address suggestions${detail}`);
-  }
-
-  const data = (await response.json()) as {
-    suggestions?: Array<{
-      placePrediction?: {
-        placeId: string;
-        text?: { text: string };
-        structuredFormat?: {
-          mainText?: { text: string };
-          secondaryText?: { text: string };
-        };
-      };
-    }>;
-  };
-
-  return (data.suggestions ?? [])
-    .map((s) => s.placePrediction)
-    .filter((p): p is NonNullable<typeof p> => Boolean(p))
-    .slice(0, 5)
-    .map((p) => {
-      const main = p.structuredFormat?.mainText?.text;
-      const secondary = p.structuredFormat?.secondaryText?.text;
-      const label =
-        main && secondary ? `${main}, ${secondary}` : p.text?.text ?? main ?? "Unnamed place";
-      return {
-        id: p.placeId,
-        label,
-      };
-    });
+  return predictions.slice(0, 5).map((prediction) => ({
+    id: prediction.place_id,
+    label: prediction.description,
+  }));
 }
 
