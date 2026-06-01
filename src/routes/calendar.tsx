@@ -4,7 +4,8 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import type { DateClickArg, DatesSetArg, EventClickArg, EventDropArg } from "@fullcalendar/core";
+import type { DatesSetArg, EventClickArg, EventDropArg } from "@fullcalendar/core";
+import type { DateClickArg } from "@fullcalendar/interaction";
 import {
   CalendarDays,
   CheckCircle2,
@@ -356,25 +357,32 @@ function CalendarPage() {
   const calendarEvents = useMemo(() => {
     const taskEvents = tasks
       .filter((task) => Boolean(task.due_at || task.due_date))
-      .map((task) => ({
-        id: `task:${task.id}`,
-        title: task.title,
-        start: task.due_at ?? task.due_date,
-        allDay: !task.due_at,
-        editable: true,
-        extendedProps: { source: "task", task },
-        ...taskColors(task),
-      }));
+      .map((task) => {
+        const start = task.due_at ?? task.due_date;
+        if (!start) return null;
+        return {
+          id: `task:${task.id}`,
+          title: task.title,
+          start,
+          allDay: !task.due_at,
+          editable: true,
+          extendedProps: { source: "task", task },
+          ...taskColors(task),
+        };
+      })
+      .filter((e): e is NonNullable<typeof e> => e !== null);
 
-    const dealEvents = dealMilestones.map((deal) => ({
-      id: `deal:${deal.id}`,
-      title: `Closing: ${deal.address}`,
-      start: deal.close_date,
-      allDay: true,
-      editable: false,
-      classNames: ["abt-deal-event"],
-      extendedProps: { source: "deal", deal },
-    }));
+    const dealEvents = dealMilestones
+      .filter((deal) => Boolean(deal.close_date))
+      .map((deal) => ({
+        id: `deal:${deal.id}`,
+        title: `Closing: ${deal.address}`,
+        start: deal.close_date as string,
+        allDay: true,
+        editable: false,
+        classNames: ["abt-deal-event"],
+        extendedProps: { source: "deal", deal },
+      }));
 
     const externalEvents = googleEvents
       .map((event) => {
@@ -392,7 +400,7 @@ function CalendarPage() {
           extendedProps: { source: "google", google: event },
         };
       })
-      .filter(Boolean);
+      .filter((e): e is NonNullable<typeof e> => e !== null);
 
     return [...taskEvents, ...dealEvents, ...externalEvents];
   }, [dealMilestones, googleEvents, tasks]);
