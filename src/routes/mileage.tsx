@@ -75,6 +75,13 @@ interface NewTrip {
   mode: "live" | "address" | "manual";
 }
 
+type AddressSuggestion = {
+  id: string;
+  label: string;
+  lat?: number;
+  lon?: number;
+};
+
 function Mileage() {
   const { user } = useAuth();
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -358,10 +365,20 @@ function TripDialog({
             </Select>
           </Field>
           <Field label="From address">
-            <Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Enter starting location" />
+            <AddressAutocompleteInput
+              value={from}
+              onChange={setFrom}
+              onSelect={(suggestion) => setFrom(suggestion.label)}
+              placeholder="Enter starting location"
+            />
           </Field>
           <Field label="To address">
-            <Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Enter destination" />
+            <AddressAutocompleteInput
+              value={to}
+              onChange={setTo}
+              onSelect={(suggestion) => setTo(suggestion.label)}
+              placeholder="Enter destination"
+            />
           </Field>
           <Field label="Miles">
             <Input value={miles} onChange={(e) => setMiles(e.target.value)} placeholder="Enter miles driven" inputMode="decimal" className="tabular-nums" />
@@ -412,8 +429,10 @@ function LiveTracker({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
   const [to, setTo] = useState("");
   const [purpose, setPurpose] = useState("Showing");
   const [error, setError] = useState<string | null>(null);
+  const [addressLoading, setAddressLoading] = useState(false);
 
   const watchId = useRef<number | null>(null);
+  const firstPos = useRef<GeolocationPosition | null>(null);
   const lastPos = useRef<GeolocationPosition | null>(null);
   const startedAt = useRef<number>(0);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -426,12 +445,14 @@ function LiveTracker({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
   const start = () => {
     setError(null);
     if (!("geolocation" in navigator)) { setError("Your browser doesn't support geolocation."); return; }
-    setMiles(0); setSeconds(0); lastPos.current = null;
+    setMiles(0); setSeconds(0); lastPos.current = null; firstPos.current = null;
+    setFrom(""); setTo(""); setAddressLoading(false);
     startedAt.current = Date.now();
     setStatus("running");
     tickRef.current = setInterval(() => setSeconds(Math.floor((Date.now() - startedAt.current) / 1000)), 1000);
     watchId.current = navigator.geolocation.watchPosition(
       (pos) => {
+        if (!firstPos.current) firstPos.current = pos;
         if (lastPos.current) {
           const d = haversineMiles(
             lastPos.current.coords.latitude, lastPos.current.coords.longitude,
@@ -451,6 +472,7 @@ function LiveTracker({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
     if (tickRef.current) clearInterval(tickRef.current);
     watchId.current = null; tickRef.current = null;
     setStatus("stopped");
+    void hydrateAddressesFromGps();
   };
 
   const save = async () => {
@@ -463,7 +485,28 @@ function LiveTracker({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
     setStatus("idle"); setMiles(0); setSeconds(0); setFrom(""); setTo("");
   };
 
-  const discard = () => { setStatus("idle"); setMiles(0); setSeconds(0); };
+  const discard = () => { setStatus("idle"); setMiles(0); setSeconds(0); setFrom(""); setTo(""); setAddressLoading(false); };
+
+  async function hydrateAddressesFromGps() {
+    const startCoords = firstPos.current?.coords;
+    const endCoords = lastPos.current?.coords;
+    if (!startCoords && !endCoords) return;
+
+    setAddressLoading(true);
+    try {
+      const [startAddress, endAddress] = await Promise.all([
+        startCoords ? reverseGeocode(startCoords.latitude, startCoords.longitude) : Promise.resolve(null),
+        endCoords ? reverseGeocode(endCoords.latitude, endCoords.longitude) : Promise.resolve(null),
+      ]);
+
+      if (startAddress?.label) setFrom(startAddress.label);
+      if (endAddress?.label) setTo(endAddress.label);
+    } catch (geoError) {
+      console.error("Could not reverse geocode trip", geoError);
+    } finally {
+      setAddressLoading(false);
+    }
+  }
 
   const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
   const ss = String(seconds % 60).padStart(2, "0");
@@ -500,8 +543,22 @@ function LiveTracker({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
 
       {status === "stopped" && (
         <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-3">
-          <Field label="From"><Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Enter starting location" /></Field>
-          <Field label="To"><Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Enter destination" /></Field>
+          <Field label="From">
+            <AddressAutocompleteInput
+              value={from}
+              onChange={setFrom}
+              onSelect={(suggestion) => setFrom(suggestion.label)}
+              placeholder={addressLoading ? "Finding starting location..." : "Enter starting location"}
+            />
+          </Field>
+          <Field label="To">
+            <AddressAutocompleteInput
+              value={to}
+              onChange={setTo}
+              onSelect={(suggestion) => setTo(suggestion.label)}
+              placeholder={addressLoading ? "Finding destination..." : "Enter destination"}
+            />
+          </Field>
           <Field label="Purpose">
             <Select value={purpose} onValueChange={setPurpose}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -565,10 +622,20 @@ function RouteCalc({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
     <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
         <Field label="From address" className="md:col-span-2">
-          <Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Enter starting address here" />
+          <AddressAutocompleteInput
+            value={from}
+            onChange={setFrom}
+            onSelect={(suggestion) => setFrom(suggestion.label)}
+            placeholder="Enter starting address here"
+          />
         </Field>
         <Field label="To address" className="md:col-span-2">
-          <Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Enter destination" />
+          <AddressAutocompleteInput
+            value={to}
+            onChange={setTo}
+            onSelect={(suggestion) => setTo(suggestion.label)}
+            placeholder="Enter destination"
+          />
         </Field>
         <div className="flex items-end">
           <button onClick={calc} disabled={!from || !to || loading} className="w-full bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50">
@@ -602,8 +669,8 @@ function RouteCalc({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
       )}
 
       <div className="mt-5 text-xs text-muted-foreground bg-muted/40 rounded-lg p-3">
-        <strong className="text-foreground">Demo mode:</strong> distances are estimated locally. Connect a Google Maps or Mapbox API key
-        and we'll switch this to real driving distance via the Distance Matrix API.
+        <strong className="text-foreground">Address assist:</strong> start and destination suggestions appear while you type. Distance is still estimated locally for now.
+        Add a Google Maps or Mapbox API key later and we can switch this to exact driving distance.
       </div>
     </div>
   );
@@ -625,8 +692,22 @@ function ManualEntry({ onSave }: { onSave: (t: NewTrip) => Promise<void> }) {
   return (
     <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-        <Field label="From"><Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="Enter starting location" /></Field>
-        <Field label="To"><Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="Enter destination" /></Field>
+        <Field label="From">
+          <AddressAutocompleteInput
+            value={from}
+            onChange={setFrom}
+            onSelect={(suggestion) => setFrom(suggestion.label)}
+            placeholder="Enter starting location"
+          />
+        </Field>
+        <Field label="To">
+          <AddressAutocompleteInput
+            value={to}
+            onChange={setTo}
+            onSelect={(suggestion) => setTo(suggestion.label)}
+            placeholder="Enter destination"
+          />
+        </Field>
         <Field label="Miles"><Input value={miles} onChange={(e) => setMiles(e.target.value)} placeholder="Enter miles driven" inputMode="decimal" className="tabular-nums" /></Field>
         <Field label="Purpose">
           <Select value={purpose} onValueChange={setPurpose}>
@@ -658,6 +739,126 @@ function Field({ label, children, className }: { label: string; children: React.
   );
 }
 
+function AddressAutocompleteInput({
+  value,
+  onChange,
+  onSelect,
+  placeholder,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  onSelect: (suggestion: AddressSuggestion) => void;
+  placeholder: string;
+}) {
+  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (value.trim().length < 3) {
+      setSuggestions([]);
+      setOpen(false);
+      setLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      try {
+        setLoading(true);
+        const results = await searchAddressSuggestions(value.trim(), controller.signal);
+        setSuggestions(results);
+        setOpen(results.length > 0);
+        setHighlightedIndex(results.length > 0 ? 0 : -1);
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          console.error("Address suggestion lookup failed", error);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }, 250);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+    };
+  }, [value]);
+
+  useEffect(() => {
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!wrapperRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, []);
+
+  const choose = (suggestion: AddressSuggestion) => {
+    onSelect(suggestion);
+    setSuggestions([]);
+    setOpen(false);
+    setHighlightedIndex(-1);
+  };
+
+  return (
+    <div className="relative" ref={wrapperRef}>
+      <Input
+        value={value}
+        onChange={(event) => {
+          onChange(event.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => {
+          if (suggestions.length > 0) setOpen(true);
+        }}
+        onKeyDown={(event) => {
+          if (!open || suggestions.length === 0) return;
+
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            setHighlightedIndex((current) => (current + 1) % suggestions.length);
+          } else if (event.key === "ArrowUp") {
+            event.preventDefault();
+            setHighlightedIndex((current) => (current <= 0 ? suggestions.length - 1 : current - 1));
+          } else if (event.key === "Enter" && highlightedIndex >= 0) {
+            event.preventDefault();
+            choose(suggestions[highlightedIndex]);
+          } else if (event.key === "Escape") {
+            setOpen(false);
+          }
+        }}
+        placeholder={placeholder}
+        autoComplete="off"
+      />
+
+      {open && (loading || suggestions.length > 0) && (
+        <div className="absolute z-20 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border border-border bg-popover shadow-xl">
+          {loading && (
+            <div className="px-3 py-2 text-sm text-muted-foreground">Finding address matches...</div>
+          )}
+          {!loading && suggestions.map((suggestion, index) => (
+            <button
+              key={suggestion.id}
+              type="button"
+              onClick={() => choose(suggestion)}
+              className={`block w-full px-3 py-2 text-left text-sm transition-colors ${
+                index === highlightedIndex ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              {suggestion.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 type TripFormValues = {
   date: string;
   from_address: string;
@@ -685,4 +886,61 @@ function haversineMiles(lat1: number, lon1: number, lat2: number, lon2: number):
   const dLon = toRad(lon2 - lon1);
   const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+async function reverseGeocode(lat: number, lon: number): Promise<AddressSuggestion | null> {
+  const url = new URL("https://nominatim.openstreetmap.org/reverse");
+  url.searchParams.set("lat", String(lat));
+  url.searchParams.set("lon", String(lon));
+  url.searchParams.set("format", "jsonv2");
+  url.searchParams.set("zoom", "18");
+  url.searchParams.set("addressdetails", "1");
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+
+  if (!response.ok) throw new Error("Could not reverse geocode current location");
+  const data = await response.json() as { display_name?: string };
+  if (!data.display_name) return null;
+
+  return {
+    id: `reverse-${lat}-${lon}`,
+    label: data.display_name,
+    lat,
+    lon,
+  };
+}
+
+async function searchAddressSuggestions(query: string, signal: AbortSignal): Promise<AddressSuggestion[]> {
+  const url = new URL("https://nominatim.openstreetmap.org/search");
+  url.searchParams.set("q", query);
+  url.searchParams.set("format", "jsonv2");
+  url.searchParams.set("addressdetails", "1");
+  url.searchParams.set("limit", "5");
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      Accept: "application/json",
+    },
+    signal,
+  });
+
+  if (!response.ok) throw new Error("Could not load address suggestions");
+
+  const data = await response.json() as Array<{
+    place_id: number | string;
+    display_name: string;
+    lat?: string;
+    lon?: string;
+  }>;
+
+  return data.map((item) => ({
+    id: String(item.place_id),
+    label: item.display_name,
+    lat: item.lat ? Number(item.lat) : undefined,
+    lon: item.lon ? Number(item.lon) : undefined,
+  }));
 }

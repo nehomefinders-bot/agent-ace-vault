@@ -1,4 +1,4 @@
-alter table public.listings
+/* alter table public.listings
   add column if not exists deal_id uuid,
   add column if not exists client_name text,
   add column if not exists deal_side text,
@@ -12,3 +12,4 @@ alter table public.listings
 create unique index if not exists idx_listings_deal_id_unique
   on public.listings(deal_id)
   where deal_id is not null;
+ */
