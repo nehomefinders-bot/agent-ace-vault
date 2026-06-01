@@ -888,59 +888,95 @@ function haversineMiles(lat1: number, lon1: number, lat2: number, lon2: number):
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
+const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
+
 async function reverseGeocode(lat: number, lon: number): Promise<AddressSuggestion | null> {
-  const url = new URL("https://nominatim.openstreetmap.org/reverse");
-  url.searchParams.set("lat", String(lat));
-  url.searchParams.set("lon", String(lon));
-  url.searchParams.set("format", "jsonv2");
-  url.searchParams.set("zoom", "18");
-  url.searchParams.set("addressdetails", "1");
+  if (!GOOGLE_MAPS_KEY) {
+    throw new Error("Missing VITE_GOOGLE_MAPS_API_KEY");
+  }
 
-  const response = await fetch(url.toString(), {
-    headers: {
-      Accept: "application/json",
-    },
-  });
+  const url = new URL("https://maps.googleapis.com/maps/api/geocode/json");
+  url.searchParams.set("latlng", `${lat},${lon}`);
+  url.searchParams.set("key", GOOGLE_MAPS_KEY);
 
+  const response = await fetch(url.toString());
   if (!response.ok) throw new Error("Could not reverse geocode current location");
-  const data = await response.json() as { display_name?: string };
-  if (!data.display_name) return null;
 
+  const data = (await response.json()) as {
+    status: string;
+    error_message?: string;
+    results?: Array<{ place_id: string; formatted_address: string }>;
+  };
+
+  if (data.status !== "OK" || !data.results || data.results.length === 0) {
+    if (data.status && data.status !== "ZERO_RESULTS") {
+      throw new Error(data.error_message || `Google Geocoding error: ${data.status}`);
+    }
+    return null;
+  }
+
+  const top = data.results[0];
   return {
-    id: `reverse-${lat}-${lon}`,
-    label: data.display_name,
+    id: top.place_id,
+    label: top.formatted_address,
     lat,
     lon,
   };
 }
 
 async function searchAddressSuggestions(query: string, signal: AbortSignal): Promise<AddressSuggestion[]> {
-  const url = new URL("https://nominatim.openstreetmap.org/search");
-  url.searchParams.set("q", query);
-  url.searchParams.set("format", "jsonv2");
-  url.searchParams.set("addressdetails", "1");
-  url.searchParams.set("limit", "5");
+  if (!GOOGLE_MAPS_KEY) {
+    throw new Error("Missing VITE_GOOGLE_MAPS_API_KEY");
+  }
 
-  const response = await fetch(url.toString(), {
-    headers: {
-      Accept: "application/json",
-    },
+  // Places API (New) — Autocomplete
+  const response = await fetch("https://places.googleapis.com/v1/places:autocomplete", {
+    method: "POST",
     signal,
+    headers: {
+      "Content-Type": "application/json",
+      "X-Goog-Api-Key": GOOGLE_MAPS_KEY,
+    },
+    body: JSON.stringify({ input: query }),
   });
 
-  if (!response.ok) throw new Error("Could not load address suggestions");
+  if (!response.ok) {
+    let detail = "";
+    try {
+      const err = await response.json();
+      detail = err?.error?.message ? `: ${err.error.message}` : "";
+    } catch {
+      /* ignore */
+    }
+    throw new Error(`Could not load address suggestions${detail}`);
+  }
 
-  const data = await response.json() as Array<{
-    place_id: number | string;
-    display_name: string;
-    lat?: string;
-    lon?: string;
-  }>;
+  const data = (await response.json()) as {
+    suggestions?: Array<{
+      placePrediction?: {
+        placeId: string;
+        text?: { text: string };
+        structuredFormat?: {
+          mainText?: { text: string };
+          secondaryText?: { text: string };
+        };
+      };
+    }>;
+  };
 
-  return data.map((item) => ({
-    id: String(item.place_id),
-    label: item.display_name,
-    lat: item.lat ? Number(item.lat) : undefined,
-    lon: item.lon ? Number(item.lon) : undefined,
-  }));
+  return (data.suggestions ?? [])
+    .map((s) => s.placePrediction)
+    .filter((p): p is NonNullable<typeof p> => Boolean(p))
+    .slice(0, 5)
+    .map((p) => {
+      const main = p.structuredFormat?.mainText?.text;
+      const secondary = p.structuredFormat?.secondaryText?.text;
+      const label =
+        main && secondary ? `${main}, ${secondary}` : p.text?.text ?? main ?? "Unnamed place";
+      return {
+        id: p.placeId,
+        label,
+      };
+    });
 }
+
