@@ -755,20 +755,31 @@ function AddressAutocompleteInput({
   const [loading, setLoading] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  // Google Places session token — groups all keystrokes of one query into a
+  // single billable session. Rotated after a suggestion is chosen.
+  const sessionTokenRef = useRef<string>(newSessionToken());
+  const lastSelectedRef = useRef<string>("");
 
   useEffect(() => {
-    if (value.trim().length < 3) {
+    const trimmed = value.trim();
+    if (trimmed.length < 3) {
       setSuggestions([]);
       setOpen(false);
       setLoading(false);
       return;
     }
+    // Skip the fetch when the input still matches a just-chosen suggestion.
+    if (trimmed === lastSelectedRef.current) return;
 
     const controller = new AbortController();
     const timer = window.setTimeout(async () => {
       try {
         setLoading(true);
-        const results = await searchAddressSuggestions(value.trim(), controller.signal);
+        const results = await searchAddressSuggestions(
+          trimmed,
+          controller.signal,
+          sessionTokenRef.current,
+        );
         setSuggestions(results);
         setOpen(results.length > 0);
         setHighlightedIndex(results.length > 0 ? 0 : -1);
@@ -779,7 +790,7 @@ function AddressAutocompleteInput({
       } finally {
         setLoading(false);
       }
-    }, 250);
+    }, 300);
 
     return () => {
       controller.abort();
@@ -799,10 +810,13 @@ function AddressAutocompleteInput({
   }, []);
 
   const choose = (suggestion: AddressSuggestion) => {
+    lastSelectedRef.current = suggestion.label;
     onSelect(suggestion);
     setSuggestions([]);
     setOpen(false);
     setHighlightedIndex(-1);
+    // End of Places session — rotate token so next query starts a fresh one.
+    sessionTokenRef.current = newSessionToken();
   };
 
   return (
@@ -924,12 +938,24 @@ async function reverseGeocode(lat: number, lon: number): Promise<AddressSuggesti
   };
 }
 
-async function searchAddressSuggestions(query: string, signal: AbortSignal): Promise<AddressSuggestion[]> {
+function newSessionToken(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+async function searchAddressSuggestions(
+  query: string,
+  signal: AbortSignal,
+  sessionToken: string,
+): Promise<AddressSuggestion[]> {
   if (!GOOGLE_MAPS_KEY) {
     throw new Error("Missing VITE_GOOGLE_MAPS_API_KEY");
   }
 
-  // Places API (New) — Autocomplete
+  // Places API (New) — Autocomplete. Session token groups all keystrokes of
+  // one query so Google bills it as a single autocomplete session.
   const response = await fetch("https://places.googleapis.com/v1/places:autocomplete", {
     method: "POST",
     signal,
@@ -937,7 +963,7 @@ async function searchAddressSuggestions(query: string, signal: AbortSignal): Pro
       "Content-Type": "application/json",
       "X-Goog-Api-Key": GOOGLE_MAPS_KEY,
     },
-    body: JSON.stringify({ input: query }),
+    body: JSON.stringify({ input: query, sessionToken }),
   });
 
   if (!response.ok) {
