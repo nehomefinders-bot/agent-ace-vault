@@ -393,7 +393,7 @@ function CalendarPage() {
           extendedProps: { source: "google", google: event },
         };
       })
-      .filter(Boolean);
+      .filter((e): e is NonNullable<typeof e> => e !== null);
 
     return [...taskEvents, ...dealEvents, ...externalEvents];
   }, [dealMilestones, googleEvents, tasks]);
