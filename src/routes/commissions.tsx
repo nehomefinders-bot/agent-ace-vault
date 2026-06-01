@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, Download, Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import SignatureCanvas from "react-signature-canvas";
+import { ChevronDown, Download, FileText, Loader2, LockKeyhole, Mail, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,7 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BulkStatusBar } from "@/components/bulk-status-bar";
@@ -81,6 +83,141 @@ interface DealOption {
   gross_commission: number;
   agent_split_pct: number;
   notes: string | null;
+}
+
+const COMMISSION_FORM_DRAFT_KEY = "agent-ace:commission-disbursement-draft:v1";
+
+interface CommissionDisbursementDraft {
+  sellingSideCommission: boolean;
+  listingSideCommission: boolean;
+  propertyAddress: string;
+  closingDate: string;
+  mlsNumber: string;
+  purchasePrice: string;
+  grossCommissionPct: string;
+  grossCommissionAmount: string;
+  buyerName: string;
+  buyerAddress: string;
+  buyerPhone: string;
+  buyerEmail: string;
+  buyerLoanType: string;
+  sellerName: string;
+  sellerAddress: string;
+  sellerPhone: string;
+  sellerEmail: string;
+  referralListingSide: boolean;
+  referralSellingSide: boolean;
+  referralType: string;
+  referralContactName: string;
+  referralEmail: string;
+  referralPhone: string;
+  referralPct: string;
+  sellingCompanyPct: string;
+  sellingCompanyAdjustments: string;
+  listingCompanyPct: string;
+  listingCompanyAdjustments: string;
+  sellingAgent1Name: string;
+  sellingAgent1Pct: string;
+  sellingAgent2Name: string;
+  sellingAgent2Pct: string;
+  listingAgent1Name: string;
+  listingAgent1Pct: string;
+  listingAgent2Name: string;
+  listingAgent2Pct: string;
+  brokeragePct: string;
+  adminBrokerName: string;
+  authorizedSignatureDate: string;
+  signatureDataUrl: string;
+  locked: boolean;
+}
+
+function createCommissionDisbursementDraft(): CommissionDisbursementDraft {
+  return {
+    sellingSideCommission: false,
+    listingSideCommission: false,
+    propertyAddress: "",
+    closingDate: "",
+    mlsNumber: "",
+    purchasePrice: "",
+    grossCommissionPct: "",
+    grossCommissionAmount: "",
+    buyerName: "",
+    buyerAddress: "",
+    buyerPhone: "",
+    buyerEmail: "",
+    buyerLoanType: "",
+    sellerName: "",
+    sellerAddress: "",
+    sellerPhone: "",
+    sellerEmail: "",
+    referralListingSide: false,
+    referralSellingSide: false,
+    referralType: "",
+    referralContactName: "",
+    referralEmail: "",
+    referralPhone: "",
+    referralPct: "",
+    sellingCompanyPct: "",
+    sellingCompanyAdjustments: "",
+    listingCompanyPct: "",
+    listingCompanyAdjustments: "",
+    sellingAgent1Name: "",
+    sellingAgent1Pct: "",
+    sellingAgent2Name: "",
+    sellingAgent2Pct: "",
+    listingAgent1Name: "",
+    listingAgent1Pct: "",
+    listingAgent2Name: "",
+    listingAgent2Pct: "",
+    brokeragePct: "",
+    adminBrokerName: "",
+    authorizedSignatureDate: new Date().toISOString().slice(0, 10),
+    signatureDataUrl: "",
+    locked: false,
+  };
+}
+
+function toNumber(value: string): number {
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function currency(value: number): string {
+  return formatMoney(Number.isFinite(value) ? value : 0);
+}
+
+function calculateDisbursementDraft(draft: CommissionDisbursementDraft) {
+  const purchasePrice = toNumber(draft.purchasePrice);
+  const grossPct = toNumber(draft.grossCommissionPct);
+  const enteredGross = toNumber(draft.grossCommissionAmount);
+  const grossCommission = enteredGross > 0 ? enteredGross : purchasePrice * (grossPct / 100);
+  const referralAmount = grossCommission * (toNumber(draft.referralPct) / 100);
+  const sellingBeforeFees = grossCommission * (toNumber(draft.sellingCompanyPct) / 100);
+  const listingBeforeFees = grossCommission * (toNumber(draft.listingCompanyPct) / 100);
+  const sellingFinal = sellingBeforeFees + toNumber(draft.sellingCompanyAdjustments);
+  const listingFinal = listingBeforeFees + toNumber(draft.listingCompanyAdjustments);
+  const sellingAgent1 = grossCommission * (toNumber(draft.sellingAgent1Pct) / 100);
+  const sellingAgent2 = grossCommission * (toNumber(draft.sellingAgent2Pct) / 100);
+  const listingAgent1 = grossCommission * (toNumber(draft.listingAgent1Pct) / 100);
+  const listingAgent2 = grossCommission * (toNumber(draft.listingAgent2Pct) / 100);
+  const brokerage = grossCommission * (toNumber(draft.brokeragePct) / 100);
+  const totalDueBrokerage = Math.max(sellingFinal + listingFinal + brokerage - referralAmount, 0);
+
+  return {
+    purchasePrice,
+    grossCommission,
+    referralAmount,
+    sellingBeforeFees,
+    listingBeforeFees,
+    sellingFinal,
+    listingFinal,
+    sellingAgent1,
+    sellingAgent2,
+    listingAgent1,
+    listingAgent2,
+    brokerage,
+    totalDueBrokerage,
+  };
 }
 
 function netCommission(r: CommissionRow): number {
@@ -428,6 +565,7 @@ function Commissions() {
   const [dealOptions, setDealOptions] = useState<DealOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
+  const [commissionFormOpen, setCommissionFormOpen] = useState(false);
   const [editing, setEditing] = useState<CommissionRow | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const defaultAgentName = useMemo(() => {
@@ -638,12 +776,27 @@ function Commissions() {
               };
             }}
           />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setCommissionFormOpen(true)}
+            className="inline-flex items-center gap-2"
+          >
+            <FileText className="h-4 w-4" />
+            Commission Form
+          </Button>
           <Button onClick={() => setAddOpen(true)} className="inline-flex items-center gap-2">
             <Plus className="h-4 w-4" /> Add Commission
           </Button>
         </>
       }
     >
+      <CommissionDisbursementDialog
+        open={commissionFormOpen}
+        onOpenChange={setCommissionFormOpen}
+        defaultBrokerName={defaultAgentName}
+      />
+
       <CommissionDialog
         open={addOpen}
         onOpenChange={setAddOpen}
