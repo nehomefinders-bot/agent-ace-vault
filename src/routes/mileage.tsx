@@ -896,11 +896,16 @@ function AddressAutocompleteInput({
             setOpen(false);
           }
         }}
-        placeholder={placeholder}
+        placeholder={placesReady ? placeholder : "Loading address services…"}
         autoComplete="off"
+        disabled={!placesReady && !placesError}
       />
 
-      {open && (loading || suggestions.length > 0) && (
+      {placesError && (
+        <p className="mt-1 text-xs text-destructive">{placesError}</p>
+      )}
+
+      {placesReady && open && (loading || suggestions.length > 0) && (
         <div className="absolute z-20 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border border-border bg-popover shadow-xl">
           {loading && (
             <div className="px-3 py-2 text-sm text-muted-foreground">Finding address matches...</div>
