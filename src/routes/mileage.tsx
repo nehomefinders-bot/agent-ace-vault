@@ -881,7 +881,7 @@ function AddressAutocompleteInput({
           if (suggestions.length > 0) setOpen(true);
         }}
         onKeyDown={(event) => {
-          if (!open || suggestions.length === 0) return;
+          if (!placesReady || !open || suggestions.length === 0) return;
 
           if (event.key === "ArrowDown") {
             event.preventDefault();
