@@ -942,18 +942,33 @@ function haversineMiles(lat1: number, lon1: number, lat2: number, lon2: number):
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
-const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
+import { getGoogleMapsKey } from "@/lib/maps.functions";
+
 const GOOGLE_MAPS_SCRIPT_ID = "google-maps-places-script";
 let googleMapsPlacesPromise: Promise<any> | null = null;
+let googleMapsKeyPromise: Promise<string> | null = null;
+
+async function fetchGoogleMapsKey(): Promise<string> {
+  if (!googleMapsKeyPromise) {
+    googleMapsKeyPromise = getGoogleMapsKey()
+      .then((res) => {
+        if (!res?.apiKey) throw new Error("Google Maps key unavailable.");
+        return res.apiKey;
+      })
+      .catch((err) => {
+        googleMapsKeyPromise = null;
+        throw err;
+      });
+  }
+  return googleMapsKeyPromise;
+}
 
 async function reverseGeocode(lat: number, lon: number): Promise<AddressSuggestion | null> {
-  if (!GOOGLE_MAPS_KEY) {
-    throw new Error("Missing VITE_GOOGLE_MAPS_API_KEY");
-  }
+  const apiKey = await fetchGoogleMapsKey();
 
   const url = new URL("https://maps.googleapis.com/maps/api/geocode/json");
   url.searchParams.set("latlng", `${lat},${lon}`);
-  url.searchParams.set("key", GOOGLE_MAPS_KEY);
+  url.searchParams.set("key", apiKey);
 
   const response = await fetch(url.toString());
   if (!response.ok) throw new Error("Could not reverse geocode current location");
@@ -997,35 +1012,37 @@ function loadGoogleMapsPlaces(): Promise<any> {
     return googleMapsPlacesPromise;
   }
 
-  googleMapsPlacesPromise = new Promise((resolve, reject) => {
-    if (!GOOGLE_MAPS_KEY) {
-      reject(new Error("Missing VITE_GOOGLE_MAPS_API_KEY"));
-      return;
-    }
+  googleMapsPlacesPromise = (async () => {
+    const apiKey = await fetchGoogleMapsKey();
 
-    const existingScript = document.getElementById(GOOGLE_MAPS_SCRIPT_ID) as HTMLScriptElement | null;
-    if (existingScript) {
-      existingScript.addEventListener("load", () => resolve((window as any).google), { once: true });
-      existingScript.addEventListener("error", () => reject(new Error("Google Maps script failed to load")), { once: true });
-      return;
-    }
+    return new Promise<any>((resolve, reject) => {
+      const existingScript = document.getElementById(GOOGLE_MAPS_SCRIPT_ID) as HTMLScriptElement | null;
+      if (existingScript) {
+        existingScript.addEventListener("load", () => resolve((window as any).google), { once: true });
+        existingScript.addEventListener("error", () => reject(new Error("Google Maps script failed to load")), { once: true });
+        return;
+      }
 
-    const callbackName = "__abtGoogleMapsPlacesLoaded";
-    (window as any)[callbackName] = () => {
-      resolve((window as any).google);
-      delete (window as any)[callbackName];
-    };
+      const callbackName = "__abtGoogleMapsPlacesLoaded";
+      (window as any)[callbackName] = () => {
+        resolve((window as any).google);
+        delete (window as any)[callbackName];
+      };
 
-    const script = document.createElement("script");
-    script.id = GOOGLE_MAPS_SCRIPT_ID;
-    script.async = true;
-    script.defer = true;
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=places&loading=async&callback=${callbackName}`;
-    script.onerror = () => {
-      googleMapsPlacesPromise = null;
-      reject(new Error("Google Maps script failed to load"));
-    };
-    document.head.appendChild(script);
+      const script = document.createElement("script");
+      script.id = GOOGLE_MAPS_SCRIPT_ID;
+      script.async = true;
+      script.defer = true;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async&callback=${callbackName}`;
+      script.onerror = () => {
+        googleMapsPlacesPromise = null;
+        reject(new Error("Google Maps script failed to load"));
+      };
+      document.head.appendChild(script);
+    });
+  })().catch((err) => {
+    googleMapsPlacesPromise = null;
+    throw err;
   });
 
   return googleMapsPlacesPromise;
