@@ -942,18 +942,33 @@ function haversineMiles(lat1: number, lon1: number, lat2: number, lon2: number):
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
-const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
+import { getGoogleMapsKey } from "@/lib/maps.functions";
+
 const GOOGLE_MAPS_SCRIPT_ID = "google-maps-places-script";
 let googleMapsPlacesPromise: Promise<any> | null = null;
+let googleMapsKeyPromise: Promise<string> | null = null;
+
+async function fetchGoogleMapsKey(): Promise<string> {
+  if (!googleMapsKeyPromise) {
+    googleMapsKeyPromise = getGoogleMapsKey()
+      .then((res) => {
+        if (!res?.apiKey) throw new Error("Google Maps key unavailable.");
+        return res.apiKey;
+      })
+      .catch((err) => {
+        googleMapsKeyPromise = null;
+        throw err;
+      });
+  }
+  return googleMapsKeyPromise;
+}
 
 async function reverseGeocode(lat: number, lon: number): Promise<AddressSuggestion | null> {
-  if (!GOOGLE_MAPS_KEY) {
-    throw new Error("Missing VITE_GOOGLE_MAPS_API_KEY");
-  }
+  const apiKey = await fetchGoogleMapsKey();
 
   const url = new URL("https://maps.googleapis.com/maps/api/geocode/json");
   url.searchParams.set("latlng", `${lat},${lon}`);
-  url.searchParams.set("key", GOOGLE_MAPS_KEY);
+  url.searchParams.set("key", apiKey);
 
   const response = await fetch(url.toString());
   if (!response.ok) throw new Error("Could not reverse geocode current location");
