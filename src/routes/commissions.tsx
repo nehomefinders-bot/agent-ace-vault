@@ -567,6 +567,7 @@ function Commissions() {
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [commissionFormOpen, setCommissionFormOpen] = useState(false);
+  const [aiReportOpen, setAiReportOpen] = useState(false);
   const [editing, setEditing] = useState<CommissionRow | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const defaultAgentName = useMemo(() => {
