@@ -738,6 +738,14 @@ function Commissions() {
       subtitle="Track gross commission income, broker splits, and net payouts per closing."
       actions={
         <>
+          <Button
+            type="button"
+            onClick={() => setAiReportOpen(true)}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/70 hover:from-primary/90 hover:to-primary/60 text-primary-foreground shadow-card"
+          >
+            <Sparkles className="h-4 w-4" />
+            Generate AI Executive Report
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="inline-flex items-center gap-2">
