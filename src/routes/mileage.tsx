@@ -771,22 +771,32 @@ function AddressAutocompleteInput({
   const sessionTokenRef = useRef<any>(null);
   const lastSelectedRef = useRef<string>("");
 
-  // Re-bind Google Places listeners every time the active tab changes.
-  // Switching tabs unmounts/remounts inputs, so we re-acquire a fresh
-  // session token and re-confirm the Places library is ready.
+  const [placesError, setPlacesError] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
+    setPlacesReady(false);
+    setPlacesError(null);
 
     const bindPlaces = async () => {
       try {
+        // Block: resolve backend-provided key first, then load script.
+        const apiKey = await fetchGoogleMapsKey();
+        if (cancelled) return;
+        if (!apiKey || typeof apiKey !== "string" || apiKey.length < 10) {
+          throw new Error("Google Maps key not available");
+        }
         const googleApi = await loadGoogleMapsPlaces();
         if (cancelled) return;
+        if (!googleApi?.maps?.places?.AutocompleteSessionToken) {
+          throw new Error("Google Places library failed to initialize");
+        }
         sessionTokenRef.current = new googleApi.maps.places.AutocompleteSessionToken();
         setPlacesReady(true);
       } catch (error) {
         console.error("Could not initialize Google Places", error);
         if (!cancelled) {
           setPlacesReady(false);
+          setPlacesError(error instanceof Error ? error.message : "Address service unavailable");
         }
       }
     };
