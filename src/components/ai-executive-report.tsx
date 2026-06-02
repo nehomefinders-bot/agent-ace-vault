@@ -29,7 +29,7 @@ interface Props {
 const SYSTEM_INSTRUCTION =
   "You are an elite enterprise CFO and real estate asset analyst. Audit this raw business ledger data. Highlight primary expense drivers, evaluate financial health velocity, and provide three strict operational improvements to maximize net commission margins.";
 
-const GEMINI_KEY = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
+
 
 export function AIExecutiveReportModal({ open, onOpenChange, rows, totals }: Props) {
   const [loading, setLoading] = useState(false);
