@@ -88,11 +88,6 @@ export function AIExecutiveReportModal({ open, onOpenChange, rows, totals }: Pro
       setTopExpenseCategory(topCat);
       setDealStatusBreakdown(statusBreak);
 
-      if (!GEMINI_KEY) {
-        setError("Missing VITE_GEMINI_API_KEY. Add it to your local .env to enable AI analysis.");
-        return;
-      }
-
       const payload = {
         commissions: rows.map((r) => ({
           property: r.property,
@@ -113,36 +108,7 @@ export function AIExecutiveReportModal({ open, onOpenChange, rows, totals }: Pro
 
       setLoading(true);
       try {
-        const resp = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
-              contents: [
-                {
-                  role: "user",
-                  parts: [
-                    {
-                      text:
-                        "Analyze the following ledger data and produce a markdown executive report with sections: Executive Summary, Primary Expense Drivers, Financial Health Velocity, and Three Operational Improvements.\n\n```json\n" +
-                        JSON.stringify(payload, null, 2) +
-                        "\n```",
-                    },
-                  ],
-                },
-              ],
-            }),
-          },
-        );
-        if (!resp.ok) {
-          const t = await resp.text();
-          throw new Error(`Gemini ${resp.status}: ${t.slice(0, 200)}`);
-        }
-        const data = await resp.json();
-        const text =
-          data?.candidates?.[0]?.content?.parts?.map((p: any) => p.text).join("\n") ?? "";
+        const { narrative: text } = await generateExecutiveReport({ data: payload });
         if (cancelled) return;
         setNarrative(text || "No analysis returned.");
       } catch (e) {
