@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import SignatureCanvas from "react-signature-canvas";
-import { ChevronDown, Download, FileText, Loader2, LockKeyhole, Mail, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
+import { ChevronDown, Download, FileText, Loader2, LockKeyhole, Mail, Pencil, Plus, Search, Sparkles, Trash2, Upload } from "lucide-react";
+import { AIExecutiveReportModal, type AIReportCommissionRow } from "@/components/ai-executive-report";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import {
