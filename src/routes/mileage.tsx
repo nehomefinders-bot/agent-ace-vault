@@ -1012,35 +1012,37 @@ function loadGoogleMapsPlaces(): Promise<any> {
     return googleMapsPlacesPromise;
   }
 
-  googleMapsPlacesPromise = new Promise((resolve, reject) => {
-    if (!GOOGLE_MAPS_KEY) {
-      reject(new Error("Missing VITE_GOOGLE_MAPS_API_KEY"));
-      return;
-    }
+  googleMapsPlacesPromise = (async () => {
+    const apiKey = await fetchGoogleMapsKey();
 
-    const existingScript = document.getElementById(GOOGLE_MAPS_SCRIPT_ID) as HTMLScriptElement | null;
-    if (existingScript) {
-      existingScript.addEventListener("load", () => resolve((window as any).google), { once: true });
-      existingScript.addEventListener("error", () => reject(new Error("Google Maps script failed to load")), { once: true });
-      return;
-    }
+    return new Promise<any>((resolve, reject) => {
+      const existingScript = document.getElementById(GOOGLE_MAPS_SCRIPT_ID) as HTMLScriptElement | null;
+      if (existingScript) {
+        existingScript.addEventListener("load", () => resolve((window as any).google), { once: true });
+        existingScript.addEventListener("error", () => reject(new Error("Google Maps script failed to load")), { once: true });
+        return;
+      }
 
-    const callbackName = "__abtGoogleMapsPlacesLoaded";
-    (window as any)[callbackName] = () => {
-      resolve((window as any).google);
-      delete (window as any)[callbackName];
-    };
+      const callbackName = "__abtGoogleMapsPlacesLoaded";
+      (window as any)[callbackName] = () => {
+        resolve((window as any).google);
+        delete (window as any)[callbackName];
+      };
 
-    const script = document.createElement("script");
-    script.id = GOOGLE_MAPS_SCRIPT_ID;
-    script.async = true;
-    script.defer = true;
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=places&loading=async&callback=${callbackName}`;
-    script.onerror = () => {
-      googleMapsPlacesPromise = null;
-      reject(new Error("Google Maps script failed to load"));
-    };
-    document.head.appendChild(script);
+      const script = document.createElement("script");
+      script.id = GOOGLE_MAPS_SCRIPT_ID;
+      script.async = true;
+      script.defer = true;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async&callback=${callbackName}`;
+      script.onerror = () => {
+        googleMapsPlacesPromise = null;
+        reject(new Error("Google Maps script failed to load"));
+      };
+      document.head.appendChild(script);
+    });
+  })().catch((err) => {
+    googleMapsPlacesPromise = null;
+    throw err;
   });
 
   return googleMapsPlacesPromise;
