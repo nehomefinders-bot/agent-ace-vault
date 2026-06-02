@@ -771,22 +771,32 @@ function AddressAutocompleteInput({
   const sessionTokenRef = useRef<any>(null);
   const lastSelectedRef = useRef<string>("");
 
-  // Re-bind Google Places listeners every time the active tab changes.
-  // Switching tabs unmounts/remounts inputs, so we re-acquire a fresh
-  // session token and re-confirm the Places library is ready.
+  const [placesError, setPlacesError] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
+    setPlacesReady(false);
+    setPlacesError(null);
 
     const bindPlaces = async () => {
       try {
+        // Block: resolve backend-provided key first, then load script.
+        const apiKey = await fetchGoogleMapsKey();
+        if (cancelled) return;
+        if (!apiKey || typeof apiKey !== "string" || apiKey.length < 10) {
+          throw new Error("Google Maps key not available");
+        }
         const googleApi = await loadGoogleMapsPlaces();
         if (cancelled) return;
+        if (!googleApi?.maps?.places?.AutocompleteSessionToken) {
+          throw new Error("Google Places library failed to initialize");
+        }
         sessionTokenRef.current = new googleApi.maps.places.AutocompleteSessionToken();
         setPlacesReady(true);
       } catch (error) {
         console.error("Could not initialize Google Places", error);
         if (!cancelled) {
           setPlacesReady(false);
+          setPlacesError(error instanceof Error ? error.message : "Address service unavailable");
         }
       }
     };
@@ -871,7 +881,7 @@ function AddressAutocompleteInput({
           if (suggestions.length > 0) setOpen(true);
         }}
         onKeyDown={(event) => {
-          if (!open || suggestions.length === 0) return;
+          if (!placesReady || !open || suggestions.length === 0) return;
 
           if (event.key === "ArrowDown") {
             event.preventDefault();
@@ -886,11 +896,16 @@ function AddressAutocompleteInput({
             setOpen(false);
           }
         }}
-        placeholder={placeholder}
+        placeholder={placesReady ? placeholder : "Loading address services…"}
         autoComplete="off"
+        disabled={!placesReady && !placesError}
       />
 
-      {open && (loading || suggestions.length > 0) && (
+      {placesError && (
+        <p className="mt-1 text-xs text-destructive">{placesError}</p>
+      )}
+
+      {placesReady && open && (loading || suggestions.length > 0) && (
         <div className="absolute z-20 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border border-border bg-popover shadow-xl">
           {loading && (
             <div className="px-3 py-2 text-sm text-muted-foreground">Finding address matches...</div>
