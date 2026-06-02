@@ -26,8 +26,6 @@ interface Props {
   totals: { totalGci: number; totalNet: number; paidNet: number; pendingNet: number };
 }
 
-const SYSTEM_INSTRUCTION =
-  "You are an elite enterprise CFO and real estate asset analyst. Audit this raw business ledger data. Highlight primary expense drivers, evaluate financial health velocity, and provide three strict operational improvements to maximize net commission margins.";
 
 
 
