@@ -228,9 +228,9 @@ function Mileage() {
       </div>
 
       <div className="mb-8">
-        {mode === "live" && <LiveTracker onSave={addTrip} activeTabKey={mode} />}
-        {mode === "route" && <RouteCalc onSave={addTrip} activeTabKey={mode} />}
-        {mode === "manual" && <ManualEntry onSave={addTrip} activeTabKey={mode} />}
+        {mode === "live" && <LiveTracker key="live" onSave={addTrip} activeTabKey={mode} />}
+        {mode === "route" && <RouteCalc key="route" onSave={addTrip} activeTabKey={mode} />}
+        {mode === "manual" && <ManualEntry key="manual" onSave={addTrip} activeTabKey={mode} />}
       </div>
 
       <TableFilterBar
