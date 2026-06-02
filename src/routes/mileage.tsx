@@ -228,9 +228,9 @@ function Mileage() {
       </div>
 
       <div className="mb-8">
-        {mode === "live" && <LiveTracker onSave={addTrip} activeTabKey={mode} />}
-        {mode === "route" && <RouteCalc onSave={addTrip} activeTabKey={mode} />}
-        {mode === "manual" && <ManualEntry onSave={addTrip} activeTabKey={mode} />}
+        {mode === "live" && <LiveTracker key="live" onSave={addTrip} activeTabKey={mode} />}
+        {mode === "route" && <RouteCalc key="route" onSave={addTrip} activeTabKey={mode} />}
+        {mode === "manual" && <ManualEntry key="manual" onSave={addTrip} activeTabKey={mode} />}
       </div>
 
       <TableFilterBar
@@ -771,6 +771,9 @@ function AddressAutocompleteInput({
   const sessionTokenRef = useRef<any>(null);
   const lastSelectedRef = useRef<string>("");
 
+  // Re-bind Google Places listeners every time the active tab changes.
+  // Switching tabs unmounts/remounts inputs, so we re-acquire a fresh
+  // session token and re-confirm the Places library is ready.
   useEffect(() => {
     let cancelled = false;
 
@@ -784,8 +787,6 @@ function AddressAutocompleteInput({
         console.error("Could not initialize Google Places", error);
         if (!cancelled) {
           setPlacesReady(false);
-          setSuggestions([]);
-          setOpen(false);
         }
       }
     };
@@ -794,10 +795,6 @@ function AddressAutocompleteInput({
 
     return () => {
       cancelled = true;
-      setPlacesReady(false);
-      setSuggestions([]);
-      setOpen(false);
-      setHighlightedIndex(-1);
     };
   }, [activeTabKey]);
 

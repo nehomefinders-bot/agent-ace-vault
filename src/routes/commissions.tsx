@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import SignatureCanvas from "react-signature-canvas";
-import { ChevronDown, Download, FileText, Loader2, LockKeyhole, Mail, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
+import { ChevronDown, Download, FileText, Loader2, LockKeyhole, Mail, Pencil, Plus, Search, Sparkles, Trash2, Upload } from "lucide-react";
+import { AIExecutiveReportModal, type AIReportCommissionRow } from "@/components/ai-executive-report";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import {
@@ -566,6 +567,7 @@ function Commissions() {
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [commissionFormOpen, setCommissionFormOpen] = useState(false);
+  const [aiReportOpen, setAiReportOpen] = useState(false);
   const [editing, setEditing] = useState<CommissionRow | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const defaultAgentName = useMemo(() => {
@@ -736,6 +738,14 @@ function Commissions() {
       subtitle="Track gross commission income, broker splits, and net payouts per closing."
       actions={
         <>
+          <Button
+            type="button"
+            onClick={() => setAiReportOpen(true)}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/70 hover:from-primary/90 hover:to-primary/60 text-primary-foreground shadow-card"
+          >
+            <Sparkles className="h-4 w-4" />
+            Generate AI Executive Report
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="inline-flex items-center gap-2">
@@ -791,6 +801,22 @@ function Commissions() {
         </>
       }
     >
+      <AIExecutiveReportModal
+        open={aiReportOpen}
+        onOpenChange={setAiReportOpen}
+        rows={rows.map<AIReportCommissionRow>((r) => ({
+          property: r.property,
+          agentName: r.agentName ?? null,
+          closingDate: r.closingDate,
+          salePrice: r.salePrice,
+          gci: r.gci,
+          brokerSplit: r.brokerSplit,
+          deductions: r.deductions,
+          netCommission: netCommission(r),
+          status: r.status,
+        }))}
+        totals={{ totalGci, totalNet, paidNet, pendingNet }}
+      />
       <CommissionDisbursementDialog
         open={commissionFormOpen}
         onOpenChange={setCommissionFormOpen}
