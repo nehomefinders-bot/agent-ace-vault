@@ -801,6 +801,22 @@ function Commissions() {
         </>
       }
     >
+      <AIExecutiveReportModal
+        open={aiReportOpen}
+        onOpenChange={setAiReportOpen}
+        rows={rows.map<AIReportCommissionRow>((r) => ({
+          property: r.property,
+          agentName: r.agentName ?? null,
+          closingDate: r.closingDate,
+          salePrice: r.salePrice,
+          gci: r.gci,
+          brokerSplit: r.brokerSplit,
+          deductions: r.deductions,
+          netCommission: netCommission(r),
+          status: r.status,
+        }))}
+        totals={{ totalGci, totalNet, paidNet, pendingNet }}
+      />
       <CommissionDisbursementDialog
         open={commissionFormOpen}
         onOpenChange={setCommissionFormOpen}
