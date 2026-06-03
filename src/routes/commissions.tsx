@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import SignatureCanvas from "react-signature-canvas";
-import { ChevronDown, Download, FileText, Loader2, LockKeyhole, Mail, Pencil, Plus, Search, Sparkles, Trash2, Upload } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ChevronDown, Download, FileText, Loader2, Pencil, Search, Sparkles, Trash2, Users, UserCheck } from "lucide-react";
 import { AIExecutiveReportModal, type AIReportCommissionRow } from "@/components/ai-executive-report";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,6 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BulkStatusBar } from "@/components/bulk-status-bar";
@@ -25,6 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { ImportButton, type ImportColumn } from "@/components/import-button";
+import { CommissionSideForm, type CommissionSide } from "@/components/commission-side-form";
 
 const COMMISSION_IMPORT_COLUMNS: ImportColumn[] = [
   { key: "address", label: "Property", required: true, sample: "123 Main St" },
