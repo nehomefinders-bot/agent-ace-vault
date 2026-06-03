@@ -431,8 +431,7 @@ function Commissions() {
   const [rows, setRows] = useState<CommissionRow[]>([]);
   const [dealOptions, setDealOptions] = useState<DealOption[]>([]);
   const [loading, setLoading] = useState(true);
-  const [addOpen, setAddOpen] = useState(false);
-  const [commissionFormOpen, setCommissionFormOpen] = useState(false);
+  const [sideFormOpen, setSideFormOpen] = useState<CommissionSide | null>(null);
   const [aiReportOpen, setAiReportOpen] = useState(false);
   const [editing, setEditing] = useState<CommissionRow | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
