@@ -687,51 +687,17 @@ function Commissions() {
         }))}
         totals={{ totalGci, totalNet, paidNet, pendingNet }}
       />
-      <CommissionDisbursementDialog
-        open={commissionFormOpen}
-        onOpenChange={setCommissionFormOpen}
-        defaultBrokerName={defaultAgentName}
-      />
+      {sideFormOpen && user && (
+        <CommissionSideForm
+          open={!!sideFormOpen}
+          onOpenChange={(o) => { if (!o) setSideFormOpen(null); }}
+          side={sideFormOpen}
+          userId={user.id}
+          defaultBrokerName={defaultAgentName}
+          onSaved={() => { void load(); }}
+        />
+      )}
 
-      <CommissionDialog
-        open={addOpen}
-        onOpenChange={setAddOpen}
-        title="Add Commission"
-        submitLabel="Save Commission"
-        defaultAgentName={defaultAgentName}
-        dealOptions={dealOptions}
-        onSubmit={async (input) => {
-          if (!user) return;
-          const sale = parseFloat(input.salePrice) || 0;
-          const cPct = parseFloat(input.commissionPct) || 0;
-          const concessions = parseFloat(input.concessions) || 0;
-          const bSplit = parseFloat(input.brokerSplit) || 0;
-          const ded = parseFloat(input.deductions) || 0;
-          const gci = Math.max(sale - concessions, 0) * (cPct / 100);
-          const existing = dealOptions.find((deal) => deal.id === input.dealId);
-          const notes = mergeCommissionNotes(existing?.notes, {
-            status: "Pending",
-            concessions,
-            deductions: ded,
-            deductionNotes: input.deductionNotes,
-          });
-          const { error } = await supabase.from("deals").update({
-            address: input.property.trim(),
-            side: input.side,
-            status: existing?.status ?? "sold",
-            sale_price: sale,
-            gross_commission: gci,
-            agent_split_pct: bSplit,
-            brokerage_split_pct: 100 - bSplit,
-            close_date: input.closingDate || null,
-            agent_name: input.agentName.trim() || null,
-            notes,
-          }).eq("id", input.dealId);
-          if (error) throw error;
-          toast.success("Commission saved");
-          await load();
-        }}
-      />
 
       <CommissionDialog
         open={!!editing}
