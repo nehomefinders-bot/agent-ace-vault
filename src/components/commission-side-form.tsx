@@ -31,8 +31,12 @@ interface FormState {
   closeDate: string;
   listingAgent: string;
   listingOffice: string;
+  listingAgentMlsId: string;
+  listingOfficeMlsId: string;
   salesAgent: string;
   saleOffice: string;
+  salesAgentMlsId: string;
+  saleOfficeMlsId: string;
   salePrice: string;
   concession: string;
   totalCommission: string;
