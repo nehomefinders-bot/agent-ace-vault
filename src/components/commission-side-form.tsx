@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, Save, FileDown, Mail } from "lucide-react";
+import jsPDF from "jspdf";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,10 +34,10 @@ interface FormState {
   salesAgent: string;
   saleOffice: string;
   salePrice: string;
-  concession: string; // buyer only
+  concession: string;
   totalCommission: string;
-  commissionDueCoBroke: string; // listing only
-  lessEscrow: string; // listing only
+  commissionDueCoBroke: string;
+  lessEscrow: string;
   adminBrokerName: string;
   signatureDate: string;
   signatureDataUrl: string;
@@ -74,6 +75,8 @@ function num(v: string) {
 export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBrokerName, onSaved }: Props) {
   const [form, setForm] = useState<FormState>(() => blankForm(defaultBrokerName));
   const [saving, setSaving] = useState(false);
+  const [emailOpen, setEmailOpen] = useState(false);
+  const [emailTo, setEmailTo] = useState("");
   const sigRef = useRef<SignatureCanvas | null>(null);
   const uploadRef = useRef<HTMLInputElement | null>(null);
   const notesRef = useRef<HTMLTextAreaElement | null>(null);
@@ -82,7 +85,6 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     if (open) setForm(blankForm(defaultBrokerName));
   }, [open, defaultBrokerName, side]);
 
-  // Auto-resize notes
   useEffect(() => {
     const el = notesRef.current;
     if (!el) return;
@@ -100,7 +102,6 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     if (side === "buyer") {
       const concession = num(form.concession);
       const net = Math.max(salePrice - concession, 0);
-      // Buyer side: Total Amount Due = total commission (no escrow/co-broke deductions)
       return { netPrice: net, totalAmountDue: totalCommission, deductionsForRow: concession };
     }
     const coBroke = num(form.commissionDueCoBroke);
@@ -131,27 +132,18 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     reader.readAsDataURL(file);
   };
 
+  const validate = () => {
+    if (!form.propertyAddress.trim()) { toast.error("Property Address is required"); return false; }
+    if (salePrice <= 0) { toast.error("Sale Price must be greater than 0"); return false; }
+    if (totalCommission <= 0) { toast.error("Total Commission must be greater than 0"); return false; }
+    return true;
+  };
+
   const save = async () => {
-    if (!form.propertyAddress.trim()) {
-      toast.error("Property Address is required");
-      return;
-    }
-    if (salePrice <= 0) {
-      toast.error("Sale Price must be greater than 0");
-      return;
-    }
-    if (totalCommission <= 0) {
-      toast.error("Total Commission must be greater than 0");
-      return;
-    }
+    if (!validate()) return;
     setSaving(true);
 
-    // Encode so the Commission Tracker shows Net Commission == Total Amount Due:
-    //   gross_commission = totalCommission
-    //   agent_split_pct = 100
-    //   deductions = totalCommission - totalAmountDue
     const deductions = Math.max(totalCommission - totalAmountDue, 0);
-
     const noteParts: string[] = [];
     if (side === "buyer") {
       if (form.concession) noteParts.push(`Concession: ${form.concession}`);
@@ -193,27 +185,188 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     });
 
     setSaving(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success("Commission saved to tracker");
+    if (error) { toast.error(error.message); return; }
+    toast.success("Commission saved & synced to tracker");
     onSaved();
     onOpenChange(false);
   };
 
+  const buildPdf = () => {
+    const doc = new jsPDF({ unit: "pt", format: "letter" });
+    const W = doc.internal.pageSize.getWidth();
+    const M = 48;
+    let y = 56;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(0, 0, 0);
+    doc.text("COMMISSION DISBURSEMENT AUTHORIZATION", W / 2, y, { align: "center" });
+    y += 10;
+    doc.setLineWidth(0.8);
+    doc.line(M, y, W - M, y);
+    y += 22;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(`${side === "buyer" ? "Buyer Agent Side" : "Listing Agent Side"}`, M, y);
+    doc.text(`Issued: ${form.signatureDate}`, W - M, y, { align: "right" });
+    y += 18;
+
+    // Key/value grid
+    const kv: Array<[string, string]> = [
+      ["Property Address", form.propertyAddress],
+      ["Buyer", form.buyerName || "—"],
+      ["Seller", form.sellerName || "—"],
+      ["P&S Date", form.psDate || "—"],
+      ["Close Date", form.closeDate || "—"],
+      ["Listing Agent", form.listingAgent || "—"],
+      ["Listing Office", form.listingOffice || "—"],
+      ["Sales Agent", form.salesAgent || "—"],
+      ["Sale Office", form.saleOffice || "—"],
+    ];
+    const colW = (W - M * 2) / 2;
+    doc.setFontSize(10);
+    kv.forEach((row, i) => {
+      const col = i % 2;
+      const x = M + col * colW;
+      if (col === 0 && i > 0) y += 28;
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(90);
+      doc.text(row[0].toUpperCase(), x, y);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(0);
+      const lines = doc.splitTextToSize(row[1] || "—", colW - 12);
+      doc.text(lines, x, y + 13);
+    });
+    y += 36;
+
+    // Ledger box
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.6);
+    const ledgerTop = y;
+    const rows: Array<[string, number, boolean?]> = [
+      ["Sale Price", salePrice],
+      ["Net Price", netPrice],
+      ["Total Commission", totalCommission],
+    ];
+    if (side === "buyer") {
+      rows.push(["Less: Concession", -num(form.concession)]);
+    } else {
+      rows.push(["Less: Commission Due to Co-Broke", -num(form.commissionDueCoBroke)]);
+      rows.push(["Less: Escrow", -num(form.lessEscrow)]);
+    }
+    const rowH = 20;
+    const ledgerH = rows.length * rowH + rowH + 8;
+    doc.rect(M, ledgerTop, W - M * 2, ledgerH);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("FINANCIAL LEDGER", M + 10, ledgerTop + 16);
+    y = ledgerTop + 30;
+    doc.setFontSize(10);
+    rows.forEach(([label, amt]) => {
+      doc.setFont("helvetica", "normal");
+      doc.text(label, M + 10, y);
+      doc.text(formatMoney(amt), W - M - 10, y, { align: "right" });
+      y += rowH;
+    });
+    doc.setLineWidth(0.4);
+    doc.line(M + 8, y - rowH + 4, W - M - 8, y - rowH + 4);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("TOTAL AMOUNT DUE", M + 10, y + 4);
+    doc.text(formatMoney(totalAmountDue), W - M - 10, y + 4, { align: "right" });
+    y = ledgerTop + ledgerH + 22;
+
+    // Notes box
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.text("SPECIAL TRANSACTION COMMENTARY", M, y);
+    y += 8;
+    const noteText = form.notes.trim() || "—";
+    const noteLines = doc.splitTextToSize(noteText, W - M * 2 - 20);
+    const noteH = Math.max(60, noteLines.length * 12 + 20);
+    doc.setDrawColor(0);
+    doc.rect(M, y, W - M * 2, noteH);
+    doc.setFont("helvetica", "normal");
+    doc.text(noteLines, M + 10, y + 16);
+    y += noteH + 24;
+
+    // Signatures
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("SIGNATURES & EXECUTION", M, y);
+    y += 14;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(`Admin / Broker: ${form.adminBrokerName || "—"}`, M, y);
+    doc.text(`Date: ${form.signatureDate}`, W - M, y, { align: "right" });
+    y += 30;
+
+    const sigLineY = y + 36;
+    doc.setLineWidth(0.6);
+    doc.line(M, sigLineY, M + 280, sigLineY);
+    doc.setFontSize(9);
+    doc.setTextColor(110);
+    doc.text("Authorized Signature", M, sigLineY + 12);
+    doc.setTextColor(0);
+
+    if (form.signatureDataUrl) {
+      try { doc.addImage(form.signatureDataUrl, "PNG", M + 4, y, 240, 40); } catch { /* ignore */ }
+    }
+
+    return doc;
+  };
+
+  const downloadPdf = () => {
+    if (!validate()) return;
+    const doc = buildPdf();
+    const slug = (form.propertyAddress || "commission").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+    doc.save(`commission-${slug}.pdf`);
+    toast.success("PDF downloaded");
+  };
+
+  const sendEmail = () => {
+    const to = emailTo.trim();
+    if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+      toast.error("Enter a valid email address");
+      return;
+    }
+    const subject = `Commission Disbursement Statement - ${form.propertyAddress || "Property"}`;
+    const summary = [
+      `Sale Price: ${formatMoney(salePrice)}`,
+      `Net Price: ${formatMoney(netPrice)}`,
+      `Total Commission: ${formatMoney(totalCommission)}`,
+      side === "buyer"
+        ? `Concession: ${formatMoney(num(form.concession))}`
+        : `Co-Broke: ${formatMoney(num(form.commissionDueCoBroke))}\nLess Escrow: ${formatMoney(num(form.lessEscrow))}`,
+      `Total Amount Due: ${formatMoney(totalAmountDue)}`,
+    ].join("\n");
+    const body =
+      `Hello,\n\nPlease find the calculated Commission Statement breakdown for ${form.propertyAddress || "the subject property"} mapped out below.\n\n` +
+      `${summary}\n\nNotes: ${form.notes.trim() || "—"}\n\n` +
+      `Please find the official signed PDF authorization attached to this transmission.\n\n` +
+      `Regards,\n${form.adminBrokerName || ""}`;
+    const href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = href;
+    toast.message("Opening default email application…", {
+      description: "Remember to attach your downloaded signed PDF before sending.",
+    });
+    setEmailOpen(false);
+    setEmailTo("");
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="!fixed !inset-0 !left-0 !top-0 !h-[100dvh] !max-h-[100dvh] !w-screen !max-w-none !translate-x-0 !translate-y-0 !overflow-hidden !rounded-none !border-0 !p-0 flex flex-col gap-0 bg-background">
+      <DialogContent className="!fixed !inset-0 !left-0 !top-0 !h-[100dvh] !max-h-[100dvh] !w-screen !max-w-none !translate-x-0 !translate-y-0 !overflow-hidden !rounded-none !border-0 !p-0 flex flex-col gap-0 bg-background text-foreground">
         <DialogHeader className="shrink-0 border-b border-border bg-background/95 px-4 py-4 backdrop-blur sm:px-8">
-          <DialogTitle className="font-display text-2xl sm:text-3xl">{title}</DialogTitle>
-          <DialogDescription>
-            Fill out the closing details. Saving adds a new row to the Commission Tracker.
+          <DialogTitle className="font-display text-xl sm:text-3xl">{title}</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
+            Fill out the closing details. Save syncs to the Commission Tracker; you can also export a signed PDF or send via email.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8">
-          <div className="mx-auto max-w-5xl space-y-6">
+        <div className="min-h-0 flex-1 overflow-y-auto px-3 py-5 sm:px-8">
+          <div className="mx-auto w-full max-w-5xl space-y-6">
             <Section title="Core Identifiers">
               <Field label="Property Address" value={form.propertyAddress} onChange={(v) => update("propertyAddress", v)} className="md:col-span-2" />
               <Field label="Seller Name" value={form.sellerName} onChange={(v) => update("sellerName", v)} />
@@ -250,12 +403,15 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
                 <Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Authorized Signature</Label>
                 <input ref={uploadRef} type="file" accept="image/*" className="hidden"
                   onChange={(e) => { uploadSig(e.target.files?.[0]); e.currentTarget.value = ""; }} />
-                <div className="overflow-hidden rounded-xl border-2 border-dashed border-border bg-white">
+                <div className="overflow-hidden rounded-xl border-2 border-dashed border-border bg-white dark:bg-zinc-100">
                   <SignatureCanvas
                     ref={sigRef}
                     penColor="black"
                     backgroundColor="#ffffff"
-                    canvasProps={{ className: "h-48 w-full rounded-xl" }}
+                    canvasProps={{
+                      className: "h-48 w-full rounded-xl",
+                      style: { touchAction: "none" },
+                    }}
                     onEnd={handleSig}
                   />
                 </div>
@@ -278,22 +434,62 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
                   value={form.notes}
                   onChange={(e) => update("notes", e.target.value)}
                   placeholder="Add custom terms, transaction remarks, or situational instructions…"
-                  className="min-h-24 resize-none overflow-hidden"
+                  className="min-h-24 resize-none overflow-hidden bg-background text-foreground placeholder:text-muted-foreground"
                 />
               </div>
             </Section>
           </div>
         </div>
 
-        <div className="shrink-0 border-t border-border bg-background px-4 py-3 sm:px-8">
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="button" onClick={save} disabled={saving} className="gap-2">
-              {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-              Save Commission
-            </Button>
+        <div className="shrink-0 border-t border-border bg-background px-3 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:px-8">
+          <div className="mx-auto flex w-full max-w-5xl flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} className="sm:w-auto">Cancel</Button>
+            <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:justify-end">
+              <Button type="button" variant="outline" onClick={downloadPdf} className="gap-2">
+                <FileDown className="h-4 w-4" /> Download Signed PDF
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setEmailOpen(true)} className="gap-2">
+                <Mail className="h-4 w-4" /> Send via Email
+              </Button>
+              <Button type="button" onClick={save} disabled={saving} className="gap-2">
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Save &amp; Sync
+              </Button>
+            </div>
           </div>
         </div>
+
+        <Dialog open={emailOpen} onOpenChange={setEmailOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Send Commission Statement</DialogTitle>
+              <DialogDescription>
+                Enter the recipient's email. We'll open your default mail app pre-filled with the statement summary.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-3">
+              <Label htmlFor="commission-email-to" className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                Recipient Email
+              </Label>
+              <Input
+                id="commission-email-to"
+                type="email"
+                inputMode="email"
+                placeholder="name@example.com"
+                value={emailTo}
+                onChange={(e) => setEmailTo(e.target.value)}
+                className="h-11"
+              />
+              <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                Opening your default email application… please remember to attach the downloaded signed PDF before sending.
+              </p>
+            </div>
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button type="button" variant="ghost" onClick={() => setEmailOpen(false)}>Cancel</Button>
+              <Button type="button" onClick={sendEmail} className="gap-2"><Mail className="h-4 w-4" /> Open Mail App</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </DialogContent>
     </Dialog>
   );
@@ -301,9 +497,9 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-border bg-card p-5 shadow-card">
-      <h3 className="mb-4 font-display text-lg font-bold">{title}</h3>
-      <div className="grid gap-4 md:grid-cols-2">{children}</div>
+    <section className="rounded-xl border border-border bg-card p-4 text-card-foreground shadow-card sm:p-5">
+      <h3 className="mb-4 font-display text-base font-bold sm:text-lg">{title}</h3>
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">{children}</div>
     </section>
   );
 }
@@ -314,16 +510,21 @@ function Field({
   label: string; value: string; onChange: (v: string) => void; type?: string; className?: string;
 }) {
   return (
-    <div className={`grid gap-2 ${className}`}>
+    <div className={`grid gap-2 min-w-0 ${className}`}>
       <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">{label}</Label>
-      <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} className="h-11" />
+      <Input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-11 w-full bg-background text-foreground placeholder:text-muted-foreground"
+      />
     </div>
   );
 }
 
 function Readout({ label, value, strong = false, className = "" }: { label: string; value: string; strong?: boolean; className?: string }) {
   return (
-    <div className={`rounded-xl border border-border bg-muted/40 p-3 ${className}`}>
+    <div className={`rounded-xl border border-border bg-muted/40 p-3 text-foreground ${className}`}>
       <div className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">{label}</div>
       <div className={`mt-1 font-display tabular-nums ${strong ? "text-2xl font-bold text-primary" : "text-lg font-semibold"}`}>{value}</div>
     </div>
