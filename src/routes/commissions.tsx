@@ -652,18 +652,23 @@ function Commissions() {
               };
             }}
           />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setCommissionFormOpen(true)}
-            className="inline-flex items-center gap-2"
-          >
-            <FileText className="h-4 w-4" />
-            Commission Form
-          </Button>
-          <Button onClick={() => setAddOpen(true)} className="inline-flex items-center gap-2">
-            <Plus className="h-4 w-4" /> Add Commission
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button type="button" className="inline-flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Commission Form
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem onSelect={() => setSideFormOpen("buyer")} className="gap-2">
+                <Users className="h-4 w-4" /> Buyer Agent Side
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setSideFormOpen("listing")} className="gap-2">
+                <UserCheck className="h-4 w-4" /> Listing Agent Side
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </>
       }
     >
