@@ -13,6 +13,7 @@ import {
   CreditCard,
 } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
+import { PasswordVisibilityInput } from "@/components/password-visibility-input";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -501,20 +502,22 @@ function SettingsPage() {
 
             <Section icon={<Lock className="h-4 w-4" />} title="Password" desc="At least 8 characters.">
               <div className="grid gap-3 sm:grid-cols-2">
-                <input
-                  type="password"
-                  value={pw}
-                  onChange={(e) => setPw(e.target.value)}
-                  placeholder="Enter new password"
-                  className="input"
-                />
-                <input
-                  type="password"
-                  value={pw2}
-                  onChange={(e) => setPw2(e.target.value)}
-                  placeholder="Confirm new password"
-                  className="input"
-                />
+                <div className="relative">
+                  <PasswordVisibilityInput
+                    value={pw}
+                    onChange={(e) => setPw(e.target.value)}
+                    placeholder="Enter new password"
+                    className="input"
+                  />
+                </div>
+                <div className="relative">
+                  <PasswordVisibilityInput
+                    value={pw2}
+                    onChange={(e) => setPw2(e.target.value)}
+                    placeholder="Confirm new password"
+                    className="input"
+                  />
+                </div>
               </div>
               <div className="mt-3">
                 <button onClick={() => void changePassword()} disabled={pwBusy || !pw} className="btn-primary">

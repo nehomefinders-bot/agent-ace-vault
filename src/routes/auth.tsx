@@ -1,11 +1,12 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type ComponentType, type FormEvent, type ReactNode } from "react";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
-import endlessProspectsLogo from "@/assets/endless-prospects-logo.png";
 import { LegalDocumentModal, type LegalDocumentKind } from "@/components/legal-documents";
+import { BrandLockup } from "@/components/brand-lockup";
+import { PasswordVisibilityInput } from "@/components/password-visibility-input";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
@@ -99,15 +100,7 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
     <div className="min-h-dvh w-full flex items-center justify-center px-4 bg-background">
       <div className="w-full max-w-md">
         <Link to="/landing" className="flex items-center gap-2.5 mb-8 justify-center">
-          <img
-            src={endlessProspectsLogo}
-            alt="Endless Prospects"
-            className="h-10 w-10 rounded-xl object-cover ring-1 ring-border"
-          />
-          <div>
-            <div className="font-display font-bold text-lg leading-none">Endless Prospects</div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">Business Tracker</div>
-          </div>
+          <BrandLockup />
         </Link>
 
         <div className="bg-card border border-border rounded-2xl p-8 shadow-card">
@@ -160,14 +153,13 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
               />
             </Field>
             <Field label="Password" icon={Lock}>
-              <input
-                type="password"
+              <PasswordVisibilityInput
                 required
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-background text-sm"
+                className="w-full pl-9 py-2.5 rounded-lg border border-border bg-background text-sm"
               />
             </Field>
 
@@ -289,8 +281,8 @@ function Field({
   children,
 }: {
   label: string;
-  icon?: React.ComponentType<{ className?: string }>;
-  children: React.ReactNode;
+  icon?: ComponentType<{ className?: string }>;
+  children: ReactNode;
 }) {
   return (
     <label className="block">

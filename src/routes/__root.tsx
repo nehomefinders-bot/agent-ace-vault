@@ -77,7 +77,14 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const path = useRouterState({ select: (s) => s.location.pathname });
-  const bare = path === "/auth" || path === "/landing" || path === "/signup" || path === "/terms" || path === "/privacy";
+  const bare =
+    path === "/auth" ||
+    path === "/landing" ||
+    path === "/signup" ||
+    path === "/forgot-password" ||
+    path === "/reset-password" ||
+    path === "/terms" ||
+    path === "/privacy";
   const showSupportFab = !bare;
   return (
     <>

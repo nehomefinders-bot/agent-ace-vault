@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.endlessprospects.app',
-  appName: 'Endless Prospects',
+  appName: 'Agent Business Tracker',
   webDir: 'dist/client',
   server: {
     // Paste your live hosted website URL or Cloudflare Pages link here

@@ -679,7 +679,7 @@ function ProfilePage() {
       <div className="space-y-6 lg:space-y-8">
         <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.34em] text-[#cbb67b]">Endless Prospects</p>
+            <p className="text-xs font-semibold tracking-[0.08em] text-[#cbb67b]">by Endless Prospects</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">Agent Profile</h1>
           </div>
           <Badge className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-500/10 px-4 py-2 text-emerald-100 shadow-[0_0_22px_rgba(74,222,128,0.16)]">

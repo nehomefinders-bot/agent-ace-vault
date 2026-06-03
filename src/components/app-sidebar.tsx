@@ -9,6 +9,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { PLANS } from "@/lib/stripe";
+import { BrandLockup } from "@/components/brand-lockup";
 
 const sections = [
   {
@@ -84,19 +85,12 @@ export function AppSidebar() {
   const sidebarContent = (
     <div className="flex h-full min-h-0 flex-col">
       <div className="px-5 pt-6 pb-6 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-xl overflow-hidden border border-sidebar-border bg-black flex items-center justify-center shrink-0">
-            <img
-              src="/endless-prospects-logo.png"
-              alt="Endless Prospects"
-              className="h-full w-full object-cover"
-            />
-          </div>
-          <div>
-            <div className="font-display font-bold text-base leading-none">Agent</div>
-            <div className="mt-1 text-xs uppercase tracking-wider text-sidebar-foreground/75">Business Tracker</div>
-          </div>
-        </div>
+        <BrandLockup
+          logoClassName="h-9 w-9 border border-sidebar-border bg-black ring-0"
+          titleClassName="text-base text-white"
+          taglineClassName="text-xs text-sidebar-foreground/75"
+          textClassName="max-w-[12rem]"
+        />
         <button
           type="button"
           onClick={() => setMobileOpen(false)}
@@ -182,16 +176,12 @@ export function AppSidebar() {
             Menu
           </span>
         </button>
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg overflow-hidden border border-sidebar-border bg-black flex items-center justify-center shrink-0">
-            <img
-              src="/endless-prospects-logo.png"
-              alt="Endless Prospects"
-              className="h-full w-full object-cover"
-            />
-          </div>
-          <span className="font-display font-bold text-base">Agent</span>
-        </div>
+        <BrandLockup
+          logoClassName="h-8 w-8 rounded-lg border border-sidebar-border bg-black ring-0"
+          titleClassName="text-base text-white"
+          taglineClassName="text-[9px] text-sidebar-foreground/75"
+          textClassName="max-w-[12rem]"
+        />
         <Link
           to="/"
           title="Dashboard"

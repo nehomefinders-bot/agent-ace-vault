@@ -22,7 +22,7 @@ const startBackgroundTracking = async () => {
   try {
     const watcherId = await BackgroundGeolocation.addWatcher(
       {
-        backgroundTitle: "Endless Prospects Mileage Tracker Active",
+        backgroundTitle: "Agent Business Tracker Showing Tracker Active",
         backgroundMessage: "Logging your trip miles automatically in the background.",
         requestPermissions: true,
         stale: false,
@@ -41,7 +41,7 @@ const startBackgroundTracking = async () => {
         }
       }
     );
-    console.log("🚀 Foreground service successfully armed with ID:", watcherId);
+    console.log("Foreground service successfully armed with ID:", watcherId);
   } catch (err) {
     console.error("Failed to spin up foreground service:", err);
   }

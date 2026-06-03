@@ -14,22 +14,22 @@ import {
   PieChart,
   X,
 } from "lucide-react";
-import endlessProspectsLogo from "@/assets/endless-prospects-logo.png";
 import maColonialHeroBg from "@/assets/landing-house-autumn.jpeg";
 import { useAuth } from "@/hooks/use-auth";
 import { LegalDocumentModal, type LegalDocumentKind } from "@/components/legal-documents";
+import { BRAND_TITLE, BrandLockup } from "@/components/brand-lockup";
 
 export const Route = createFileRoute("/landing")({
   component: Landing,
   head: () => ({
     meta: [
-      { title: "Endless Prospects - QuickBooks built for real estate agents" },
+      { title: "Agent Business Tracker - QuickBooks built for real estate agents" },
       {
         name: "description",
         content:
           "Track commissions, expenses, mileage and owner loans in one place. Tax-ready Schedule C reports built for agents and brokers.",
       },
-      { property: "og:title", content: "Endless Prospects - QuickBooks for real estate agents" },
+      { property: "og:title", content: "Agent Business Tracker - QuickBooks for real estate agents" },
       {
         property: "og:description",
         content: "All-in-one books, mileage and client tracking for agents. Tax-ready in one click.",
@@ -205,9 +205,9 @@ function Landing() {
     event.preventDefault();
     if (!newsletterEmail.trim()) return;
 
-    const subject = encodeURIComponent("Endless Prospects newsletter signup");
+    const subject = encodeURIComponent("Agent Business Tracker newsletter signup");
     const body = encodeURIComponent(
-      `Please add this email to the Endless Prospects updates list:\n\n${newsletterEmail.trim()}`
+      `Please add this email to the Agent Business Tracker updates list:\n\n${newsletterEmail.trim()}`
     );
 
     window.location.href = `mailto:livingandlearningwithjackie@gmail.com?subject=${subject}&body=${body}`;
@@ -219,19 +219,12 @@ function Landing() {
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#050b22]/88 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <Link to="/landing" className="flex min-w-0 items-center gap-2 sm:gap-2.5">
-            <img
-              src={endlessProspectsLogo}
-              alt="Endless Prospects"
-              className="h-9 w-9 shrink-0 rounded-xl object-cover ring-1 ring-white/20 sm:h-10 sm:w-10"
+            <BrandLockup
+              logoClassName="h-9 w-9 ring-white/20 sm:h-10 sm:w-10"
+              titleClassName="text-base text-white sm:text-lg"
+              taglineClassName="hidden text-xs text-[#d4af37] sm:block"
+              textClassName="max-w-[13rem] sm:max-w-none"
             />
-            <div className="min-w-0">
-              <div className="truncate font-display text-base leading-none font-bold text-white sm:text-lg">
-                Endless Prospects
-              </div>
-              <div className="mt-1 hidden text-xs uppercase tracking-[0.2em] text-[#d4af37] sm:block">
-                Business Tracker
-              </div>
-            </div>
           </Link>
 
           <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
@@ -315,7 +308,7 @@ function Landing() {
             <iframe
               className="h-full w-full"
               src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0"
-              title="Endless Prospects live demo"
+              title="Agent Business Tracker live demo"
               allow="autoplay; fullscreen; picture-in-picture"
               allowFullScreen
             />
@@ -568,14 +561,15 @@ function Landing() {
           <div className="mt-12 grid gap-10 xl:grid-cols-[minmax(220px,280px)_minmax(0,1fr)_minmax(320px,420px)] xl:items-start">
             <div className="flex flex-col items-start gap-5">
               <Link to="/landing" className="inline-flex shrink-0">
-                <img
-                  src={endlessProspectsLogo}
-                  alt="Endless Prospects"
-                  className="h-32 w-32 rounded-3xl border border-white/10 bg-black object-cover shadow-[0_20px_50px_-28px_rgba(0,0,0,0.8)] sm:h-36 sm:w-36 lg:h-40 lg:w-40"
+                <BrandLockup
+                  logoClassName="h-16 w-16 rounded-2xl border border-white/10 bg-black ring-0 shadow-[0_20px_50px_-28px_rgba(0,0,0,0.8)] sm:h-20 sm:w-20"
+                  titleClassName="text-xl text-white sm:text-2xl"
+                  taglineClassName="text-sm text-[#d4af37]"
+                  textClassName="max-w-[14rem]"
                 />
               </Link>
               <div className="font-display text-sm text-slate-300">
-                &copy; {new Date().getFullYear()} Endless Prospects &middot; Agent Business Tracker
+                &copy; {new Date().getFullYear()} {BRAND_TITLE} by Endless Prospects
               </div>
             </div>
 
