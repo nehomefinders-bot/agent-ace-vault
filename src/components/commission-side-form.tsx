@@ -31,8 +31,12 @@ interface FormState {
   closeDate: string;
   listingAgent: string;
   listingOffice: string;
+  listingAgentMlsId: string;
+  listingOfficeMlsId: string;
   salesAgent: string;
   saleOffice: string;
+  salesAgentMlsId: string;
+  saleOfficeMlsId: string;
   salePrice: string;
   concession: string;
   totalCommission: string;
@@ -53,8 +57,12 @@ function blankForm(broker: string): FormState {
     closeDate: "",
     listingAgent: "",
     listingOffice: "",
+    listingAgentMlsId: "",
+    listingOfficeMlsId: "",
     salesAgent: "",
     saleOffice: "",
+    salesAgentMlsId: "",
+    saleOfficeMlsId: "",
     salePrice: "",
     concession: "",
     totalCommission: "",
@@ -154,9 +162,11 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     if (form.sellerName) noteParts.push(`Seller: ${form.sellerName}`);
     if (form.buyerName) noteParts.push(`Buyer: ${form.buyerName}`);
     if (form.psDate) noteParts.push(`P&S Date: ${form.psDate}`);
-    if (form.listingAgent) noteParts.push(`Listing Agent: ${form.listingAgent}`);
-    if (form.listingOffice) noteParts.push(`Listing Office: ${form.listingOffice}`);
-    if (form.saleOffice) noteParts.push(`Sale Office: ${form.saleOffice}`);
+    if (form.listingAgent) noteParts.push(`Listing Agent: ${form.listingAgent}${form.listingAgentMlsId ? ` (MLS ${form.listingAgentMlsId})` : ""}`);
+    if (form.listingOffice) noteParts.push(`Listing Office: ${form.listingOffice}${form.listingOfficeMlsId ? ` (MLS ${form.listingOfficeMlsId})` : ""}`);
+    if (form.salesAgent) noteParts.push(`Sales Agent: ${form.salesAgent}${form.salesAgentMlsId ? ` (MLS ${form.salesAgentMlsId})` : ""}`);
+    if (form.saleOffice) noteParts.push(`Sale Office: ${form.saleOffice}${form.saleOfficeMlsId ? ` (MLS ${form.saleOfficeMlsId})` : ""}`);
+    
     if (form.adminBrokerName) noteParts.push(`Authorized By: ${form.adminBrokerName} on ${form.signatureDate}`);
     if (form.notes.trim()) noteParts.push(`Notes: ${form.notes.trim()}`);
 
@@ -375,11 +385,15 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
               <Field label="Close Date" type="date" value={form.closeDate} onChange={(v) => update("closeDate", v)} />
             </Section>
 
-            <Section title="Office Routing">
+            <Section title="Agents">
               <Field label="Listing Agent" value={form.listingAgent} onChange={(v) => update("listingAgent", v)} />
               <Field label="Listing Office" value={form.listingOffice} onChange={(v) => update("listingOffice", v)} />
+              <Field label="MLS ID" value={form.listingAgentMlsId} onChange={(v) => update("listingAgentMlsId", v)} />
+              <Field label="Office MLS ID" value={form.listingOfficeMlsId} onChange={(v) => update("listingOfficeMlsId", v)} />
               <Field label="Sales Agent" value={form.salesAgent} onChange={(v) => update("salesAgent", v)} />
               <Field label="Sale Office" value={form.saleOffice} onChange={(v) => update("saleOffice", v)} />
+              <Field label="MLS ID" value={form.salesAgentMlsId} onChange={(v) => update("salesAgentMlsId", v)} />
+              <Field label="Office MLS ID" value={form.saleOfficeMlsId} onChange={(v) => update("saleOfficeMlsId", v)} />
             </Section>
 
             <Section title="Financial Calculation Matrix">
