@@ -166,7 +166,7 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     if (form.listingOffice) noteParts.push(`Listing Office: ${form.listingOffice}${form.listingOfficeMlsId ? ` (MLS ${form.listingOfficeMlsId})` : ""}`);
     if (form.salesAgent) noteParts.push(`Sales Agent: ${form.salesAgent}${form.salesAgentMlsId ? ` (MLS ${form.salesAgentMlsId})` : ""}`);
     if (form.saleOffice) noteParts.push(`Sale Office: ${form.saleOffice}${form.saleOfficeMlsId ? ` (MLS ${form.saleOfficeMlsId})` : ""}`);
-    if (form.saleOffice) noteParts.push(`Sale Office: ${form.saleOffice}`);
+    
     if (form.adminBrokerName) noteParts.push(`Authorized By: ${form.adminBrokerName} on ${form.signatureDate}`);
     if (form.notes.trim()) noteParts.push(`Notes: ${form.notes.trim()}`);
 
