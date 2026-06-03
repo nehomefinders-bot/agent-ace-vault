@@ -383,11 +383,15 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
               <Field label="Close Date" type="date" value={form.closeDate} onChange={(v) => update("closeDate", v)} />
             </Section>
 
-            <Section title="Office Routing">
+            <Section title="Agents">
               <Field label="Listing Agent" value={form.listingAgent} onChange={(v) => update("listingAgent", v)} />
               <Field label="Listing Office" value={form.listingOffice} onChange={(v) => update("listingOffice", v)} />
+              <Field label="MLS ID" value={form.listingAgentMlsId} onChange={(v) => update("listingAgentMlsId", v)} />
+              <Field label="Office MLS ID" value={form.listingOfficeMlsId} onChange={(v) => update("listingOfficeMlsId", v)} />
               <Field label="Sales Agent" value={form.salesAgent} onChange={(v) => update("salesAgent", v)} />
               <Field label="Sale Office" value={form.saleOffice} onChange={(v) => update("saleOffice", v)} />
+              <Field label="MLS ID" value={form.salesAgentMlsId} onChange={(v) => update("salesAgentMlsId", v)} />
+              <Field label="Office MLS ID" value={form.saleOfficeMlsId} onChange={(v) => update("saleOfficeMlsId", v)} />
             </Section>
 
             <Section title="Financial Calculation Matrix">
