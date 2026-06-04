@@ -260,8 +260,8 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     doc.line(M + 8, y - rowH + 4, W - M - 8, y - rowH + 4);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.text("TOTAL AMOUNT DUE", M + 10, y + 4);
-    doc.text(formatMoney(totalAmountDue), W - M - 10, y + 4, { align: "right" });
+    doc.text(side === "listing" ? "BALANCE DUE TO / FROM SELLER" : "NET COMMISSION DUE", M + 10, y + 4);
+    doc.text(formatMoney(side === "listing" ? balanceSeller : netCommission), W - M - 10, y + 4, { align: "right" });
     y = ledgerTop + ledgerH + 22;
 
     // Notes box
