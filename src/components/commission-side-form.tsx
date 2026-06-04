@@ -371,7 +371,7 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
                 <Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Authorized Signature</Label>
                 <input ref={uploadRef} type="file" accept="image/*" className="hidden"
                   onChange={(e) => { uploadSig(e.target.files?.[0]); e.currentTarget.value = ""; }} />
-                <div className="overflow-hidden rounded-xl border-2 border-dashed border-border bg-white dark:bg-zinc-100">
+                <div className={`overflow-hidden rounded-xl border-2 border-dashed border-border bg-white dark:bg-zinc-100 ${readOnly ? "pointer-events-none opacity-90" : ""}`}>
                   <SignatureCanvas
                     ref={sigRef}
                     penColor="black"
@@ -380,21 +380,23 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
                       className: "h-48 w-full rounded-xl",
                       style: { touchAction: "none" },
                     }}
-                    onEnd={handleSig}
+                    onEnd={readOnly ? undefined : handleSig}
                   />
                 </div>
-                <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => uploadRef.current?.click()}>
-                    <Upload className="h-4 w-4" /> Upload Signature
-                  </Button>
-                  <button type="button" className="text-sm font-medium text-primary hover:underline"
-                    onClick={() => { sigRef.current?.clear(); update("signatureDataUrl", ""); }}>
-                    Clear Signature
-                  </button>
-                </div>
+                {!readOnly && (
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => uploadRef.current?.click()}>
+                      <Upload className="h-4 w-4" /> Upload Signature
+                    </Button>
+                    <button type="button" className="text-sm font-medium text-primary hover:underline"
+                      onClick={() => { sigRef.current?.clear(); update("signatureDataUrl", ""); }}>
+                      Clear Signature
+                    </button>
+                  </div>
+                )}
               </div>
-              <Field label="Admin/Broker Name" value={form.adminBrokerName} onChange={(v) => update("adminBrokerName", v)} />
-              <Field label="Authorized Signature Date" type="date" value={form.signatureDate} onChange={(v) => update("signatureDate", v)} />
+              <Field disabled={readOnly} label="Admin/Broker Name" value={form.adminBrokerName} onChange={(v) => update("adminBrokerName", v)} />
+              <Field disabled={readOnly} label="Authorized Signature Date" type="date" value={form.signatureDate} onChange={(v) => update("signatureDate", v)} />
               <div className="md:col-span-2 grid gap-2">
                 <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Notes</Label>
                 <Textarea
@@ -402,7 +404,9 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
                   value={form.notes}
                   onChange={(e) => update("notes", e.target.value)}
                   placeholder="Add custom terms, transaction remarks, or situational instructions…"
-                  className="min-h-24 resize-none overflow-hidden bg-background text-foreground placeholder:text-muted-foreground"
+                  disabled={readOnly}
+                  readOnly={readOnly}
+                  className="min-h-24 resize-none overflow-hidden bg-background text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-80"
                 />
               </div>
             </Section>
@@ -411,7 +415,9 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
 
         <div className="shrink-0 border-t border-border bg-background px-3 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:px-8">
           <div className="mx-auto flex w-full max-w-5xl flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} className="sm:w-auto">Cancel</Button>
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} className="sm:w-auto">
+              {readOnly ? "Close" : "Cancel"}
+            </Button>
             <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:justify-end">
               <Button type="button" variant="outline" onClick={downloadPdf} className="gap-2">
                 <FileDown className="h-4 w-4" /> Download Signed PDF
@@ -419,10 +425,12 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
               <Button type="button" variant="outline" onClick={() => setEmailOpen(true)} className="gap-2">
                 <Mail className="h-4 w-4" /> Send via Email
               </Button>
-              <Button type="button" onClick={save} disabled={saving} className="gap-2">
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                Save &amp; Sync
-              </Button>
+              {!readOnly && (
+                <Button type="button" onClick={save} disabled={saving} className="gap-2">
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  Save &amp; Sync
+                </Button>
+              )}
             </div>
           </div>
         </div>
