@@ -40,14 +40,14 @@ interface FormState {
   grossCommission: string;
   concession: string;
   netCompanyName: string;
-  balanceSeller: string;
+  escrowHeld: string;
   adminBrokerName: string;
   signatureDate: string;
   signatureDataUrl: string;
   notes: string;
 }
 
-function blankForm(broker: string): FormState {
+function blankForm(_broker: string): FormState {
   return {
     propertyAddress: "",
     sellerName: "",
@@ -65,8 +65,8 @@ function blankForm(broker: string): FormState {
     grossCommission: "",
     concession: "",
     netCompanyName: "",
-    balanceSeller: "",
-    adminBrokerName: broker,
+    escrowHeld: "",
+    adminBrokerName: "",
     signatureDate: new Date().toISOString().slice(0, 10),
     signatureDataUrl: "",
     notes: "",
@@ -104,7 +104,8 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
   const grossCommission = num(form.grossCommission);
   const concessionExpenses = num(form.concession);
   const netCommission = Math.max(grossCommission - concessionExpenses, 0);
-  const balanceSeller = num(form.balanceSeller);
+  const escrowHeld = num(form.escrowHeld);
+  const balanceSeller = netCommission - escrowHeld;
 
   const title = side === "buyer" ? "Buyer Agent Side - Commission Form" : "Listing Agent Side - Commission Form";
   const sideValue = side === "buyer" ? "buy" : "sell";
@@ -140,7 +141,10 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     const noteParts: string[] = [];
     if (form.concession) noteParts.push(`Concession/Expenses: ${form.concession}`);
     if (form.netCompanyName.trim()) noteParts.push(`Net Commission due to: ${form.netCompanyName.trim()} = ${formatMoney(netCommission)}`);
-    if (side === "listing" && form.balanceSeller) noteParts.push(`Balance Due to/from Seller: ${form.balanceSeller}`);
+    if (side === "listing") {
+      if (form.escrowHeld) noteParts.push(`Escrow Held: ${formatMoney(escrowHeld)}`);
+      noteParts.push(`Balance Due to/from Seller: ${formatMoney(balanceSeller)}`);
+    }
     if (form.sellerName) noteParts.push(`Seller: ${form.sellerName}`);
     if (form.buyerName) noteParts.push(`Buyer: ${form.buyerName}`);
     if (form.psDate) noteParts.push(`P&S Date: ${form.psDate}`);
@@ -389,24 +393,37 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
                 </div>
               </div>
               {side === "listing" && (
-                <div className="md:col-span-2 rounded-xl border border-border bg-card p-4 text-card-foreground">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <Label htmlFor="balance-seller" className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:w-64 sm:shrink-0">
-                      Balance Due to / from Seller
-                    </Label>
-                    <div className="relative flex-1 min-w-0">
-                      <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-medium text-foreground/70">$</span>
-                      <Input
-                        id="balance-seller"
-                        type="number"
-                        value={form.balanceSeller}
-                        onChange={(e) => update("balanceSeller", e.target.value)}
-                        className="h-11 w-full pl-7 bg-background text-foreground placeholder:text-muted-foreground"
-                        placeholder="0.00"
-                      />
+                <>
+                  <div className="md:col-span-2 rounded-xl border border-border bg-card p-4 text-card-foreground">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                      <Label htmlFor="escrow-held" className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:w-64 sm:shrink-0">
+                        Escrow Held
+                      </Label>
+                      <div className="relative flex-1 min-w-0">
+                        <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-medium text-foreground/70">$</span>
+                        <Input
+                          id="escrow-held"
+                          type="number"
+                          value={form.escrowHeld}
+                          onChange={(e) => update("escrowHeld", e.target.value)}
+                          className="h-11 w-full pl-7 bg-background text-foreground placeholder:text-muted-foreground"
+                          placeholder="0.00"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
+                  <div className="md:col-span-2 rounded-xl border border-border bg-muted/40 p-4 text-foreground">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                      <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:w-64 sm:shrink-0">
+                        Balance Due to / from Seller
+                      </Label>
+                      <span className="font-display text-xl sm:text-2xl font-bold tabular-nums text-primary whitespace-nowrap">
+                        {formatMoney(balanceSeller)}
+                      </span>
+                      <span className="text-xs text-muted-foreground sm:ml-auto">Auto-calculated: Net Commission − Escrow Held</span>
+                    </div>
+                  </div>
+                </>
               )}
             </Section>
 
