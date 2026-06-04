@@ -274,7 +274,7 @@ function Landing() {
             <button
               type="button"
               onClick={() => setIsVideoOpen(true)}
-              className="mt-3 rounded-lg border border-white/80 bg-white/92 px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_16px_34px_-16px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-colors hover:bg-white hover:shadow-[0_18px_40px_-16px_rgba(255,255,255,0.22)] lg:absolute lg:right-10 lg:bottom-20 lg:mt-0 xl:right-16"
+              className="mt-3 rounded-lg border border-white/80 bg-white/92 px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_16px_34px_-16px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 ease-out hover:bg-white hover:scale-[1.03] hover:shadow-[0_18px_40px_-16px_rgba(255,255,255,0.22)] lg:absolute lg:right-10 lg:bottom-20 lg:mt-0 xl:right-16"
             >
               See live demo
             </button>
