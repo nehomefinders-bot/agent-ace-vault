@@ -18,6 +18,7 @@ import maColonialHeroBg from "@/assets/landing-house-autumn.jpeg";
 import { useAuth } from "@/hooks/use-auth";
 import { LegalDocumentModal, type LegalDocumentKind } from "@/components/legal-documents";
 import { BRAND_TITLE, BrandLockup } from "@/components/brand-lockup";
+import { Reveal } from "@/components/reveal";
 
 export const Route = createFileRoute("/landing")({
   component: Landing,
