@@ -684,7 +684,7 @@ function Commissions() {
           >
             <Sparkles className="h-4 w-4" />
             Generate AI Executive Report
-            <span className="ml-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-500 ring-1 ring-amber-500/40">
+            <span className="ml-1 rounded-full bg-slate-900/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-400 dark:bg-amber-400 dark:text-slate-900">
               Coming Soon
             </span>
           </Button>
