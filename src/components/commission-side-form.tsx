@@ -514,19 +514,26 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function Field({
-  label, value, onChange, type = "text", className = "",
+  label, value, onChange, type = "text", className = "", prefix,
 }: {
-  label: string; value: string; onChange: (v: string) => void; type?: string; className?: string;
+  label: string; value: string; onChange: (v: string) => void; type?: string; className?: string; prefix?: string;
 }) {
   return (
     <div className={`grid gap-2 min-w-0 ${className}`}>
       <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">{label}</Label>
-      <Input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-11 w-full bg-background text-foreground placeholder:text-muted-foreground"
-      />
+      <div className="relative">
+        {prefix && (
+          <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-medium text-foreground/70">
+            {prefix}
+          </span>
+        )}
+        <Input
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={`h-11 w-full bg-background text-foreground placeholder:text-muted-foreground ${prefix ? "pl-7" : ""}`}
+        />
+      </div>
     </div>
   );
 }
