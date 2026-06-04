@@ -43,7 +43,7 @@ export function BrandLockup({
         {showTagline ? (
           <div
             className={cn(
-              "mt-1 text-[10px] tracking-[0.08em] text-amber-500",
+              "mt-1 text-[10px] tracking-[0.08em] text-amber-400",
               taglineClassName,
             )}
           >
