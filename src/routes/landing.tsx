@@ -705,7 +705,7 @@ function Landing() {
                   >
                     <div className="mb-3">
                       <div className="font-display text-lg font-bold text-white">Stay in the loop</div>
-                      <p className="mt-1 text-sm text-white/60">Low-volume product updates for agents and teams.</p>
+                      <p className="mt-1 text-sm text-white/60">Click here for product updates for agents and teams</p>
                     </div>
                     <div className="flex flex-col gap-3 sm:flex-row">
                       <input
