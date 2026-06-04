@@ -1030,9 +1030,30 @@ function Commissions() {
                     <td className="py-4 text-right tabular-nums font-semibold">{formatMoney(net)}</td>
                     <td className="py-4 px-6"><StatusBadge status={r.status} onChange={(v) => toggleStatus(r, v)} /></td>
                     <td className="py-4 pr-6">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center justify-end gap-1 flex-wrap">
                         <button
-                          onClick={() => setEditing(r)}
+                          onClick={() => setFullForm({ row: r, mode: "view" })}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                          aria-label="Open form"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => downloadRowPdf(r)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                          aria-label="Download PDF"
+                        >
+                          <FileDown className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => { setEmailRow(r); setEmailTo(""); }}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                          aria-label="Email statement"
+                        >
+                          <Mail className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setFullForm({ row: r, mode: "edit" })}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
                           aria-label="Edit commission"
                         >
