@@ -141,7 +141,10 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     const noteParts: string[] = [];
     if (form.concession) noteParts.push(`Concession/Expenses: ${form.concession}`);
     if (form.netCompanyName.trim()) noteParts.push(`Net Commission due to: ${form.netCompanyName.trim()} = ${formatMoney(netCommission)}`);
-    if (side === "listing" && form.balanceSeller) noteParts.push(`Balance Due to/from Seller: ${form.balanceSeller}`);
+    if (side === "listing") {
+      if (form.escrowHeld) noteParts.push(`Escrow Held: ${formatMoney(escrowHeld)}`);
+      noteParts.push(`Balance Due to/from Seller: ${formatMoney(balanceSeller)}`);
+    }
     if (form.sellerName) noteParts.push(`Seller: ${form.sellerName}`);
     if (form.buyerName) noteParts.push(`Buyer: ${form.buyerName}`);
     if (form.psDate) noteParts.push(`P&S Date: ${form.psDate}`);
