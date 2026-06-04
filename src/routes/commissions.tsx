@@ -434,7 +434,7 @@ function Commissions() {
   const [loading, setLoading] = useState(true);
   const [sideFormOpen, setSideFormOpen] = useState<CommissionSide | null>(null);
   const [aiReportOpen, setAiReportOpen] = useState(false);
-  const [editing, setEditing] = useState<CommissionRow | null>(null);
+  
   const [fullForm, setFullForm] = useState<{ row: CommissionRow; mode: CommissionFormMode } | null>(null);
   const [emailRow, setEmailRow] = useState<CommissionRow | null>(null);
   const [emailTo, setEmailTo] = useState("");
