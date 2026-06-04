@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import { Loader2, Upload, Save, FileDown, Mail } from "lucide-react";
-import jsPDF from "jspdf";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,9 +9,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { mergeCommissionNotes } from "@/lib/commission-notes";
 import { formatMoney } from "@/lib/mock-data";
+import { buildCommissionPdf } from "@/lib/commission-pdf";
 import { toast } from "sonner";
 
 export type CommissionSide = "buyer" | "listing";
+export type CommissionFormMode = "create" | "edit" | "view";
 
 interface Props {
   open: boolean;
@@ -21,6 +22,11 @@ interface Props {
   userId: string;
   defaultBrokerName: string;
   onSaved: () => void;
+  mode?: CommissionFormMode;
+  /** Required for edit mode — the deals.id to update. */
+  dealId?: string;
+  /** Preload values (used for edit / view). */
+  initial?: Partial<FormState>;
 }
 
 interface FormState {
