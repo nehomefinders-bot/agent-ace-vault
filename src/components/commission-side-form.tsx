@@ -531,11 +531,3 @@ function Field({
   );
 }
 
-function Readout({ label, value, strong = false, className = "" }: { label: string; value: string; strong?: boolean; className?: string }) {
-  return (
-    <div className={`rounded-xl border border-border bg-muted/40 p-3 text-foreground ${className}`}>
-      <div className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">{label}</div>
-      <div className={`mt-1 font-display tabular-nums ${strong ? "text-2xl font-bold text-primary" : "text-lg font-semibold"}`}>{value}</div>
-    </div>
-  );
-}
