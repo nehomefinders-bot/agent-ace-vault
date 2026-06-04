@@ -548,6 +548,75 @@ function Commissions() {
   const paidNet = useMemo(() => rows.filter((row) => row.status === "Paid").reduce((sum, row) => sum + netCommission(row), 0), [rows]);
   const pendingNet = useMemo(() => rows.filter((row) => row.status === "Pending").reduce((sum, row) => sum + netCommission(row), 0), [rows]);
 
+  // Build full FormState snapshot for view/edit, hydrating from row + saved notes
+  const buildFormSnapshot = (r: CommissionRow) => {
+    const deal = dealOptions.find((d) => d.id === r.dealId);
+    const snapshot = parseFormSnapshotFromNotes(deal?.notes);
+    return {
+      propertyAddress: r.property,
+      closeDate: r.closingDate,
+      grossCommission: String(r.gci || r.salePrice || ""),
+      concession: snapshot.concession || (r.deductions ? String(r.deductions) : ""),
+      ...snapshot,
+    };
+  };
+
+  const rowToSide = (r: CommissionRow): CommissionSide => (r.side === "sell" ? "listing" : "buyer");
+
+  const downloadRowPdf = (r: CommissionRow) => {
+    const snap = buildFormSnapshot(r);
+    const doc = buildCommissionPdf({
+      propertyAddress: snap.propertyAddress || r.property,
+      sellerName: snap.sellerName || "",
+      buyerName: snap.buyerName || "",
+      psDate: snap.psDate || "",
+      closeDate: snap.closeDate || r.closingDate,
+      listingAgent: snap.listingAgent || "",
+      listingOffice: snap.listingOffice || "",
+      listingAgentMlsId: snap.listingAgentMlsId || "",
+      listingOfficeMlsId: snap.listingOfficeMlsId || "",
+      salesAgent: snap.salesAgent || "",
+      saleOffice: snap.saleOffice || "",
+      salesAgentMlsId: snap.salesAgentMlsId || "",
+      saleOfficeMlsId: snap.saleOfficeMlsId || "",
+      grossCommission: r.gci || r.salePrice,
+      concessionExpenses: Number(snap.concession || r.deductions || 0),
+      netCompanyName: snap.netCompanyName || "",
+      escrowHeld: Number(snap.escrowHeld || 0),
+      adminBrokerName: snap.adminBrokerName || "",
+      signatureDate: snap.signatureDate || r.closingDate || new Date().toISOString().slice(0, 10),
+      signatureDataUrl: "",
+      notes: snap.notes || "",
+    }, rowToSide(r));
+    const slug = (r.property || "commission").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+    doc.save(`commission-${slug}.pdf`);
+    toast.success("PDF downloaded");
+  };
+
+  const sendRowEmail = () => {
+    const r = emailRow;
+    if (!r) return;
+    const to = emailTo.trim();
+    if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+      toast.error("Enter a valid email address");
+      return;
+    }
+    const net = netCommission(r);
+    const subject = `Commission Statement - ${r.property}`;
+    const body =
+      `Hello,\n\nCommission summary for ${r.property}:\n\n` +
+      `Closing Date: ${formatDate(r.closingDate)}\nSide: ${formatSideLabel(r.side)}\n` +
+      `Sale Price: ${formatMoney(r.salePrice)}\nGCI: ${formatMoney(r.gci)}\n` +
+      `Broker Split: ${r.brokerSplit}%\nDeductions: -${formatMoney(r.deductions)}\n` +
+      `Net Commission: ${formatMoney(net)}\nStatus: ${r.status}\n\n` +
+      (r.deductionNotes ? `Notes: ${r.deductionNotes}\n\n` : "") +
+      `Regards`;
+    window.location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    toast.message("Opening default email application…");
+    setEmailRow(null);
+    setEmailTo("");
+  };
+
   const handleExport = async (format: "csv" | "xlsx" | "pdf") => {
     if (rows.length === 0) {
       toast.info("No commission rows to export yet.");
