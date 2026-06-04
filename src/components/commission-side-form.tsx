@@ -64,7 +64,7 @@ function blankForm(broker: string): FormState {
     saleOfficeMlsId: "",
     grossCommission: "",
     concession: "",
-    netCompanyName: broker,
+    netCompanyName: "",
     balanceSeller: "",
     adminBrokerName: broker,
     signatureDate: new Date().toISOString().slice(0, 10),
