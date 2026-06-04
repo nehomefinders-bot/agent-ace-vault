@@ -19,11 +19,13 @@ import { BulkStatusBar } from "@/components/bulk-status-bar";
 import { formatMoney } from "@/lib/mock-data";
 import { exportCommissionsCsv, exportCommissionsExcel, exportCommissionsPdf, type CommissionExportRow } from "@/lib/commission-exports";
 import { mergeCommissionNotes, parseCommissionNotes } from "@/lib/commission-notes";
+import { buildCommissionPdf, parseFormSnapshotFromNotes } from "@/lib/commission-pdf";
+import { formatMoney } from "@/lib/mock-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { ImportButton, type ImportColumn } from "@/components/import-button";
-import { CommissionSideForm, type CommissionSide } from "@/components/commission-side-form";
+import { CommissionSideForm, type CommissionFormMode, type CommissionSide } from "@/components/commission-side-form";
 
 const COMMISSION_IMPORT_COLUMNS: ImportColumn[] = [
   { key: "address", label: "Property", required: true, sample: "123 Main St" },
