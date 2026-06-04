@@ -84,8 +84,9 @@ function num(v: string) {
   return Number.isFinite(n) ? n : 0;
 }
 
-export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBrokerName, onSaved }: Props) {
-  const [form, setForm] = useState<FormState>(() => blankForm(defaultBrokerName));
+export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBrokerName, onSaved, mode = "create", dealId, initial }: Props) {
+  const readOnly = mode === "view";
+  const [form, setForm] = useState<FormState>(() => ({ ...blankForm(defaultBrokerName), ...(initial ?? {}) }));
   const [saving, setSaving] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
   const [emailTo, setEmailTo] = useState("");
@@ -94,8 +95,8 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
   const notesRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
-    if (open) setForm(blankForm(defaultBrokerName));
-  }, [open, defaultBrokerName, side]);
+    if (open) setForm({ ...blankForm(defaultBrokerName), ...(initial ?? {}) });
+  }, [open, defaultBrokerName, side, initial]);
 
   useEffect(() => {
     const el = notesRef.current;
@@ -103,6 +104,20 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
   }, [form.notes, open]);
+
+  // Hydrate signature canvas when a saved signature is preloaded
+  useEffect(() => {
+    if (!open) return;
+    if (!form.signatureDataUrl) return;
+    requestAnimationFrame(() => {
+      try {
+        sigRef.current?.clear();
+        sigRef.current?.fromDataURL(form.signatureDataUrl);
+      } catch { /* ignore */ }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initial]);
+
 
   const update = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((c) => ({ ...c, [k]: v }));
