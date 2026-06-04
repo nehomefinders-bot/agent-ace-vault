@@ -101,21 +101,10 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
   const update = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((c) => ({ ...c, [k]: v }));
 
-  const salePrice = num(form.salePrice);
-  const totalCommission = num(form.totalCommission);
-
-  const { netPrice, totalAmountDue, deductionsForRow } = useMemo(() => {
-    if (side === "buyer") {
-      const concession = num(form.concession);
-      const net = Math.max(salePrice - concession, 0);
-      return { netPrice: net, totalAmountDue: totalCommission, deductionsForRow: concession };
-    }
-    const coBroke = num(form.commissionDueCoBroke);
-    const escrow = num(form.lessEscrow);
-    const net = Math.max(salePrice, 0);
-    const due = Math.max(totalCommission - coBroke - escrow, 0);
-    return { netPrice: net, totalAmountDue: due, deductionsForRow: coBroke + escrow };
-  }, [side, salePrice, totalCommission, form.concession, form.commissionDueCoBroke, form.lessEscrow]);
+  const grossCommission = num(form.grossCommission);
+  const concessionExpenses = num(form.concession);
+  const netCommission = Math.max(grossCommission - concessionExpenses, 0);
+  const balanceSeller = num(form.balanceSeller);
 
   const title = side === "buyer" ? "Buyer Agent Side - Commission Form" : "Listing Agent Side - Commission Form";
   const sideValue = side === "buyer" ? "buy" : "sell";
