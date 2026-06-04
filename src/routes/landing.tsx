@@ -277,7 +277,7 @@ function Landing() {
             >
               See live demo
             </button>
-            <p className="mt-5 text-sm font-semibold text-[#ffe066] drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] lg:absolute lg:bottom-8 lg:left-1/2 lg:mt-0 lg:-translate-x-1/2">
+            <p className="mt-5 text-base md:text-lg font-bold tracking-wide text-[#ffe066] drop-shadow-[0_4px_18px_rgba(0,0,0,0.95)] lg:absolute lg:bottom-8 lg:left-1/2 lg:mt-0 lg:-translate-x-1/2">
               No charge until day 15 &bull; Cancel anytime
             </p>
           </div>
