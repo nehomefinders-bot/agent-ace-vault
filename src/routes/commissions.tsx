@@ -549,15 +549,15 @@ function Commissions() {
   const pendingNet = useMemo(() => rows.filter((row) => row.status === "Pending").reduce((sum, row) => sum + netCommission(row), 0), [rows]);
 
   // Build full FormState snapshot for view/edit, hydrating from row + saved notes
-  const buildFormSnapshot = (r: CommissionRow) => {
+  const buildFormSnapshot = (r: CommissionRow): Record<string, string> => {
     const deal = dealOptions.find((d) => d.id === r.dealId);
     const snapshot = parseFormSnapshotFromNotes(deal?.notes);
     return {
+      ...snapshot,
       propertyAddress: r.property,
       closeDate: r.closingDate,
       grossCommission: String(r.gci || r.salePrice || ""),
       concession: snapshot.concession || (r.deductions ? String(r.deductions) : ""),
-      ...snapshot,
     };
   };
 
