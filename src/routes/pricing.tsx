@@ -100,11 +100,11 @@ function PricingPage() {
                 key={plan.id}
                 className={`relative rounded-2xl border bg-card p-6 shadow-card ${
                   plan.popular ? "border-primary/25" : "border-border"
-                } ${isComingSoon ? "grayscale opacity-40 pointer-events-none" : ""}`}
+                }`}
               >
                 {isComingSoon && (
-                  <div className="pointer-events-auto absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-slate-900/95 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-400 shadow-md ring-1 ring-amber-400/50">
-                    <Sparkles className="h-3 w-3" /> Coming Soon
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 inline-flex items-center gap-1 rounded-full border-2 border-amber-400 bg-slate-900 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider !text-amber-400 !opacity-100 shadow-lg">
+                    <Sparkles className="h-3 w-3 !text-amber-400" /> Coming Soon
                   </div>
                 )}
                 {plan.popular && !isComingSoon && (
@@ -113,12 +113,14 @@ function PricingPage() {
                   </div>
                 )}
 
-                <div className="font-display text-xl font-bold text-foreground">{plan.name}</div>
-                <div className="mb-5 mt-1 text-sm text-muted-foreground">{plan.tagline}</div>
+                <div className={isComingSoon ? "grayscale opacity-50" : ""}>
+                  <div className="font-display text-xl font-bold text-foreground">{plan.name}</div>
+                  <div className="mb-5 mt-1 text-sm text-muted-foreground">{plan.tagline}</div>
 
-                <div className="mb-5 flex items-baseline gap-1">
-                  <span className="font-display text-4xl font-bold tabular-nums text-foreground">${price.amount}</span>
-                  <span className="text-sm text-muted-foreground">/{interval === "monthly" ? "mo" : "yr"}</span>
+                  <div className="mb-5 flex items-baseline gap-1">
+                    <span className="font-display text-4xl font-bold tabular-nums text-foreground">${price.amount}</span>
+                    <span className="text-sm text-muted-foreground">/{interval === "monthly" ? "mo" : "yr"}</span>
+                  </div>
                 </div>
 
                 <button
@@ -126,17 +128,19 @@ function PricingPage() {
                   onClick={() => subscribe(price.priceId)}
                   disabled={!!busy || isCurrent || isComingSoon || founderLocked}
                   title={founderLocked ? "Plan changes are locked until your 6-month Founders retention milestone ends." : undefined}
-                  className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition disabled:opacity-60 disabled:cursor-not-allowed ${
-                    isFounders
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                      : "border border-border bg-background text-foreground hover:bg-muted"
+                  className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed ${
+                    isComingSoon
+                      ? "border-2 border-amber-400 bg-slate-900 !text-amber-400 font-extrabold !opacity-100 shadow-md"
+                      : isFounders
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
+                      : "border border-border bg-background text-foreground hover:bg-muted disabled:opacity-60"
                   }`}
                 >
                   {busy === price.priceId && <Loader2 className="h-4 w-4 animate-spin" />}
                   {isComingSoon ? "Coming Soon" : isCurrent ? "Current plan" : founderLocked ? "Locked — Founders 6-month term" : isActive ? "Switch plan" : "Start 14-day free trial"}
                 </button>
 
-                <ul className="mt-6 space-y-2.5">
+                <ul className={`mt-6 space-y-2.5 ${isComingSoon ? "grayscale opacity-50" : ""}`}>
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2 text-sm text-foreground/90">
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
