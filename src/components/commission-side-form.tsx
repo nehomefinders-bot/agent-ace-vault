@@ -469,9 +469,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function Field({
-  label, value, onChange, type = "text", className = "", prefix,
+  label, value, onChange, type = "text", className = "", prefix, disabled = false,
 }: {
-  label: string; value: string; onChange: (v: string) => void; type?: string; className?: string; prefix?: string;
+  label: string; value: string; onChange: (v: string) => void; type?: string; className?: string; prefix?: string; disabled?: boolean;
 }) {
   return (
     <div className={`grid gap-2 min-w-0 ${className}`}>
@@ -486,7 +486,9 @@ function Field({
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={`h-11 w-full bg-background text-foreground placeholder:text-muted-foreground ${prefix ? "pl-7" : ""}`}
+          disabled={disabled}
+          readOnly={disabled}
+          className={`h-11 w-full bg-background text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-80 ${prefix ? "pl-7" : ""}`}
         />
       </div>
     </div>
