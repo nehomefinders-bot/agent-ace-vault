@@ -320,7 +320,9 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
                     value={form.netCompanyName}
                     onChange={(e) => update("netCompanyName", e.target.value)}
                     placeholder="Company / Firm Name"
-                    className="h-11 flex-1 min-w-0 bg-background text-foreground placeholder:text-muted-foreground"
+                    disabled={readOnly}
+                    readOnly={readOnly}
+                    className="h-11 flex-1 min-w-0 bg-background text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-80"
                   />
                   <span className="font-display text-xl sm:text-2xl font-bold tabular-nums text-primary whitespace-nowrap">
                     {formatMoney(netCommission)}
@@ -341,7 +343,9 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
                           type="number"
                           value={form.escrowHeld}
                           onChange={(e) => update("escrowHeld", e.target.value)}
-                          className="h-11 w-full pl-7 bg-background text-foreground placeholder:text-muted-foreground"
+                          disabled={readOnly}
+                          readOnly={readOnly}
+                          className="h-11 w-full pl-7 bg-background text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-80"
                           placeholder="0.00"
                         />
                       </div>
