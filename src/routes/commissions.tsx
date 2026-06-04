@@ -809,49 +809,6 @@ function Commissions() {
       </Dialog>
 
 
-      <CommissionDialog
-        open={!!editing}
-        onOpenChange={(open) => {
-          if (!open) setEditing(null);
-        }}
-        title="Edit Commission"
-        submitLabel="Save Changes"
-        defaultAgentName={defaultAgentName}
-        dealOptions={dealOptions}
-        lockDeal
-        initial={editing ? commissionToForm(editing) : undefined}
-        onSubmit={async (input) => {
-          if (!editing) return;
-          const sale = parseFloat(input.salePrice) || 0;
-          const cPct = parseFloat(input.commissionPct) || 0;
-          const concessions = parseFloat(input.concessions) || 0;
-          const bSplit = parseFloat(input.brokerSplit) || 0;
-          const ded = parseFloat(input.deductions) || 0;
-          const gci = Math.max(sale - concessions, 0) * (cPct / 100);
-          const existing = dealOptions.find((deal) => deal.id === editing.dealId);
-          const notes = mergeCommissionNotes(existing?.notes, {
-            status: editing.status,
-            concessions,
-            deductions: ded,
-            deductionNotes: input.deductionNotes,
-          });
-          const { error } = await supabase.from("deals").update({
-            address: input.property.trim(),
-            agent_name: input.agentName.trim() || null,
-            side: input.side,
-            sale_price: sale,
-            gross_commission: gci,
-            agent_split_pct: bSplit,
-            brokerage_split_pct: 100 - bSplit,
-            close_date: input.closingDate || null,
-            notes,
-          }).eq("id", editing.dealId);
-          if (error) throw error;
-          toast.success("Commission updated");
-          setEditing(null);
-          await load();
-        }}
-      />
 
       {loading && (
         <div className="flex justify-center py-8">
