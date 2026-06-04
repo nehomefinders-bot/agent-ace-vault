@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import { Loader2, Upload, Save, FileDown, Mail } from "lucide-react";
 import jsPDF from "jspdf";
