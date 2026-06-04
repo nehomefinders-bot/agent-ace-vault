@@ -410,10 +410,10 @@ function Landing() {
       <section className="bg-[#ecd59a] text-slate-900">
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
-            {features.map((f) => (
+            {features.map((f, idx) => (
+              <Reveal key={f.title} direction="up" delay={idx * 100} className="h-full">
               <div
-                key={f.title}
-                className="group relative rounded-2xl border border-[#dcccae] bg-[#faf4e7] p-5 shadow-[0_18px_45px_-28px_rgba(96,72,18,0.18)] transition-all duration-200 hover:-translate-y-1 hover:border-[#cfb77a] hover:bg-slate-900 hover:shadow-[0_28px_56px_-26px_rgba(15,23,42,0.48)] active:-translate-y-0.5 active:border-[#cfb77a] active:bg-slate-900 active:shadow-[0_24px_46px_-24px_rgba(15,23,42,0.42)] sm:p-6"
+                className="group relative h-full rounded-2xl border border-[#dcccae] bg-[#faf4e7] p-5 shadow-[0_18px_45px_-28px_rgba(96,72,18,0.18)] transition-all duration-300 ease-out hover:-translate-y-2 hover:border-[#cfb77a] hover:bg-slate-900 hover:shadow-2xl active:-translate-y-0.5 active:border-[#cfb77a] active:bg-slate-900 active:shadow-[0_24px_46px_-24px_rgba(15,23,42,0.42)] sm:p-6"
               >
                 <div
                   className={`absolute -inset-px -z-10 rounded-2xl bg-gradient-to-br ${f.glow} opacity-0 blur-xl transition-opacity duration-200 group-hover:opacity-30 group-active:opacity-30`}
@@ -430,8 +430,10 @@ function Landing() {
                   {f.body}
                 </div>
               </div>
+              </Reveal>
             ))}
           </div>
+
 
           <div className="mt-10 rounded-3xl border border-[#dcccae] bg-[#fbf5e8] px-6 py-6 shadow-[0_24px_60px_-36px_rgba(96,72,18,0.14)] sm:px-8 sm:py-7">
             <div className="flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
