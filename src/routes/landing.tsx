@@ -18,6 +18,7 @@ import maColonialHeroBg from "@/assets/landing-house-autumn.jpeg";
 import { useAuth } from "@/hooks/use-auth";
 import { LegalDocumentModal, type LegalDocumentKind } from "@/components/legal-documents";
 import { BRAND_TITLE, BrandLockup } from "@/components/brand-lockup";
+import { Reveal } from "@/components/reveal";
 
 export const Route = createFileRoute("/landing")({
   component: Landing,
@@ -266,14 +267,14 @@ function Landing() {
             </p>
             <Link
               to="/auth"
-              className="mt-8 inline-flex items-center gap-2 rounded-lg bg-[#d4af37] px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-colors hover:bg-[#c89e2f] lg:absolute lg:bottom-20 lg:left-10 lg:mt-0 xl:left-16"
+              className="mt-8 inline-flex items-center gap-2 rounded-lg bg-[#d4af37] px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-all duration-300 ease-out hover:bg-[#c89e2f] hover:scale-[1.03] hover:shadow-[0_18px_50px_-8px_rgba(212,175,55,0.7)] lg:absolute lg:bottom-20 lg:left-10 lg:mt-0 xl:left-16"
             >
               Start your free 14-day trial <ArrowRight className="h-4 w-4" />
             </Link>
             <button
               type="button"
               onClick={() => setIsVideoOpen(true)}
-              className="mt-3 rounded-lg border border-white/80 bg-white/92 px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_16px_34px_-16px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-colors hover:bg-white hover:shadow-[0_18px_40px_-16px_rgba(255,255,255,0.22)] lg:absolute lg:right-10 lg:bottom-20 lg:mt-0 xl:right-16"
+              className="mt-3 rounded-lg border border-white/80 bg-white/92 px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_16px_34px_-16px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 ease-out hover:bg-white hover:scale-[1.03] hover:shadow-[0_18px_40px_-16px_rgba(255,255,255,0.22)] lg:absolute lg:right-10 lg:bottom-20 lg:mt-0 xl:right-16"
             >
               See live demo
             </button>
@@ -320,6 +321,7 @@ function Landing() {
         <div className="pointer-events-none absolute -top-32 -left-24 h-96 w-96 rounded-full bg-[#d4af37]/15 blur-[120px]" aria-hidden />
         <div className="pointer-events-none absolute -right-24 -bottom-32 h-96 w-96 rounded-full bg-[#d4af37]/10 blur-[120px]" aria-hidden />
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.05fr_1fr] sm:py-24">
+          <Reveal direction="left">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[#f0cf6a]">
               <Sparkles className="h-3.5 w-3.5" /> Founders Program · Limited
@@ -359,10 +361,12 @@ function Landing() {
               <span className="text-sm text-white/55">No charge until day 15 · Cancel anytime</span>
             </div>
           </div>
+          </Reveal>
 
+          <Reveal direction="right" delay={150}>
           <div className="relative">
             <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-to-br from-[#d4af37]/30 via-white/5 to-[#7c5cff]/25 blur-3xl" aria-hidden />
-            <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/[0.06] p-6 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+            <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/[0.06] p-6 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.7)] backdrop-blur-xl transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
@@ -403,16 +407,17 @@ function Landing() {
               </div>
             </div>
           </div>
+          </Reveal>
         </div>
       </section>
 
       <section className="bg-[#ecd59a] text-slate-900">
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
-            {features.map((f) => (
+            {features.map((f, idx) => (
+              <Reveal key={f.title} direction="up" delay={idx * 100} className="h-full">
               <div
-                key={f.title}
-                className="group relative rounded-2xl border border-[#dcccae] bg-[#faf4e7] p-5 shadow-[0_18px_45px_-28px_rgba(96,72,18,0.18)] transition-all duration-200 hover:-translate-y-1 hover:border-[#cfb77a] hover:bg-slate-900 hover:shadow-[0_28px_56px_-26px_rgba(15,23,42,0.48)] active:-translate-y-0.5 active:border-[#cfb77a] active:bg-slate-900 active:shadow-[0_24px_46px_-24px_rgba(15,23,42,0.42)] sm:p-6"
+                className="group relative h-full rounded-2xl border border-[#dcccae] bg-[#faf4e7] p-5 shadow-[0_18px_45px_-28px_rgba(96,72,18,0.18)] transition-all duration-300 ease-out hover:-translate-y-2 hover:border-[#cfb77a] hover:bg-slate-900 hover:shadow-2xl active:-translate-y-0.5 active:border-[#cfb77a] active:bg-slate-900 active:shadow-[0_24px_46px_-24px_rgba(15,23,42,0.42)] sm:p-6"
               >
                 <div
                   className={`absolute -inset-px -z-10 rounded-2xl bg-gradient-to-br ${f.glow} opacity-0 blur-xl transition-opacity duration-200 group-hover:opacity-30 group-active:opacity-30`}
@@ -429,8 +434,10 @@ function Landing() {
                   {f.body}
                 </div>
               </div>
+              </Reveal>
             ))}
           </div>
+
 
           <div className="mt-10 rounded-3xl border border-[#dcccae] bg-[#fbf5e8] px-6 py-6 shadow-[0_24px_60px_-36px_rgba(96,72,18,0.14)] sm:px-8 sm:py-7">
             <div className="flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
@@ -555,16 +562,16 @@ function Landing() {
           </div>
 
           <div className="grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {tiers.map((tier) => {
+            {tiers.map((tier, idx) => {
               const isFounders = tier.name === "Founders' Program";
               const isComingSoon = !isFounders;
               return (
+              <Reveal key={tier.name} direction="up" delay={idx * 100} className="h-full">
               <div
-                key={tier.name}
-                className={`relative overflow-visible flex flex-col rounded-2xl border p-7 pt-9 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.18)] transition-all ${
+                className={`relative h-full overflow-visible flex flex-col rounded-2xl border p-7 pt-9 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.18)] transition-all duration-300 ease-out ${
                   isFounders
-                    ? "border-[#cfb15a] bg-[linear-gradient(180deg,#fffaf1_0%,#f4e4b4_100%)] shadow-[0_0_0_1px_rgba(207,177,90,0.4),0_34px_84px_-30px_rgba(184,137,24,0.55)] lg:-translate-y-2 lg:scale-[1.03]"
-                    : "border-[#ddd1bf] bg-[#fffaf1] grayscale contrast-75 opacity-50 pointer-events-none select-none"
+                    ? "border-[#cfb15a] bg-[linear-gradient(180deg,#fffaf1_0%,#f4e4b4_100%)] shadow-[0_0_0_1px_rgba(207,177,90,0.4),0_34px_84px_-30px_rgba(184,137,24,0.55)] lg:-translate-y-2 lg:scale-[1.03] hover:-translate-y-3 hover:shadow-2xl"
+                    : "border-[#ddd1bf] bg-[#fffaf1] select-none"
                 }`}
               >
                 {isFounders && (
@@ -576,37 +583,39 @@ function Landing() {
                   </div>
                 )}
                 {isComingSoon && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-[#d4af37]/60 bg-slate-950/95 px-3.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#f0cf6a] shadow-[0_10px_24px_-10px_rgba(0,0,0,0.6)]">
+                  <div className="absolute -top-3 left-1/2 z-20 -translate-x-1/2 rounded-full border-2 border-amber-400 bg-slate-950 px-4 py-1 text-[10px] font-extrabold uppercase tracking-[0.22em] text-amber-400 opacity-100 shadow-[0_10px_24px_-8px_rgba(212,175,55,0.55)]">
                     Coming Soon
                   </div>
                 )}
-                <div className="font-display text-xl font-bold text-slate-900">{tier.name}</div>
-                <div className="mt-1 mb-5 min-h-[5.5rem] text-base text-slate-600">{tier.blurb}</div>
-                <div className="mb-6 flex items-baseline gap-1">
-                  <div className={`font-display text-5xl font-bold tabular-nums ${
-                    isFounders ? "text-[#8f6b12]" : "text-slate-900"
-                  }`}>
-                    ${tier.price}
+                <div className={isComingSoon ? "grayscale opacity-60 select-none" : undefined}>
+                  <div className="font-display text-xl font-bold text-slate-900">{tier.name}</div>
+                  <div className="mt-1 mb-5 min-h-[5.5rem] text-base text-slate-600">{tier.blurb}</div>
+                  <div className="mb-6 flex items-baseline gap-1">
+                    <div className={`font-display text-5xl font-bold tabular-nums ${
+                      isFounders ? "text-[#8f6b12]" : "text-slate-900"
+                    }`}>
+                      ${tier.price}
+                    </div>
+                    <div className="text-base text-slate-500">/mo</div>
                   </div>
-                  <div className="text-base text-slate-500">/mo</div>
-                </div>
-                <div className="mb-4 min-h-[1rem] text-sm text-slate-500">
-                  {tier.seat ? `+ $${tier.seat}/agent seat` : null}
+                  <div className="mb-4 min-h-[1rem] text-sm text-slate-500">
+                    {tier.seat ? `+ $${tier.seat}/agent seat` : null}
+                  </div>
                 </div>
                 {isFounders ? (
                   <Link
                     to="/auth"
-                    className="group relative mb-6 block w-full overflow-hidden rounded-lg bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-4 py-3 text-center text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition-all hover:-translate-y-0.5"
+                    className="group relative mb-6 block w-full overflow-hidden rounded-lg bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-4 py-3 text-center text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_24px_60px_-12px_rgba(212,175,55,0.85)]"
                   >
                     <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/70 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                     {tier.cta}
                   </Link>
                 ) : (
-                  <div className="mb-6 block w-full rounded-lg border border-slate-300 bg-slate-900/80 px-4 py-2.5 text-center text-base font-semibold text-white/80">
-                    {tier.cta}
+                  <div className="mb-6 block w-full rounded-lg border-2 border-amber-400 bg-slate-950 px-4 py-2.5 text-center text-base font-extrabold uppercase tracking-wider text-amber-400 shadow-[0_8px_24px_-10px_rgba(212,175,55,0.5)]">
+                    Coming Soon
                   </div>
                 )}
-                <ul className="space-y-2.5">
+                <ul className={`space-y-2.5 ${isComingSoon ? "grayscale opacity-60" : ""}`}>
                   {tier.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-base text-slate-700">
                       <Check
@@ -619,9 +628,11 @@ function Landing() {
                   ))}
                 </ul>
               </div>
+              </Reveal>
               );
             })}
           </div>
+
 
 
           <p className="mt-8 text-center text-sm text-slate-500">
