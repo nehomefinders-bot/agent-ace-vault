@@ -605,11 +605,15 @@ function Commissions() {
         <>
           <Button
             type="button"
-            onClick={() => setAiReportOpen(true)}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/70 hover:from-primary/90 hover:to-primary/60 text-primary-foreground shadow-card"
+            disabled
+            aria-disabled="true"
+            className="relative inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground shadow-card cursor-not-allowed opacity-60"
           >
             <Sparkles className="h-4 w-4" />
             Generate AI Executive Report
+            <span className="ml-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-500 ring-1 ring-amber-500/40">
+              Coming Soon
+            </span>
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
