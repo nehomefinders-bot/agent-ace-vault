@@ -361,10 +361,12 @@ function Landing() {
               <span className="text-sm text-white/55">No charge until day 15 · Cancel anytime</span>
             </div>
           </div>
+          </Reveal>
 
+          <Reveal direction="right" delay={150}>
           <div className="relative">
             <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-to-br from-[#d4af37]/30 via-white/5 to-[#7c5cff]/25 blur-3xl" aria-hidden />
-            <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/[0.06] p-6 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+            <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/[0.06] p-6 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.7)] backdrop-blur-xl transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
