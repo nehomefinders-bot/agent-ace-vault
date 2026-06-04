@@ -32,13 +32,18 @@ export function BrandLockup({
         )}
       />
       <div className={cn("min-w-0", textClassName)}>
-        <div className={cn("truncate font-display text-lg font-bold leading-none", titleClassName)}>
+        <div
+          className={cn(
+            "whitespace-nowrap font-display text-lg font-bold leading-none text-white dark:text-white",
+            titleClassName,
+          )}
+        >
           {BRAND_TITLE}
         </div>
         {showTagline ? (
           <div
             className={cn(
-              "mt-1 truncate text-[10px] tracking-[0.08em] text-muted-foreground",
+              "mt-1 text-[10px] tracking-[0.08em] text-amber-500",
               taglineClassName,
             )}
           >
