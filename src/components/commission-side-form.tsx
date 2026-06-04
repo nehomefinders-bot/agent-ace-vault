@@ -371,19 +371,40 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
             </Section>
 
             <Section title="Financial Calculation Matrix">
-              <Field label="Sale Price" type="number" value={form.salePrice} onChange={(v) => update("salePrice", v)} />
-              {side === "buyer" && (
-                <Field label="Concession" type="number" value={form.concession} onChange={(v) => update("concession", v)} />
-              )}
-              <Readout label="Net Price" value={formatMoney(netPrice)} />
-              <Field label="Total Commission" type="number" value={form.totalCommission} onChange={(v) => update("totalCommission", v)} />
+              <Field label="Gross Commission" type="number" value={form.grossCommission} onChange={(v) => update("grossCommission", v)} />
+              <Field label="Concession / Expenses" type="number" value={form.concession} onChange={(v) => update("concession", v)} />
+              <div className="md:col-span-2 rounded-xl border border-border bg-muted/40 p-4 text-foreground">
+                <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Net Commission</Label>
+                <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <span className="text-sm text-foreground whitespace-nowrap">Net Commission due to</span>
+                  <Input
+                    value={form.netCompanyName}
+                    onChange={(e) => update("netCompanyName", e.target.value)}
+                    placeholder="Company / Firm Name"
+                    className="h-11 flex-1 min-w-0 bg-background text-foreground placeholder:text-muted-foreground"
+                  />
+                  <span className="font-display text-xl sm:text-2xl font-bold tabular-nums text-primary whitespace-nowrap">
+                    {formatMoney(netCommission)}
+                  </span>
+                </div>
+              </div>
               {side === "listing" && (
-                <>
-                  <Field label="Total Commission Due to Co-Broke" type="number" value={form.commissionDueCoBroke} onChange={(v) => update("commissionDueCoBroke", v)} />
-                  <Field label="Less Escrow" type="number" value={form.lessEscrow} onChange={(v) => update("lessEscrow", v)} />
-                </>
+                <div className="md:col-span-2 rounded-xl border border-border bg-card p-4 text-card-foreground">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <Label htmlFor="balance-seller" className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:w-64 sm:shrink-0">
+                      Balance Due to / from Seller
+                    </Label>
+                    <Input
+                      id="balance-seller"
+                      type="number"
+                      value={form.balanceSeller}
+                      onChange={(e) => update("balanceSeller", e.target.value)}
+                      className="h-11 flex-1 min-w-0 bg-background text-foreground placeholder:text-muted-foreground"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
               )}
-              <Readout label="Total Amount Due" value={formatMoney(totalAmountDue)} strong className="md:col-span-2" />
             </Section>
 
             <Section title="Commission Disbursement Authorization">
