@@ -178,8 +178,8 @@ export function AppSidebar() {
         </button>
         <BrandLockup
           logoClassName="h-8 w-8 rounded-lg border border-sidebar-border bg-black ring-0"
-          titleClassName="text-base text-white"
-          taglineClassName="text-[9px] text-sidebar-foreground/75"
+          titleClassName="truncate text-base text-white"
+          taglineClassName="text-[9px] text-amber-500"
           textClassName="max-w-[12rem]"
         />
         <Link
