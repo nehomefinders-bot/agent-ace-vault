@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, Download, FileText, Loader2, Pencil, Search, Sparkles, Trash2, Users, UserCheck } from "lucide-react";
+import { ChevronDown, Download, Eye, FileDown, FileText, Loader2, Mail, Pencil, Search, Sparkles, Trash2, Users, UserCheck } from "lucide-react";
 import { AIExecutiveReportModal, type AIReportCommissionRow } from "@/components/ai-executive-report";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
