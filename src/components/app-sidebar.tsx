@@ -16,7 +16,7 @@ const sections = [
     label: "Business",
     items: [
       { to: "/", label: "Dashboard", icon: LayoutDashboard },
-      { to: "/mileage", label: "Showing Tracker", icon: Car },
+      { to: "/mileage", label: "Mileage Tracker", icon: Car },
       { to: "/listings", label: "Listings", icon: Home },
       { to: "/deals", label: "Deals", icon: Receipt },
       { to: "/tasks", label: "Tasks", icon: ListTodo },
@@ -29,14 +29,14 @@ const sections = [
     label: "More",
     items: [
       { to: "/pipeline", label: "Pipeline", icon: TrendingUp },
-      { to: "/clients", label: "Directory", icon: Users },
+      { to: "/clients", label: "Contacts", icon: Users },
       { to: "/calendar", label: "Calendar", icon: CalendarDays },
       { to: "/books", label: "Bookkeeping", icon: BookOpen },
       { to: "/commissions", label: "Commissions", icon: Receipt },
     ],
   },
   {
-    label: "Account",
+    label: "Your Account Information",
     items: [
       { to: "/profile", label: "Profile", icon: User },
       { to: "/settings", label: "Settings", icon: Settings },
@@ -88,7 +88,7 @@ export function AppSidebar() {
         <BrandLockup
           logoClassName="h-9 w-9 border border-sidebar-border bg-black ring-0"
           titleClassName="truncate text-base text-white"
-          taglineClassName="text-xs text-amber-500"
+          taglineClassName="text-xs text-amber-400"
           textClassName="max-w-[12rem]"
         />
         <button
@@ -179,7 +179,7 @@ export function AppSidebar() {
         <BrandLockup
           logoClassName="h-8 w-8 rounded-lg border border-sidebar-border bg-black ring-0"
           titleClassName="truncate text-base text-white"
-          taglineClassName="text-[9px] text-amber-500"
+          taglineClassName="text-[9px] text-amber-400"
           textClassName="max-w-[12rem]"
         />
         <Link
