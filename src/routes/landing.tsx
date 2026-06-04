@@ -558,14 +558,14 @@ function Landing() {
             </div>
           </div>
 
-          <div className="mt-12 grid gap-10 xl:grid-cols-[minmax(220px,280px)_minmax(0,1fr)_minmax(320px,420px)] xl:items-start">
+          <div className="mt-12 grid gap-10 xl:grid-cols-[minmax(280px,360px)_minmax(0,1fr)_minmax(320px,420px)] xl:items-start">
             <div className="flex flex-col items-start gap-5">
               <Link to="/landing" className="inline-flex shrink-0">
                 <BrandLockup
                   logoClassName="h-16 w-16 rounded-2xl border border-white/10 bg-black ring-0 shadow-[0_20px_50px_-28px_rgba(0,0,0,0.8)] sm:h-20 sm:w-20"
                   titleClassName="text-xl text-white sm:text-2xl"
-                  taglineClassName="text-sm text-[#d4af37]"
-                  textClassName="max-w-[14rem]"
+                  taglineClassName="text-sm text-amber-500"
+                  textClassName="max-w-none"
                 />
               </Link>
               <div className="font-display text-sm text-slate-300">
