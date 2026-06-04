@@ -273,9 +273,18 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="!fixed !inset-0 !left-0 !top-0 !h-[100dvh] !max-h-[100dvh] !w-screen !max-w-none !translate-x-0 !translate-y-0 !overflow-hidden !rounded-none !border-0 !p-0 flex flex-col gap-0 bg-background text-foreground">
         <DialogHeader className="shrink-0 border-b border-border bg-background/95 px-4 py-4 backdrop-blur sm:px-8">
-          <DialogTitle className="font-display text-xl sm:text-3xl">{title}</DialogTitle>
+          <DialogTitle className="font-display text-xl sm:text-3xl">
+            {title}
+            {readOnly && (
+              <span className="ml-3 align-middle rounded-full bg-amber-500/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-amber-500 ring-1 ring-amber-500/40">
+                Read-only
+              </span>
+            )}
+          </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Fill out the closing details. Save syncs to the Commission Tracker; you can also export a signed PDF or send via email.
+            {readOnly
+              ? "Reviewing a saved commission record. All fields are locked — close this view when finished."
+              : "Fill out the closing details. Save syncs to the Commission Tracker; you can also export a signed PDF or send via email."}
           </DialogDescription>
         </DialogHeader>
 
