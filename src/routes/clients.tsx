@@ -712,33 +712,6 @@ function DirectoryPage() {
           />
           <button
             type="button"
-            onClick={() => void syncPhoneContacts()}
-            disabled={phoneSyncing}
-            className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-muted disabled:opacity-60"
-          >
-            {phoneSyncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Smartphone className="h-4 w-4" />}
-            Sync phone contacts
-          </button>
-          <button
-            type="button"
-            onClick={() => void desyncPhoneContacts()}
-            disabled={phoneDesyncing || phoneSyncedRows.length === 0}
-            className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-muted disabled:opacity-60"
-          >
-            {phoneDesyncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-            {selectedPhoneSyncIds.length > 0 ? `Desync selected (${selectedPhoneSyncIds.length})` : "Desync phone contacts"}
-          </button>
-          <button
-            type="button"
-            onClick={() => void convertPhoneSyncedContacts()}
-            disabled={phoneConverting || selectedPhoneSyncIds.length === 0}
-            className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium hover:bg-muted disabled:opacity-60"
-          >
-            {phoneConverting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-            Convert selected to manual
-          </button>
-          <button
-            type="button"
             onClick={openNew}
             className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground"
           >
