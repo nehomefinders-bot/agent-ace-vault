@@ -291,27 +291,27 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
         <div className="min-h-0 flex-1 overflow-y-auto px-3 py-5 sm:px-8">
           <div className="mx-auto w-full max-w-5xl space-y-6">
             <Section title="Core Identifiers">
-              <Field label="Property Address" value={form.propertyAddress} onChange={(v) => update("propertyAddress", v)} className="md:col-span-2" />
-              <Field label="Seller Name" value={form.sellerName} onChange={(v) => update("sellerName", v)} />
-              <Field label="Buyer Name" value={form.buyerName} onChange={(v) => update("buyerName", v)} />
-              <Field label="P&S Date" type="date" value={form.psDate} onChange={(v) => update("psDate", v)} />
-              <Field label="Close Date" type="date" value={form.closeDate} onChange={(v) => update("closeDate", v)} />
+              <Field disabled={readOnly} label="Property Address" value={form.propertyAddress} onChange={(v) => update("propertyAddress", v)} className="md:col-span-2" />
+              <Field disabled={readOnly} label="Seller Name" value={form.sellerName} onChange={(v) => update("sellerName", v)} />
+              <Field disabled={readOnly} label="Buyer Name" value={form.buyerName} onChange={(v) => update("buyerName", v)} />
+              <Field disabled={readOnly} label="P&S Date" type="date" value={form.psDate} onChange={(v) => update("psDate", v)} />
+              <Field disabled={readOnly} label="Close Date" type="date" value={form.closeDate} onChange={(v) => update("closeDate", v)} />
             </Section>
 
             <Section title="Agents">
-              <Field label="Listing Agent" value={form.listingAgent} onChange={(v) => update("listingAgent", v)} />
-              <Field label="Listing Office" value={form.listingOffice} onChange={(v) => update("listingOffice", v)} />
-              <Field label="MLS ID" value={form.listingAgentMlsId} onChange={(v) => update("listingAgentMlsId", v)} />
-              <Field label="Office MLS ID" value={form.listingOfficeMlsId} onChange={(v) => update("listingOfficeMlsId", v)} />
-              <Field label="Sales Agent" value={form.salesAgent} onChange={(v) => update("salesAgent", v)} />
-              <Field label="Sale Office" value={form.saleOffice} onChange={(v) => update("saleOffice", v)} />
-              <Field label="MLS ID" value={form.salesAgentMlsId} onChange={(v) => update("salesAgentMlsId", v)} />
-              <Field label="Office MLS ID" value={form.saleOfficeMlsId} onChange={(v) => update("saleOfficeMlsId", v)} />
+              <Field disabled={readOnly} label="Listing Agent" value={form.listingAgent} onChange={(v) => update("listingAgent", v)} />
+              <Field disabled={readOnly} label="Listing Office" value={form.listingOffice} onChange={(v) => update("listingOffice", v)} />
+              <Field disabled={readOnly} label="MLS ID" value={form.listingAgentMlsId} onChange={(v) => update("listingAgentMlsId", v)} />
+              <Field disabled={readOnly} label="Office MLS ID" value={form.listingOfficeMlsId} onChange={(v) => update("listingOfficeMlsId", v)} />
+              <Field disabled={readOnly} label="Sales Agent" value={form.salesAgent} onChange={(v) => update("salesAgent", v)} />
+              <Field disabled={readOnly} label="Sale Office" value={form.saleOffice} onChange={(v) => update("saleOffice", v)} />
+              <Field disabled={readOnly} label="MLS ID" value={form.salesAgentMlsId} onChange={(v) => update("salesAgentMlsId", v)} />
+              <Field disabled={readOnly} label="Office MLS ID" value={form.saleOfficeMlsId} onChange={(v) => update("saleOfficeMlsId", v)} />
             </Section>
 
             <Section title="Financial Calculation Matrix">
-              <Field label="Gross Commission" type="number" value={form.grossCommission} onChange={(v) => update("grossCommission", v)} prefix="$" />
-              <Field label="Concession / Expenses" type="number" value={form.concession} onChange={(v) => update("concession", v)} prefix="$" />
+              <Field disabled={readOnly} label="Gross Commission" type="number" value={form.grossCommission} onChange={(v) => update("grossCommission", v)} prefix="$" />
+              <Field disabled={readOnly} label="Concession / Expenses" type="number" value={form.concession} onChange={(v) => update("concession", v)} prefix="$" />
               <div className="md:col-span-2 rounded-xl border border-border bg-muted/40 p-4 text-foreground">
                 <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Net Commission</Label>
                 <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
