@@ -320,13 +320,10 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     }
     const subject = `Commission Disbursement Statement - ${form.propertyAddress || "Property"}`;
     const summary = [
-      `Sale Price: ${formatMoney(salePrice)}`,
-      `Net Price: ${formatMoney(netPrice)}`,
-      `Total Commission: ${formatMoney(totalCommission)}`,
-      side === "buyer"
-        ? `Concession: ${formatMoney(num(form.concession))}`
-        : `Co-Broke: ${formatMoney(num(form.commissionDueCoBroke))}\nLess Escrow: ${formatMoney(num(form.lessEscrow))}`,
-      `Total Amount Due: ${formatMoney(totalAmountDue)}`,
+      `Gross Commission: ${formatMoney(grossCommission)}`,
+      `Concession / Expenses: ${formatMoney(concessionExpenses)}`,
+      `Net Commission due to ${form.netCompanyName.trim() || "—"}: ${formatMoney(netCommission)}`,
+      ...(side === "listing" ? [`Balance Due to / from Seller: ${formatMoney(balanceSeller)}`] : []),
     ].join("\n");
     const body =
       `Hello,\n\nPlease find the calculated Commission Statement breakdown for ${form.propertyAddress || "the subject property"} mapped out below.\n\n` +
