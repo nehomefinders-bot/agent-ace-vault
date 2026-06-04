@@ -393,24 +393,37 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
                 </div>
               </div>
               {side === "listing" && (
-                <div className="md:col-span-2 rounded-xl border border-border bg-card p-4 text-card-foreground">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <Label htmlFor="balance-seller" className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:w-64 sm:shrink-0">
-                      Balance Due to / from Seller
-                    </Label>
-                    <div className="relative flex-1 min-w-0">
-                      <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-medium text-foreground/70">$</span>
-                      <Input
-                        id="balance-seller"
-                        type="number"
-                        value={form.balanceSeller}
-                        onChange={(e) => update("balanceSeller", e.target.value)}
-                        className="h-11 w-full pl-7 bg-background text-foreground placeholder:text-muted-foreground"
-                        placeholder="0.00"
-                      />
+                <>
+                  <div className="md:col-span-2 rounded-xl border border-border bg-card p-4 text-card-foreground">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                      <Label htmlFor="escrow-held" className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:w-64 sm:shrink-0">
+                        Escrow Held
+                      </Label>
+                      <div className="relative flex-1 min-w-0">
+                        <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-medium text-foreground/70">$</span>
+                        <Input
+                          id="escrow-held"
+                          type="number"
+                          value={form.escrowHeld}
+                          onChange={(e) => update("escrowHeld", e.target.value)}
+                          className="h-11 w-full pl-7 bg-background text-foreground placeholder:text-muted-foreground"
+                          placeholder="0.00"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
+                  <div className="md:col-span-2 rounded-xl border border-border bg-muted/40 p-4 text-foreground">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                      <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:w-64 sm:shrink-0">
+                        Balance Due to / from Seller
+                      </Label>
+                      <span className="font-display text-xl sm:text-2xl font-bold tabular-nums text-primary whitespace-nowrap">
+                        {formatMoney(balanceSeller)}
+                      </span>
+                      <span className="text-xs text-muted-foreground sm:ml-auto">Auto-calculated: Net Commission − Escrow Held</span>
+                    </div>
+                  </div>
+                </>
               )}
             </Section>
 
