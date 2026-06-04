@@ -129,8 +129,7 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
 
   const validate = () => {
     if (!form.propertyAddress.trim()) { toast.error("Property Address is required"); return false; }
-    if (salePrice <= 0) { toast.error("Sale Price must be greater than 0"); return false; }
-    if (totalCommission <= 0) { toast.error("Total Commission must be greater than 0"); return false; }
+    if (grossCommission <= 0) { toast.error("Gross Commission must be greater than 0"); return false; }
     return true;
   };
 
@@ -138,14 +137,10 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     if (!validate()) return;
     setSaving(true);
 
-    const deductions = Math.max(totalCommission - totalAmountDue, 0);
     const noteParts: string[] = [];
-    if (side === "buyer") {
-      if (form.concession) noteParts.push(`Concession: ${form.concession}`);
-    } else {
-      if (form.commissionDueCoBroke) noteParts.push(`Co-Broke: ${form.commissionDueCoBroke}`);
-      if (form.lessEscrow) noteParts.push(`Less Escrow: ${form.lessEscrow}`);
-    }
+    if (form.concession) noteParts.push(`Concession/Expenses: ${form.concession}`);
+    if (form.netCompanyName.trim()) noteParts.push(`Net Commission due to: ${form.netCompanyName.trim()} = ${formatMoney(netCommission)}`);
+    if (side === "listing" && form.balanceSeller) noteParts.push(`Balance Due to/from Seller: ${form.balanceSeller}`);
     if (form.sellerName) noteParts.push(`Seller: ${form.sellerName}`);
     if (form.buyerName) noteParts.push(`Buyer: ${form.buyerName}`);
     if (form.psDate) noteParts.push(`P&S Date: ${form.psDate}`);
@@ -153,17 +148,15 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     if (form.listingOffice) noteParts.push(`Listing Office: ${form.listingOffice}${form.listingOfficeMlsId ? ` (MLS ${form.listingOfficeMlsId})` : ""}`);
     if (form.salesAgent) noteParts.push(`Sales Agent: ${form.salesAgent}${form.salesAgentMlsId ? ` (MLS ${form.salesAgentMlsId})` : ""}`);
     if (form.saleOffice) noteParts.push(`Sale Office: ${form.saleOffice}${form.saleOfficeMlsId ? ` (MLS ${form.saleOfficeMlsId})` : ""}`);
-    
+
     if (form.adminBrokerName) noteParts.push(`Authorized By: ${form.adminBrokerName} on ${form.signatureDate}`);
     if (form.notes.trim()) noteParts.push(`Notes: ${form.notes.trim()}`);
 
     const notes = mergeCommissionNotes(noteParts.join(" | ") || null, {
       status: "Pending",
-      concessions: side === "buyer" ? num(form.concession) : 0,
-      deductions,
-      deductionNotes: side === "listing"
-        ? `Co-Broke ${form.commissionDueCoBroke || 0}, Escrow ${form.lessEscrow || 0}`
-        : form.concession ? `Concession ${form.concession}` : "",
+      concessions: 0,
+      deductions: concessionExpenses,
+      deductionNotes: form.concession ? `Concession/Expenses ${form.concession}` : "",
     });
 
     const { error } = await supabase.from("deals").insert({
@@ -171,8 +164,8 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
       address: form.propertyAddress.trim(),
       side: sideValue,
       status: "sold",
-      sale_price: salePrice,
-      gross_commission: totalCommission,
+      sale_price: grossCommission,
+      gross_commission: grossCommission,
       agent_split_pct: 100,
       brokerage_split_pct: 0,
       close_date: form.closeDate || null,
