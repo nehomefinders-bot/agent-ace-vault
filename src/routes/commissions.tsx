@@ -434,7 +434,7 @@ function Commissions() {
   const [loading, setLoading] = useState(true);
   const [sideFormOpen, setSideFormOpen] = useState<CommissionSide | null>(null);
   const [aiReportOpen, setAiReportOpen] = useState(false);
-  const [editing, setEditing] = useState<CommissionRow | null>(null);
+  
   const [fullForm, setFullForm] = useState<{ row: CommissionRow; mode: CommissionFormMode } | null>(null);
   const [emailRow, setEmailRow] = useState<CommissionRow | null>(null);
   const [emailTo, setEmailTo] = useState("");
@@ -809,49 +809,6 @@ function Commissions() {
       </Dialog>
 
 
-      <CommissionDialog
-        open={!!editing}
-        onOpenChange={(open) => {
-          if (!open) setEditing(null);
-        }}
-        title="Edit Commission"
-        submitLabel="Save Changes"
-        defaultAgentName={defaultAgentName}
-        dealOptions={dealOptions}
-        lockDeal
-        initial={editing ? commissionToForm(editing) : undefined}
-        onSubmit={async (input) => {
-          if (!editing) return;
-          const sale = parseFloat(input.salePrice) || 0;
-          const cPct = parseFloat(input.commissionPct) || 0;
-          const concessions = parseFloat(input.concessions) || 0;
-          const bSplit = parseFloat(input.brokerSplit) || 0;
-          const ded = parseFloat(input.deductions) || 0;
-          const gci = Math.max(sale - concessions, 0) * (cPct / 100);
-          const existing = dealOptions.find((deal) => deal.id === editing.dealId);
-          const notes = mergeCommissionNotes(existing?.notes, {
-            status: editing.status,
-            concessions,
-            deductions: ded,
-            deductionNotes: input.deductionNotes,
-          });
-          const { error } = await supabase.from("deals").update({
-            address: input.property.trim(),
-            agent_name: input.agentName.trim() || null,
-            side: input.side,
-            sale_price: sale,
-            gross_commission: gci,
-            agent_split_pct: bSplit,
-            brokerage_split_pct: 100 - bSplit,
-            close_date: input.closingDate || null,
-            notes,
-          }).eq("id", editing.dealId);
-          if (error) throw error;
-          toast.success("Commission updated");
-          setEditing(null);
-          await load();
-        }}
-      />
 
       {loading && (
         <div className="flex justify-center py-8">
@@ -1030,9 +987,30 @@ function Commissions() {
                     <td className="py-4 text-right tabular-nums font-semibold">{formatMoney(net)}</td>
                     <td className="py-4 px-6"><StatusBadge status={r.status} onChange={(v) => toggleStatus(r, v)} /></td>
                     <td className="py-4 pr-6">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center justify-end gap-1 flex-wrap">
                         <button
-                          onClick={() => setEditing(r)}
+                          onClick={() => setFullForm({ row: r, mode: "view" })}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                          aria-label="Open form"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => downloadRowPdf(r)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                          aria-label="Download PDF"
+                        >
+                          <FileDown className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => { setEmailRow(r); setEmailTo(""); }}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                          aria-label="Email statement"
+                        >
+                          <Mail className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setFullForm({ row: r, mode: "edit" })}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
                           aria-label="Edit commission"
                         >
