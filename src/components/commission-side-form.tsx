@@ -371,8 +371,8 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
             </Section>
 
             <Section title="Financial Calculation Matrix">
-              <Field label="Gross Commission" type="number" value={form.grossCommission} onChange={(v) => update("grossCommission", v)} />
-              <Field label="Concession / Expenses" type="number" value={form.concession} onChange={(v) => update("concession", v)} />
+              <Field label="Gross Commission" type="number" value={form.grossCommission} onChange={(v) => update("grossCommission", v)} prefix="$" />
+              <Field label="Concession / Expenses" type="number" value={form.concession} onChange={(v) => update("concession", v)} prefix="$" />
               <div className="md:col-span-2 rounded-xl border border-border bg-muted/40 p-4 text-foreground">
                 <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Net Commission</Label>
                 <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
