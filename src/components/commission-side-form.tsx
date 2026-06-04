@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import { Loader2, Upload, Save, FileDown, Mail } from "lucide-react";
 import jsPDF from "jspdf";
@@ -37,11 +37,10 @@ interface FormState {
   saleOffice: string;
   salesAgentMlsId: string;
   saleOfficeMlsId: string;
-  salePrice: string;
+  grossCommission: string;
   concession: string;
-  totalCommission: string;
-  commissionDueCoBroke: string;
-  lessEscrow: string;
+  netCompanyName: string;
+  balanceSeller: string;
   adminBrokerName: string;
   signatureDate: string;
   signatureDataUrl: string;
@@ -63,11 +62,10 @@ function blankForm(broker: string): FormState {
     saleOffice: "",
     salesAgentMlsId: "",
     saleOfficeMlsId: "",
-    salePrice: "",
+    grossCommission: "",
     concession: "",
-    totalCommission: "",
-    commissionDueCoBroke: "",
-    lessEscrow: "",
+    netCompanyName: broker,
+    balanceSeller: "",
     adminBrokerName: broker,
     signatureDate: new Date().toISOString().slice(0, 10),
     signatureDataUrl: "",
@@ -103,21 +101,10 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
   const update = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((c) => ({ ...c, [k]: v }));
 
-  const salePrice = num(form.salePrice);
-  const totalCommission = num(form.totalCommission);
-
-  const { netPrice, totalAmountDue, deductionsForRow } = useMemo(() => {
-    if (side === "buyer") {
-      const concession = num(form.concession);
-      const net = Math.max(salePrice - concession, 0);
-      return { netPrice: net, totalAmountDue: totalCommission, deductionsForRow: concession };
-    }
-    const coBroke = num(form.commissionDueCoBroke);
-    const escrow = num(form.lessEscrow);
-    const net = Math.max(salePrice, 0);
-    const due = Math.max(totalCommission - coBroke - escrow, 0);
-    return { netPrice: net, totalAmountDue: due, deductionsForRow: coBroke + escrow };
-  }, [side, salePrice, totalCommission, form.concession, form.commissionDueCoBroke, form.lessEscrow]);
+  const grossCommission = num(form.grossCommission);
+  const concessionExpenses = num(form.concession);
+  const netCommission = Math.max(grossCommission - concessionExpenses, 0);
+  const balanceSeller = num(form.balanceSeller);
 
   const title = side === "buyer" ? "Buyer Agent Side - Commission Form" : "Listing Agent Side - Commission Form";
   const sideValue = side === "buyer" ? "buy" : "sell";
@@ -142,8 +129,7 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
 
   const validate = () => {
     if (!form.propertyAddress.trim()) { toast.error("Property Address is required"); return false; }
-    if (salePrice <= 0) { toast.error("Sale Price must be greater than 0"); return false; }
-    if (totalCommission <= 0) { toast.error("Total Commission must be greater than 0"); return false; }
+    if (grossCommission <= 0) { toast.error("Gross Commission must be greater than 0"); return false; }
     return true;
   };
 
@@ -151,14 +137,10 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     if (!validate()) return;
     setSaving(true);
 
-    const deductions = Math.max(totalCommission - totalAmountDue, 0);
     const noteParts: string[] = [];
-    if (side === "buyer") {
-      if (form.concession) noteParts.push(`Concession: ${form.concession}`);
-    } else {
-      if (form.commissionDueCoBroke) noteParts.push(`Co-Broke: ${form.commissionDueCoBroke}`);
-      if (form.lessEscrow) noteParts.push(`Less Escrow: ${form.lessEscrow}`);
-    }
+    if (form.concession) noteParts.push(`Concession/Expenses: ${form.concession}`);
+    if (form.netCompanyName.trim()) noteParts.push(`Net Commission due to: ${form.netCompanyName.trim()} = ${formatMoney(netCommission)}`);
+    if (side === "listing" && form.balanceSeller) noteParts.push(`Balance Due to/from Seller: ${form.balanceSeller}`);
     if (form.sellerName) noteParts.push(`Seller: ${form.sellerName}`);
     if (form.buyerName) noteParts.push(`Buyer: ${form.buyerName}`);
     if (form.psDate) noteParts.push(`P&S Date: ${form.psDate}`);
@@ -166,17 +148,15 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     if (form.listingOffice) noteParts.push(`Listing Office: ${form.listingOffice}${form.listingOfficeMlsId ? ` (MLS ${form.listingOfficeMlsId})` : ""}`);
     if (form.salesAgent) noteParts.push(`Sales Agent: ${form.salesAgent}${form.salesAgentMlsId ? ` (MLS ${form.salesAgentMlsId})` : ""}`);
     if (form.saleOffice) noteParts.push(`Sale Office: ${form.saleOffice}${form.saleOfficeMlsId ? ` (MLS ${form.saleOfficeMlsId})` : ""}`);
-    
+
     if (form.adminBrokerName) noteParts.push(`Authorized By: ${form.adminBrokerName} on ${form.signatureDate}`);
     if (form.notes.trim()) noteParts.push(`Notes: ${form.notes.trim()}`);
 
     const notes = mergeCommissionNotes(noteParts.join(" | ") || null, {
       status: "Pending",
-      concessions: side === "buyer" ? num(form.concession) : 0,
-      deductions,
-      deductionNotes: side === "listing"
-        ? `Co-Broke ${form.commissionDueCoBroke || 0}, Escrow ${form.lessEscrow || 0}`
-        : form.concession ? `Concession ${form.concession}` : "",
+      concessions: 0,
+      deductions: concessionExpenses,
+      deductionNotes: form.concession ? `Concession/Expenses ${form.concession}` : "",
     });
 
     const { error } = await supabase.from("deals").insert({
@@ -184,8 +164,8 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
       address: form.propertyAddress.trim(),
       side: sideValue,
       status: "sold",
-      sale_price: salePrice,
-      gross_commission: totalCommission,
+      sale_price: grossCommission,
+      gross_commission: grossCommission,
       agent_split_pct: 100,
       brokerage_split_pct: 0,
       close_date: form.closeDate || null,
@@ -255,15 +235,12 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     doc.setLineWidth(0.6);
     const ledgerTop = y;
     const rows: Array<[string, number, boolean?]> = [
-      ["Sale Price", salePrice],
-      ["Net Price", netPrice],
-      ["Total Commission", totalCommission],
+      ["Gross Commission", grossCommission],
+      ["Less: Concession / Expenses", -concessionExpenses],
+      [`Net Commission due to ${form.netCompanyName.trim() || "—"}`, netCommission],
     ];
-    if (side === "buyer") {
-      rows.push(["Less: Concession", -num(form.concession)]);
-    } else {
-      rows.push(["Less: Commission Due to Co-Broke", -num(form.commissionDueCoBroke)]);
-      rows.push(["Less: Escrow", -num(form.lessEscrow)]);
+    if (side === "listing") {
+      rows.push(["Balance Due to / from Seller", balanceSeller]);
     }
     const rowH = 20;
     const ledgerH = rows.length * rowH + rowH + 8;
@@ -283,8 +260,8 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     doc.line(M + 8, y - rowH + 4, W - M - 8, y - rowH + 4);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.text("TOTAL AMOUNT DUE", M + 10, y + 4);
-    doc.text(formatMoney(totalAmountDue), W - M - 10, y + 4, { align: "right" });
+    doc.text(side === "listing" ? "BALANCE DUE TO / FROM SELLER" : "NET COMMISSION DUE", M + 10, y + 4);
+    doc.text(formatMoney(side === "listing" ? balanceSeller : netCommission), W - M - 10, y + 4, { align: "right" });
     y = ledgerTop + ledgerH + 22;
 
     // Notes box
@@ -343,13 +320,10 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     }
     const subject = `Commission Disbursement Statement - ${form.propertyAddress || "Property"}`;
     const summary = [
-      `Sale Price: ${formatMoney(salePrice)}`,
-      `Net Price: ${formatMoney(netPrice)}`,
-      `Total Commission: ${formatMoney(totalCommission)}`,
-      side === "buyer"
-        ? `Concession: ${formatMoney(num(form.concession))}`
-        : `Co-Broke: ${formatMoney(num(form.commissionDueCoBroke))}\nLess Escrow: ${formatMoney(num(form.lessEscrow))}`,
-      `Total Amount Due: ${formatMoney(totalAmountDue)}`,
+      `Gross Commission: ${formatMoney(grossCommission)}`,
+      `Concession / Expenses: ${formatMoney(concessionExpenses)}`,
+      `Net Commission due to ${form.netCompanyName.trim() || "—"}: ${formatMoney(netCommission)}`,
+      ...(side === "listing" ? [`Balance Due to / from Seller: ${formatMoney(balanceSeller)}`] : []),
     ].join("\n");
     const body =
       `Hello,\n\nPlease find the calculated Commission Statement breakdown for ${form.propertyAddress || "the subject property"} mapped out below.\n\n` +
@@ -397,19 +371,40 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
             </Section>
 
             <Section title="Financial Calculation Matrix">
-              <Field label="Sale Price" type="number" value={form.salePrice} onChange={(v) => update("salePrice", v)} />
-              {side === "buyer" && (
-                <Field label="Concession" type="number" value={form.concession} onChange={(v) => update("concession", v)} />
-              )}
-              <Readout label="Net Price" value={formatMoney(netPrice)} />
-              <Field label="Total Commission" type="number" value={form.totalCommission} onChange={(v) => update("totalCommission", v)} />
+              <Field label="Gross Commission" type="number" value={form.grossCommission} onChange={(v) => update("grossCommission", v)} />
+              <Field label="Concession / Expenses" type="number" value={form.concession} onChange={(v) => update("concession", v)} />
+              <div className="md:col-span-2 rounded-xl border border-border bg-muted/40 p-4 text-foreground">
+                <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Net Commission</Label>
+                <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <span className="text-sm text-foreground whitespace-nowrap">Net Commission due to</span>
+                  <Input
+                    value={form.netCompanyName}
+                    onChange={(e) => update("netCompanyName", e.target.value)}
+                    placeholder="Company / Firm Name"
+                    className="h-11 flex-1 min-w-0 bg-background text-foreground placeholder:text-muted-foreground"
+                  />
+                  <span className="font-display text-xl sm:text-2xl font-bold tabular-nums text-primary whitespace-nowrap">
+                    {formatMoney(netCommission)}
+                  </span>
+                </div>
+              </div>
               {side === "listing" && (
-                <>
-                  <Field label="Total Commission Due to Co-Broke" type="number" value={form.commissionDueCoBroke} onChange={(v) => update("commissionDueCoBroke", v)} />
-                  <Field label="Less Escrow" type="number" value={form.lessEscrow} onChange={(v) => update("lessEscrow", v)} />
-                </>
+                <div className="md:col-span-2 rounded-xl border border-border bg-card p-4 text-card-foreground">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <Label htmlFor="balance-seller" className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:w-64 sm:shrink-0">
+                      Balance Due to / from Seller
+                    </Label>
+                    <Input
+                      id="balance-seller"
+                      type="number"
+                      value={form.balanceSeller}
+                      onChange={(e) => update("balanceSeller", e.target.value)}
+                      className="h-11 flex-1 min-w-0 bg-background text-foreground placeholder:text-muted-foreground"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
               )}
-              <Readout label="Total Amount Due" value={formatMoney(totalAmountDue)} strong className="md:col-span-2" />
             </Section>
 
             <Section title="Commission Disbursement Authorization">
@@ -536,11 +531,3 @@ function Field({
   );
 }
 
-function Readout({ label, value, strong = false, className = "" }: { label: string; value: string; strong?: boolean; className?: string }) {
-  return (
-    <div className={`rounded-xl border border-border bg-muted/40 p-3 text-foreground ${className}`}>
-      <div className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">{label}</div>
-      <div className={`mt-1 font-display tabular-nums ${strong ? "text-2xl font-bold text-primary" : "text-lg font-semibold"}`}>{value}</div>
-    </div>
-  );
-}
