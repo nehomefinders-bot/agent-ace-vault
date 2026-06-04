@@ -104,7 +104,8 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
   const grossCommission = num(form.grossCommission);
   const concessionExpenses = num(form.concession);
   const netCommission = Math.max(grossCommission - concessionExpenses, 0);
-  const balanceSeller = num(form.balanceSeller);
+  const escrowHeld = num(form.escrowHeld);
+  const balanceSeller = netCommission - escrowHeld;
 
   const title = side === "buyer" ? "Buyer Agent Side - Commission Form" : "Listing Agent Side - Commission Form";
   const sideValue = side === "buyer" ? "buy" : "sell";
