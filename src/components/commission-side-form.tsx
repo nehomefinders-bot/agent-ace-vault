@@ -37,11 +37,10 @@ interface FormState {
   saleOffice: string;
   salesAgentMlsId: string;
   saleOfficeMlsId: string;
-  salePrice: string;
+  grossCommission: string;
   concession: string;
-  totalCommission: string;
-  commissionDueCoBroke: string;
-  lessEscrow: string;
+  netCompanyName: string;
+  balanceSeller: string;
   adminBrokerName: string;
   signatureDate: string;
   signatureDataUrl: string;
@@ -63,11 +62,10 @@ function blankForm(broker: string): FormState {
     saleOffice: "",
     salesAgentMlsId: "",
     saleOfficeMlsId: "",
-    salePrice: "",
+    grossCommission: "",
     concession: "",
-    totalCommission: "",
-    commissionDueCoBroke: "",
-    lessEscrow: "",
+    netCompanyName: broker,
+    balanceSeller: "",
     adminBrokerName: broker,
     signatureDate: new Date().toISOString().slice(0, 10),
     signatureDataUrl: "",
