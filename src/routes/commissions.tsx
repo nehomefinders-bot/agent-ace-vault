@@ -775,6 +775,39 @@ function Commissions() {
         />
       )}
 
+      {fullForm && user && (
+        <CommissionSideForm
+          open={!!fullForm}
+          onOpenChange={(o) => { if (!o) setFullForm(null); }}
+          side={rowToSide(fullForm.row)}
+          userId={user.id}
+          defaultBrokerName={defaultAgentName}
+          mode={fullForm.mode}
+          dealId={fullForm.row.dealId}
+          initial={buildFormSnapshot(fullForm.row)}
+          onSaved={() => { void load(); setFullForm(null); }}
+        />
+      )}
+
+      <Dialog open={!!emailRow} onOpenChange={(o) => { if (!o) { setEmailRow(null); setEmailTo(""); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Send Commission Statement</DialogTitle>
+            <DialogDescription>
+              Enter the recipient's email. Your default mail app will open pre-filled with this row's summary.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3">
+            <Label htmlFor="row-email-to" className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Recipient Email</Label>
+            <Input id="row-email-to" type="email" inputMode="email" placeholder="name@example.com" value={emailTo} onChange={(e) => setEmailTo(e.target.value)} className="h-11" />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => { setEmailRow(null); setEmailTo(""); }}>Cancel</Button>
+            <Button onClick={sendRowEmail} className="gap-2"><Mail className="h-4 w-4" /> Open Mail App</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       <CommissionDialog
         open={!!editing}
