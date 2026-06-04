@@ -655,7 +655,7 @@ function Landing() {
                 <BrandLockup
                   logoClassName="h-16 w-16 rounded-2xl border border-white/10 bg-black ring-0 shadow-[0_20px_50px_-28px_rgba(0,0,0,0.8)] sm:h-20 sm:w-20"
                   titleClassName="text-xl text-white sm:text-2xl"
-                  taglineClassName="text-sm text-amber-500"
+                  taglineClassName="text-sm text-amber-400"
                   textClassName="max-w-none"
                 />
               </Link>
