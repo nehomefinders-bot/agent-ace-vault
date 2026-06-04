@@ -998,7 +998,7 @@ function Commissions() {
                 <th className="text-right font-medium py-3">Deductions</th>
                 <th className="text-right font-medium py-3">Net Commission</th>
                 <th className="text-left font-medium py-3 px-6">Status</th>
-                <th className="w-20 pr-6"></th>
+                <th className="w-48 pr-6"></th>
               </tr>
             </thead>
             <tbody>
