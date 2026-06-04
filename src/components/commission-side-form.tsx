@@ -184,8 +184,7 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
       deductionNotes: form.concession ? `Concession/Expenses ${form.concession}` : "",
     });
 
-    const { error } = await supabase.from("deals").insert({
-      user_id: userId,
+    const dealPayload = {
       address: form.propertyAddress.trim(),
       side: sideValue,
       status: "sold",
@@ -197,145 +196,51 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
       agent_name: primaryAgent.trim() || null,
       client_name: side === "buyer" ? form.buyerName.trim() || null : form.sellerName.trim() || null,
       notes,
-    });
+    };
+
+    const { error } = mode === "edit" && dealId
+      ? await supabase.from("deals").update(dealPayload).eq("id", dealId)
+      : await supabase.from("deals").insert({ user_id: userId, ...dealPayload });
 
     setSaving(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Commission saved & synced to tracker");
+    toast.success(mode === "edit" ? "Commission updated & synced" : "Commission saved & synced to tracker");
     onSaved();
     onOpenChange(false);
   };
 
-  const buildPdf = () => {
-    const doc = new jsPDF({ unit: "pt", format: "letter" });
-    const W = doc.internal.pageSize.getWidth();
-    const M = 48;
-    let y = 56;
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.setTextColor(0, 0, 0);
-    doc.text("COMMISSION DISBURSEMENT AUTHORIZATION", W / 2, y, { align: "center" });
-    y += 10;
-    doc.setLineWidth(0.8);
-    doc.line(M, y, W - M, y);
-    y += 22;
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.text(`${side === "buyer" ? "Buyer Agent Side" : "Listing Agent Side"}`, M, y);
-    doc.text(`Issued: ${form.signatureDate}`, W - M, y, { align: "right" });
-    y += 18;
-
-    // Key/value grid
-    const kv: Array<[string, string]> = [
-      ["Property Address", form.propertyAddress],
-      ["Buyer", form.buyerName || "—"],
-      ["Seller", form.sellerName || "—"],
-      ["P&S Date", form.psDate || "—"],
-      ["Close Date", form.closeDate || "—"],
-      ["Listing Agent", form.listingAgent || "—"],
-      ["Listing Office", form.listingOffice || "—"],
-      ["Sales Agent", form.salesAgent || "—"],
-      ["Sale Office", form.saleOffice || "—"],
-    ];
-    const colW = (W - M * 2) / 2;
-    doc.setFontSize(10);
-    kv.forEach((row, i) => {
-      const col = i % 2;
-      const x = M + col * colW;
-      if (col === 0 && i > 0) y += 28;
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(90);
-      doc.text(row[0].toUpperCase(), x, y);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(0);
-      const lines = doc.splitTextToSize(row[1] || "—", colW - 12);
-      doc.text(lines, x, y + 13);
-    });
-    y += 36;
-
-    // Ledger box
-    doc.setDrawColor(0);
-    doc.setLineWidth(0.6);
-    const ledgerTop = y;
-    const rows: Array<[string, number, boolean?]> = [
-      ["Gross Commission", grossCommission],
-      ["Less: Concession / Expenses", -concessionExpenses],
-      [`Net Commission due to ${form.netCompanyName.trim() || "—"}`, netCommission],
-    ];
-    if (side === "listing") {
-      rows.push(["Balance Due to / from Seller", balanceSeller]);
-    }
-    const rowH = 20;
-    const ledgerH = rows.length * rowH + rowH + 8;
-    doc.rect(M, ledgerTop, W - M * 2, ledgerH);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.text("FINANCIAL LEDGER", M + 10, ledgerTop + 16);
-    y = ledgerTop + 30;
-    doc.setFontSize(10);
-    rows.forEach(([label, amt]) => {
-      doc.setFont("helvetica", "normal");
-      doc.text(label, M + 10, y);
-      doc.text(formatMoney(amt), W - M - 10, y, { align: "right" });
-      y += rowH;
-    });
-    doc.setLineWidth(0.4);
-    doc.line(M + 8, y - rowH + 4, W - M - 8, y - rowH + 4);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text(side === "listing" ? "BALANCE DUE TO / FROM SELLER" : "NET COMMISSION DUE", M + 10, y + 4);
-    doc.text(formatMoney(side === "listing" ? balanceSeller : netCommission), W - M - 10, y + 4, { align: "right" });
-    y = ledgerTop + ledgerH + 22;
-
-    // Notes box
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text("SPECIAL TRANSACTION COMMENTARY", M, y);
-    y += 8;
-    const noteText = form.notes.trim() || "—";
-    const noteLines = doc.splitTextToSize(noteText, W - M * 2 - 20);
-    const noteH = Math.max(60, noteLines.length * 12 + 20);
-    doc.setDrawColor(0);
-    doc.rect(M, y, W - M * 2, noteH);
-    doc.setFont("helvetica", "normal");
-    doc.text(noteLines, M + 10, y + 16);
-    y += noteH + 24;
-
-    // Signatures
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.text("SIGNATURES & EXECUTION", M, y);
-    y += 14;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.text(`Admin / Broker: ${form.adminBrokerName || "—"}`, M, y);
-    doc.text(`Date: ${form.signatureDate}`, W - M, y, { align: "right" });
-    y += 30;
-
-    const sigLineY = y + 36;
-    doc.setLineWidth(0.6);
-    doc.line(M, sigLineY, M + 280, sigLineY);
-    doc.setFontSize(9);
-    doc.setTextColor(110);
-    doc.text("Authorized Signature", M, sigLineY + 12);
-    doc.setTextColor(0);
-
-    if (form.signatureDataUrl) {
-      try { doc.addImage(form.signatureDataUrl, "PNG", M + 4, y, 240, 40); } catch { /* ignore */ }
-    }
-
-    return doc;
-  };
+  const buildPdf = () => buildCommissionPdf({
+    propertyAddress: form.propertyAddress,
+    sellerName: form.sellerName,
+    buyerName: form.buyerName,
+    psDate: form.psDate,
+    closeDate: form.closeDate,
+    listingAgent: form.listingAgent,
+    listingOffice: form.listingOffice,
+    listingAgentMlsId: form.listingAgentMlsId,
+    listingOfficeMlsId: form.listingOfficeMlsId,
+    salesAgent: form.salesAgent,
+    saleOffice: form.saleOffice,
+    salesAgentMlsId: form.salesAgentMlsId,
+    saleOfficeMlsId: form.saleOfficeMlsId,
+    grossCommission,
+    concessionExpenses,
+    netCompanyName: form.netCompanyName,
+    escrowHeld,
+    adminBrokerName: form.adminBrokerName,
+    signatureDate: form.signatureDate,
+    signatureDataUrl: form.signatureDataUrl,
+    notes: form.notes,
+  }, side);
 
   const downloadPdf = () => {
-    if (!validate()) return;
+    if (!form.propertyAddress.trim()) { toast.error("Property Address is required"); return; }
     const doc = buildPdf();
     const slug = (form.propertyAddress || "commission").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
     doc.save(`commission-${slug}.pdf`);
     toast.success("PDF downloaded");
   };
+
 
   const sendEmail = () => {
     const to = emailTo.trim();
