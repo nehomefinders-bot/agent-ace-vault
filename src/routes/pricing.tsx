@@ -88,15 +88,26 @@ function PricingPage() {
           {PLANS.filter((plan) => !(interval === "yearly" && plan.id === "beta_tester")).map((plan) => {
             const price = plan[interval];
             const isCurrent = subscription?.price_id === price.priceId && isActive;
+            const isFounders = plan.id === "beta_tester";
+            const isComingSoon = !isFounders;
+            // Block Founders subscribers from switching tiers until 6-month milestone
+            const founderLocked = !isFounders && isActive && subscription
+              ? PLANS.find((p) => p.monthly.priceId === subscription.price_id || p.yearly.priceId === subscription.price_id)?.id === "beta_tester"
+              : false;
 
             return (
               <div
                 key={plan.id}
                 className={`relative rounded-2xl border bg-card p-6 shadow-card ${
                   plan.popular ? "border-primary/25" : "border-border"
-                }`}
+                } ${isComingSoon ? "grayscale opacity-40 pointer-events-none" : ""}`}
               >
-                {plan.popular && (
+                {isComingSoon && (
+                  <div className="pointer-events-auto absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-slate-900/95 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-400 shadow-md ring-1 ring-amber-400/50">
+                    <Sparkles className="h-3 w-3" /> Coming Soon
+                  </div>
+                )}
+                {plan.popular && !isComingSoon && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-primary-foreground shadow-sm">
                     <Sparkles className="h-3 w-3" /> Most popular
                   </div>
@@ -113,15 +124,16 @@ function PricingPage() {
                 <button
                   type="button"
                   onClick={() => subscribe(price.priceId)}
-                  disabled={!!busy || isCurrent}
-                  className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition disabled:opacity-60 ${
-                    plan.popular
+                  disabled={!!busy || isCurrent || isComingSoon || founderLocked}
+                  title={founderLocked ? "Plan changes are locked until your 6-month Founders retention milestone ends." : undefined}
+                  className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition disabled:opacity-60 disabled:cursor-not-allowed ${
+                    isFounders
                       ? "bg-primary text-primary-foreground hover:bg-primary/90"
                       : "border border-border bg-background text-foreground hover:bg-muted"
                   }`}
                 >
                   {busy === price.priceId && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {isCurrent ? "Current plan" : isActive ? "Switch plan" : "Start 14-day free trial"}
+                  {isComingSoon ? "Coming Soon" : isCurrent ? "Current plan" : founderLocked ? "Locked — Founders 6-month term" : isActive ? "Switch plan" : "Start 14-day free trial"}
                 </button>
 
                 <ul className="mt-6 space-y-2.5">
@@ -136,6 +148,13 @@ function PricingPage() {
             );
           })}
         </div>
+
+        {isActive && subscription && PLANS.find((p) => p.monthly.priceId === subscription.price_id || p.yearly.priceId === subscription.price_id)?.id === "beta_tester" && (
+          <p className="mt-6 text-center text-sm text-amber-500">
+            You're on the Founders' Program. Your exclusive $19.99/mo base rate unlocks after your 6-month founder retention milestone — plan changes are locked until then.
+          </p>
+        )}
+
 
         <p className="mt-8 text-center text-xs text-muted-foreground">
           14-day free trial on all plans. Card required to start - no charge until day 15. Cancel anytime from your billing page.
