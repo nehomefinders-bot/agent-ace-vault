@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import { Loader2, Upload, Save, FileDown, Mail } from "lucide-react";
-import jsPDF from "jspdf";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,9 +9,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { mergeCommissionNotes } from "@/lib/commission-notes";
 import { formatMoney } from "@/lib/mock-data";
+import { buildCommissionPdf } from "@/lib/commission-pdf";
 import { toast } from "sonner";
 
 export type CommissionSide = "buyer" | "listing";
+export type CommissionFormMode = "create" | "edit" | "view";
 
 interface Props {
   open: boolean;
@@ -21,6 +22,11 @@ interface Props {
   userId: string;
   defaultBrokerName: string;
   onSaved: () => void;
+  mode?: CommissionFormMode;
+  /** Required for edit mode — the deals.id to update. */
+  dealId?: string;
+  /** Preload values (used for edit / view). */
+  initial?: Partial<FormState>;
 }
 
 interface FormState {
@@ -78,8 +84,9 @@ function num(v: string) {
   return Number.isFinite(n) ? n : 0;
 }
 
-export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBrokerName, onSaved }: Props) {
-  const [form, setForm] = useState<FormState>(() => blankForm(defaultBrokerName));
+export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBrokerName, onSaved, mode = "create", dealId, initial }: Props) {
+  const readOnly = mode === "view";
+  const [form, setForm] = useState<FormState>(() => ({ ...blankForm(defaultBrokerName), ...(initial ?? {}) }));
   const [saving, setSaving] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
   const [emailTo, setEmailTo] = useState("");
@@ -88,8 +95,8 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
   const notesRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
-    if (open) setForm(blankForm(defaultBrokerName));
-  }, [open, defaultBrokerName, side]);
+    if (open) setForm({ ...blankForm(defaultBrokerName), ...(initial ?? {}) });
+  }, [open, defaultBrokerName, side, initial]);
 
   useEffect(() => {
     const el = notesRef.current;
@@ -97,6 +104,20 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
   }, [form.notes, open]);
+
+  // Hydrate signature canvas when a saved signature is preloaded
+  useEffect(() => {
+    if (!open) return;
+    if (!form.signatureDataUrl) return;
+    requestAnimationFrame(() => {
+      try {
+        sigRef.current?.clear();
+        sigRef.current?.fromDataURL(form.signatureDataUrl);
+      } catch { /* ignore */ }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initial]);
+
 
   const update = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((c) => ({ ...c, [k]: v }));
@@ -163,8 +184,7 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
       deductionNotes: form.concession ? `Concession/Expenses ${form.concession}` : "",
     });
 
-    const { error } = await supabase.from("deals").insert({
-      user_id: userId,
+    const dealPayload = {
       address: form.propertyAddress.trim(),
       side: sideValue,
       status: "sold",
@@ -176,145 +196,51 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
       agent_name: primaryAgent.trim() || null,
       client_name: side === "buyer" ? form.buyerName.trim() || null : form.sellerName.trim() || null,
       notes,
-    });
+    };
+
+    const { error } = mode === "edit" && dealId
+      ? await supabase.from("deals").update(dealPayload).eq("id", dealId)
+      : await supabase.from("deals").insert({ user_id: userId, ...dealPayload });
 
     setSaving(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Commission saved & synced to tracker");
+    toast.success(mode === "edit" ? "Commission updated & synced" : "Commission saved & synced to tracker");
     onSaved();
     onOpenChange(false);
   };
 
-  const buildPdf = () => {
-    const doc = new jsPDF({ unit: "pt", format: "letter" });
-    const W = doc.internal.pageSize.getWidth();
-    const M = 48;
-    let y = 56;
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.setTextColor(0, 0, 0);
-    doc.text("COMMISSION DISBURSEMENT AUTHORIZATION", W / 2, y, { align: "center" });
-    y += 10;
-    doc.setLineWidth(0.8);
-    doc.line(M, y, W - M, y);
-    y += 22;
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.text(`${side === "buyer" ? "Buyer Agent Side" : "Listing Agent Side"}`, M, y);
-    doc.text(`Issued: ${form.signatureDate}`, W - M, y, { align: "right" });
-    y += 18;
-
-    // Key/value grid
-    const kv: Array<[string, string]> = [
-      ["Property Address", form.propertyAddress],
-      ["Buyer", form.buyerName || "—"],
-      ["Seller", form.sellerName || "—"],
-      ["P&S Date", form.psDate || "—"],
-      ["Close Date", form.closeDate || "—"],
-      ["Listing Agent", form.listingAgent || "—"],
-      ["Listing Office", form.listingOffice || "—"],
-      ["Sales Agent", form.salesAgent || "—"],
-      ["Sale Office", form.saleOffice || "—"],
-    ];
-    const colW = (W - M * 2) / 2;
-    doc.setFontSize(10);
-    kv.forEach((row, i) => {
-      const col = i % 2;
-      const x = M + col * colW;
-      if (col === 0 && i > 0) y += 28;
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(90);
-      doc.text(row[0].toUpperCase(), x, y);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(0);
-      const lines = doc.splitTextToSize(row[1] || "—", colW - 12);
-      doc.text(lines, x, y + 13);
-    });
-    y += 36;
-
-    // Ledger box
-    doc.setDrawColor(0);
-    doc.setLineWidth(0.6);
-    const ledgerTop = y;
-    const rows: Array<[string, number, boolean?]> = [
-      ["Gross Commission", grossCommission],
-      ["Less: Concession / Expenses", -concessionExpenses],
-      [`Net Commission due to ${form.netCompanyName.trim() || "—"}`, netCommission],
-    ];
-    if (side === "listing") {
-      rows.push(["Balance Due to / from Seller", balanceSeller]);
-    }
-    const rowH = 20;
-    const ledgerH = rows.length * rowH + rowH + 8;
-    doc.rect(M, ledgerTop, W - M * 2, ledgerH);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.text("FINANCIAL LEDGER", M + 10, ledgerTop + 16);
-    y = ledgerTop + 30;
-    doc.setFontSize(10);
-    rows.forEach(([label, amt]) => {
-      doc.setFont("helvetica", "normal");
-      doc.text(label, M + 10, y);
-      doc.text(formatMoney(amt), W - M - 10, y, { align: "right" });
-      y += rowH;
-    });
-    doc.setLineWidth(0.4);
-    doc.line(M + 8, y - rowH + 4, W - M - 8, y - rowH + 4);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text(side === "listing" ? "BALANCE DUE TO / FROM SELLER" : "NET COMMISSION DUE", M + 10, y + 4);
-    doc.text(formatMoney(side === "listing" ? balanceSeller : netCommission), W - M - 10, y + 4, { align: "right" });
-    y = ledgerTop + ledgerH + 22;
-
-    // Notes box
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text("SPECIAL TRANSACTION COMMENTARY", M, y);
-    y += 8;
-    const noteText = form.notes.trim() || "—";
-    const noteLines = doc.splitTextToSize(noteText, W - M * 2 - 20);
-    const noteH = Math.max(60, noteLines.length * 12 + 20);
-    doc.setDrawColor(0);
-    doc.rect(M, y, W - M * 2, noteH);
-    doc.setFont("helvetica", "normal");
-    doc.text(noteLines, M + 10, y + 16);
-    y += noteH + 24;
-
-    // Signatures
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.text("SIGNATURES & EXECUTION", M, y);
-    y += 14;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.text(`Admin / Broker: ${form.adminBrokerName || "—"}`, M, y);
-    doc.text(`Date: ${form.signatureDate}`, W - M, y, { align: "right" });
-    y += 30;
-
-    const sigLineY = y + 36;
-    doc.setLineWidth(0.6);
-    doc.line(M, sigLineY, M + 280, sigLineY);
-    doc.setFontSize(9);
-    doc.setTextColor(110);
-    doc.text("Authorized Signature", M, sigLineY + 12);
-    doc.setTextColor(0);
-
-    if (form.signatureDataUrl) {
-      try { doc.addImage(form.signatureDataUrl, "PNG", M + 4, y, 240, 40); } catch { /* ignore */ }
-    }
-
-    return doc;
-  };
+  const buildPdf = () => buildCommissionPdf({
+    propertyAddress: form.propertyAddress,
+    sellerName: form.sellerName,
+    buyerName: form.buyerName,
+    psDate: form.psDate,
+    closeDate: form.closeDate,
+    listingAgent: form.listingAgent,
+    listingOffice: form.listingOffice,
+    listingAgentMlsId: form.listingAgentMlsId,
+    listingOfficeMlsId: form.listingOfficeMlsId,
+    salesAgent: form.salesAgent,
+    saleOffice: form.saleOffice,
+    salesAgentMlsId: form.salesAgentMlsId,
+    saleOfficeMlsId: form.saleOfficeMlsId,
+    grossCommission,
+    concessionExpenses,
+    netCompanyName: form.netCompanyName,
+    escrowHeld,
+    adminBrokerName: form.adminBrokerName,
+    signatureDate: form.signatureDate,
+    signatureDataUrl: form.signatureDataUrl,
+    notes: form.notes,
+  }, side);
 
   const downloadPdf = () => {
-    if (!validate()) return;
+    if (!form.propertyAddress.trim()) { toast.error("Property Address is required"); return; }
     const doc = buildPdf();
     const slug = (form.propertyAddress || "commission").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
     doc.save(`commission-${slug}.pdf`);
     toast.success("PDF downloaded");
   };
+
 
   const sendEmail = () => {
     const to = emailTo.trim();
@@ -347,36 +273,45 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="!fixed !inset-0 !left-0 !top-0 !h-[100dvh] !max-h-[100dvh] !w-screen !max-w-none !translate-x-0 !translate-y-0 !overflow-hidden !rounded-none !border-0 !p-0 flex flex-col gap-0 bg-background text-foreground">
         <DialogHeader className="shrink-0 border-b border-border bg-background/95 px-4 py-4 backdrop-blur sm:px-8">
-          <DialogTitle className="font-display text-xl sm:text-3xl">{title}</DialogTitle>
+          <DialogTitle className="font-display text-xl sm:text-3xl">
+            {title}
+            {readOnly && (
+              <span className="ml-3 align-middle rounded-full bg-amber-500/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-amber-500 ring-1 ring-amber-500/40">
+                Read-only
+              </span>
+            )}
+          </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Fill out the closing details. Save syncs to the Commission Tracker; you can also export a signed PDF or send via email.
+            {readOnly
+              ? "Reviewing a saved commission record. All fields are locked — close this view when finished."
+              : "Fill out the closing details. Save syncs to the Commission Tracker; you can also export a signed PDF or send via email."}
           </DialogDescription>
         </DialogHeader>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-3 py-5 sm:px-8">
           <div className="mx-auto w-full max-w-5xl space-y-6">
             <Section title="Core Identifiers">
-              <Field label="Property Address" value={form.propertyAddress} onChange={(v) => update("propertyAddress", v)} className="md:col-span-2" />
-              <Field label="Seller Name" value={form.sellerName} onChange={(v) => update("sellerName", v)} />
-              <Field label="Buyer Name" value={form.buyerName} onChange={(v) => update("buyerName", v)} />
-              <Field label="P&S Date" type="date" value={form.psDate} onChange={(v) => update("psDate", v)} />
-              <Field label="Close Date" type="date" value={form.closeDate} onChange={(v) => update("closeDate", v)} />
+              <Field disabled={readOnly} label="Property Address" value={form.propertyAddress} onChange={(v) => update("propertyAddress", v)} className="md:col-span-2" />
+              <Field disabled={readOnly} label="Seller Name" value={form.sellerName} onChange={(v) => update("sellerName", v)} />
+              <Field disabled={readOnly} label="Buyer Name" value={form.buyerName} onChange={(v) => update("buyerName", v)} />
+              <Field disabled={readOnly} label="P&S Date" type="date" value={form.psDate} onChange={(v) => update("psDate", v)} />
+              <Field disabled={readOnly} label="Close Date" type="date" value={form.closeDate} onChange={(v) => update("closeDate", v)} />
             </Section>
 
             <Section title="Agents">
-              <Field label="Listing Agent" value={form.listingAgent} onChange={(v) => update("listingAgent", v)} />
-              <Field label="Listing Office" value={form.listingOffice} onChange={(v) => update("listingOffice", v)} />
-              <Field label="MLS ID" value={form.listingAgentMlsId} onChange={(v) => update("listingAgentMlsId", v)} />
-              <Field label="Office MLS ID" value={form.listingOfficeMlsId} onChange={(v) => update("listingOfficeMlsId", v)} />
-              <Field label="Sales Agent" value={form.salesAgent} onChange={(v) => update("salesAgent", v)} />
-              <Field label="Sale Office" value={form.saleOffice} onChange={(v) => update("saleOffice", v)} />
-              <Field label="MLS ID" value={form.salesAgentMlsId} onChange={(v) => update("salesAgentMlsId", v)} />
-              <Field label="Office MLS ID" value={form.saleOfficeMlsId} onChange={(v) => update("saleOfficeMlsId", v)} />
+              <Field disabled={readOnly} label="Listing Agent" value={form.listingAgent} onChange={(v) => update("listingAgent", v)} />
+              <Field disabled={readOnly} label="Listing Office" value={form.listingOffice} onChange={(v) => update("listingOffice", v)} />
+              <Field disabled={readOnly} label="MLS ID" value={form.listingAgentMlsId} onChange={(v) => update("listingAgentMlsId", v)} />
+              <Field disabled={readOnly} label="Office MLS ID" value={form.listingOfficeMlsId} onChange={(v) => update("listingOfficeMlsId", v)} />
+              <Field disabled={readOnly} label="Sales Agent" value={form.salesAgent} onChange={(v) => update("salesAgent", v)} />
+              <Field disabled={readOnly} label="Sale Office" value={form.saleOffice} onChange={(v) => update("saleOffice", v)} />
+              <Field disabled={readOnly} label="MLS ID" value={form.salesAgentMlsId} onChange={(v) => update("salesAgentMlsId", v)} />
+              <Field disabled={readOnly} label="Office MLS ID" value={form.saleOfficeMlsId} onChange={(v) => update("saleOfficeMlsId", v)} />
             </Section>
 
             <Section title="Financial Calculation Matrix">
-              <Field label="Gross Commission" type="number" value={form.grossCommission} onChange={(v) => update("grossCommission", v)} prefix="$" />
-              <Field label="Concession / Expenses" type="number" value={form.concession} onChange={(v) => update("concession", v)} prefix="$" />
+              <Field disabled={readOnly} label="Gross Commission" type="number" value={form.grossCommission} onChange={(v) => update("grossCommission", v)} prefix="$" />
+              <Field disabled={readOnly} label="Concession / Expenses" type="number" value={form.concession} onChange={(v) => update("concession", v)} prefix="$" />
               <div className="md:col-span-2 rounded-xl border border-border bg-muted/40 p-4 text-foreground">
                 <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Net Commission</Label>
                 <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -385,7 +320,9 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
                     value={form.netCompanyName}
                     onChange={(e) => update("netCompanyName", e.target.value)}
                     placeholder="Company / Firm Name"
-                    className="h-11 flex-1 min-w-0 bg-background text-foreground placeholder:text-muted-foreground"
+                    disabled={readOnly}
+                    readOnly={readOnly}
+                    className="h-11 flex-1 min-w-0 bg-background text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-80"
                   />
                   <span className="font-display text-xl sm:text-2xl font-bold tabular-nums text-primary whitespace-nowrap">
                     {formatMoney(netCommission)}
@@ -406,7 +343,9 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
                           type="number"
                           value={form.escrowHeld}
                           onChange={(e) => update("escrowHeld", e.target.value)}
-                          className="h-11 w-full pl-7 bg-background text-foreground placeholder:text-muted-foreground"
+                          disabled={readOnly}
+                          readOnly={readOnly}
+                          className="h-11 w-full pl-7 bg-background text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-80"
                           placeholder="0.00"
                         />
                       </div>
@@ -432,7 +371,7 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
                 <Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Authorized Signature</Label>
                 <input ref={uploadRef} type="file" accept="image/*" className="hidden"
                   onChange={(e) => { uploadSig(e.target.files?.[0]); e.currentTarget.value = ""; }} />
-                <div className="overflow-hidden rounded-xl border-2 border-dashed border-border bg-white dark:bg-zinc-100">
+                <div className={`overflow-hidden rounded-xl border-2 border-dashed border-border bg-white dark:bg-zinc-100 ${readOnly ? "pointer-events-none opacity-90" : ""}`}>
                   <SignatureCanvas
                     ref={sigRef}
                     penColor="black"
@@ -441,21 +380,23 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
                       className: "h-48 w-full rounded-xl",
                       style: { touchAction: "none" },
                     }}
-                    onEnd={handleSig}
+                    onEnd={readOnly ? undefined : handleSig}
                   />
                 </div>
-                <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => uploadRef.current?.click()}>
-                    <Upload className="h-4 w-4" /> Upload Signature
-                  </Button>
-                  <button type="button" className="text-sm font-medium text-primary hover:underline"
-                    onClick={() => { sigRef.current?.clear(); update("signatureDataUrl", ""); }}>
-                    Clear Signature
-                  </button>
-                </div>
+                {!readOnly && (
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => uploadRef.current?.click()}>
+                      <Upload className="h-4 w-4" /> Upload Signature
+                    </Button>
+                    <button type="button" className="text-sm font-medium text-primary hover:underline"
+                      onClick={() => { sigRef.current?.clear(); update("signatureDataUrl", ""); }}>
+                      Clear Signature
+                    </button>
+                  </div>
+                )}
               </div>
-              <Field label="Admin/Broker Name" value={form.adminBrokerName} onChange={(v) => update("adminBrokerName", v)} />
-              <Field label="Authorized Signature Date" type="date" value={form.signatureDate} onChange={(v) => update("signatureDate", v)} />
+              <Field disabled={readOnly} label="Admin/Broker Name" value={form.adminBrokerName} onChange={(v) => update("adminBrokerName", v)} />
+              <Field disabled={readOnly} label="Authorized Signature Date" type="date" value={form.signatureDate} onChange={(v) => update("signatureDate", v)} />
               <div className="md:col-span-2 grid gap-2">
                 <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Notes</Label>
                 <Textarea
@@ -463,7 +404,9 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
                   value={form.notes}
                   onChange={(e) => update("notes", e.target.value)}
                   placeholder="Add custom terms, transaction remarks, or situational instructions…"
-                  className="min-h-24 resize-none overflow-hidden bg-background text-foreground placeholder:text-muted-foreground"
+                  disabled={readOnly}
+                  readOnly={readOnly}
+                  className="min-h-24 resize-none overflow-hidden bg-background text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-80"
                 />
               </div>
             </Section>
@@ -472,7 +415,9 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
 
         <div className="shrink-0 border-t border-border bg-background px-3 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:px-8">
           <div className="mx-auto flex w-full max-w-5xl flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} className="sm:w-auto">Cancel</Button>
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} className="sm:w-auto">
+              {readOnly ? "Close" : "Cancel"}
+            </Button>
             <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:justify-end">
               <Button type="button" variant="outline" onClick={downloadPdf} className="gap-2">
                 <FileDown className="h-4 w-4" /> Download Signed PDF
@@ -480,10 +425,12 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
               <Button type="button" variant="outline" onClick={() => setEmailOpen(true)} className="gap-2">
                 <Mail className="h-4 w-4" /> Send via Email
               </Button>
-              <Button type="button" onClick={save} disabled={saving} className="gap-2">
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                Save &amp; Sync
-              </Button>
+              {!readOnly && (
+                <Button type="button" onClick={save} disabled={saving} className="gap-2">
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  Save &amp; Sync
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -534,9 +481,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function Field({
-  label, value, onChange, type = "text", className = "", prefix,
+  label, value, onChange, type = "text", className = "", prefix, disabled = false,
 }: {
-  label: string; value: string; onChange: (v: string) => void; type?: string; className?: string; prefix?: string;
+  label: string; value: string; onChange: (v: string) => void; type?: string; className?: string; prefix?: string; disabled?: boolean;
 }) {
   return (
     <div className={`grid gap-2 min-w-0 ${className}`}>
@@ -551,7 +498,9 @@ function Field({
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={`h-11 w-full bg-background text-foreground placeholder:text-muted-foreground ${prefix ? "pl-7" : ""}`}
+          disabled={disabled}
+          readOnly={disabled}
+          className={`h-11 w-full bg-background text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-80 ${prefix ? "pl-7" : ""}`}
         />
       </div>
     </div>

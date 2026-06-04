@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, Download, FileText, Loader2, Pencil, Search, Sparkles, Trash2, Users, UserCheck } from "lucide-react";
+import { ChevronDown, Download, Eye, FileDown, FileText, Loader2, Mail, Pencil, Search, Sparkles, Trash2, Users, UserCheck } from "lucide-react";
 import { AIExecutiveReportModal, type AIReportCommissionRow } from "@/components/ai-executive-report";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
@@ -16,14 +16,15 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BulkStatusBar } from "@/components/bulk-status-bar";
-import { formatMoney } from "@/lib/mock-data";
 import { exportCommissionsCsv, exportCommissionsExcel, exportCommissionsPdf, type CommissionExportRow } from "@/lib/commission-exports";
 import { mergeCommissionNotes, parseCommissionNotes } from "@/lib/commission-notes";
+import { buildCommissionPdf, parseFormSnapshotFromNotes } from "@/lib/commission-pdf";
+import { formatMoney } from "@/lib/mock-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { ImportButton, type ImportColumn } from "@/components/import-button";
-import { CommissionSideForm, type CommissionSide } from "@/components/commission-side-form";
+import { CommissionSideForm, type CommissionFormMode, type CommissionSide } from "@/components/commission-side-form";
 
 const COMMISSION_IMPORT_COLUMNS: ImportColumn[] = [
   { key: "address", label: "Property", required: true, sample: "123 Main St" },
@@ -434,6 +435,9 @@ function Commissions() {
   const [sideFormOpen, setSideFormOpen] = useState<CommissionSide | null>(null);
   const [aiReportOpen, setAiReportOpen] = useState(false);
   const [editing, setEditing] = useState<CommissionRow | null>(null);
+  const [fullForm, setFullForm] = useState<{ row: CommissionRow; mode: CommissionFormMode } | null>(null);
+  const [emailRow, setEmailRow] = useState<CommissionRow | null>(null);
+  const [emailTo, setEmailTo] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const defaultAgentName = useMemo(() => {
     const displayName = user?.user_metadata?.display_name;
@@ -543,6 +547,75 @@ function Commissions() {
   const totalNet = useMemo(() => rows.reduce((sum, row) => sum + netCommission(row), 0), [rows]);
   const paidNet = useMemo(() => rows.filter((row) => row.status === "Paid").reduce((sum, row) => sum + netCommission(row), 0), [rows]);
   const pendingNet = useMemo(() => rows.filter((row) => row.status === "Pending").reduce((sum, row) => sum + netCommission(row), 0), [rows]);
+
+  // Build full FormState snapshot for view/edit, hydrating from row + saved notes
+  const buildFormSnapshot = (r: CommissionRow): Record<string, string> => {
+    const deal = dealOptions.find((d) => d.id === r.dealId);
+    const snapshot = parseFormSnapshotFromNotes(deal?.notes);
+    return {
+      ...snapshot,
+      propertyAddress: r.property,
+      closeDate: r.closingDate,
+      grossCommission: String(r.gci || r.salePrice || ""),
+      concession: snapshot.concession || (r.deductions ? String(r.deductions) : ""),
+    };
+  };
+
+  const rowToSide = (r: CommissionRow): CommissionSide => (r.side === "sell" ? "listing" : "buyer");
+
+  const downloadRowPdf = (r: CommissionRow) => {
+    const snap = buildFormSnapshot(r);
+    const doc = buildCommissionPdf({
+      propertyAddress: snap.propertyAddress || r.property,
+      sellerName: snap.sellerName || "",
+      buyerName: snap.buyerName || "",
+      psDate: snap.psDate || "",
+      closeDate: snap.closeDate || r.closingDate,
+      listingAgent: snap.listingAgent || "",
+      listingOffice: snap.listingOffice || "",
+      listingAgentMlsId: snap.listingAgentMlsId || "",
+      listingOfficeMlsId: snap.listingOfficeMlsId || "",
+      salesAgent: snap.salesAgent || "",
+      saleOffice: snap.saleOffice || "",
+      salesAgentMlsId: snap.salesAgentMlsId || "",
+      saleOfficeMlsId: snap.saleOfficeMlsId || "",
+      grossCommission: r.gci || r.salePrice,
+      concessionExpenses: Number(snap.concession || r.deductions || 0),
+      netCompanyName: snap.netCompanyName || "",
+      escrowHeld: Number(snap.escrowHeld || 0),
+      adminBrokerName: snap.adminBrokerName || "",
+      signatureDate: snap.signatureDate || r.closingDate || new Date().toISOString().slice(0, 10),
+      signatureDataUrl: "",
+      notes: snap.notes || "",
+    }, rowToSide(r));
+    const slug = (r.property || "commission").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+    doc.save(`commission-${slug}.pdf`);
+    toast.success("PDF downloaded");
+  };
+
+  const sendRowEmail = () => {
+    const r = emailRow;
+    if (!r) return;
+    const to = emailTo.trim();
+    if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+      toast.error("Enter a valid email address");
+      return;
+    }
+    const net = netCommission(r);
+    const subject = `Commission Statement - ${r.property}`;
+    const body =
+      `Hello,\n\nCommission summary for ${r.property}:\n\n` +
+      `Closing Date: ${formatDate(r.closingDate)}\nSide: ${formatSideLabel(r.side)}\n` +
+      `Sale Price: ${formatMoney(r.salePrice)}\nGCI: ${formatMoney(r.gci)}\n` +
+      `Broker Split: ${r.brokerSplit}%\nDeductions: -${formatMoney(r.deductions)}\n` +
+      `Net Commission: ${formatMoney(net)}\nStatus: ${r.status}\n\n` +
+      (r.deductionNotes ? `Notes: ${r.deductionNotes}\n\n` : "") +
+      `Regards`;
+    window.location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    toast.message("Opening default email application…");
+    setEmailRow(null);
+    setEmailTo("");
+  };
 
   const handleExport = async (format: "csv" | "xlsx" | "pdf") => {
     if (rows.length === 0) {
@@ -702,6 +775,39 @@ function Commissions() {
         />
       )}
 
+      {fullForm && user && (
+        <CommissionSideForm
+          open={!!fullForm}
+          onOpenChange={(o) => { if (!o) setFullForm(null); }}
+          side={rowToSide(fullForm.row)}
+          userId={user.id}
+          defaultBrokerName={defaultAgentName}
+          mode={fullForm.mode}
+          dealId={fullForm.row.dealId}
+          initial={buildFormSnapshot(fullForm.row)}
+          onSaved={() => { void load(); setFullForm(null); }}
+        />
+      )}
+
+      <Dialog open={!!emailRow} onOpenChange={(o) => { if (!o) { setEmailRow(null); setEmailTo(""); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Send Commission Statement</DialogTitle>
+            <DialogDescription>
+              Enter the recipient's email. Your default mail app will open pre-filled with this row's summary.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3">
+            <Label htmlFor="row-email-to" className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Recipient Email</Label>
+            <Input id="row-email-to" type="email" inputMode="email" placeholder="name@example.com" value={emailTo} onChange={(e) => setEmailTo(e.target.value)} className="h-11" />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => { setEmailRow(null); setEmailTo(""); }}>Cancel</Button>
+            <Button onClick={sendRowEmail} className="gap-2"><Mail className="h-4 w-4" /> Open Mail App</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       <CommissionDialog
         open={!!editing}
@@ -838,12 +944,17 @@ function Commissions() {
                   <span className="text-xs uppercase tracking-wider text-muted-foreground">Net</span>
                   <span className="tabular-nums font-bold text-base font-display">{formatMoney(net)}</span>
                 </div>
-                <div className="flex items-center justify-end gap-1">
-                  <button
-                    onClick={() => setEditing(r)}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-                    aria-label="Edit commission"
-                  >
+                <div className="flex items-center justify-end gap-1 flex-wrap">
+                  <button onClick={() => setFullForm({ row: r, mode: "view" })} className="inline-flex h-8 px-2 items-center gap-1 rounded-md text-xs text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Open form">
+                    <Eye className="h-3.5 w-3.5" /> Open Form
+                  </button>
+                  <button onClick={() => downloadRowPdf(r)} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Download PDF">
+                    <FileDown className="h-3.5 w-3.5" />
+                  </button>
+                  <button onClick={() => { setEmailRow(r); setEmailTo(""); }} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Email statement">
+                    <Mail className="h-3.5 w-3.5" />
+                  </button>
+                  <button onClick={() => setFullForm({ row: r, mode: "edit" })} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Edit commission">
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
                   <button
@@ -887,7 +998,7 @@ function Commissions() {
                 <th className="text-right font-medium py-3">Deductions</th>
                 <th className="text-right font-medium py-3">Net Commission</th>
                 <th className="text-left font-medium py-3 px-6">Status</th>
-                <th className="w-20 pr-6"></th>
+                <th className="w-48 pr-6"></th>
               </tr>
             </thead>
             <tbody>
