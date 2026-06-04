@@ -316,9 +316,9 @@ function Landing() {
         </div>
       )}
 
-      <section className="relative overflow-hidden border-y border-[#d4af37]/20 bg-[linear-gradient(135deg,#050b22_0%,#0c1638_55%,#1a1030_100%)]">
-        <div className="pointer-events-none absolute -top-32 -left-24 h-96 w-96 rounded-full bg-[#d4af37]/20 blur-[120px]" aria-hidden />
-        <div className="pointer-events-none absolute -right-24 -bottom-32 h-96 w-96 rounded-full bg-[#7c5cff]/20 blur-[120px]" aria-hidden />
+      <section className="relative overflow-hidden border-y border-[#d4af37]/20 bg-[#050b22]">
+        <div className="pointer-events-none absolute -top-32 -left-24 h-96 w-96 rounded-full bg-[#d4af37]/15 blur-[120px]" aria-hidden />
+        <div className="pointer-events-none absolute -right-24 -bottom-32 h-96 w-96 rounded-full bg-[#d4af37]/10 blur-[120px]" aria-hidden />
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.05fr_1fr] sm:py-24">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[#f0cf6a]">
@@ -330,11 +330,11 @@ function Landing() {
                 Lock in founder pricing.
               </span>
             </h2>
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/75">
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/80">
               Join the Founders Program for just <span className="font-semibold text-[#f0cf6a]">$10/month</span> for the
-              first six months. After six months, billing automatically transitions seamlessly to the base plan rate of{" "}
-              <span className="font-semibold text-white">$29/month</span>. All Pro & Team features unlocked while you
-              help shape the roadmap.
+              first 6 months. As a special Founder's reward, you will automatically lock in an exclusive base plan rate
+              of only <span className="font-semibold text-[#f0cf6a]">$19.99/month</span> after the initial 6 months end
+              (instead of the standard <span className="text-white/60 line-through">$29/month</span>).
             </p>
             <ul className="mt-6 space-y-2.5 text-base text-white/80">
               {[
