@@ -555,38 +555,36 @@ function Landing() {
           </div>
 
           <div className="grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {tiers.map((tier) => (
+            {tiers.map((tier) => {
+              const isFounders = tier.name === "Founders' Program";
+              const isComingSoon = !isFounders;
+              return (
               <div
                 key={tier.name}
                 className={`relative overflow-visible flex flex-col rounded-2xl border p-7 pt-9 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.18)] transition-all ${
-                  tier.featured
-                    ? "border-[#b88918] bg-[linear-gradient(180deg,#fffaf0_0%,#f6e1a9_100%)] shadow-[0_0_0_1px_rgba(184,137,24,0.28),0_34px_84px_-30px_rgba(184,137,24,0.55)] lg:-translate-y-3 lg:scale-[1.04]"
-                    : tier.name === "Founders' Program"
-                      ? "border-[#cfb15a] bg-[linear-gradient(180deg,#fffaf1_0%,#f4e4b4_100%)] shadow-[0_0_0_1px_rgba(207,177,90,0.24),0_30px_72px_-36px_rgba(184,137,24,0.38)] lg:-translate-y-1 lg:scale-[1.015]"
-                      : "border-[#ddd1bf] bg-[#fffaf1] hover:border-[#c9b48b]"
+                  isFounders
+                    ? "border-[#cfb15a] bg-[linear-gradient(180deg,#fffaf1_0%,#f4e4b4_100%)] shadow-[0_0_0_1px_rgba(207,177,90,0.4),0_34px_84px_-30px_rgba(184,137,24,0.55)] lg:-translate-y-2 lg:scale-[1.03]"
+                    : "border-[#ddd1bf] bg-[#fffaf1] grayscale contrast-75 opacity-50 pointer-events-none select-none"
                 }`}
               >
-                {tier.featured && (
-                  <>
-                    <div className="pointer-events-none absolute -inset-px rounded-2xl bg-[radial-gradient(circle_at_top,rgba(212,175,55,0.24)_0%,rgba(255,244,207,0.14)_28%,transparent_72%)]" />
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-[#d4af37] px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-950 shadow-[0_12px_30px_-6px_rgba(212,175,55,0.82)]">
-                      Most popular
-                    </div>
-                  </>
+                {isFounders && (
+                  <div className="pointer-events-none absolute -inset-px rounded-2xl bg-[radial-gradient(circle_at_top,rgba(219,191,107,0.25)_0%,rgba(255,247,227,0.14)_30%,transparent_75%)]" />
                 )}
-                {tier.name === "Founders' Program" && (
-                  <div className="pointer-events-none absolute -inset-px rounded-2xl bg-[radial-gradient(circle_at_top,rgba(219,191,107,0.2)_0%,rgba(255,247,227,0.12)_30%,transparent_75%)]" />
-                )}
-                {tier.badge && (
+                {isFounders && tier.badge && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-[#d8bb66] px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-950 shadow-[0_12px_30px_-10px_rgba(184,137,24,0.82)]">
                     {tier.badge}
+                  </div>
+                )}
+                {isComingSoon && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-[#d4af37]/60 bg-slate-950/95 px-3.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#f0cf6a] shadow-[0_10px_24px_-10px_rgba(0,0,0,0.6)]">
+                    Coming Soon
                   </div>
                 )}
                 <div className="font-display text-xl font-bold text-slate-900">{tier.name}</div>
                 <div className="mt-1 mb-5 min-h-[5.5rem] text-base text-slate-600">{tier.blurb}</div>
                 <div className="mb-6 flex items-baseline gap-1">
                   <div className={`font-display text-5xl font-bold tabular-nums ${
-                    tier.featured ? "text-[#a97900]" : tier.name === "Founders' Program" ? "text-[#8f6b12]" : "text-slate-900"
+                    isFounders ? "text-[#8f6b12]" : "text-slate-900"
                   }`}>
                     ${tier.price}
                   </div>
@@ -595,24 +593,25 @@ function Landing() {
                 <div className="mb-4 min-h-[1rem] text-sm text-slate-500">
                   {tier.seat ? `+ $${tier.seat}/agent seat` : null}
                 </div>
-                <Link
-                  to="/auth"
-                  className={`mb-6 block w-full rounded-lg px-4 py-2.5 text-center text-base font-semibold transition-colors ${
-                    tier.featured
-                      ? "bg-[#d4af37] text-slate-950 shadow-[0_16px_34px_-14px_rgba(212,175,55,0.8)] hover:bg-[#c89e2f]"
-                      : tier.name === "Founders' Program"
-                        ? "border border-[#cfb15a] bg-[#17233e] text-[#f3dd8a] shadow-[0_14px_32px_-18px_rgba(184,137,24,0.45)] hover:bg-[#1c2b4a]"
-                        : "border border-slate-300 bg-slate-900 text-white hover:bg-slate-800"
-                  }`}
-                >
-                  {tier.cta}
-                </Link>
+                {isFounders ? (
+                  <Link
+                    to="/auth"
+                    className="group relative mb-6 block w-full overflow-hidden rounded-lg bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-4 py-3 text-center text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition-all hover:-translate-y-0.5"
+                  >
+                    <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/70 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                    {tier.cta}
+                  </Link>
+                ) : (
+                  <div className="mb-6 block w-full rounded-lg border border-slate-300 bg-slate-900/80 px-4 py-2.5 text-center text-base font-semibold text-white/80">
+                    {tier.cta}
+                  </div>
+                )}
                 <ul className="space-y-2.5">
                   {tier.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-base text-slate-700">
                       <Check
                         className={`mt-0.5 h-4 w-4 shrink-0 ${
-                          tier.featured ? "text-[#b88918]" : tier.name === "Founders' Program" ? "text-[#c59a22]" : "text-[#d4af37]"
+                          isFounders ? "text-[#c59a22]" : "text-[#d4af37]"
                         }`}
                       />
                       <span>{f}</span>
@@ -620,8 +619,10 @@ function Landing() {
                   ))}
                 </ul>
               </div>
-            ))}
+              );
+            })}
           </div>
+
 
           <p className="mt-8 text-center text-sm text-slate-500">
             All plans include unlimited transactions, secure cloud backup, and free updates.
