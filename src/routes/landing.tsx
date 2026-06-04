@@ -316,6 +316,96 @@ function Landing() {
         </div>
       )}
 
+      <section className="relative overflow-hidden border-y border-[#d4af37]/20 bg-[linear-gradient(135deg,#050b22_0%,#0c1638_55%,#1a1030_100%)]">
+        <div className="pointer-events-none absolute -top-32 -left-24 h-96 w-96 rounded-full bg-[#d4af37]/20 blur-[120px]" aria-hidden />
+        <div className="pointer-events-none absolute -right-24 -bottom-32 h-96 w-96 rounded-full bg-[#7c5cff]/20 blur-[120px]" aria-hidden />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.05fr_1fr] sm:py-24">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[#f0cf6a]">
+              <Sparkles className="h-3.5 w-3.5" /> Founders Program · Limited
+            </div>
+            <h2 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl">
+              Get in early.{" "}
+              <span className="bg-gradient-to-r from-[#fff0a8] via-[#e4be47] to-[#b88918] bg-clip-text text-transparent">
+                Lock in founder pricing.
+              </span>
+            </h2>
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/75">
+              Join the Founders Program for just <span className="font-semibold text-[#f0cf6a]">$10/month</span> for the
+              first six months. After six months, billing automatically transitions seamlessly to the base plan rate of{" "}
+              <span className="font-semibold text-white">$29/month</span>. All Pro & Team features unlocked while you
+              help shape the roadmap.
+            </p>
+            <ul className="mt-6 space-y-2.5 text-base text-white/80">
+              {[
+                "All Pro & Team features unlocked from day one",
+                "Direct line to the founders — shape the roadmap",
+                "Priority bug-fix turnaround & early access drops",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2">
+                  <Check className="mt-1 h-4 w-4 shrink-0 text-[#d4af37]" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Link
+                to="/auth"
+                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-7 py-3.5 text-base font-bold text-slate-950 shadow-[0_18px_50px_-12px_rgba(212,175,55,0.7)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-12px_rgba(212,175,55,0.85)]"
+              >
+                <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                Claim Founder Access <ArrowRight className="h-4 w-4" />
+              </Link>
+              <span className="text-sm text-white/55">No charge until day 15 · Cancel anytime</span>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-to-br from-[#d4af37]/30 via-white/5 to-[#7c5cff]/25 blur-3xl" aria-hidden />
+            <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/[0.06] p-6 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#d4af37]/80" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-green-400/80" />
+                </div>
+                <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">Founder Dashboard</div>
+              </div>
+              <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/60 p-5">
+                <div className="text-xs uppercase tracking-wider text-white/55">Your Founder Rate</div>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="font-display text-5xl font-bold tabular-nums text-white">$10</span>
+                  <span className="text-sm text-white/55">/mo · 6 months</span>
+                </div>
+                <div className="mt-2 text-xs text-white/45">
+                  Then $29/mo · standard Solo Agent plan
+                </div>
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+                  <div className="h-full w-[24%] rounded-full bg-gradient-to-r from-[#d4af37] to-[#fff0a8]" />
+                </div>
+                <div className="mt-1.5 flex justify-between text-[10px] uppercase tracking-wider text-white/45">
+                  <span>Seats claimed</span>
+                  <span>24%</span>
+                </div>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                {[
+                  { l: "Features", v: "All Pro" },
+                  { l: "Updates", v: "Priority" },
+                  { l: "Support", v: "Founders" },
+                  { l: "Lock-in", v: "6 months" },
+                ].map((k) => (
+                  <div key={k.l} className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5">
+                    <div className="text-[10px] uppercase tracking-wider text-white/50">{k.l}</div>
+                    <div className="mt-0.5 font-display text-sm font-semibold text-[#f0cf6a]">{k.v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="bg-[#ecd59a] text-slate-900">
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
