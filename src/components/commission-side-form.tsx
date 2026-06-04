@@ -235,15 +235,12 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
     doc.setLineWidth(0.6);
     const ledgerTop = y;
     const rows: Array<[string, number, boolean?]> = [
-      ["Sale Price", salePrice],
-      ["Net Price", netPrice],
-      ["Total Commission", totalCommission],
+      ["Gross Commission", grossCommission],
+      ["Less: Concession / Expenses", -concessionExpenses],
+      [`Net Commission due to ${form.netCompanyName.trim() || "—"}`, netCommission],
     ];
-    if (side === "buyer") {
-      rows.push(["Less: Concession", -num(form.concession)]);
-    } else {
-      rows.push(["Less: Commission Due to Co-Broke", -num(form.commissionDueCoBroke)]);
-      rows.push(["Less: Escrow", -num(form.lessEscrow)]);
+    if (side === "listing") {
+      rows.push(["Balance Due to / from Seller", balanceSeller]);
     }
     const rowH = 20;
     const ledgerH = rows.length * rowH + rowH + 8;
