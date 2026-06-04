@@ -40,14 +40,14 @@ interface FormState {
   grossCommission: string;
   concession: string;
   netCompanyName: string;
-  balanceSeller: string;
+  escrowHeld: string;
   adminBrokerName: string;
   signatureDate: string;
   signatureDataUrl: string;
   notes: string;
 }
 
-function blankForm(broker: string): FormState {
+function blankForm(_broker: string): FormState {
   return {
     propertyAddress: "",
     sellerName: "",
@@ -65,8 +65,8 @@ function blankForm(broker: string): FormState {
     grossCommission: "",
     concession: "",
     netCompanyName: "",
-    balanceSeller: "",
-    adminBrokerName: broker,
+    escrowHeld: "",
+    adminBrokerName: "",
     signatureDate: new Date().toISOString().slice(0, 10),
     signatureDataUrl: "",
     notes: "",
