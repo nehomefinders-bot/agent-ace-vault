@@ -371,8 +371,8 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
             </Section>
 
             <Section title="Financial Calculation Matrix">
-              <Field label="Gross Commission" type="number" value={form.grossCommission} onChange={(v) => update("grossCommission", v)} />
-              <Field label="Concession / Expenses" type="number" value={form.concession} onChange={(v) => update("concession", v)} />
+              <Field label="Gross Commission" type="number" value={form.grossCommission} onChange={(v) => update("grossCommission", v)} prefix="$" />
+              <Field label="Concession / Expenses" type="number" value={form.concession} onChange={(v) => update("concession", v)} prefix="$" />
               <div className="md:col-span-2 rounded-xl border border-border bg-muted/40 p-4 text-foreground">
                 <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Net Commission</Label>
                 <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -394,14 +394,17 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
                     <Label htmlFor="balance-seller" className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:w-64 sm:shrink-0">
                       Balance Due to / from Seller
                     </Label>
-                    <Input
-                      id="balance-seller"
-                      type="number"
-                      value={form.balanceSeller}
-                      onChange={(e) => update("balanceSeller", e.target.value)}
-                      className="h-11 flex-1 min-w-0 bg-background text-foreground placeholder:text-muted-foreground"
-                      placeholder="0.00"
-                    />
+                    <div className="relative flex-1 min-w-0">
+                      <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-medium text-foreground/70">$</span>
+                      <Input
+                        id="balance-seller"
+                        type="number"
+                        value={form.balanceSeller}
+                        onChange={(e) => update("balanceSeller", e.target.value)}
+                        className="h-11 w-full pl-7 bg-background text-foreground placeholder:text-muted-foreground"
+                        placeholder="0.00"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -514,19 +517,26 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function Field({
-  label, value, onChange, type = "text", className = "",
+  label, value, onChange, type = "text", className = "", prefix,
 }: {
-  label: string; value: string; onChange: (v: string) => void; type?: string; className?: string;
+  label: string; value: string; onChange: (v: string) => void; type?: string; className?: string; prefix?: string;
 }) {
   return (
     <div className={`grid gap-2 min-w-0 ${className}`}>
       <Label className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">{label}</Label>
-      <Input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-11 w-full bg-background text-foreground placeholder:text-muted-foreground"
-      />
+      <div className="relative">
+        {prefix && (
+          <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-medium text-foreground/70">
+            {prefix}
+          </span>
+        )}
+        <Input
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={`h-11 w-full bg-background text-foreground placeholder:text-muted-foreground ${prefix ? "pl-7" : ""}`}
+        />
+      </div>
     </div>
   );
 }
