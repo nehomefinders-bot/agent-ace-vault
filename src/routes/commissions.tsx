@@ -435,6 +435,9 @@ function Commissions() {
   const [sideFormOpen, setSideFormOpen] = useState<CommissionSide | null>(null);
   const [aiReportOpen, setAiReportOpen] = useState(false);
   const [editing, setEditing] = useState<CommissionRow | null>(null);
+  const [fullForm, setFullForm] = useState<{ row: CommissionRow; mode: CommissionFormMode } | null>(null);
+  const [emailRow, setEmailRow] = useState<CommissionRow | null>(null);
+  const [emailTo, setEmailTo] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const defaultAgentName = useMemo(() => {
     const displayName = user?.user_metadata?.display_name;
