@@ -321,6 +321,7 @@ function Landing() {
         <div className="pointer-events-none absolute -top-32 -left-24 h-96 w-96 rounded-full bg-[#d4af37]/15 blur-[120px]" aria-hidden />
         <div className="pointer-events-none absolute -right-24 -bottom-32 h-96 w-96 rounded-full bg-[#d4af37]/10 blur-[120px]" aria-hidden />
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.05fr_1fr] sm:py-24">
+          <Reveal direction="left">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[#f0cf6a]">
               <Sparkles className="h-3.5 w-3.5" /> Founders Program · Limited
