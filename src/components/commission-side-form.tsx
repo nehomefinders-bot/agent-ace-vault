@@ -394,14 +394,17 @@ export function CommissionSideForm({ open, onOpenChange, side, userId, defaultBr
                     <Label htmlFor="balance-seller" className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:w-64 sm:shrink-0">
                       Balance Due to / from Seller
                     </Label>
-                    <Input
-                      id="balance-seller"
-                      type="number"
-                      value={form.balanceSeller}
-                      onChange={(e) => update("balanceSeller", e.target.value)}
-                      className="h-11 flex-1 min-w-0 bg-background text-foreground placeholder:text-muted-foreground"
-                      placeholder="0.00"
-                    />
+                    <div className="relative flex-1 min-w-0">
+                      <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-medium text-foreground/70">$</span>
+                      <Input
+                        id="balance-seller"
+                        type="number"
+                        value={form.balanceSeller}
+                        onChange={(e) => update("balanceSeller", e.target.value)}
+                        className="h-11 w-full pl-7 bg-background text-foreground placeholder:text-muted-foreground"
+                        placeholder="0.00"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
