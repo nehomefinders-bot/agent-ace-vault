@@ -267,7 +267,7 @@ function Landing() {
             </p>
             <Link
               to="/auth"
-              className="mt-8 inline-flex items-center gap-2 rounded-lg bg-[#d4af37] px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-colors hover:bg-[#c89e2f] lg:absolute lg:bottom-20 lg:left-10 lg:mt-0 xl:left-16"
+              className="mt-8 inline-flex items-center gap-2 rounded-lg bg-[#d4af37] px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-all duration-300 ease-out hover:bg-[#c89e2f] hover:scale-[1.03] hover:shadow-[0_18px_50px_-8px_rgba(212,175,55,0.7)] lg:absolute lg:bottom-20 lg:left-10 lg:mt-0 xl:left-16"
             >
               Start your free 14-day trial <ArrowRight className="h-4 w-4" />
             </Link>
