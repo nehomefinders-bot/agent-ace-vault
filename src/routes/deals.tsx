@@ -73,6 +73,7 @@ type DealFormValues = {
 
 async function syncDealToContact(opts: {
   userId: string;
+  dealId: string;
   name: string;
   email: string;
   phone: string;
@@ -88,9 +89,19 @@ async function syncDealToContact(opts: {
   const address = opts.address.trim() || null;
   const noteLine = `${sideLabel}${address ? ` · ${address}` : ""}`;
 
-  // Look for existing contact by email or phone to avoid duplicates
+  // Prefer the deal_id link so edits to the deal always update the same
+  // contact, even when the client's name/email/phone changes.
   let existingId: string | null = null;
-  if (email) {
+  {
+    const { data } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("user_id", opts.userId)
+      .eq("deal_id", opts.dealId)
+      .maybeSingle();
+    existingId = data?.id ?? null;
+  }
+  if (!existingId && email) {
     const { data } = await supabase
       .from("clients")
       .select("id")
@@ -111,6 +122,7 @@ async function syncDealToContact(opts: {
 
   const payload = {
     user_id: opts.userId,
+    deal_id: opts.dealId,
     name,
     email,
     phone,
