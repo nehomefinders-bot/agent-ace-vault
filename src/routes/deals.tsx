@@ -361,6 +361,19 @@ function DealsPage() {
             status: input.status,
             images: input.images,
           });
+          try {
+            await syncDealToContact({
+              userId: user.id,
+              dealId: editing.id,
+              name: input.client,
+              email: input.clientEmail,
+              phone: input.clientPhone,
+              side: input.side,
+              address: input.address,
+            });
+          } catch (err) {
+            console.error("Sync deal contact failed", err);
+          }
           setEditing(null);
           toast.success("Deal updated");
           await reload();
