@@ -272,17 +272,17 @@ function Landing() {
               Clients, deals, trackable mileage, commission statements, listings, leads, and
               bookkeeping for end-of-day reports all in one spot.
             </p>
-            <div className="mt-7 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center">
+            <div className="mt-7 flex w-full max-w-4xl flex-col items-center gap-4 sm:flex-row sm:justify-between sm:gap-0">
               <Link
                 to="/auth"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-[#c89e2f] hover:shadow-[0_18px_50px_-8px_rgba(212,175,55,0.7)] sm:px-7"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-[#c89e2f] hover:shadow-[0_18px_50px_-8px_rgba(212,175,55,0.7)] sm:w-auto sm:px-7"
               >
                 Start your free 14-day trial <ArrowRight className="h-4 w-4" />
               </Link>
               <button
                 type="button"
                 onClick={() => setIsVideoOpen(true)}
-                className="rounded-lg border border-white/80 bg-white/92 px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_16px_34px_-16px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-white hover:shadow-[0_18px_40px_-16px_rgba(255,255,255,0.22)] sm:px-7"
+                className="w-full rounded-lg border border-white/80 bg-white/92 px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_16px_34px_-16px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-white hover:shadow-[0_18px_40px_-16px_rgba(255,255,255,0.22)] sm:w-auto sm:px-7"
               >
                 See live demo
               </button>
