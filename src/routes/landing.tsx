@@ -13,6 +13,7 @@ import {
   Wallet,
   PieChart,
   X,
+  Star,
 } from "lucide-react";
 import maColonialHeroBg from "@/assets/landing-house-autumn.jpeg";
 import { useAuth } from "@/hooks/use-auth";
@@ -30,10 +31,14 @@ export const Route = createFileRoute("/landing")({
         content:
           "Track commissions, expenses, mileage and owner loans in one place. Tax-ready Schedule C reports built for agents and brokers.",
       },
-      { property: "og:title", content: "Agent Business Tracker - QuickBooks for real estate agents" },
+      {
+        property: "og:title",
+        content: "Agent Business Tracker - QuickBooks for real estate agents",
+      },
       {
         property: "og:description",
-        content: "All-in-one books, mileage and client tracking for agents. Tax-ready in one click.",
+        content:
+          "All-in-one books, mileage and client tracking for agents. Tax-ready in one click.",
       },
     ],
   }),
@@ -51,7 +56,7 @@ const tiers = [
       "Direct line to the founders",
       "Priority bug-fix turnaround",
     ],
-    cta: "Join founders program",
+    cta: "Claim Founder Access",
     featured: false,
     badge: "Be the Tester",
   },
@@ -208,7 +213,7 @@ function Landing() {
 
     const subject = encodeURIComponent("Agent Business Tracker newsletter signup");
     const body = encodeURIComponent(
-      `Please add this email to the Agent Business Tracker updates list:\n\n${newsletterEmail.trim()}`
+      `Please add this email to the Agent Business Tracker updates list:\n\n${newsletterEmail.trim()}`,
     );
 
     window.location.href = `mailto:livingandlearningwithjackie@gmail.com?subject=${subject}&body=${body}`;
@@ -237,9 +242,9 @@ function Landing() {
             </Link>
             <Link
               to="/auth"
-              className="whitespace-nowrap rounded-lg bg-[#d4af37] px-3 py-2 text-sm font-semibold text-slate-950 shadow-[0_12px_30px_-12px_rgba(212,175,55,0.7)] transition-colors hover:bg-[#c89e2f] sm:px-4 sm:text-base"
+              className="founder-nav-cta whitespace-nowrap rounded-lg bg-[#d4af37] px-3 py-2 text-sm font-bold text-slate-950 shadow-[0_12px_30px_-12px_rgba(212,175,55,0.7)] transition-colors hover:bg-[#c89e2f] sm:px-4 sm:text-base"
             >
-              Start Free Trial
+              Claim Founder Access
             </Link>
           </div>
         </div>
@@ -251,34 +256,38 @@ function Landing() {
           style={{ backgroundImage: `url(${maColonialHeroBg})` }}
           aria-hidden
         />
-        <div className="relative z-10 mx-auto max-w-7xl px-6 pt-16 pb-12 text-center sm:pt-24 sm:pb-16 lg:pt-10 lg:pb-10">
-          <div className="relative flex min-h-[34rem] flex-col items-center sm:min-h-[40rem] lg:min-h-[46rem]">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-slate-950/55 px-4 py-1.5 text-sm font-semibold text-[#f0cf6a] shadow-[0_16px_36px_-18px_rgba(0,0,0,0.75)] backdrop-blur-sm lg:absolute lg:top-6 lg:left-1/2 lg:-translate-x-1/2">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.26),rgba(2,6,23,0.5)_58%,rgba(2,6,23,0.88))]" />
+        <div className="relative z-10 mx-auto flex max-w-7xl items-center px-4 py-8 text-center sm:px-6 sm:py-10 lg:min-h-[34rem] lg:py-10 xl:min-h-[36rem]">
+          <div className="mx-auto flex w-full max-w-6xl flex-col items-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-slate-950/55 px-4 py-1.5 text-sm font-semibold text-[#f0cf6a] shadow-[0_16px_36px_-18px_rgba(0,0,0,0.75)] backdrop-blur-sm">
               <Sparkles className="h-3.5 w-3.5" /> Built for real estate agents
             </div>
-            <h1 className="mt-10 max-w-5xl font-display text-5xl leading-[1.01] font-bold tracking-tight text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.9)] sm:mt-14 md:text-6xl lg:absolute lg:top-14 lg:left-1/2 lg:mt-0 lg:w-full lg:max-w-6xl lg:-translate-x-1/2 lg:text-[5.15rem] xl:text-[5.7rem]">
+            <h1 className="mt-6 max-w-5xl font-display text-4xl font-bold leading-[1.02] tracking-tight text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.9)] sm:text-5xl md:text-6xl lg:text-[4.35rem] xl:text-[4.85rem]">
               <span className="text-white">Your Real Estate Business at a Glance</span>{" "}
               <span className="inline-block scale-[1.03] bg-gradient-to-b from-[#fff0a8] via-[#e4be47] to-[#b88918] bg-clip-text text-transparent [text-shadow:0_10px_24px_rgba(212,175,55,0.22)]">
                 all in one place.
               </span>
             </h1>
-            <p className="mt-auto max-w-4xl text-lg leading-relaxed text-white/90 drop-shadow-[0_5px_16px_rgba(0,0,0,0.88)] sm:text-xl lg:absolute lg:bottom-[9.5rem] lg:left-1/2 lg:mt-0 lg:w-full lg:max-w-5xl lg:-translate-x-1/2 lg:text-[1.45rem] xl:text-[1.65rem]">
-              Clients, Deals, Trackable milage, commission statements, Listings, Leads, and Book Keeping for end of the day reports all in one spot.
+            <p className="mt-5 max-w-4xl text-base leading-relaxed text-white/90 drop-shadow-[0_5px_16px_rgba(0,0,0,0.88)] sm:text-lg lg:text-xl xl:text-[1.35rem]">
+              Clients, deals, trackable mileage, commission statements, listings, leads, and
+              bookkeeping for end-of-day reports all in one spot.
             </p>
-            <Link
-              to="/auth"
-              className="mt-8 inline-flex items-center gap-2 rounded-lg bg-[#d4af37] px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-all duration-300 ease-out hover:bg-[#c89e2f] hover:scale-[1.03] hover:shadow-[0_18px_50px_-8px_rgba(212,175,55,0.7)] lg:absolute lg:bottom-20 lg:left-10 lg:mt-0 xl:left-16"
-            >
-              Start your free 14-day trial <ArrowRight className="h-4 w-4" />
-            </Link>
-            <button
-              type="button"
-              onClick={() => setIsVideoOpen(true)}
-              className="mt-3 rounded-lg border border-white/80 bg-white/92 px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_16px_34px_-16px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 ease-out hover:bg-white hover:scale-[1.03] hover:shadow-[0_18px_40px_-16px_rgba(255,255,255,0.22)] lg:absolute lg:right-10 lg:bottom-20 lg:mt-0 xl:right-16"
-            >
-              See live demo
-            </button>
-            <p className="mt-5 text-base md:text-lg font-bold tracking-wide text-[#ffe066] drop-shadow-[0_4px_18px_rgba(0,0,0,0.95)] lg:absolute lg:bottom-8 lg:left-1/2 lg:mt-0 lg:-translate-x-1/2">
+            <div className="mt-7 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center">
+              <Link
+                to="/auth"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-[#c89e2f] hover:shadow-[0_18px_50px_-8px_rgba(212,175,55,0.7)] sm:px-7"
+              >
+                Start your free 14-day trial <ArrowRight className="h-4 w-4" />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setIsVideoOpen(true)}
+                className="rounded-lg border border-white/80 bg-white/92 px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_16px_34px_-16px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-white hover:shadow-[0_18px_40px_-16px_rgba(255,255,255,0.22)] sm:px-7"
+              >
+                See live demo
+              </button>
+            </div>
+            <p className="mt-5 text-base font-bold tracking-wide text-[#ffe066] drop-shadow-[0_4px_18px_rgba(0,0,0,0.95)] md:text-lg">
               No charge until day 15 &bull; Cancel anytime
             </p>
           </div>
@@ -318,95 +327,122 @@ function Landing() {
       )}
 
       <section className="relative overflow-hidden border-y border-[#d4af37]/20 bg-[#050b22]">
-        <div className="pointer-events-none absolute -top-32 -left-24 h-96 w-96 rounded-full bg-[#d4af37]/15 blur-[120px]" aria-hidden />
-        <div className="pointer-events-none absolute -right-24 -bottom-32 h-96 w-96 rounded-full bg-[#d4af37]/10 blur-[120px]" aria-hidden />
+        <div
+          className="pointer-events-none absolute -top-32 -left-24 h-96 w-96 rounded-full bg-[#d4af37]/15 blur-[120px]"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute -right-24 -bottom-32 h-96 w-96 rounded-full bg-[#d4af37]/10 blur-[120px]"
+          aria-hidden
+        />
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.05fr_1fr] sm:py-24">
           <Reveal direction="left">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[#f0cf6a]">
-              <Sparkles className="h-3.5 w-3.5" /> Founders Program · Limited
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[#f0cf6a]">
+                <Sparkles className="h-3.5 w-3.5" /> Founders Program - Limited
+              </div>
+              <h2 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl">
+                Get in early.{" "}
+                <span className="bg-gradient-to-r from-[#fff0a8] via-[#e4be47] to-[#b88918] bg-clip-text text-transparent">
+                  Lock in founder pricing.
+                </span>
+              </h2>
+              <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/80">
+                Join the Founders Program for just{" "}
+                <span className="font-semibold text-[#f0cf6a]">$10/month</span> for the first 6
+                months. As a special Founder's reward, you will automatically lock in an exclusive
+                base plan rate of only{" "}
+                <span className="font-semibold text-[#f0cf6a]">$19.99/month</span> after the initial
+                6 months end (instead of the standard{" "}
+                <span className="text-white/60 line-through">$29/month</span>).
+              </p>
+              <ul className="mt-6 space-y-2.5 text-base text-white/80">
+                {[
+                  "All Pro & Team features unlocked from day one",
+                  "Direct line to the founders - shape the roadmap",
+                  "Priority bug-fix turnaround & early access drops",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <Check className="mt-1 h-4 w-4 shrink-0 text-[#d4af37]" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <Link
+                  to="/auth"
+                  className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-7 py-3.5 text-base font-bold text-slate-950 shadow-[0_18px_50px_-12px_rgba(212,175,55,0.7)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-12px_rgba(212,175,55,0.85)]"
+                >
+                  <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                  Claim Founder Access <ArrowRight className="h-4 w-4" />
+                </Link>
+                <span className="text-sm text-white/55">
+                  No charge until day 15 - Cancel anytime
+                </span>
+              </div>
             </div>
-            <h2 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl">
-              Get in early.{" "}
-              <span className="bg-gradient-to-r from-[#fff0a8] via-[#e4be47] to-[#b88918] bg-clip-text text-transparent">
-                Lock in founder pricing.
-              </span>
-            </h2>
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/80">
-              Join the Founders Program for just <span className="font-semibold text-[#f0cf6a]">$10/month</span> for the
-              first 6 months. As a special Founder's reward, you will automatically lock in an exclusive base plan rate
-              of only <span className="font-semibold text-[#f0cf6a]">$19.99/month</span> after the initial 6 months end
-              (instead of the standard <span className="text-white/60 line-through">$29/month</span>).
-            </p>
-            <ul className="mt-6 space-y-2.5 text-base text-white/80">
-              {[
-                "All Pro & Team features unlocked from day one",
-                "Direct line to the founders — shape the roadmap",
-                "Priority bug-fix turnaround & early access drops",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2">
-                  <Check className="mt-1 h-4 w-4 shrink-0 text-[#d4af37]" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <Link
-                to="/auth"
-                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-7 py-3.5 text-base font-bold text-slate-950 shadow-[0_18px_50px_-12px_rgba(212,175,55,0.7)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-12px_rgba(212,175,55,0.85)]"
-              >
-                <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                Claim Founder Access <ArrowRight className="h-4 w-4" />
-              </Link>
-              <span className="text-sm text-white/55">No charge until day 15 · Cancel anytime</span>
-            </div>
-          </div>
           </Reveal>
 
           <Reveal direction="right" delay={150}>
-          <div className="relative">
-            <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-to-br from-[#d4af37]/30 via-white/5 to-[#7c5cff]/25 blur-3xl" aria-hidden />
-            <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/[0.06] p-6 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.7)] backdrop-blur-xl transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#d4af37]/80" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-green-400/80" />
-                </div>
-                <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">Founder Dashboard</div>
-              </div>
-              <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/60 p-5">
-                <div className="text-xs uppercase tracking-wider text-white/55">Your Founder Rate</div>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <span className="font-display text-5xl font-bold tabular-nums text-white">$10</span>
-                  <span className="text-sm text-white/55">/mo · 6 months</span>
-                </div>
-                <div className="mt-2 text-xs text-white/45">
-                  Then $29/mo · standard Solo Agent plan
-                </div>
-                <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
-                  <div className="h-full w-[24%] rounded-full bg-gradient-to-r from-[#d4af37] to-[#fff0a8]" />
-                </div>
-                <div className="mt-1.5 flex justify-between text-[10px] uppercase tracking-wider text-white/45">
-                  <span>Seats claimed</span>
-                  <span>24%</span>
-                </div>
-              </div>
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                {[
-                  { l: "Features", v: "All Pro" },
-                  { l: "Updates", v: "Priority" },
-                  { l: "Support", v: "Founders" },
-                  { l: "Lock-in", v: "6 months" },
-                ].map((k) => (
-                  <div key={k.l} className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5">
-                    <div className="text-[10px] uppercase tracking-wider text-white/50">{k.l}</div>
-                    <div className="mt-0.5 font-display text-sm font-semibold text-[#f0cf6a]">{k.v}</div>
+            <div className="relative">
+              <div
+                className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-to-br from-[#d4af37]/30 via-white/5 to-[#7c5cff]/25 blur-3xl"
+                aria-hidden
+              />
+              <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white/[0.06] p-6 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.7)] backdrop-blur-xl transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#d4af37]/80" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-green-400/80" />
                   </div>
-                ))}
+                  <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">
+                    Founder Dashboard
+                  </div>
+                </div>
+                <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/60 p-5">
+                  <div className="text-xs uppercase tracking-wider text-white/55">
+                    Your Founder Rate
+                  </div>
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <span className="font-display text-5xl font-bold tabular-nums text-white">
+                      $10
+                    </span>
+                    <span className="text-sm text-white/55">/mo - 6 months</span>
+                  </div>
+                  <div className="mt-2 text-xs text-white/45">
+                    Then $29/mo - standard Solo Agent plan
+                  </div>
+                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+                    <div className="h-full w-[24%] rounded-full bg-gradient-to-r from-[#d4af37] to-[#fff0a8]" />
+                  </div>
+                  <div className="mt-1.5 flex justify-between text-[10px] uppercase tracking-wider text-white/45">
+                    <span>Seats claimed</span>
+                    <span>24%</span>
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  {[
+                    { l: "Features", v: "All Pro" },
+                    { l: "Updates", v: "Priority" },
+                    { l: "Support", v: "Founders" },
+                    { l: "Lock-in", v: "6 months" },
+                  ].map((k) => (
+                    <div
+                      key={k.l}
+                      className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5"
+                    >
+                      <div className="text-[10px] uppercase tracking-wider text-white/50">
+                        {k.l}
+                      </div>
+                      <div className="mt-0.5 font-display text-sm font-semibold text-[#f0cf6a]">
+                        {k.v}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
           </Reveal>
         </div>
       </section>
@@ -416,28 +452,25 @@ function Landing() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
             {features.map((f, idx) => (
               <Reveal key={f.title} direction="up" delay={idx * 100} className="h-full">
-              <div
-                className="group relative h-full rounded-2xl border border-[#dcccae] bg-[#faf4e7] p-5 shadow-[0_18px_45px_-28px_rgba(96,72,18,0.18)] transition-all duration-300 ease-out hover:-translate-y-2 hover:border-[#cfb77a] hover:bg-slate-900 hover:shadow-2xl active:-translate-y-0.5 active:border-[#cfb77a] active:bg-slate-900 active:shadow-[0_24px_46px_-24px_rgba(15,23,42,0.42)] sm:p-6"
-              >
-                <div
-                  className={`absolute -inset-px -z-10 rounded-2xl bg-gradient-to-br ${f.glow} opacity-0 blur-xl transition-opacity duration-200 group-hover:opacity-30 group-active:opacity-30`}
-                />
-                <div
-                  className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${f.glow} shadow-[0_12px_28px_-10px_rgba(15,23,42,0.24)] ring-1 ring-black/5 transition-all duration-200 group-hover:scale-105 group-hover:ring-white/10 group-active:scale-105 group-active:ring-white/10`}
-                >
-                  <f.icon className="h-5 w-5 text-slate-950" strokeWidth={2.5} />
+                <div className="group relative h-full rounded-2xl border border-[#dcccae] bg-[#faf4e7] p-5 shadow-[0_18px_45px_-28px_rgba(96,72,18,0.18)] transition-all duration-300 ease-out hover:-translate-y-2 hover:border-[#cfb77a] hover:bg-slate-900 hover:shadow-2xl active:-translate-y-0.5 active:border-[#cfb77a] active:bg-slate-900 active:shadow-[0_24px_46px_-24px_rgba(15,23,42,0.42)] sm:p-6">
+                  <div
+                    className={`absolute -inset-px -z-10 rounded-2xl bg-gradient-to-br ${f.glow} opacity-0 blur-xl transition-opacity duration-200 group-hover:opacity-30 group-active:opacity-30`}
+                  />
+                  <div
+                    className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${f.glow} shadow-[0_12px_28px_-10px_rgba(15,23,42,0.24)] ring-1 ring-black/5 transition-all duration-200 group-hover:scale-105 group-hover:ring-white/10 group-active:scale-105 group-active:ring-white/10`}
+                  >
+                    <f.icon className="h-5 w-5 text-slate-950" strokeWidth={2.5} />
+                  </div>
+                  <div className="mb-1.5 font-display text-lg font-bold text-slate-900 transition-colors duration-200 group-hover:text-white group-active:text-white">
+                    {f.title}
+                  </div>
+                  <div className="text-base leading-relaxed text-slate-600 transition-colors duration-200 group-hover:text-slate-200 group-active:text-slate-200">
+                    {f.body}
+                  </div>
                 </div>
-                <div className="mb-1.5 font-display text-lg font-bold text-slate-900 transition-colors duration-200 group-hover:text-white group-active:text-white">
-                  {f.title}
-                </div>
-                <div className="text-base leading-relaxed text-slate-600 transition-colors duration-200 group-hover:text-slate-200 group-active:text-slate-200">
-                  {f.body}
-                </div>
-              </div>
               </Reveal>
             ))}
           </div>
-
 
           <div className="mt-10 rounded-3xl border border-[#dcccae] bg-[#fbf5e8] px-6 py-6 shadow-[0_24px_60px_-36px_rgba(96,72,18,0.14)] sm:px-8 sm:py-7">
             <div className="flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
@@ -479,21 +512,43 @@ function Landing() {
                 <span className="h-3 w-3 rounded-full bg-red-400/80" />
                 <span className="h-3 w-3 rounded-full bg-[#d4af37]/80" />
                 <span className="h-3 w-3 rounded-full bg-green-400/80" />
-                <div className="ml-4 font-display text-sm text-white/50">endlessprospects.app/dashboard</div>
+                <div className="ml-4 font-display text-sm text-white/50">
+                  endlessprospects.app/dashboard
+                </div>
               </div>
 
               <div className="grid grid-cols-1 gap-4 p-6 sm:p-8 md:grid-cols-3">
                 {[
-                  { icon: DollarSign, label: "YTD Commissions", value: "$184,250", delta: "+12.4%", color: "text-[#d4af37]" },
-                  { icon: Wallet, label: "Expenses", value: "$22,807", delta: "+3.1%", color: "text-[#f7e7b6]" },
-                  { icon: Car, label: "Miles driven", value: "8,431", delta: "+248", color: "text-[#d4af37]" },
+                  {
+                    icon: DollarSign,
+                    label: "YTD Commissions",
+                    value: "$184,250",
+                    delta: "+12.4%",
+                    color: "text-[#d4af37]",
+                  },
+                  {
+                    icon: Wallet,
+                    label: "Expenses",
+                    value: "$22,807",
+                    delta: "+3.1%",
+                    color: "text-[#f7e7b6]",
+                  },
+                  {
+                    icon: Car,
+                    label: "Miles driven",
+                    value: "8,431",
+                    delta: "+248",
+                    color: "text-[#d4af37]",
+                  },
                 ].map((k) => (
                   <div key={k.label} className="rounded-xl border border-white/10 bg-white/5 p-4">
                     <div className="flex items-center justify-between text-sm uppercase tracking-wider text-white/60">
                       <span>{k.label}</span>
                       <k.icon className="h-4 w-4" />
                     </div>
-                    <div className="mt-2 font-display text-3xl font-bold tabular-nums text-white">{k.value}</div>
+                    <div className="mt-2 font-display text-3xl font-bold tabular-nums text-white">
+                      {k.value}
+                    </div>
                     <div className={`mt-1 text-sm ${k.color}`}>{k.delta}</div>
                   </div>
                 ))}
@@ -501,7 +556,8 @@ function Landing() {
                 <div className="rounded-xl border border-white/10 bg-white/5 p-5 md:col-span-2">
                   <div className="mb-4 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-base font-medium text-white">
-                      <TrendingUp className="h-4 w-4 text-[#d4af37]" /> Revenue &middot; last 6 months
+                      <TrendingUp className="h-4 w-4 text-[#d4af37]" /> Revenue &middot; last 6
+                      months
                     </div>
                     <span className="text-sm text-white/50">2025</span>
                   </div>
@@ -533,7 +589,10 @@ function Landing() {
                           <span>{r.v}%</span>
                         </div>
                         <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                          <div className={`h-full rounded-full ${r.c}`} style={{ width: `${r.v}%` }} />
+                          <div
+                            className={`h-full rounded-full ${r.c}`}
+                            style={{ width: `${r.v}%` }}
+                          />
                         </div>
                       </div>
                     ))}
@@ -557,8 +616,12 @@ function Landing() {
       <section className="bg-[#efd28a] text-slate-900">
         <div className="relative mx-auto max-w-6xl scroll-mt-28 px-6 py-20" id="pricing">
           <div className="mb-14 text-center">
-            <h2 className="font-display text-5xl font-bold text-slate-900 md:text-6xl">Simple pricing, real value</h2>
-            <p className="mt-3 text-lg text-slate-600">Less than a single closing gift per month.</p>
+            <h2 className="font-display text-5xl font-bold text-slate-900 md:text-6xl">
+              Simple pricing, real value
+            </h2>
+            <p className="mt-3 text-lg text-slate-600">
+              Less than a single closing gift per month.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -566,74 +629,96 @@ function Landing() {
               const isFounders = tier.name === "Founders' Program";
               const isComingSoon = !isFounders;
               return (
-              <Reveal key={tier.name} direction="up" delay={idx * 100} className="h-full">
-              <div
-                className={`relative h-full overflow-visible flex flex-col rounded-2xl border p-7 pt-9 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.18)] transition-all duration-300 ease-out ${
-                  isFounders
-                    ? "border-[#cfb15a] bg-[linear-gradient(180deg,#fffaf1_0%,#f4e4b4_100%)] shadow-[0_0_0_1px_rgba(207,177,90,0.4),0_34px_84px_-30px_rgba(184,137,24,0.55)] lg:-translate-y-2 lg:scale-[1.03] hover:-translate-y-3 hover:shadow-2xl"
-                    : "border-[#ddd1bf] bg-[#fffaf1] select-none"
-                }`}
-              >
-                {isFounders && (
-                  <div className="pointer-events-none absolute -inset-px rounded-2xl bg-[radial-gradient(circle_at_top,rgba(219,191,107,0.25)_0%,rgba(255,247,227,0.14)_30%,transparent_75%)]" />
-                )}
-                {isFounders && tier.badge && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-[#d8bb66] px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-950 shadow-[0_12px_30px_-10px_rgba(184,137,24,0.82)]">
-                    {tier.badge}
-                  </div>
-                )}
-                {isComingSoon && (
-                  <div className="absolute -top-3 left-1/2 z-20 -translate-x-1/2 rounded-full border-2 border-amber-400 bg-slate-950 px-4 py-1 text-[10px] font-extrabold uppercase tracking-[0.22em] text-amber-400 opacity-100 shadow-[0_10px_24px_-8px_rgba(212,175,55,0.55)]">
-                    Coming Soon
-                  </div>
-                )}
-                <div className={isComingSoon ? "grayscale opacity-60 select-none" : undefined}>
-                  <div className="font-display text-xl font-bold text-slate-900">{tier.name}</div>
-                  <div className="mt-1 mb-5 min-h-[5.5rem] text-base text-slate-600">{tier.blurb}</div>
-                  <div className="mb-6 flex items-baseline gap-1">
-                    <div className={`font-display text-5xl font-bold tabular-nums ${
-                      isFounders ? "text-[#8f6b12]" : "text-slate-900"
-                    }`}>
-                      ${tier.price}
-                    </div>
-                    <div className="text-base text-slate-500">/mo</div>
-                  </div>
-                  <div className="mb-4 min-h-[1rem] text-sm text-slate-500">
-                    {tier.seat ? `+ $${tier.seat}/agent seat` : null}
-                  </div>
-                </div>
-                {isFounders ? (
-                  <Link
-                    to="/auth"
-                    className="group relative mb-6 block w-full overflow-hidden rounded-lg bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-4 py-3 text-center text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_24px_60px_-12px_rgba(212,175,55,0.85)]"
+                <Reveal key={tier.name} direction="up" delay={idx * 100} className="h-full">
+                  <div
+                    className={`relative h-full overflow-visible flex flex-col rounded-2xl border p-7 pt-9 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.18)] transition-all duration-300 ease-out ${
+                      isFounders
+                        ? "border-[#cfb15a] bg-[linear-gradient(180deg,#fffaf1_0%,#f4e4b4_100%)] shadow-[0_0_0_1px_rgba(207,177,90,0.4),0_34px_84px_-30px_rgba(184,137,24,0.55)] lg:-translate-y-2 lg:scale-[1.03] hover:-translate-y-3 hover:shadow-2xl"
+                        : "border-[#ddd1bf] bg-[#fffaf1] select-none"
+                    }`}
                   >
-                    <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/70 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                    {tier.cta}
-                  </Link>
-                ) : (
-                  <div className="mb-6 block w-full rounded-lg border-2 border-amber-400 bg-slate-950 px-4 py-2.5 text-center text-base font-extrabold uppercase tracking-wider text-amber-400 shadow-[0_8px_24px_-10px_rgba(212,175,55,0.5)]">
-                    Coming Soon
+                    {isFounders && (
+                      <div className="pointer-events-none absolute -inset-px rounded-2xl bg-[radial-gradient(circle_at_top,rgba(219,191,107,0.25)_0%,rgba(255,247,227,0.14)_30%,transparent_75%)]" />
+                    )}
+                    {isFounders && tier.badge && (
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-[#d8bb66] px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-950 shadow-[0_12px_30px_-10px_rgba(184,137,24,0.82)]">
+                        {tier.badge}
+                      </div>
+                    )}
+                    {isComingSoon && (
+                      <div className="absolute -top-3 left-1/2 z-20 -translate-x-1/2 rounded-full border-2 border-amber-400 bg-slate-950 px-4 py-1 text-[10px] font-extrabold uppercase tracking-[0.22em] text-amber-400 opacity-100 shadow-[0_10px_24px_-8px_rgba(212,175,55,0.55)]">
+                        Coming Soon
+                      </div>
+                    )}
+                    <div
+                      className={
+                        isComingSoon
+                          ? "grayscale opacity-35 pointer-events-none select-none"
+                          : undefined
+                      }
+                    >
+                      <div className="flex items-center gap-2 font-display text-xl font-bold text-slate-900">
+                        {isFounders && (
+                          <Star
+                            className="h-5 w-5 shrink-0 fill-[#d4af37] text-[#b88918] drop-shadow-[0_4px_10px_rgba(212,175,55,0.65)]"
+                            strokeWidth={2.2}
+                          />
+                        )}
+                        <span>{tier.name}</span>
+                      </div>
+                      <div className="mt-1 mb-5 min-h-[5.5rem] text-base text-slate-600">
+                        {tier.blurb}
+                      </div>
+                      <div className="mb-6 flex items-baseline gap-1">
+                        <div
+                          className={`font-display text-5xl font-bold tabular-nums ${
+                            isFounders ? "text-[#8f6b12]" : "text-slate-900"
+                          }`}
+                        >
+                          ${tier.price}
+                        </div>
+                        <div className="text-base text-slate-500">/mo</div>
+                      </div>
+                      <div className="mb-4 min-h-[1rem] text-sm text-slate-500">
+                        {tier.seat ? `+ $${tier.seat}/agent seat` : null}
+                      </div>
+                    </div>
+                    <div className={isComingSoon ? "grayscale opacity-35 pointer-events-none" : ""}>
+                      {isFounders ? (
+                        <Link
+                          to="/auth"
+                          className="group relative mb-6 block w-full overflow-hidden rounded-lg bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-4 py-3 text-center text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_24px_60px_-12px_rgba(212,175,55,0.85)]"
+                        >
+                          <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/70 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                          {tier.cta}
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled
+                          className="mb-6 block w-full cursor-not-allowed rounded-lg border border-slate-950 bg-slate-950 px-4 py-2.5 text-center text-base font-extrabold uppercase tracking-wider text-white shadow-[0_8px_24px_-10px_rgba(15,23,42,0.5)]"
+                        >
+                          Coming Soon
+                        </button>
+                      )}
+                      <ul className="space-y-2.5">
+                        {tier.features.map((f) => (
+                          <li key={f} className="flex items-start gap-2 text-base text-slate-700">
+                            <Check
+                              className={`mt-0.5 h-4 w-4 shrink-0 ${
+                                isFounders ? "text-[#c59a22]" : "text-[#d4af37]"
+                              }`}
+                            />
+                            <span>{f}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                )}
-                <ul className={`space-y-2.5 ${isComingSoon ? "grayscale opacity-60" : ""}`}>
-                  {tier.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-base text-slate-700">
-                      <Check
-                        className={`mt-0.5 h-4 w-4 shrink-0 ${
-                          isFounders ? "text-[#c59a22]" : "text-[#d4af37]"
-                        }`}
-                      />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              </Reveal>
+                </Reveal>
               );
             })}
           </div>
-
-
 
           <p className="mt-8 text-center text-sm text-slate-500">
             All plans include unlimited transactions, secure cloud backup, and free updates.
@@ -649,7 +734,8 @@ function Landing() {
                 Stop losing hours to messy spreadsheets.
               </h2>
               <p className="mt-3 text-base leading-7 text-slate-300 sm:text-lg">
-                Join elite agents automating their real estate business. Set up your workspace in 60 seconds.
+                Join elite agents automating their real estate business. Set up your workspace in 60
+                seconds.
               </p>
               <Link
                 to="/signup"
@@ -682,7 +768,7 @@ function Landing() {
                     {column.title}
                   </div>
                   <div className="space-y-3">
-                    {column.links.map((link) => (
+                    {column.links.map((link) =>
                       "to" in link ? (
                         <Link
                           key={link.label}
@@ -700,8 +786,8 @@ function Landing() {
                         >
                           {link.label}
                         </button>
-                      )
-                    ))}
+                      ),
+                    )}
                   </div>
                 </div>
               ))}
@@ -715,8 +801,12 @@ function Landing() {
                     className="rounded-[1.5rem] border border-white/10 bg-white/5 p-4 shadow-[0_18px_45px_-32px_rgba(0,0,0,0.45)] backdrop-blur-md"
                   >
                     <div className="mb-3">
-                      <div className="font-display text-lg font-bold text-white">Stay in the loop</div>
-                      <p className="mt-1 text-sm text-white/60">Click here for product updates for agents and teams</p>
+                      <div className="font-display text-lg font-bold text-white">
+                        Stay in the loop
+                      </div>
+                      <p className="mt-1 text-sm text-white/60">
+                        Click here for product updates for agents and teams
+                      </p>
                     </div>
                     <div className="flex flex-col gap-3 sm:flex-row">
                       <input

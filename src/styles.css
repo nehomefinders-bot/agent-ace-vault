@@ -54,7 +54,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   --shadow-card: 0 1px 2px oklch(20% 0.02 260 / 0.04), 0 4px 12px oklch(20% 0.02 260 / 0.04);
-  --shadow-elevated: 0 8px 30px oklch(35% 0.08 260 / 0.10);
+  --shadow-elevated: 0 8px 30px oklch(35% 0.08 260 / 0.1);
 }
 
 :root {
@@ -68,7 +68,7 @@
   --popover: oklch(100% 0 0);
   --popover-foreground: oklch(20% 0.03 255);
 
-  --primary: oklch(28% 0.10 255);
+  --primary: oklch(28% 0.1 255);
   --primary-foreground: oklch(99% 0.002 250);
 
   --secondary: oklch(36% 0.12 258);
@@ -78,7 +78,7 @@
   --muted-foreground: oklch(42% 0.02 255);
 
   --accent: oklch(94% 0.02 255);
-  --accent-foreground: oklch(28% 0.10 255);
+  --accent-foreground: oklch(28% 0.1 255);
 
   --destructive: oklch(58% 0.22 25);
   --destructive-foreground: oklch(99% 0.002 250);
@@ -93,7 +93,7 @@
   --input: oklch(90% 0.008 250);
   --ring: oklch(36% 0.12 258);
 
-  --chart-1: oklch(28% 0.10 255);
+  --chart-1: oklch(28% 0.1 255);
   --chart-2: oklch(55% 0.15 150);
   --chart-3: oklch(70% 0.13 70);
   --chart-4: oklch(58% 0.22 25);
@@ -195,9 +195,21 @@
     z-index: -1;
     pointer-events: none;
     background:
-      radial-gradient(80% 60% at 80% 0%, color-mix(in oklab, var(--color-primary) 10%, transparent), transparent 60%),
-      radial-gradient(70% 50% at 0% 100%, color-mix(in oklab, var(--color-secondary) 12%, transparent), transparent 60%),
-      linear-gradient(180deg, color-mix(in oklab, var(--color-background) 25%, transparent), color-mix(in oklab, var(--color-background) 40%, transparent));
+      radial-gradient(
+        80% 60% at 80% 0%,
+        color-mix(in oklab, var(--color-primary) 10%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        70% 50% at 0% 100%,
+        color-mix(in oklab, var(--color-secondary) 12%, transparent),
+        transparent 60%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--color-background) 25%, transparent),
+        color-mix(in oklab, var(--color-background) 40%, transparent)
+      );
   }
   :root {
     color-scheme: light;
@@ -205,12 +217,17 @@
   .dark {
     color-scheme: dark;
   }
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
     letter-spacing: -0.01em;
     font-weight: 600;
   }
-  h1 { letter-spacing: -0.005em; }
+  h1 {
+    letter-spacing: -0.005em;
+  }
   .tracking-display {
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -257,7 +274,9 @@
   .btn-primary:hover:not(:disabled) {
     background-color: color-mix(in oklab, var(--color-primary) 90%, black);
   }
-  .btn-primary:disabled { opacity: 0.6; }
+  .btn-primary:disabled {
+    opacity: 0.6;
+  }
   .btn-secondary {
     display: inline-flex;
     align-items: center;
@@ -274,6 +293,21 @@
   .btn-secondary:hover:not(:disabled) {
     background-color: color-mix(in oklab, var(--color-secondary) 92%, black);
     color: var(--color-secondary-foreground);
+  }
+  .founder-nav-cta {
+    position: relative;
+    isolation: isolate;
+    animation: founder-cta-pulse 2.8s ease-in-out infinite;
+  }
+  .founder-nav-cta::after {
+    content: "";
+    position: absolute;
+    inset: -0.35rem;
+    z-index: -1;
+    border-radius: 0.85rem;
+    background: color-mix(in oklab, #d4af37 34%, transparent);
+    filter: blur(16px);
+    opacity: 0.56;
   }
 }
 
@@ -300,5 +334,80 @@
   }
   .row-hover-blue:hover {
     background-color: color-mix(in oklab, var(--color-primary) 8%, transparent);
+  }
+}
+
+@keyframes founder-cta-pulse {
+  0%,
+  100% {
+    box-shadow: 0 12px 30px -12px rgba(212, 175, 55, 0.72);
+    transform: translateZ(0) scale(1);
+  }
+  50% {
+    box-shadow: 0 16px 42px -10px rgba(212, 175, 55, 0.95);
+    transform: translateZ(0) scale(1.025);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .founder-nav-cta {
+    animation: none;
+  }
+}
+
+@layer utilities {
+  .app-content-backdrop,
+  .app-content-backdrop * {
+    min-width: 0;
+  }
+
+  .app-content-backdrop :where(input, select, textarea, button) {
+    max-width: 100%;
+  }
+
+  .app-content-backdrop :where(.overflow-auto, .overflow-x-auto) {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .app-content-backdrop :where(table) {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .app-content-backdrop :where(.grid) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .app-content-backdrop :where(.flex) {
+    min-width: 0;
+  }
+
+  .app-content-backdrop :where(.rounded-xl, .rounded-2xl, .rounded-3xl, .card, .glass) {
+    max-width: 100%;
+  }
+
+  .app-content-backdrop :where(table) {
+    font-size: 0.8125rem;
+  }
+
+  .app-content-backdrop :where(th, td) {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .app-content-backdrop :where(input, select, textarea, .input) {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .app-content-backdrop :where(p, h1, h2, h3, h4, h5, h6, li, td, th) {
+    overflow-wrap: anywhere;
   }
 }

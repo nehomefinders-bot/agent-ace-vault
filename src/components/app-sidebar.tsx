@@ -1,9 +1,26 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
-  LayoutDashboard, TrendingUp, Home, Users, Receipt,
-  Wallet, Car, Image, FolderOpen, BookOpen, LifeBuoy, LogOut, LogIn,
-  CreditCard, Sparkles, Settings, ListTodo, Menu, X, CalendarDays,
+  LayoutDashboard,
+  TrendingUp,
+  Home,
+  Users,
+  Receipt,
+  Wallet,
+  Car,
+  Image,
+  FolderOpen,
+  BookOpen,
+  LifeBuoy,
+  LogOut,
+  LogIn,
+  CreditCard,
+  Sparkles,
+  Settings,
+  ListTodo,
+  Menu,
+  X,
+  CalendarDays,
   User,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -72,7 +89,10 @@ export function AppSidebar() {
   }, [mobileOpen]);
 
   const currentPlan = subscription
-    ? PLANS.find((p) => p.monthly.priceId === subscription.price_id || p.yearly.priceId === subscription.price_id)
+    ? PLANS.find(
+        (p) =>
+          p.monthly.priceId === subscription.price_id || p.yearly.priceId === subscription.price_id,
+      )
     : null;
   const planLabel = !user
     ? "-"
@@ -80,7 +100,7 @@ export function AppSidebar() {
       ? "No plan"
       : subscription?.status === "trialing"
         ? `${currentPlan?.name ?? "Trial"} (trial)`
-        : currentPlan?.name ?? "Active";
+        : (currentPlan?.name ?? "Active");
 
   const sidebarContent = (
     <div className="flex h-full min-h-0 flex-col">
@@ -89,7 +109,7 @@ export function AppSidebar() {
           logoClassName="h-9 w-9 border border-sidebar-border bg-black ring-0"
           titleClassName="truncate text-base text-white"
           taglineClassName="text-xs text-amber-400"
-          textClassName="max-w-[12rem]"
+          textClassName="max-w-[min(12rem,calc(100vw-8rem))]"
         />
         <button
           type="button"
@@ -132,12 +152,16 @@ export function AppSidebar() {
 
       <div className="m-3 p-4 rounded-xl bg-sidebar-accent/60 border border-sidebar-border space-y-3 shrink-0">
         <div>
-          <div className="mb-1 text-xs uppercase tracking-wider text-sidebar-foreground/75">Plan</div>
+          <div className="mb-1 text-xs uppercase tracking-wider text-sidebar-foreground/75">
+            Plan
+          </div>
           <div className="text-base font-medium text-sidebar-foreground">{planLabel}</div>
         </div>
         {user ? (
           <div className="pt-2 border-t border-sidebar-border">
-            <div className="mb-2 break-all text-sm leading-5 text-sidebar-foreground/75">{user.email}</div>
+            <div className="mb-2 break-all text-sm leading-5 text-sidebar-foreground/75">
+              {user.email}
+            </div>
             <button
               onClick={async () => {
                 await signOut();
@@ -180,7 +204,7 @@ export function AppSidebar() {
           logoClassName="h-8 w-8 rounded-lg border border-sidebar-border bg-black ring-0"
           titleClassName="truncate text-base text-white"
           taglineClassName="text-[9px] text-amber-400"
-          textClassName="max-w-[12rem]"
+          textClassName="max-w-[min(10rem,calc(100vw-9rem))]"
         />
         <Link
           to="/"

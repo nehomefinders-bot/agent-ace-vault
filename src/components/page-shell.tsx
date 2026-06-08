@@ -17,14 +17,14 @@ export function PageShell({
   const showHomeButton = path !== "/";
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-[1400px] mx-auto">
-      <header className="mb-6 sm:mb-8 rounded-3xl border border-border/70 bg-card px-4 py-4 shadow-sm sm:px-6 sm:py-5">
+    <div className="mx-auto w-full max-w-[1400px] min-w-0 overflow-x-hidden px-3 py-4 sm:px-6 sm:py-6 lg:p-8">
+      <header className="mb-5 min-w-0 rounded-2xl border border-border/70 bg-card px-4 py-4 shadow-sm sm:mb-8 sm:rounded-3xl sm:px-6 sm:py-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">{title}</h1>
+          <div className="min-w-0">
+            <h1 className="break-words text-2xl font-bold sm:text-3xl">{title}</h1>
             {subtitle && <p className="text-muted-foreground mt-1.5 text-sm">{subtitle}</p>}
           </div>
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto sm:gap-3">
             {showHomeButton && (
               <Link
                 to="/"
@@ -60,7 +60,9 @@ export function StatusPill({
     muted: "bg-muted text-muted-foreground",
   };
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${tones[tone]}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${tones[tone]}`}
+    >
       {children}
     </span>
   );
