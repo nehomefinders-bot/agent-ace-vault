@@ -2,18 +2,22 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, type ComponentType, type FormEvent, type ReactNode } from "react";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
 import { LegalDocumentModal, type LegalDocumentKind } from "@/components/legal-documents";
 import { BrandLockup } from "@/components/brand-lockup";
 import { PasswordVisibilityInput } from "@/components/password-visibility-input";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
   head: () => ({
     meta: [
       { title: "Sign in - Agent Business Tracker" },
-      { name: "description", content: "Sign in or create your Agent Business Tracker account to track commissions, expenses and mileage." },
+      {
+        name: "description",
+        content:
+          "Sign in or create your Agent Business Tracker account to track commissions, expenses and mileage.",
+      },
     ],
   }),
 });
@@ -27,9 +31,11 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
   const [name, setName] = useState("");
   const [hasConsent, setHasConsent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [legalDoc, setLegalDoc] = useState<LegalDocumentKind | null>(null);
+  const busy = loading || oauthLoading;
 
   useEffect(() => {
     if (authLoading) return;
@@ -39,6 +45,8 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (busy) return;
+
     setError(null);
     setInfo(null);
 
@@ -78,21 +86,32 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
     setInfo(null);
 
     if (mode === "signup" && !hasConsent) {
-      setError("Please confirm that you agree to the Terms and Conditions and Privacy Policy.");
+      const message =
+        "Please confirm that you agree to the Terms and Conditions and Privacy Policy.";
+      setError(message);
+      toast.error(message);
       return;
     }
 
-    setLoading(true);
+    setOauthLoading(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+      if (typeof window === "undefined") {
+        throw new Error("Google sign-in is only available in the browser.");
+      }
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin,
+        },
       });
-      if (result.error) throw result.error;
-      if (result.redirected) return;
-      nav({ to: "/" });
+
+      if (error) throw error;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Google sign-in failed");
-      setLoading(false);
+      const message = err instanceof Error ? err.message : "Google sign-in failed";
+      setError(message);
+      toast.error(message);
+      setOauthLoading(false);
     }
   }
 
@@ -108,22 +127,28 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
             {mode === "signin" ? "Welcome back" : "Create your account"}
           </h1>
           <p className="text-sm text-muted-foreground mb-6">
-            {mode === "signin" ? "Sign in to your books, mileage and clients." : "Start tracking commissions and write-offs in minutes."}
+            {mode === "signin"
+              ? "Sign in to your books, mileage and clients."
+              : "Start tracking commissions and write-offs in minutes."}
           </p>
 
           <button
             type="button"
             onClick={signInWithGoogle}
-            disabled={loading}
+            disabled={busy}
             className="w-full mb-3 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-border bg-background text-sm font-medium hover:bg-muted disabled:opacity-60"
           >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                fill="#EA4335"
-                d="M12 11v3.2h5.5c-.2 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.6 14.6 2.7 12 2.7 6.9 2.7 2.8 6.8 2.8 12s4.1 9.3 9.2 9.3c5.3 0 8.8-3.7 8.8-9 0-.6-.1-1.1-.2-1.6H12z"
-              />
-            </svg>
-            Continue with Google
+            {oauthLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  fill="#EA4335"
+                  d="M12 11v3.2h5.5c-.2 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.6 14.6 2.7 12 2.7 6.9 2.7 2.8 6.8 2.8 12s4.1 9.3 9.2 9.3c5.3 0 8.8-3.7 8.8-9 0-.6-.1-1.1-.2-1.6H12z"
+                />
+              </svg>
+            )}
+            {oauthLoading ? "Connecting to Google..." : "Continue with Google"}
           </button>
 
           <div className="relative my-3 text-center text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -193,12 +218,18 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
               </label>
             )}
 
-            {error && <div className="text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg">{error}</div>}
-            {info && <div className="text-xs text-success bg-success/10 px-3 py-2 rounded-lg">{info}</div>}
+            {error && (
+              <div className="text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg">
+                {error}
+              </div>
+            )}
+            {info && (
+              <div className="text-xs text-success bg-success/10 px-3 py-2 rounded-lg">{info}</div>
+            )}
 
             <button
               type="submit"
-              disabled={loading || (mode === "signup" && !hasConsent)}
+              disabled={busy || (mode === "signup" && !hasConsent)}
               className="w-full bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium inline-flex items-center justify-center gap-2 disabled:opacity-60"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -211,14 +242,20 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
               {mode === "signin" ? (
                 <>
                   New here?{" "}
-                  <button onClick={() => setMode("signup")} className="text-foreground font-medium hover:underline">
+                  <button
+                    onClick={() => setMode("signup")}
+                    className="text-foreground font-medium hover:underline"
+                  >
                     Create an account
                   </button>
                 </>
               ) : (
                 <>
                   Already have an account?{" "}
-                  <button onClick={() => setMode("signin")} className="text-foreground font-medium hover:underline">
+                  <button
+                    onClick={() => setMode("signin")}
+                    className="text-foreground font-medium hover:underline"
+                  >
                     Sign in
                   </button>
                 </>
@@ -226,7 +263,10 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
             </div>
             {mode === "signin" && (
               <div>
-                <Link to="/forgot-password" className="text-xs text-muted-foreground hover:text-foreground">
+                <Link
+                  to="/forgot-password"
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
                   Forgot your password?
                 </Link>
               </div>
@@ -286,9 +326,13 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5 block">{label}</span>
+      <span className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5 block">
+        {label}
+      </span>
       <div className="relative">
-        {Icon && <Icon className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />}
+        {Icon && (
+          <Icon className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        )}
         {children}
       </div>
     </label>
