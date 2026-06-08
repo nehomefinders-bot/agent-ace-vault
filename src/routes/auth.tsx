@@ -100,14 +100,12 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
         throw new Error("Google sign-in is only available in the browser.");
       }
 
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: window.location.origin,
-        },
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
       });
 
-      if (error) throw error;
+      if (result.error) throw result.error;
+      // If redirected, the browser navigates to Google; otherwise session is set.
     } catch (err) {
       const message = err instanceof Error ? err.message : "Google sign-in failed";
       setError(message);
