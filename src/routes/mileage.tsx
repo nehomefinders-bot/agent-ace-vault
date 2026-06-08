@@ -22,7 +22,7 @@ const startBackgroundTracking = async () => {
   try {
     const watcherId = await BackgroundGeolocation.addWatcher(
       {
-        backgroundTitle: "Agent Business Tracker Showing Tracker Active",
+        backgroundTitle: "Agent Business Tracker Mileage Tracker Active",
         backgroundMessage: "Logging your trip miles automatically in the background.",
         requestPermissions: true,
         stale: false,
@@ -49,7 +49,7 @@ const startBackgroundTracking = async () => {
 
 export const Route = createFileRoute("/mileage")({
   component: Mileage,
-  head: () => ({ meta: [{ title: "Showing Tracker - Agent Business Tracker" }] }),
+  head: () => ({ meta: [{ title: "Mileage Tracker - Agent Business Tracker" }] }),
 });
 
 const irsRate = 0.67;
@@ -152,7 +152,7 @@ function Mileage() {
 
   if (!user) {
     return (
-      <PageShell title="Showing Tracker" subtitle="Sign in to log and track trips.">
+      <PageShell title="Mileage Tracker" subtitle="Sign in to log and track trips.">
         <Link to="/auth" className="inline-flex bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium">Sign in</Link>
       </PageShell>
     );
@@ -160,7 +160,7 @@ function Mileage() {
 
   return (
     <PageShell
-      title="Showing Tracker"
+      title="Mileage Tracker"
       subtitle="Three ways to log: live GPS while you drive, address-to-address, or by hand."
       actions={
         <div className="flex flex-wrap items-center gap-2">
