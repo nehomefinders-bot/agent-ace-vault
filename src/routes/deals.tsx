@@ -58,6 +58,8 @@ interface Deal {
 type DealFormValues = {
   address: string;
   client: string;
+  clientEmail: string;
+  clientPhone: string;
   side: string;
   salePrice: string;
   commPct: string;
@@ -68,6 +70,62 @@ type DealFormValues = {
   closeDate: string;
   images: File[];
 };
+
+async function syncDealToContact(opts: {
+  userId: string;
+  name: string;
+  email: string;
+  phone: string;
+  side: string;
+  address: string;
+}) {
+  const name = opts.name.trim();
+  if (!name) return;
+  const sideLabel = opts.side === "sell" ? "Seller Side" : "Buyer Side";
+  const clientType = opts.side === "sell" ? "seller" : "buyer";
+  const email = opts.email.trim() || null;
+  const phone = opts.phone.trim() || null;
+  const address = opts.address.trim() || null;
+  const noteLine = `${sideLabel}${address ? ` · ${address}` : ""}`;
+
+  // Look for existing contact by email or phone to avoid duplicates
+  let existingId: string | null = null;
+  if (email) {
+    const { data } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("user_id", opts.userId)
+      .ilike("email", email)
+      .maybeSingle();
+    existingId = data?.id ?? null;
+  }
+  if (!existingId && phone) {
+    const { data } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("user_id", opts.userId)
+      .eq("phone", phone)
+      .maybeSingle();
+    existingId = data?.id ?? null;
+  }
+
+  const payload = {
+    user_id: opts.userId,
+    name,
+    email,
+    phone,
+    address,
+    client_type: clientType,
+    notes: noteLine,
+    source: "deal",
+  };
+
+  if (existingId) {
+    await supabase.from("clients").update(payload).eq("id", existingId);
+  } else {
+    await supabase.from("clients").insert(payload);
+  }
+}
 
 function DealsPage() {
   const { user } = useAuth();
