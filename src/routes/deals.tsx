@@ -619,6 +619,15 @@ function DealDialog({
             </FormField>
           </div>
 
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <FormField label="Client email">
+              <Input type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="client@example.com" />
+            </FormField>
+            <FormField label="Client phone number">
+              <Input type="tel" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder="(555) 123-4567" />
+            </FormField>
+          </div>
+
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <FormField label="Sale price">
               <Input type="number" value={salePrice} onChange={(e) => setSalePrice(e.target.value)} placeholder="Enter sale price" className="tabular-nums" />
