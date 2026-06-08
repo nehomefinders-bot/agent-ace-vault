@@ -58,6 +58,8 @@ interface Deal {
 type DealFormValues = {
   address: string;
   client: string;
+  clientEmail: string;
+  clientPhone: string;
   side: string;
   salePrice: string;
   commPct: string;
@@ -68,6 +70,62 @@ type DealFormValues = {
   closeDate: string;
   images: File[];
 };
+
+async function syncDealToContact(opts: {
+  userId: string;
+  name: string;
+  email: string;
+  phone: string;
+  side: string;
+  address: string;
+}) {
+  const name = opts.name.trim();
+  if (!name) return;
+  const sideLabel = opts.side === "sell" ? "Seller Side" : "Buyer Side";
+  const clientType = opts.side === "sell" ? "seller" : "buyer";
+  const email = opts.email.trim() || null;
+  const phone = opts.phone.trim() || null;
+  const address = opts.address.trim() || null;
+  const noteLine = `${sideLabel}${address ? ` · ${address}` : ""}`;
+
+  // Look for existing contact by email or phone to avoid duplicates
+  let existingId: string | null = null;
+  if (email) {
+    const { data } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("user_id", opts.userId)
+      .ilike("email", email)
+      .maybeSingle();
+    existingId = data?.id ?? null;
+  }
+  if (!existingId && phone) {
+    const { data } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("user_id", opts.userId)
+      .eq("phone", phone)
+      .maybeSingle();
+    existingId = data?.id ?? null;
+  }
+
+  const payload = {
+    user_id: opts.userId,
+    name,
+    email,
+    phone,
+    address,
+    client_type: clientType,
+    notes: noteLine,
+    source: "deal",
+  };
+
+  if (existingId) {
+    await supabase.from("clients").update(payload).eq("id", existingId);
+  } else {
+    await supabase.from("clients").insert(payload);
+  }
+}
 
 function DealsPage() {
   const { user } = useAuth();
@@ -228,6 +286,18 @@ function DealsPage() {
             status: input.status,
             images: input.images,
           });
+          try {
+            await syncDealToContact({
+              userId: user.id,
+              name: input.client,
+              email: input.clientEmail,
+              phone: input.clientPhone,
+              side: input.side,
+              address: input.address,
+            });
+          } catch (err) {
+            console.error("Sync deal contact failed", err);
+          }
           toast.success("Deal added");
           await reload();
         }}
@@ -418,6 +488,8 @@ function DealDialog({
   const MAX_FILE_MB = 8;
   const [address, setAddress] = useState(initial?.address ?? "");
   const [client, setClient] = useState(initial?.client ?? "");
+  const [clientEmail, setClientEmail] = useState(initial?.clientEmail ?? "");
+  const [clientPhone, setClientPhone] = useState(initial?.clientPhone ?? "");
   const [side, setSide] = useState(initial?.side ?? "buy");
   const [salePrice, setSalePrice] = useState(initial?.salePrice ?? "");
   const [commPct, setCommPct] = useState(initial?.commPct ?? "");
@@ -435,6 +507,8 @@ function DealDialog({
     if (!open) return;
     setAddress(initial?.address ?? "");
     setClient(initial?.client ?? "");
+    setClientEmail(initial?.clientEmail ?? "");
+    setClientPhone(initial?.clientPhone ?? "");
     setSide(initial?.side ?? "buy");
     setSalePrice(initial?.salePrice ?? "");
     setCommPct(initial?.commPct ?? "");
@@ -495,6 +569,8 @@ function DealDialog({
       await onSubmit({
         address: address.trim(),
         client: client.trim(),
+        clientEmail: clientEmail.trim(),
+        clientPhone: clientPhone.trim(),
         side,
         salePrice,
         commPct,
@@ -540,6 +616,15 @@ function DealDialog({
                   <SelectItem value="both">Both sides</SelectItem>
                 </SelectContent>
               </Select>
+            </FormField>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <FormField label="Client email">
+              <Input type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="client@example.com" />
+            </FormField>
+            <FormField label="Client phone number">
+              <Input type="tel" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder="(555) 123-4567" />
             </FormField>
           </div>
 
@@ -699,6 +784,8 @@ function dealToForm(d: Deal): DealFormValues {
   return {
     address: d.address,
     client: d.client_name ?? "",
+    clientEmail: "",
+    clientPhone: "",
     side: d.side ?? "buy",
     salePrice: String(d.sale_price ?? 0),
     commPct,
