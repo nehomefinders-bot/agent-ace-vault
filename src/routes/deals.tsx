@@ -301,6 +301,7 @@ function DealsPage() {
           try {
             await syncDealToContact({
               userId: user.id,
+              dealId: data.id,
               name: input.client,
               email: input.clientEmail,
               phone: input.clientPhone,
