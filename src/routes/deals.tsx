@@ -507,6 +507,8 @@ function DealDialog({
     if (!open) return;
     setAddress(initial?.address ?? "");
     setClient(initial?.client ?? "");
+    setClientEmail(initial?.clientEmail ?? "");
+    setClientPhone(initial?.clientPhone ?? "");
     setSide(initial?.side ?? "buy");
     setSalePrice(initial?.salePrice ?? "");
     setCommPct(initial?.commPct ?? "");
