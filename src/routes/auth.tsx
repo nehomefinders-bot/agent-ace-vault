@@ -7,6 +7,7 @@ import { LegalDocumentModal, type LegalDocumentKind } from "@/components/legal-d
 import { BrandLockup } from "@/components/brand-lockup";
 import { PasswordVisibilityInput } from "@/components/password-visibility-input";
 import { toast } from "sonner";
+import { lovable } from "@/integrations/lovable";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
