@@ -775,6 +775,8 @@ function dealToForm(d: Deal): DealFormValues {
   return {
     address: d.address,
     client: d.client_name ?? "",
+    clientEmail: "",
+    clientPhone: "",
     side: d.side ?? "buy",
     salePrice: String(d.sale_price ?? 0),
     commPct,
