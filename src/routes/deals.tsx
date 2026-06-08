@@ -488,6 +488,8 @@ function DealDialog({
   const MAX_FILE_MB = 8;
   const [address, setAddress] = useState(initial?.address ?? "");
   const [client, setClient] = useState(initial?.client ?? "");
+  const [clientEmail, setClientEmail] = useState(initial?.clientEmail ?? "");
+  const [clientPhone, setClientPhone] = useState(initial?.clientPhone ?? "");
   const [side, setSide] = useState(initial?.side ?? "buy");
   const [salePrice, setSalePrice] = useState(initial?.salePrice ?? "");
   const [commPct, setCommPct] = useState(initial?.commPct ?? "");
