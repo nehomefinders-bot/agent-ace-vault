@@ -569,6 +569,8 @@ function DealDialog({
       await onSubmit({
         address: address.trim(),
         client: client.trim(),
+        clientEmail: clientEmail.trim(),
+        clientPhone: clientPhone.trim(),
         side,
         salePrice,
         commPct,
