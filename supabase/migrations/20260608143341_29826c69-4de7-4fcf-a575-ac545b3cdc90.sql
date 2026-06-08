@@ -1,0 +1,2 @@
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS deal_id uuid REFERENCES public.deals(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_clients_user_deal ON public.clients(user_id, deal_id) WHERE deal_id IS NOT NULL;

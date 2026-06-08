@@ -134,6 +134,7 @@ export type Database = {
           company: string | null
           country: string | null
           created_at: string
+          deal_id: string | null
           email: string | null
           ghl_contact_id: string | null
           id: string
@@ -160,6 +161,7 @@ export type Database = {
           company?: string | null
           country?: string | null
           created_at?: string
+          deal_id?: string | null
           email?: string | null
           ghl_contact_id?: string | null
           id?: string
@@ -186,6 +188,7 @@ export type Database = {
           company?: string | null
           country?: string | null
           created_at?: string
+          deal_id?: string | null
           email?: string | null
           ghl_contact_id?: string | null
           id?: string
@@ -203,7 +206,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clients_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       deals: {
         Row: {
