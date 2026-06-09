@@ -38,11 +38,17 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
   const [legalDoc, setLegalDoc] = useState<LegalDocumentKind | null>(null);
   const busy = loading || oauthLoading;
 
+  const nextDest = (() => {
+    if (typeof window === "undefined") return "/";
+    const p = new URLSearchParams(window.location.search).get("next");
+    return p && p.startsWith("/") ? p : "/";
+  })();
+
   useEffect(() => {
     if (authLoading) return;
     if (!user) return;
-    nav({ to: "/", replace: true });
-  }, [authLoading, user, nav]);
+    nav({ to: nextDest as any, replace: true });
+  }, [authLoading, user, nav, nextDest]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -73,7 +79,7 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        nav({ to: "/" });
+        nav({ to: nextDest as any });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
