@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check, Loader2, Sparkles } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { PLANS, getStripeEnvironment, isTestMode } from "@/lib/stripe";
@@ -27,6 +27,22 @@ function PricingPage() {
   const { user } = useAuth();
   const { subscription, isActive } = useSubscription();
   const navigate = useNavigate();
+
+  // Auto-open checkout when the URL has ?checkout=<priceId> (e.g. from
+  // landing page "Claim Founder Access" → /auth?next=/pricing?checkout=beta_monthly).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!user) return;
+    const params = new URLSearchParams(window.location.search);
+    const desired = params.get("checkout");
+    if (!desired) return;
+    if (isActive) return;
+    setCheckoutPriceId(desired);
+    params.delete("checkout");
+    const qs = params.toString();
+    window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
+  }, [user, isActive]);
+
 
   async function subscribe(priceId: string) {
     if (!user) {
