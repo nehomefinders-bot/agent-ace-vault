@@ -369,13 +369,13 @@ function Landing() {
                 ))}
               </ul>
               <div className="mt-8 flex flex-wrap items-center gap-4">
-                <Link
-                  to="/auth"
+                <a
+                  href="/auth?next=%2Fpricing%3Fcheckout%3Dbeta_monthly"
                   className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-7 py-3.5 text-base font-bold text-slate-950 shadow-[0_18px_50px_-12px_rgba(212,175,55,0.7)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-12px_rgba(212,175,55,0.85)]"
                 >
                   <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                   Claim Founder Access <ArrowRight className="h-4 w-4" />
-                </Link>
+                </a>
                 <span className="text-sm text-white/55">
                   No charge until day 15 - Cancel anytime
                 </span>
@@ -477,12 +477,12 @@ function Landing() {
               <h2 className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">
                 Ready to track your Real Estate Business?
               </h2>
-              <Link
-                to="/auth"
+              <a
+                href="/auth?next=%2Fpricing%3Fcheckout%3Dbeta_monthly"
                 className="inline-flex items-center justify-center rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_28px_-14px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f]"
               >
                 Join the Founders' Program
-              </Link>
+              </a>
             </div>
           </div>
         </div>
@@ -685,13 +685,13 @@ function Landing() {
                     </div>
                     <div className={isComingSoon ? "grayscale opacity-35 pointer-events-none" : ""}>
                       {isFounders ? (
-                        <Link
-                          to="/auth"
+                        <a
+                          href="/auth?next=%2Fpricing%3Fcheckout%3Dbeta_monthly"
                           className="group relative mb-6 block w-full overflow-hidden rounded-lg bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-4 py-3 text-center text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_24px_60px_-12px_rgba(212,175,55,0.85)]"
                         >
                           <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/70 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                           {tier.cta}
-                        </Link>
+                        </a>
                       ) : (
                         <button
                           type="button"
