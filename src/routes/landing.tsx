@@ -240,12 +240,12 @@ function Landing() {
             >
               Sign in
             </Link>
-            <Link
-              to="/auth"
+            <a
+              href="/auth?next=%2Fpricing%3Fcheckout%3Dbeta_monthly"
               className="founder-nav-cta whitespace-nowrap rounded-lg bg-[#d4af37] px-3 py-2 text-sm font-bold text-slate-950 shadow-[0_12px_30px_-12px_rgba(212,175,55,0.7)] transition-colors hover:bg-[#c89e2f] sm:px-4 sm:text-base"
             >
               Claim Founder Access
-            </Link>
+            </a>
           </div>
         </div>
       </nav>
