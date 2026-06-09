@@ -1,15 +1,38 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ImagePlus, Loader2, Pencil, Plus, TrendingUp, Trash2, Upload, Home as HomeIcon, X } from "lucide-react";
+import {
+  ImagePlus,
+  Loader2,
+  Pencil,
+  Plus,
+  TrendingUp,
+  Trash2,
+  Upload,
+  Home as HomeIcon,
+  X,
+} from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatMoney } from "@/hooks/use-books";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BulkStatusBar } from "@/components/bulk-status-bar";
 import { toast } from "sonner";
@@ -28,7 +51,12 @@ const DEAL_IMPORT_COLUMNS: ImportColumn[] = [
   { key: "brokerage_split_pct", label: "Brokerage Split %", type: "number", sample: 20 },
   { key: "referral_pct", label: "Referral %", type: "number", sample: 0 },
   { key: "referral_to", label: "Referral To", sample: "" },
-  { key: "status", label: "Status", enumValues: PIPELINE_STAGES.map((stage) => stage.key), sample: "new_lead" },
+  {
+    key: "status",
+    label: "Status",
+    enumValues: PIPELINE_STAGES.map((stage) => stage.key),
+    sample: "new_lead",
+  },
   { key: "close_date", label: "Close Date", type: "date", sample: "2025-01-15" },
   { key: "agent_name", label: "Agent Name", sample: "" },
   { key: "notes", label: "Notes", sample: "" },
@@ -148,14 +176,23 @@ function DealsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const reload = async () => {
-    if (!user) { setDeals([]); setLoading(false); return; }
+    if (!user) {
+      setDeals([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
-    const { data } = await supabase.from("deals").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase
+      .from("deals")
+      .select("*")
+      .order("created_at", { ascending: false });
     setDeals((data ?? []) as Deal[]);
     setSelected(new Set());
     setLoading(false);
   };
-  useEffect(() => { reload(); /* eslint-disable-next-line */ }, [user]);
+  useEffect(() => {
+    reload(); /* eslint-disable-next-line */
+  }, [user]);
 
   const remove = async (id: string) => {
     await supabase.from("deals").delete().eq("id", id);
@@ -170,9 +207,17 @@ function DealsPage() {
   };
 
   const toggleOne = (id: string) =>
-    setSelected((cur) => { const n = new Set(cur); n.has(id) ? n.delete(id) : n.add(id); return n; });
+    setSelected((cur) => {
+      const n = new Set(cur);
+      if (n.has(id)) {
+        n.delete(id);
+      } else {
+        n.add(id);
+      }
+      return n;
+    });
   const toggleAll = () =>
-    setSelected((cur) => cur.size === deals.length ? new Set() : new Set(deals.map((d) => d.id)));
+    setSelected((cur) => (cur.size === deals.length ? new Set() : new Set(deals.map((d) => d.id))));
 
   const bulkUpdateStatus = async (status: string) => {
     const ids = Array.from(selected);
@@ -180,7 +225,11 @@ function DealsPage() {
     const prev = deals;
     setDeals((cur) => cur.map((d) => (selected.has(d.id) ? { ...d, status } : d)));
     const { error } = await supabase.from("deals").update({ status }).in("id", ids);
-    if (error) { setDeals(prev); toast.error(error.message); return; }
+    if (error) {
+      setDeals(prev);
+      toast.error(error.message);
+      return;
+    }
     toast.success(`Updated ${ids.length} deal${ids.length > 1 ? "s" : ""}`);
     setSelected(new Set());
   };
@@ -201,7 +250,12 @@ function DealsPage() {
   if (!user) {
     return (
       <PageShell title="Deals" subtitle="Sign in to track deals and commissions.">
-        <Link to="/auth" className="inline-flex bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium">Sign in</Link>
+        <Link
+          to="/auth"
+          className="inline-flex bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium"
+        >
+          Sign in
+        </Link>
       </PageShell>
     );
   }
@@ -249,9 +303,24 @@ function DealsPage() {
       }
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Stat label="Sold YTD (your take)" value={formatMoney(earnedYTD)} accent="success" sub={`${sold.length} deals`} />
-        <Stat label="Pipeline (your take)" value={formatMoney(pipelineValue)} accent="primary" sub={`${pipeline.length} active`} />
-        <Stat label="Total deals" value={String(deals.length)} accent="muted" sub={`${buyerSideCount} buyer · ${sellerSideCount} seller`} />
+        <Stat
+          label="Sold YTD (your take)"
+          value={formatMoney(earnedYTD)}
+          accent="success"
+          sub={`${sold.length} deals`}
+        />
+        <Stat
+          label="Pipeline (your take)"
+          value={formatMoney(pipelineValue)}
+          accent="primary"
+          sub={`${pipeline.length} active`}
+        />
+        <Stat
+          label="Total deals"
+          value={String(deals.length)}
+          accent="muted"
+          sub={`${buyerSideCount} buyer · ${sellerSideCount} seller`}
+        />
       </div>
 
       <DealDialog
@@ -266,20 +335,24 @@ function DealsPage() {
           const agentSplit = parseFloat(input.agentSplit) || 0;
           const refPct = parseFloat(input.refPct) || 0;
           const gross = sale * (commPct / 100);
-          const { data, error } = await supabase.from("deals").insert({
-            user_id: user.id,
-            address: input.address,
-            client_name: input.client || null,
-            side: input.side,
-            sale_price: sale,
-            gross_commission: gross,
-            agent_split_pct: agentSplit,
-            brokerage_split_pct: 100 - agentSplit,
-            referral_pct: refPct,
-            referral_to: input.refTo || null,
-            status: input.status,
-            close_date: input.closeDate || null,
-          }).select("id").single();
+          const { data, error } = await supabase
+            .from("deals")
+            .insert({
+              user_id: user.id,
+              address: input.address,
+              client_name: input.client || null,
+              side: input.side,
+              sale_price: sale,
+              gross_commission: gross,
+              agent_split_pct: agentSplit,
+              brokerage_split_pct: 100 - agentSplit,
+              referral_pct: refPct,
+              referral_to: input.refTo || null,
+              status: input.status,
+              close_date: input.closeDate || null,
+            })
+            .select("id")
+            .single();
           if (error) throw error;
           if (!data?.id) throw new Error("Could not create deal");
           await syncDealToListing({
@@ -331,19 +404,22 @@ function DealsPage() {
           const agentSplit = parseFloat(input.agentSplit) || 0;
           const refPct = parseFloat(input.refPct) || 0;
           const gross = sale * (commPct / 100);
-          const { error } = await supabase.from("deals").update({
-            address: input.address,
-            client_name: input.client || null,
-            side: input.side,
-            sale_price: sale,
-            gross_commission: gross,
-            agent_split_pct: agentSplit,
-            brokerage_split_pct: 100 - agentSplit,
-            referral_pct: refPct,
-            referral_to: input.refTo || null,
-            status: input.status,
-            close_date: input.closeDate || null,
-          }).eq("id", editing.id);
+          const { error } = await supabase
+            .from("deals")
+            .update({
+              address: input.address,
+              client_name: input.client || null,
+              side: input.side,
+              sale_price: sale,
+              gross_commission: gross,
+              agent_split_pct: agentSplit,
+              brokerage_split_pct: 100 - agentSplit,
+              referral_pct: refPct,
+              referral_to: input.refTo || null,
+              status: input.status,
+              close_date: input.closeDate || null,
+            })
+            .eq("id", editing.id);
           if (error) throw error;
           await syncDealToListing({
             userId: user.id,
@@ -394,98 +470,252 @@ function DealsPage() {
         ) : deals.length === 0 ? (
           <div className="p-12 text-center">
             <HomeIcon className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-            <div className="text-sm text-muted-foreground">No deals yet. Add your first one to start tracking commissions.</div>
+            <div className="text-sm text-muted-foreground">
+              No deals yet. Add your first one to start tracking commissions.
+            </div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-          <table className="w-full min-w-[960px] text-sm">
-            <thead>
-              <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
-                <th className="w-12 pl-6 pr-2 py-3">
-                  <Checkbox checked={selected.size === deals.length && deals.length > 0} onCheckedChange={toggleAll} aria-label="Select all" />
-                </th>
-                <th className="text-left font-medium py-3 pl-2">Property</th>
-                <th className="text-left font-medium py-3">Side</th>
-                <th className="text-left font-medium py-3">Status</th>
-                <th className="text-right font-medium py-3">Sale price</th>
-                <th className="text-right font-medium py-3">Gross comm.</th>
-                <th className="text-right font-medium py-3">Splits</th>
-                <th className="text-right font-medium py-3 pr-6">Your take</th>
-                <th className="w-20 pr-6"></th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            <div className="divide-y divide-border md:hidden">
               {deals.map((d) => {
                 const take = calcAgentTake(d);
                 const isSel = selected.has(d.id);
+                const normalizedStage = normalizeStage(d.status);
+
                 return (
-                  <tr key={d.id} className={`border-t border-border hover:bg-muted/30 ${isSel ? "bg-primary/5" : ""}`}>
-                    <td className="pl-6 pr-2 py-4">
-                      <Checkbox checked={isSel} onCheckedChange={() => toggleOne(d.id)} aria-label="Select deal" />
-                    </td>
-                    <td className="py-4 pl-2">
-                      <div className="font-medium">{d.address}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {d.client_name && <>{d.client_name} · </>}
-                        {d.close_date && <> · {d.close_date}</>}
+                  <article
+                    key={d.id}
+                    className={`space-y-4 p-4 transition-colors ${isSel ? "bg-primary/5" : "bg-card"}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        checked={isSel}
+                        onCheckedChange={() => toggleOne(d.id)}
+                        aria-label="Select deal"
+                        className="mt-1 shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="break-words font-medium text-foreground">{d.address}</div>
+                        <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                          {d.client_name ? (
+                            <span className="break-words">{d.client_name}</span>
+                          ) : null}
+                          {d.close_date ? (
+                            <span className="tabular-nums">{d.close_date}</span>
+                          ) : null}
+                        </div>
                       </div>
-                    </td>
-                    <td className="py-4">
-                      <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
+                      <span className="inline-flex shrink-0 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
                         {formatSideLabel(d.side)}
                       </span>
-                    </td>
-                    <td className="py-4">
-                      <Select value={normalizeStage(d.status)} onValueChange={(v) => updateStatus(d.id, v)}>
-                        <SelectTrigger className={`h-7 w-[170px] text-xs border-0 px-2 ${
-                          normalizeStage(d.status) === "sold" ? "bg-success/10 text-success" :
-                          "bg-primary/10 text-primary"
-                        }`}>
-                          <SelectValue>{stageLabel(d.status)}</SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {PIPELINE_STAGES.map((s) => <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </td>
-                    <td className="py-4 text-right tabular-nums">{formatMoney(Number(d.sale_price))}</td>
-                    <td className="py-4 text-right tabular-nums">{formatMoney(Number(d.gross_commission))}</td>
-                    <td className="py-4 text-right text-xs text-muted-foreground tabular-nums">
-                      {d.referral_pct > 0 && <>{d.referral_pct}% ref → </>}
-                      {d.agent_split_pct}/{d.brokerage_split_pct}
-                    </td>
-                    <td className="py-4 pr-6 text-right tabular-nums font-semibold text-success">{formatMoney(take)}</td>
-                    <td className="py-4 pr-6">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => setEditing(d)}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-                          aria-label="Edit deal"
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          onClick={() => { if (confirm("Delete this deal?")) remove(d.id); }}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
-                          aria-label="Delete deal"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
+                    </div>
+
+                    <Select value={normalizedStage} onValueChange={(v) => updateStatus(d.id, v)}>
+                      <SelectTrigger
+                        className={`h-9 w-full border-0 px-3 text-xs font-medium ${
+                          normalizedStage === "sold"
+                            ? "bg-success/10 text-success"
+                            : "bg-primary/10 text-primary"
+                        }`}
+                      >
+                        <SelectValue>{stageLabel(d.status)}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PIPELINE_STAGES.map((s) => (
+                          <SelectItem key={s.key} value={s.key}>
+                            {s.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="rounded-xl border border-border bg-muted/30 p-3">
+                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                          Sale price
+                        </div>
+                        <div className="mt-1 font-semibold tabular-nums">
+                          {formatMoney(Number(d.sale_price))}
+                        </div>
                       </div>
-                    </td>
-                  </tr>
+                      <div className="rounded-xl border border-border bg-muted/30 p-3">
+                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                          Gross comm.
+                        </div>
+                        <div className="mt-1 font-semibold tabular-nums">
+                          {formatMoney(Number(d.gross_commission))}
+                        </div>
+                      </div>
+                      <div className="rounded-xl border border-border bg-muted/30 p-3">
+                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                          Splits
+                        </div>
+                        <div className="mt-1 text-sm font-medium tabular-nums">
+                          {d.referral_pct > 0 ? `${d.referral_pct}% ref -> ` : ""}
+                          {d.agent_split_pct}/{d.brokerage_split_pct}
+                        </div>
+                      </div>
+                      <div className="rounded-xl border border-border bg-success/10 p-3">
+                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                          Your take
+                        </div>
+                        <div className="mt-1 font-semibold tabular-nums text-success">
+                          {formatMoney(take)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => setEditing(d)}
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+                        aria-label="Edit deal"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm("Delete this deal?")) remove(d.id);
+                        }}
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-destructive"
+                        aria-label="Delete deal"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </article>
                 );
               })}
-            </tbody>
-          </table>
-          </div>
+            </div>
+            <div className="hidden overflow-x-auto md:block">
+              <table className="w-full min-w-[960px] text-sm">
+                <thead>
+                  <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
+                    <th className="w-12 pl-6 pr-2 py-3">
+                      <Checkbox
+                        checked={selected.size === deals.length && deals.length > 0}
+                        onCheckedChange={toggleAll}
+                        aria-label="Select all"
+                      />
+                    </th>
+                    <th className="text-left font-medium py-3 pl-2">Property</th>
+                    <th className="text-left font-medium py-3">Side</th>
+                    <th className="text-left font-medium py-3">Status</th>
+                    <th className="text-right font-medium py-3">Sale price</th>
+                    <th className="text-right font-medium py-3">Gross comm.</th>
+                    <th className="text-right font-medium py-3">Splits</th>
+                    <th className="text-right font-medium py-3 pr-6">Your take</th>
+                    <th className="w-20 pr-6"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {deals.map((d) => {
+                    const take = calcAgentTake(d);
+                    const isSel = selected.has(d.id);
+                    return (
+                      <tr
+                        key={d.id}
+                        className={`border-t border-border hover:bg-muted/30 ${isSel ? "bg-primary/5" : ""}`}
+                      >
+                        <td className="pl-6 pr-2 py-4">
+                          <Checkbox
+                            checked={isSel}
+                            onCheckedChange={() => toggleOne(d.id)}
+                            aria-label="Select deal"
+                          />
+                        </td>
+                        <td className="py-4 pl-2">
+                          <div className="font-medium">{d.address}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {d.client_name && <>{d.client_name} · </>}
+                            {d.close_date && <> · {d.close_date}</>}
+                          </div>
+                        </td>
+                        <td className="py-4">
+                          <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
+                            {formatSideLabel(d.side)}
+                          </span>
+                        </td>
+                        <td className="py-4">
+                          <Select
+                            value={normalizeStage(d.status)}
+                            onValueChange={(v) => updateStatus(d.id, v)}
+                          >
+                            <SelectTrigger
+                              className={`h-7 w-[170px] text-xs border-0 px-2 ${
+                                normalizeStage(d.status) === "sold"
+                                  ? "bg-success/10 text-success"
+                                  : "bg-primary/10 text-primary"
+                              }`}
+                            >
+                              <SelectValue>{stageLabel(d.status)}</SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              {PIPELINE_STAGES.map((s) => (
+                                <SelectItem key={s.key} value={s.key}>
+                                  {s.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </td>
+                        <td className="py-4 text-right tabular-nums">
+                          {formatMoney(Number(d.sale_price))}
+                        </td>
+                        <td className="py-4 text-right tabular-nums">
+                          {formatMoney(Number(d.gross_commission))}
+                        </td>
+                        <td className="py-4 text-right text-xs text-muted-foreground tabular-nums">
+                          {d.referral_pct > 0 && <>{d.referral_pct}% ref → </>}
+                          {d.agent_split_pct}/{d.brokerage_split_pct}
+                        </td>
+                        <td className="py-4 pr-6 text-right tabular-nums font-semibold text-success">
+                          {formatMoney(take)}
+                        </td>
+                        <td className="py-4 pr-6">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => setEditing(d)}
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                              aria-label="Edit deal"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm("Delete this deal?")) remove(d.id);
+                              }}
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
+                              aria-label="Delete deal"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </PageShell>
   );
 }
 
-function Stat({ label, value, accent, sub }: { label: string; value: string; accent: "success" | "primary" | "muted"; sub?: string }) {
+function Stat({
+  label,
+  value,
+  accent,
+  sub,
+}: {
+  label: string;
+  value: string;
+  accent: "success" | "primary" | "muted";
+  sub?: string;
+}) {
   const tones = { success: "text-success", primary: "text-primary", muted: "text-foreground" };
   return (
     <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
@@ -528,6 +758,11 @@ function DealDialog({
   const [dragOver, setDragOver] = useState(false);
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const imagesRef = useRef<Array<{ id: string; file: File; preview: string }>>([]);
+
+  useEffect(() => {
+    imagesRef.current = images;
+  }, [images]);
 
   useEffect(() => {
     if (!open) return;
@@ -549,10 +784,12 @@ function DealDialog({
     });
   }, [open, initial]);
 
-  useEffect(() => () => {
-    images.forEach((item) => URL.revokeObjectURL(item.preview));
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, []);
+  useEffect(
+    () => () => {
+      imagesRef.current.forEach((item) => URL.revokeObjectURL(item.preview));
+    },
+    [],
+  );
 
   function addFiles(files: FileList | File[]) {
     const next: Array<{ id: string; file: File; preview: string }> = [];
@@ -583,7 +820,8 @@ function DealDialog({
   }
 
   const gross = (parseFloat(salePrice) || 0) * ((parseFloat(commPct) || 0) / 100);
-  const yourTake = gross * (1 - (parseFloat(refPct) || 0) / 100) * ((parseFloat(agentSplit) || 0) / 100);
+  const yourTake =
+    gross * (1 - (parseFloat(refPct) || 0) / 100) * ((parseFloat(agentSplit) || 0) / 100);
 
   const save = async () => {
     if (!address.trim()) {
@@ -626,10 +864,18 @@ function DealDialog({
         <div className="space-y-5">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <FormField label="Property address">
-              <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Enter property address" />
+              <Input
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Enter property address"
+              />
             </FormField>
             <FormField label="Client name">
-              <Input value={client} onChange={(e) => setClient(e.target.value)} placeholder="Enter client name" />
+              <Input
+                value={client}
+                onChange={(e) => setClient(e.target.value)}
+                placeholder="Enter client name"
+              />
             </FormField>
             <FormField label="Side">
               <Select value={side} onValueChange={setSide}>
@@ -647,31 +893,70 @@ function DealDialog({
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <FormField label="Client email">
-              <Input type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="client@example.com" />
+              <Input
+                type="email"
+                value={clientEmail}
+                onChange={(e) => setClientEmail(e.target.value)}
+                placeholder="client@example.com"
+              />
             </FormField>
             <FormField label="Client phone number">
-              <Input type="tel" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder="(555) 123-4567" />
+              <Input
+                type="tel"
+                value={clientPhone}
+                onChange={(e) => setClientPhone(e.target.value)}
+                placeholder="(555) 123-4567"
+              />
             </FormField>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <FormField label="Sale price">
-              <Input type="number" value={salePrice} onChange={(e) => setSalePrice(e.target.value)} placeholder="Enter sale price" className="tabular-nums" />
+              <Input
+                type="number"
+                value={salePrice}
+                onChange={(e) => setSalePrice(e.target.value)}
+                placeholder="Enter sale price"
+                className="tabular-nums"
+              />
             </FormField>
             <FormField label="Commission %">
-              <Input type="number" step={0.25} value={commPct} onChange={(e) => setCommPct(e.target.value)} placeholder="Enter commission percentage" className="tabular-nums" />
+              <Input
+                type="number"
+                step={0.25}
+                value={commPct}
+                onChange={(e) => setCommPct(e.target.value)}
+                placeholder="Enter commission percentage"
+                className="tabular-nums"
+              />
             </FormField>
             <FormField label="Your split with brokerage %">
-              <Input type="number" value={agentSplit} onChange={(e) => setAgentSplit(e.target.value)} placeholder="Enter agent split percentage" className="tabular-nums" />
+              <Input
+                type="number"
+                value={agentSplit}
+                onChange={(e) => setAgentSplit(e.target.value)}
+                placeholder="Enter agent split percentage"
+                className="tabular-nums"
+              />
             </FormField>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             <FormField label="Referral % (off the top)">
-              <Input type="number" value={refPct} onChange={(e) => setRefPct(e.target.value)} placeholder="Enter referral percentage" className="tabular-nums" />
+              <Input
+                type="number"
+                value={refPct}
+                onChange={(e) => setRefPct(e.target.value)}
+                placeholder="Enter referral percentage"
+                className="tabular-nums"
+              />
             </FormField>
             <FormField label="Referral to">
-              <Input value={refTo} onChange={(e) => setRefTo(e.target.value)} placeholder="Enter referral brokerage" />
+              <Input
+                value={refTo}
+                onChange={(e) => setRefTo(e.target.value)}
+                placeholder="Enter referral brokerage"
+              />
             </FormField>
             <FormField label="Status">
               <Select value={status} onValueChange={setStatus}>
@@ -679,7 +964,11 @@ function DealDialog({
                   <SelectValue placeholder="Select deal status" />
                 </SelectTrigger>
                 <SelectContent>
-                  {PIPELINE_STAGES.map((s) => <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>)}
+                  {PIPELINE_STAGES.map((s) => (
+                    <SelectItem key={s.key} value={s.key}>
+                      {s.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </FormField>
@@ -693,7 +982,8 @@ function DealDialog({
               <div>
                 <div className="text-sm font-medium">Property photos</div>
                 <div className="text-xs text-muted-foreground">
-                  Upload property images here and they will appear in Listings with the synced deal details.
+                  Upload property images here and they will appear in Listings with the synced deal
+                  details.
                 </div>
               </div>
               <Button type="button" variant="outline" onClick={() => fileRef.current?.click()}>
@@ -703,7 +993,10 @@ function DealDialog({
             </div>
 
             <div
-              onDragOver={(event) => { event.preventDefault(); setDragOver(true); }}
+              onDragOver={(event) => {
+                event.preventDefault();
+                setDragOver(true);
+              }}
               onDragLeave={() => setDragOver(false)}
               onDrop={(event) => {
                 event.preventDefault();
@@ -712,7 +1005,9 @@ function DealDialog({
               }}
               onClick={() => fileRef.current?.click()}
               className={`cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition ${
-                dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-muted/30"
+                dragOver
+                  ? "border-primary bg-primary/5"
+                  : "border-border hover:border-primary/50 hover:bg-muted/30"
               }`}
             >
               <input
@@ -736,7 +1031,10 @@ function DealDialog({
             {images.length > 0 && (
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                 {images.map((image, index) => (
-                  <div key={image.id} className="group relative overflow-hidden rounded-xl border border-border bg-muted">
+                  <div
+                    key={image.id}
+                    className="group relative overflow-hidden rounded-xl border border-border bg-muted"
+                  >
                     <img src={image.preview} alt="" className="aspect-square w-full object-cover" />
                     {index === 0 && (
                       <div className="absolute bottom-2 left-2 rounded bg-primary/90 px-2 py-1 text-[10px] font-medium text-primary-foreground">
@@ -745,7 +1043,10 @@ function DealDialog({
                     )}
                     <button
                       type="button"
-                      onClick={(event) => { event.stopPropagation(); removeImage(image.id); }}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        removeImage(image.id);
+                      }}
                       className="absolute right-2 top-2 rounded-full bg-black/70 p-1 text-white opacity-0 transition group-hover:opacity-100 hover:bg-destructive"
                       aria-label="Remove image"
                     >
@@ -769,24 +1070,41 @@ function DealDialog({
             <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-3">
               <div>
                 <div className="text-xs text-muted-foreground">Gross commission</div>
-                <div className="font-display text-xl font-bold tabular-nums">{formatMoney(gross)}</div>
+                <div className="font-display text-xl font-bold tabular-nums">
+                  {formatMoney(gross)}
+                </div>
               </div>
               <div>
                 <div className="text-xs text-muted-foreground">After referral and split</div>
-                <div className="font-display text-xl font-bold tabular-nums">{formatMoney(yourTake)}</div>
+                <div className="font-display text-xl font-bold tabular-nums">
+                  {formatMoney(yourTake)}
+                </div>
               </div>
               <div>
                 <div className="text-xs text-muted-foreground">Effective rate on sale</div>
-                <div className="font-display text-xl font-bold tabular-nums">{salePrice ? ((yourTake / (parseFloat(salePrice) || 1)) * 100).toFixed(2) : "0.00"}%</div>
+                <div className="font-display text-xl font-bold tabular-nums">
+                  {salePrice
+                    ? ((yourTake / (parseFloat(salePrice) || 1)) * 100).toFixed(2)
+                    : "0.00"}
+                  %
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
           <Button onClick={save} disabled={saving || !address.trim()}>
-            {saving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : submitLabel}
+            {saving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+              </>
+            ) : (
+              submitLabel
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -797,14 +1115,19 @@ function DealDialog({
 function FormField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5 block">{label}</span>
+      <span className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5 block">
+        {label}
+      </span>
       {children}
     </label>
   );
 }
 
 function dealToForm(d: Deal): DealFormValues {
-  const commPct = Number(d.sale_price) > 0 ? ((Number(d.gross_commission) / Number(d.sale_price)) * 100).toFixed(2) : "0";
+  const commPct =
+    Number(d.sale_price) > 0
+      ? ((Number(d.gross_commission) / Number(d.sale_price)) * 100).toFixed(2)
+      : "0";
   const refPct = String(d.referral_pct ?? 0);
   const agentSplit = String(d.agent_split_pct ?? 0);
   return {

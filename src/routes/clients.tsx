@@ -110,7 +110,8 @@ export const Route = createFileRoute("/clients")({
       { title: "Directory - Agent Business Tracker" },
       {
         name: "description",
-        content: "Manage your directory, sync phone contacts on supported devices, and call people directly from the app.",
+        content:
+          "Manage your directory, sync phone contacts on supported devices, and call people directly from the app.",
       },
     ],
   }),
@@ -221,7 +222,8 @@ function DirectoryPage() {
       client_type: (client.client_type as "buyer" | "seller" | null) ?? "",
       timeline: client.timeline ?? "",
       address: client.address ?? "",
-      pre_approved: client.pre_approved === true ? "yes" : client.pre_approved === false ? "no" : "",
+      pre_approved:
+        client.pre_approved === true ? "yes" : client.pre_approved === false ? "no" : "",
       budget_min: client.budget_min != null ? String(client.budget_min) : "",
       budget_max: client.budget_max != null ? String(client.budget_max) : "",
       locality: client.locality ?? "",
@@ -242,12 +244,18 @@ function DirectoryPage() {
       company: form.company.trim() || null,
       notes: form.notes.trim() || null,
       client_type: form.client_type || null,
-      timeline: form.client_type ? (form.timeline.trim() || null) : null,
-      address: isSeller ? (form.address.trim() || null) : null,
-      pre_approved: isBuyer ? (form.pre_approved === "yes" ? true : form.pre_approved === "no" ? false : null) : null,
+      timeline: form.client_type ? form.timeline.trim() || null : null,
+      address: isSeller ? form.address.trim() || null : null,
+      pre_approved: isBuyer
+        ? form.pre_approved === "yes"
+          ? true
+          : form.pre_approved === "no"
+            ? false
+            : null
+        : null,
       budget_min: form.client_type && form.budget_min ? Number(form.budget_min) : null,
       budget_max: form.client_type && form.budget_max ? Number(form.budget_max) : null,
-      locality: isBuyer ? (form.locality.trim() || null) : null,
+      locality: isBuyer ? form.locality.trim() || null : null,
     };
 
     if (editing) {
@@ -346,7 +354,9 @@ function DirectoryPage() {
       } catch {
         // ignore clipboard fallback failures
       }
-      toast.error("This device could not open an SMS app automatically. The phone number and message were copied so you can paste them manually.");
+      toast.error(
+        "This device could not open an SMS app automatically. The phone number and message were copied so you can paste them manually.",
+      );
       return;
     }
 
@@ -356,7 +366,9 @@ function DirectoryPage() {
       } catch {
         // ignore clipboard fallback failures
       }
-      toast.success("Tried to open your SMS app. The message was also copied in case your desktop browser does not handle SMS links.");
+      toast.success(
+        "Tried to open your SMS app. The message was also copied in case your desktop browser does not handle SMS links.",
+      );
     }
   }
 
@@ -430,12 +442,16 @@ function DirectoryPage() {
     } catch (error: unknown) {
       if (error instanceof DOMException && error.name === "AbortError") return;
       if (error instanceof DOMException && error.name === "NotAllowedError") {
-        toast.error("Contact access was blocked. You can still import an exported phone contacts file instead.");
+        toast.error(
+          "Contact access was blocked. You can still import an exported phone contacts file instead.",
+        );
         phoneFileInputRef.current?.click();
         return;
       }
       if (error instanceof TypeError) {
-        toast.error("Direct contact access is not available in this browser. Import an exported phone contacts file instead.");
+        toast.error(
+          "Direct contact access is not available in this browser. Import an exported phone contacts file instead.",
+        );
         phoneFileInputRef.current?.click();
         return;
       }
@@ -454,7 +470,9 @@ function DirectoryPage() {
 
     setPhoneCandidates(review.candidates);
     setPhoneCandidateSelectedIds(
-      review.candidates.filter((candidate) => !candidate.duplicate).map((candidate) => candidate.id),
+      review.candidates
+        .filter((candidate) => !candidate.duplicate)
+        .map((candidate) => candidate.id),
     );
     setPhoneSkippedCount(review.skippedWithoutDetails);
     setPhoneReviewOpen(true);
@@ -472,7 +490,9 @@ function DirectoryPage() {
       }
 
       openPhoneReview(importedContacts);
-      toast.success(`Loaded ${importedContacts.length} contact${importedContacts.length === 1 ? "" : "s"} from file`);
+      toast.success(
+        `Loaded ${importedContacts.length} contact${importedContacts.length === 1 ? "" : "s"} from file`,
+      );
     } catch (error: unknown) {
       toast.error(error instanceof Error ? error.message : "Could not read the contact file");
     } finally {
@@ -535,7 +555,7 @@ function DirectoryPage() {
         ? [target]
         : selectedPhoneSyncIds.length
           ? rows.filter((row) => selectedPhoneSyncIds.includes(row.id))
-        : rows.filter((row) => row.source === "phone_sync");
+          : rows.filter((row) => row.source === "phone_sync");
     const removable = targets.filter((row) => row.source === "phone_sync");
 
     if (!removable.length) {
@@ -555,13 +575,18 @@ function DirectoryPage() {
       if (removable.length === 1) {
         query = query.eq("id", removable[0].id);
       } else {
-        query = query.in("id", removable.map((row) => row.id));
+        query = query.in(
+          "id",
+          removable.map((row) => row.id),
+        );
       }
 
       const { error } = await query;
       if (error) return toast.error(error.message);
 
-      setSelectedPhoneSyncIds((current) => current.filter((id) => !removable.some((row) => row.id === id)));
+      setSelectedPhoneSyncIds((current) =>
+        current.filter((id) => !removable.some((row) => row.id === id)),
+      );
 
       toast.success(
         removable.length === 1
@@ -603,10 +628,15 @@ function DirectoryPage() {
         .from("clients")
         .update({ source: "manual" })
         .eq("source", "phone_sync")
-        .in("id", convertible.map((row) => row.id));
+        .in(
+          "id",
+          convertible.map((row) => row.id),
+        );
       if (error) return toast.error(error.message);
 
-      setSelectedPhoneSyncIds((current) => current.filter((id) => !convertible.some((row) => row.id === id)));
+      setSelectedPhoneSyncIds((current) =>
+        current.filter((id) => !convertible.some((row) => row.id === id)),
+      );
       toast.success(
         convertible.length === 1
           ? `${convertible[0].name} is now a manual tracker contact`
@@ -620,13 +650,17 @@ function DirectoryPage() {
 
   function togglePhoneCandidateSelection(candidateId: string, checked: boolean) {
     setPhoneCandidateSelectedIds((current) =>
-      checked ? Array.from(new Set([...current, candidateId])) : current.filter((id) => id !== candidateId),
+      checked
+        ? Array.from(new Set([...current, candidateId]))
+        : current.filter((id) => id !== candidateId),
     );
   }
 
   function togglePhoneSyncSelection(contactId: string, checked: boolean) {
     setSelectedPhoneSyncIds((current) =>
-      checked ? Array.from(new Set([...current, contactId])) : current.filter((id) => id !== contactId),
+      checked
+        ? Array.from(new Set([...current, contactId]))
+        : current.filter((id) => id !== contactId),
     );
   }
 
@@ -654,7 +688,10 @@ function DirectoryPage() {
 
   if (!user) {
     return (
-      <PageShell title="Directory" subtitle="Sign in to access your contact directory and phone sync tools.">
+      <PageShell
+        title="Directory"
+        subtitle="Sign in to access your contact directory and phone sync tools."
+      >
         <div className="rounded-2xl border border-border bg-card px-6 py-16 text-center text-sm text-muted-foreground shadow-card">
           Sign in to manage your directory, sync contacts, and call people from the tracker.
         </div>
@@ -680,12 +717,16 @@ function DirectoryPage() {
               { header: "Type", accessor: (row) => row.client_type ?? "general" },
               { header: "Timeline", accessor: (row) => row.timeline },
               { header: "Address", accessor: (row) => row.address },
-              { header: "Pre-Approved", accessor: (row) => row.pre_approved == null ? "" : row.pre_approved ? "Yes" : "No" },
+              {
+                header: "Pre-Approved",
+                accessor: (row) =>
+                  row.pre_approved == null ? "" : row.pre_approved ? "Yes" : "No",
+              },
               { header: "Budget Min", accessor: (row) => row.budget_min },
               { header: "Budget Max", accessor: (row) => row.budget_max },
               { header: "Locality", accessor: (row) => row.locality },
               { header: "Source", accessor: (row) => sourceLabel(row.source) },
-              { header: "GHL Synced", accessor: (row) => row.ghl_contact_id ? "Yes" : "No" },
+              { header: "GHL Synced", accessor: (row) => (row.ghl_contact_id ? "Yes" : "No") },
               { header: "Last Synced", accessor: (row) => row.last_synced_at },
               { header: "Notes", accessor: (row) => row.notes },
             ]}
@@ -703,9 +744,9 @@ function DirectoryPage() {
               return {
                 ...row,
                 client_type: row.client_type ?? null,
-                address: isSeller ? row.address ?? null : null,
-                pre_approved: isBuyer ? row.pre_approved ?? null : null,
-                locality: isBuyer ? row.locality ?? null : null,
+                address: isSeller ? (row.address ?? null) : null,
+                pre_approved: isBuyer ? (row.pre_approved ?? null) : null,
+                locality: isBuyer ? (row.locality ?? null) : null,
                 source: "import",
               };
             }}
@@ -728,7 +769,10 @@ function DirectoryPage() {
               Phone-synced contacts in tracker: {phoneSyncedRows.length}
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              Sync opens your device contact picker when the browser allows it, or falls back to importing an exported contacts file. In both cases, users can review, select, or deselect contacts before adding them here. Desync only removes tracker copies with the <span className="font-medium text-foreground">Phone sync</span> source.
+              Sync opens your device contact picker when the browser allows it, or falls back to
+              importing an exported contacts file. In both cases, users can review, select, or
+              deselect contacts before adding them here. Desync only removes tracker copies with the{" "}
+              <span className="font-medium text-foreground">Phone sync</span> source.
             </p>
           </div>
           <div className="text-xs text-muted-foreground">
@@ -737,10 +781,13 @@ function DirectoryPage() {
         </div>
         <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-2">
-            {([
+            {[
               { value: "all" as const, label: `All contacts (${rows.length})` },
-              { value: "phone_sync" as const, label: `Phone sync only (${phoneSyncedRows.length})` },
-            ]).map((option) => (
+              {
+                value: "phone_sync" as const,
+                label: `Phone sync only (${phoneSyncedRows.length})`,
+              },
+            ].map((option) => (
               <button
                 key={option.value}
                 type="button"
@@ -756,7 +803,10 @@ function DirectoryPage() {
             ))}
           </div>
           <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <span>{selectedPhoneSyncIds.length} phone-synced contact{selectedPhoneSyncIds.length === 1 ? "" : "s"} selected</span>
+            <span>
+              {selectedPhoneSyncIds.length} phone-synced contact
+              {selectedPhoneSyncIds.length === 1 ? "" : "s"} selected
+            </span>
             <button
               type="button"
               onClick={() =>
@@ -793,178 +843,387 @@ function DirectoryPage() {
               : "No contacts yet. Add one, import a list, or sync your phone contacts on a supported device."}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] text-sm">
-              <thead>
-                <tr className="bg-muted/40 text-[11px] uppercase tracking-wider text-muted-foreground">
-                  <th className="px-4 py-3 text-left font-medium">
-                    <Checkbox
-                      checked={allVisiblePhoneSyncSelected ? true : someVisiblePhoneSyncSelected ? "indeterminate" : false}
-                      disabled={visiblePhoneSyncedRows.length === 0}
-                      onCheckedChange={(checked) =>
-                        setSelectedPhoneSyncIds((current) =>
-                          checked === true
-                            ? Array.from(new Set([...current, ...visiblePhoneSyncedRows.map((row) => row.id)]))
-                            : current.filter((id) => !visiblePhoneSyncedRows.some((row) => row.id === id))
-                        )
-                      }
-                      aria-label="Select visible phone synced contacts"
-                    />
-                  </th>
-                  <th className="px-6 py-3 text-left font-medium">Name</th>
-                  <th className="py-3 text-left font-medium">Contact</th>
-                  <th className="py-3 text-left font-medium">Type</th>
-                  <th className="py-3 text-left font-medium">GHL Sync</th>
-                  <th className="pr-6 py-3 text-right font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visibleRows.map((client) => (
-                  <tr key={client.id} className="row-hover-blue border-t border-border">
-                    <td className="px-4 py-4">
-                      {client.source === "phone_sync" ? (
+          <>
+            <div className="divide-y divide-border md:hidden">
+              {visibleRows.map((client) => {
+                const isPhoneSynced = client.source === "phone_sync";
+                const isSelected = selectedPhoneSyncIds.includes(client.id);
+
+                return (
+                  <article
+                    key={client.id}
+                    className={`space-y-4 p-4 transition-colors ${isSelected ? "bg-primary/5" : "bg-card"}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      {isPhoneSynced ? (
                         <Checkbox
-                          checked={selectedPhoneSyncIds.includes(client.id)}
-                          onCheckedChange={(checked) => togglePhoneSyncSelection(client.id, checked === true)}
+                          checked={isSelected}
+                          onCheckedChange={(checked) =>
+                            togglePhoneSyncSelection(client.id, checked === true)
+                          }
                           aria-label={`Select ${client.name}`}
+                          className="mt-1 shrink-0"
                         />
-                      ) : (
-                        <span className="text-xs text-muted-foreground">-</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <button type="button" onClick={() => openEdit(client)} className="flex items-center gap-3 text-left">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={() => openEdit(client)}
+                        className="flex min-w-0 flex-1 items-start gap-3 text-left"
+                      >
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
                           {client.name
                             .split(" ")
                             .map((part) => part[0])
                             .slice(0, 2)
                             .join("")}
                         </div>
-                        <div className="min-w-0">
-                          <div className="font-medium text-foreground">{client.name}</div>
-                          <div className="text-xs text-muted-foreground">{sourceLabel(client.source)}</div>
+                        <div className="min-w-0 flex-1">
+                          <div className="break-words font-medium text-foreground">
+                            {client.name}
+                          </div>
+                          <div className="mt-1 flex flex-wrap gap-1.5">
+                            <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                              {sourceLabel(client.source)}
+                            </span>
+                            <span
+                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${
+                                client.client_type === "buyer"
+                                  ? "bg-blue-500/10 text-blue-600 dark:text-blue-300"
+                                  : client.client_type === "seller"
+                                    ? "bg-amber-500/10 text-amber-700 dark:text-amber-300"
+                                    : "bg-muted text-muted-foreground"
+                              }`}
+                            >
+                              {client.client_type ?? "General"}
+                            </span>
+                          </div>
                         </div>
                       </button>
-                    </td>
-                    <td className="py-4 text-muted-foreground">
-                      <div className="flex flex-col gap-1 text-xs">
-                        {client.email ? (
-                          <a href={`mailto:${client.email}`} className="inline-flex items-center gap-1.5 hover:text-foreground">
-                            <Mail className="h-3 w-3" />
-                            <span className="truncate">{client.email}</span>
-                          </a>
-                        ) : null}
-                        {client.phone ? (
-                          <a href={toTelHref(client.phone)} className="inline-flex items-center gap-1.5 hover:text-foreground">
-                            <Phone className="h-3 w-3" />
-                            <span>{client.phone}</span>
-                          </a>
-                        ) : null}
-                        {!client.email && !client.phone ? <span>-</span> : null}
-                      </div>
-                    </td>
-                    <td className="py-4">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
-                          client.client_type === "buyer"
-                            ? "bg-blue-500/10 text-blue-500"
-                            : client.client_type === "seller"
-                              ? "bg-amber-500/10 text-amber-500"
-                              : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {client.client_type ?? "General"}
-                      </span>
-                    </td>
-                    <td className="py-4">
+                    </div>
+
+                    <div className="space-y-2 rounded-xl border border-border bg-muted/30 p-3 text-sm">
+                      {client.email ? (
+                        <a
+                          href={`mailto:${client.email}`}
+                          className="flex min-w-0 items-center gap-2 text-muted-foreground hover:text-foreground"
+                        >
+                          <Mail className="h-4 w-4 shrink-0" />
+                          <span className="min-w-0 break-all">{client.email}</span>
+                        </a>
+                      ) : null}
+                      {client.phone ? (
+                        <a
+                          href={toTelHref(client.phone)}
+                          className="flex min-w-0 items-center gap-2 text-muted-foreground hover:text-foreground"
+                        >
+                          <Phone className="h-4 w-4 shrink-0" />
+                          <span className="min-w-0 break-words">{client.phone}</span>
+                        </a>
+                      ) : null}
+                      {!client.email && !client.phone ? (
+                        <div className="text-muted-foreground">No contact details</div>
+                      ) : null}
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                       {client.ghl_contact_id ? (
-                        <span className="inline-flex items-center gap-1 text-xs text-green-600">
-                          <Check className="h-3 w-3" />
-                          {client.last_synced_at ? new Date(client.last_synced_at).toLocaleDateString() : "Linked"}
+                        <span className="inline-flex items-center gap-1 rounded-full bg-green-500/10 px-2.5 py-1 font-medium text-green-700 dark:text-green-300">
+                          <Check className="h-3.5 w-3.5" />
+                          {client.last_synced_at
+                            ? new Date(client.last_synced_at).toLocaleDateString()
+                            : "Linked"}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                          <AlertCircle className="h-3 w-3" />
+                        <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 font-medium text-muted-foreground">
+                          <AlertCircle className="h-3.5 w-3.5" />
                           Not synced
                         </span>
                       )}
-                    </td>
-                    <td className="pr-6 py-4 text-right">
-                      <div className="inline-flex gap-1">
-                        {client.phone ? (
-                          <a
-                            href={toTelHref(client.phone)}
-                            title={`Call ${client.name}`}
-                            className="rounded-md p-2 text-primary hover:bg-muted"
-                          >
-                            <PhoneCall className="h-4 w-4" />
-                          </a>
-                        ) : null}
-                        {client.phone ? (
-                          <button
-                            type="button"
-                            onClick={() => openSmsDialog(client)}
-                            title={`SMS ${client.name}`}
-                            className="rounded-md p-2 text-primary hover:bg-muted"
-                          >
-                            <MessageSquare className="h-4 w-4" />
-                          </button>
-                        ) : null}
-                        {client.source === "phone_sync" ? (
+                      {client.timeline ? (
+                        <span className="text-muted-foreground">{client.timeline}</span>
+                      ) : null}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      {client.phone ? (
+                        <a
+                          href={toTelHref(client.phone)}
+                          title={`Call ${client.name}`}
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-primary hover:bg-muted"
+                        >
+                          <PhoneCall className="h-4 w-4" />
+                        </a>
+                      ) : null}
+                      {client.phone ? (
+                        <button
+                          type="button"
+                          onClick={() => openSmsDialog(client)}
+                          title={`SMS ${client.name}`}
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-primary hover:bg-muted"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={() => void syncOne(client)}
+                        disabled={syncing === client.id}
+                        title="Push to GHL"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted disabled:opacity-60"
+                      >
+                        {syncing === client.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <RefreshCw className="h-4 w-4" />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openEdit(client)}
+                        title="Edit"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void remove(client)}
+                        title="Delete"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-destructive hover:bg-muted"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                      {isPhoneSynced ? (
+                        <>
                           <button
                             type="button"
                             onClick={() => void desyncPhoneContacts(client)}
-                            title="Desync from phone contacts"
-                            className="rounded-md px-2 py-1.5 text-xs font-medium text-amber-600 hover:bg-muted"
+                            className="rounded-md border border-border px-3 py-2 text-xs font-medium text-amber-700 hover:bg-muted disabled:opacity-60 dark:text-amber-300"
                             disabled={phoneDesyncing}
                           >
                             Desync
                           </button>
-                        ) : null}
-                        {client.source === "phone_sync" ? (
                           <button
                             type="button"
                             onClick={() => void convertPhoneSyncedContacts(client)}
-                            title="Convert to manual contact"
-                            className="rounded-md px-2 py-1.5 text-xs font-medium text-green-600 hover:bg-muted"
+                            className="rounded-md border border-border px-3 py-2 text-xs font-medium text-green-700 hover:bg-muted disabled:opacity-60 dark:text-green-300"
                             disabled={phoneConverting}
                           >
                             Convert
                           </button>
-                        ) : null}
-                        <button
-                          type="button"
-                          onClick={() => void syncOne(client)}
-                          disabled={syncing === client.id}
-                          title="Push to GHL"
-                          className="rounded-md p-2 text-muted-foreground hover:bg-muted"
-                        >
-                          {syncing === client.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                        </button>
+                        </>
+                      ) : null}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+            <div className="hidden overflow-x-auto md:block">
+              <table className="w-full min-w-[760px] text-sm">
+                <thead>
+                  <tr className="bg-muted/40 text-[11px] uppercase tracking-wider text-muted-foreground">
+                    <th className="px-4 py-3 text-left font-medium">
+                      <Checkbox
+                        checked={
+                          allVisiblePhoneSyncSelected
+                            ? true
+                            : someVisiblePhoneSyncSelected
+                              ? "indeterminate"
+                              : false
+                        }
+                        disabled={visiblePhoneSyncedRows.length === 0}
+                        onCheckedChange={(checked) =>
+                          setSelectedPhoneSyncIds((current) =>
+                            checked === true
+                              ? Array.from(
+                                  new Set([
+                                    ...current,
+                                    ...visiblePhoneSyncedRows.map((row) => row.id),
+                                  ]),
+                                )
+                              : current.filter(
+                                  (id) => !visiblePhoneSyncedRows.some((row) => row.id === id),
+                                ),
+                          )
+                        }
+                        aria-label="Select visible phone synced contacts"
+                      />
+                    </th>
+                    <th className="px-6 py-3 text-left font-medium">Name</th>
+                    <th className="py-3 text-left font-medium">Contact</th>
+                    <th className="py-3 text-left font-medium">Type</th>
+                    <th className="py-3 text-left font-medium">GHL Sync</th>
+                    <th className="pr-6 py-3 text-right font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleRows.map((client) => (
+                    <tr key={client.id} className="row-hover-blue border-t border-border">
+                      <td className="px-4 py-4">
+                        {client.source === "phone_sync" ? (
+                          <Checkbox
+                            checked={selectedPhoneSyncIds.includes(client.id)}
+                            onCheckedChange={(checked) =>
+                              togglePhoneSyncSelection(client.id, checked === true)
+                            }
+                            aria-label={`Select ${client.name}`}
+                          />
+                        ) : (
+                          <span className="text-xs text-muted-foreground">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
                         <button
                           type="button"
                           onClick={() => openEdit(client)}
-                          title="Edit"
-                          className="rounded-md p-2 text-muted-foreground hover:bg-muted"
+                          className="flex items-center gap-3 text-left"
                         >
-                          <Pencil className="h-4 w-4" />
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+                            {client.name
+                              .split(" ")
+                              .map((part) => part[0])
+                              .slice(0, 2)
+                              .join("")}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-medium text-foreground">{client.name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {sourceLabel(client.source)}
+                            </div>
+                          </div>
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => void remove(client)}
-                          title="Delete"
-                          className="rounded-md p-2 text-destructive hover:bg-muted"
+                      </td>
+                      <td className="py-4 text-muted-foreground">
+                        <div className="flex flex-col gap-1 text-xs">
+                          {client.email ? (
+                            <a
+                              href={`mailto:${client.email}`}
+                              className="inline-flex items-center gap-1.5 hover:text-foreground"
+                            >
+                              <Mail className="h-3 w-3" />
+                              <span className="truncate">{client.email}</span>
+                            </a>
+                          ) : null}
+                          {client.phone ? (
+                            <a
+                              href={toTelHref(client.phone)}
+                              className="inline-flex items-center gap-1.5 hover:text-foreground"
+                            >
+                              <Phone className="h-3 w-3" />
+                              <span>{client.phone}</span>
+                            </a>
+                          ) : null}
+                          {!client.email && !client.phone ? <span>-</span> : null}
+                        </div>
+                      </td>
+                      <td className="py-4">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
+                            client.client_type === "buyer"
+                              ? "bg-blue-500/10 text-blue-500"
+                              : client.client_type === "seller"
+                                ? "bg-amber-500/10 text-amber-500"
+                                : "bg-muted text-muted-foreground"
+                          }`}
                         >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                          {client.client_type ?? "General"}
+                        </span>
+                      </td>
+                      <td className="py-4">
+                        {client.ghl_contact_id ? (
+                          <span className="inline-flex items-center gap-1 text-xs text-green-600">
+                            <Check className="h-3 w-3" />
+                            {client.last_synced_at
+                              ? new Date(client.last_synced_at).toLocaleDateString()
+                              : "Linked"}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                            <AlertCircle className="h-3 w-3" />
+                            Not synced
+                          </span>
+                        )}
+                      </td>
+                      <td className="pr-6 py-4 text-right">
+                        <div className="inline-flex gap-1">
+                          {client.phone ? (
+                            <a
+                              href={toTelHref(client.phone)}
+                              title={`Call ${client.name}`}
+                              className="rounded-md p-2 text-primary hover:bg-muted"
+                            >
+                              <PhoneCall className="h-4 w-4" />
+                            </a>
+                          ) : null}
+                          {client.phone ? (
+                            <button
+                              type="button"
+                              onClick={() => openSmsDialog(client)}
+                              title={`SMS ${client.name}`}
+                              className="rounded-md p-2 text-primary hover:bg-muted"
+                            >
+                              <MessageSquare className="h-4 w-4" />
+                            </button>
+                          ) : null}
+                          {client.source === "phone_sync" ? (
+                            <button
+                              type="button"
+                              onClick={() => void desyncPhoneContacts(client)}
+                              title="Desync from phone contacts"
+                              className="rounded-md px-2 py-1.5 text-xs font-medium text-amber-600 hover:bg-muted"
+                              disabled={phoneDesyncing}
+                            >
+                              Desync
+                            </button>
+                          ) : null}
+                          {client.source === "phone_sync" ? (
+                            <button
+                              type="button"
+                              onClick={() => void convertPhoneSyncedContacts(client)}
+                              title="Convert to manual contact"
+                              className="rounded-md px-2 py-1.5 text-xs font-medium text-green-600 hover:bg-muted"
+                              disabled={phoneConverting}
+                            >
+                              Convert
+                            </button>
+                          ) : null}
+                          <button
+                            type="button"
+                            onClick={() => void syncOne(client)}
+                            disabled={syncing === client.id}
+                            title="Push to GHL"
+                            className="rounded-md p-2 text-muted-foreground hover:bg-muted"
+                          >
+                            {syncing === client.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <RefreshCw className="h-4 w-4" />
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openEdit(client)}
+                            title="Edit"
+                            className="rounded-md p-2 text-muted-foreground hover:bg-muted"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void remove(client)}
+                            title="Delete"
+                            className="rounded-md p-2 text-destructive hover:bg-muted"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 
@@ -996,23 +1255,31 @@ function DirectoryPage() {
               className="input"
               placeholder="Enter email address"
               value={form.email}
-              onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, email: event.target.value }))
+              }
             />
             <input
               className="input"
               placeholder="Enter phone number"
               value={form.phone}
-              onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, phone: event.target.value }))
+              }
             />
             <input
               className="input"
               placeholder="Enter company name"
               value={form.company}
-              onChange={(event) => setForm((current) => ({ ...current, company: event.target.value }))}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, company: event.target.value }))
+              }
             />
 
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Contact type</label>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                Contact type
+              </label>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                 {[
                   { value: "", label: "General" },
@@ -1049,7 +1316,9 @@ function DirectoryPage() {
                     : "Timeline to sell (e.g. 1-3 months)"
                 }
                 value={form.timeline}
-                onChange={(event) => setForm((current) => ({ ...current, timeline: event.target.value }))}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, timeline: event.target.value }))
+                }
               />
             ) : null}
 
@@ -1058,13 +1327,17 @@ function DirectoryPage() {
                 className="input"
                 placeholder="Enter property address"
                 value={form.address}
-                onChange={(event) => setForm((current) => ({ ...current, address: event.target.value }))}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, address: event.target.value }))
+                }
               />
             ) : null}
 
             {form.client_type === "buyer" ? (
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Pre-approved?</label>
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                  Pre-approved?
+                </label>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {(["yes", "no"] as const).map((value) => (
                     <button
@@ -1092,7 +1365,9 @@ function DirectoryPage() {
                   inputMode="numeric"
                   placeholder={form.client_type === "buyer" ? "Budget min" : "Price range min"}
                   value={form.budget_min}
-                  onChange={(event) => setForm((current) => ({ ...current, budget_min: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, budget_min: event.target.value }))
+                  }
                 />
                 <input
                   className="input"
@@ -1100,7 +1375,9 @@ function DirectoryPage() {
                   inputMode="numeric"
                   placeholder={form.client_type === "buyer" ? "Budget max" : "Price range max"}
                   value={form.budget_max}
-                  onChange={(event) => setForm((current) => ({ ...current, budget_max: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, budget_max: event.target.value }))
+                  }
                 />
               </div>
             ) : null}
@@ -1110,7 +1387,9 @@ function DirectoryPage() {
                 className="input"
                 placeholder="Enter town or locality"
                 value={form.locality}
-                onChange={(event) => setForm((current) => ({ ...current, locality: event.target.value }))}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, locality: event.target.value }))
+                }
               />
             ) : null}
 
@@ -1118,7 +1397,9 @@ function DirectoryPage() {
               className="input min-h-24"
               placeholder="Enter notes"
               value={form.notes}
-              onChange={(event) => setForm((current) => ({ ...current, notes: event.target.value }))}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, notes: event.target.value }))
+              }
             />
           </div>
 
@@ -1141,17 +1422,18 @@ function DirectoryPage() {
       >
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>
-              SMS conversation{smsClient ? ` · ${smsClient.name}` : ""}
-            </DialogTitle>
+            <DialogTitle>SMS conversation{smsClient ? ` · ${smsClient.name}` : ""}</DialogTitle>
             <DialogDescription>
-              Open your phone’s SMS app from here and save sent messages back into this tracker conversation. Replies from the native SMS app are not pulled in automatically.
+              Open your phone’s SMS app from here and save sent messages back into this tracker
+              conversation. Replies from the native SMS app are not pulled in automatically.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="rounded-xl border border-border bg-muted/20 p-4">
-              <div className="text-xs uppercase tracking-wider text-muted-foreground">Phone number</div>
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                Phone number
+              </div>
               <div className="mt-1 font-medium text-foreground">{smsClient?.phone ?? "-"}</div>
             </div>
 
@@ -1166,7 +1448,8 @@ function DirectoryPage() {
                   </div>
                 ) : smsMessages.length === 0 ? (
                   <div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
-                    No SMS saved in the tracker yet. Send one from here and save it to start the conversation log.
+                    No SMS saved in the tracker yet. Send one from here and save it to start the
+                    conversation log.
                   </div>
                 ) : (
                   smsMessages.map((message) => (
@@ -1202,7 +1485,8 @@ function DirectoryPage() {
               <div>
                 <div className="text-sm font-medium text-foreground">Compose SMS</div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Step 1: open the SMS app with your message. Step 2: come back and save it to the tracker conversation.
+                  Step 1: open the SMS app with your message. Step 2: come back and save it to the
+                  tracker conversation.
                 </p>
               </div>
 
@@ -1215,7 +1499,9 @@ function DirectoryPage() {
 
               {smsPendingLogBody ? (
                 <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
-                  SMS app opened with your latest draft. If you sent it, click <span className="font-medium">Save sent SMS</span> to add it to the tracker conversation.
+                  SMS app opened with your latest draft. If you sent it, click{" "}
+                  <span className="font-medium">Save sent SMS</span> to add it to the tracker
+                  conversation.
                 </div>
               ) : null}
             </div>
@@ -1224,7 +1510,8 @@ function DirectoryPage() {
               <div>
                 <div className="text-sm font-medium text-foreground">Log received reply</div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  If the contact replied in your phone messages, paste or type that reply here so the tracker conversation stays complete.
+                  If the contact replied in your phone messages, paste or type that reply here so
+                  the tracker conversation stays complete.
                 </p>
               </div>
 
@@ -1238,7 +1525,12 @@ function DirectoryPage() {
           </div>
 
           <DialogFooter>
-            <button type="button" className="btn-secondary" onClick={closeSmsDialog} disabled={smsSaving}>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={closeSmsDialog}
+              disabled={smsSaving}
+            >
               Close
             </button>
             <button
@@ -1283,7 +1575,9 @@ function DirectoryPage() {
           <DialogHeader>
             <DialogTitle>Review phone contacts before syncing</DialogTitle>
             <DialogDescription>
-              Choose which contacts from your phone should be added to the tracker directory. Contacts already in the directory stay unchecked so you do not accidentally duplicate them.
+              Choose which contacts from your phone should be added to the tracker directory.
+              Contacts already in the directory stay unchecked so you do not accidentally duplicate
+              them.
             </DialogDescription>
           </DialogHeader>
 
@@ -1291,17 +1585,25 @@ function DirectoryPage() {
             <div className="flex flex-col gap-3 rounded-xl border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-sm font-medium text-foreground">
-                  {phoneCandidateSelectedIds.length} selected of {selectablePhoneCandidates.length} new contacts
+                  {phoneCandidateSelectedIds.length} selected of {selectablePhoneCandidates.length}{" "}
+                  new contacts
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {duplicatePhoneCandidates.length} already in your directory or repeated in this batch.
-                  {phoneSkippedCount > 0 ? ` ${phoneSkippedCount} contact${phoneSkippedCount === 1 ? "" : "s"} had no usable details and were skipped.` : ""}
+                  {duplicatePhoneCandidates.length} already in your directory or repeated in this
+                  batch.
+                  {phoneSkippedCount > 0
+                    ? ` ${phoneSkippedCount} contact${phoneSkippedCount === 1 ? "" : "s"} had no usable details and were skipped.`
+                    : ""}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => setPhoneCandidateSelectedIds(selectablePhoneCandidates.map((candidate) => candidate.id))}
+                  onClick={() =>
+                    setPhoneCandidateSelectedIds(
+                      selectablePhoneCandidates.map((candidate) => candidate.id),
+                    )
+                  }
                   disabled={!selectablePhoneCandidates.length}
                   className="rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-muted disabled:opacity-60"
                 >
@@ -1319,7 +1621,47 @@ function DirectoryPage() {
             </div>
 
             <div className="overflow-hidden rounded-xl border border-border">
-              <div className="overflow-x-auto">
+              <div className="divide-y divide-border md:hidden">
+                {phoneCandidates.map((candidate) => (
+                  <article
+                    key={candidate.id}
+                    className={`space-y-3 p-4 ${candidate.duplicate ? "bg-muted/20" : "bg-card"}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        checked={phoneCandidateSelectedIds.includes(candidate.id)}
+                        disabled={candidate.duplicate}
+                        onCheckedChange={(checked) =>
+                          togglePhoneCandidateSelection(candidate.id, checked === true)
+                        }
+                        aria-label={`Select ${candidate.name}`}
+                        className="mt-1 shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="break-words font-medium text-foreground">
+                          {candidate.name}
+                        </div>
+                        <div className="mt-2 space-y-1 text-sm text-muted-foreground">
+                          <div className="break-all">{candidate.email || "No email"}</div>
+                          <div className="break-words">{candidate.phone || "No phone"}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
+                        candidate.duplicate
+                          ? "bg-amber-500/10 text-amber-700 dark:text-amber-300"
+                          : "bg-green-500/10 text-green-700 dark:text-green-300"
+                      }`}
+                    >
+                      {candidate.duplicate
+                        ? (candidate.duplicateReason ?? "Already in directory")
+                        : "Ready to add"}
+                    </span>
+                  </article>
+                ))}
+              </div>
+              <div className="hidden overflow-x-auto md:block">
                 <table className="w-full min-w-[760px] text-sm">
                   <thead>
                     <tr className="bg-muted/40 text-[11px] uppercase tracking-wider text-muted-foreground">
@@ -1337,7 +1679,9 @@ function DirectoryPage() {
                           <Checkbox
                             checked={phoneCandidateSelectedIds.includes(candidate.id)}
                             disabled={candidate.duplicate}
-                            onCheckedChange={(checked) => togglePhoneCandidateSelection(candidate.id, checked === true)}
+                            onCheckedChange={(checked) =>
+                              togglePhoneCandidateSelection(candidate.id, checked === true)
+                            }
                             aria-label={`Select ${candidate.name}`}
                           />
                         </td>
@@ -1352,7 +1696,9 @@ function DirectoryPage() {
                                 : "bg-green-500/10 text-green-600"
                             }`}
                           >
-                            {candidate.duplicate ? candidate.duplicateReason ?? "Already in directory" : "Ready to add"}
+                            {candidate.duplicate
+                              ? (candidate.duplicateReason ?? "Already in directory")
+                              : "Ready to add"}
                           </span>
                         </td>
                       </tr>
@@ -1364,7 +1710,12 @@ function DirectoryPage() {
           </div>
 
           <DialogFooter>
-            <button type="button" className="btn-secondary" onClick={() => setPhoneReviewOpen(false)} disabled={phoneImporting}>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => setPhoneReviewOpen(false)}
+              disabled={phoneImporting}
+            >
               Cancel
             </button>
             <button
@@ -1373,7 +1724,9 @@ function DirectoryPage() {
               onClick={() => void importSelectedPhoneContacts()}
               disabled={phoneImporting || phoneCandidateSelectedIds.length === 0}
             >
-              {phoneImporting ? "Adding contacts..." : `Add selected (${phoneCandidateSelectedIds.length})`}
+              {phoneImporting
+                ? "Adding contacts..."
+                : `Add selected (${phoneCandidateSelectedIds.length})`}
             </button>
           </DialogFooter>
         </DialogContent>
@@ -1405,7 +1758,13 @@ async function parsePhoneContactsFile(file: File): Promise<DeviceContact[]> {
 
         const name = extractSpreadsheetContactName(entries);
         const email = extractSpreadsheetContactValue(entries, ["email", "mail"]);
-        const phone = extractSpreadsheetContactValue(entries, ["phone", "mobile", "telephone", "tel", "cell"]);
+        const phone = extractSpreadsheetContactValue(entries, [
+          "phone",
+          "mobile",
+          "telephone",
+          "tel",
+          "cell",
+        ]);
 
         return {
           name: name ? [name] : [],
@@ -1413,7 +1772,10 @@ async function parsePhoneContactsFile(file: File): Promise<DeviceContact[]> {
           tel: phone ? [phone] : [],
         } satisfies DeviceContact;
       })
-      .filter((contact) => firstValue(contact.name) || firstValue(contact.email) || firstValue(contact.tel));
+      .filter(
+        (contact) =>
+          firstValue(contact.name) || firstValue(contact.email) || firstValue(contact.tel),
+      );
   }
 
   throw new Error("Unsupported contact file. Please choose a .vcf, .csv, or Excel contact export.");
@@ -1487,13 +1849,21 @@ function parseVcfContacts(text: string): DeviceContact[] {
         tel: phones,
       } satisfies DeviceContact;
     })
-    .filter((contact) => firstValue(contact.name) || firstValue(contact.email) || firstValue(contact.tel));
+    .filter(
+      (contact) => firstValue(contact.name) || firstValue(contact.email) || firstValue(contact.tel),
+    );
 }
 
 function buildPhoneImportCandidates(selected: DeviceContact[], existingRows: Client[]) {
-  const existingPhones = new Set(existingRows.map((row) => normalizePhone(row.phone)).filter(Boolean) as string[]);
-  const existingEmails = new Set(existingRows.map((row) => normalizeEmail(row.email)).filter(Boolean) as string[]);
-  const existingNames = new Set(existingRows.map((row) => normalizeName(row.name)).filter(Boolean) as string[]);
+  const existingPhones = new Set(
+    existingRows.map((row) => normalizePhone(row.phone)).filter(Boolean) as string[],
+  );
+  const existingEmails = new Set(
+    existingRows.map((row) => normalizeEmail(row.email)).filter(Boolean) as string[],
+  );
+  const existingNames = new Set(
+    existingRows.map((row) => normalizeName(row.name)).filter(Boolean) as string[],
+  );
   const batchPhones = new Set<string>();
   const batchEmails = new Set<string>();
   const batchNames = new Set<string>();
@@ -1517,17 +1887,29 @@ function buildPhoneImportCandidates(selected: DeviceContact[], existingRows: Cli
     const normalizedName = normalizeName(displayName);
     let duplicateReason: string | null = null;
 
-    if (normalizedPhone && (existingPhones.has(normalizedPhone) || batchPhones.has(normalizedPhone))) {
-      duplicateReason = existingPhones.has(normalizedPhone) ? "Already in directory" : "Duplicate in this batch";
-    } else if (normalizedEmail && (existingEmails.has(normalizedEmail) || batchEmails.has(normalizedEmail))) {
-      duplicateReason = existingEmails.has(normalizedEmail) ? "Already in directory" : "Duplicate in this batch";
+    if (
+      normalizedPhone &&
+      (existingPhones.has(normalizedPhone) || batchPhones.has(normalizedPhone))
+    ) {
+      duplicateReason = existingPhones.has(normalizedPhone)
+        ? "Already in directory"
+        : "Duplicate in this batch";
+    } else if (
+      normalizedEmail &&
+      (existingEmails.has(normalizedEmail) || batchEmails.has(normalizedEmail))
+    ) {
+      duplicateReason = existingEmails.has(normalizedEmail)
+        ? "Already in directory"
+        : "Duplicate in this batch";
     } else if (
       !normalizedPhone &&
       !normalizedEmail &&
       normalizedName &&
       (existingNames.has(normalizedName) || batchNames.has(normalizedName))
     ) {
-      duplicateReason = existingNames.has(normalizedName) ? "Already in directory" : "Duplicate in this batch";
+      duplicateReason = existingNames.has(normalizedName)
+        ? "Already in directory"
+        : "Duplicate in this batch";
     }
 
     candidates.push({
@@ -1554,7 +1936,10 @@ function firstValue(values?: string[]) {
 }
 
 function normalizeHeaderKey(value: string) {
-  return value.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
 }
 
 function extractSpreadsheetContactName(record: Record<string, string>) {
@@ -1610,8 +1995,7 @@ function buildSmsHref(phone: string, body: string) {
   if (!cleaned) return `sms:?body=${encodeURIComponent(body)}`;
 
   const isAppleDevice =
-    typeof navigator !== "undefined" &&
-    /iPad|iPhone|iPod/i.test(navigator.userAgent);
+    typeof navigator !== "undefined" && /iPad|iPhone|iPod/i.test(navigator.userAgent);
   const separator = isAppleDevice ? "&" : "?";
   return `sms:${cleaned}${body ? `${separator}body=${encodeURIComponent(body)}` : ""}`;
 }
@@ -1619,7 +2003,9 @@ function buildSmsHref(phone: string, body: string) {
 function buildAlternateSmsHref(phone: string, body: string) {
   const cleaned = phone.replace(/[^\d+]/g, "");
   const encodedBody = encodeURIComponent(body);
-  return cleaned ? `smsto:${cleaned}${body ? `?body=${encodedBody}` : ""}` : `smsto:?body=${encodedBody}`;
+  return cleaned
+    ? `smsto:${cleaned}${body ? `?body=${encodedBody}` : ""}`
+    : `smsto:?body=${encodedBody}`;
 }
 
 function launchSmsComposer(phone: string, body: string) {
