@@ -1,21 +1,108 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { AlertCircle, Pencil, Plus, Car, Play, Square, MapPin, Navigation, Trash2 } from "lucide-react";
+import {
+  AlertCircle,
+  Pencil,
+  Plus,
+  Car,
+  Play,
+  Square,
+  MapPin,
+  Navigation,
+  Trash2,
+} from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatMoneyCents } from "@/hooks/use-books";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { TableFilterBar, useTableFilters, applyTableFilters } from "@/components/table-filter-bar";
 import { TableExportButton } from "@/components/table-export-button";
 import { toast } from "sonner";
-import { registerPlugin } from '@capacitor/core';
+import { registerPlugin } from "@capacitor/core";
 
-const BackgroundGeolocation = registerPlugin<any>('BackgroundGeolocation');
+type BackgroundLocation = {
+  latitude: number;
+  longitude: number;
+};
+
+type BackgroundGeolocationPlugin = {
+  addWatcher: (
+    options: {
+      backgroundTitle: string;
+      backgroundMessage: string;
+      requestPermissions: boolean;
+      stale: boolean;
+      distanceFilter: number;
+    },
+    callback: (location?: BackgroundLocation | null, error?: Error | null) => void,
+  ) => Promise<string | number>;
+};
+
+type GoogleAutocompleteSessionToken = object;
+
+type GooglePlacePrediction = {
+  place_id: string;
+  description: string;
+};
+
+type GoogleAutocompleteService = {
+  getPlacePredictions: (
+    request: { input: string; sessionToken: GoogleAutocompleteSessionToken | null },
+    callback: (results: GooglePlacePrediction[] | null, status: string) => void,
+  ) => void;
+};
+
+type GooglePlacesNamespace = {
+  AutocompleteSessionToken: new () => GoogleAutocompleteSessionToken;
+  AutocompleteService: new () => GoogleAutocompleteService;
+  PlacesServiceStatus: {
+    OK: string;
+    ZERO_RESULTS: string;
+  };
+};
+
+type GoogleMapsApi = {
+  maps: {
+    places: GooglePlacesNamespace;
+  };
+};
+
+type GoogleMapsWindow = Window &
+  typeof globalThis & {
+    google?: GoogleMapsApi;
+    __abtGoogleMapsPlacesLoaded?: () => void;
+  };
+
+const BackgroundGeolocation = registerPlugin<BackgroundGeolocationPlugin>("BackgroundGeolocation");
+
+function googleWindow() {
+  return window as GoogleMapsWindow;
+}
+
+function currentGoogleMapsApi() {
+  const googleApi = googleWindow().google;
+  if (!googleApi?.maps?.places) {
+    throw new Error("Google Places library failed to initialize");
+  }
+  return googleApi;
+}
 
 // Background location initiation function
 const startBackgroundTracking = async () => {
@@ -26,20 +113,20 @@ const startBackgroundTracking = async () => {
         backgroundMessage: "Logging your trip miles automatically in the background.",
         requestPermissions: true,
         stale: false,
-        distanceFilter: 10 // Logs data every 10 meters of movement
+        distanceFilter: 10, // Logs data every 10 meters of movement
       },
-      function(location: any, error: any) {
+      function (location, error) {
         if (error) {
           console.error("Background tracking error:", error);
           return;
         }
         if (location) {
           console.log("Background location grabbed:", location.latitude, location.longitude);
-          
+
           // Your project's standard Supabase connection line will execute here:
           // supabase.from('mileage_logs').insert({ latitude: location.latitude, longitude: location.longitude });
         }
-      }
+      },
     );
     console.log("Foreground service successfully armed with ID:", watcherId);
   } catch (err) {
@@ -82,6 +169,33 @@ type AddressSuggestion = {
   lon?: number;
 };
 
+const PURPOSE_OPTIONS = [
+  "Showing",
+  "Listing visit",
+  "Closing",
+  "Inspection",
+  "Client meeting",
+  "Other",
+] as const;
+
+function splitPurpose(value?: string | null) {
+  const normalized = value?.trim() ?? "";
+  if (!normalized) return { purpose: "Showing", otherPurpose: "" };
+  if (normalized === "Other") return { purpose: "Other", otherPurpose: "" };
+  if (normalized.toLowerCase().startsWith("other:")) {
+    return { purpose: "Other", otherPurpose: normalized.slice(normalized.indexOf(":") + 1).trim() };
+  }
+  if ((PURPOSE_OPTIONS as readonly string[]).includes(normalized)) {
+    return { purpose: normalized, otherPurpose: "" };
+  }
+  return { purpose: "Other", otherPurpose: normalized };
+}
+
+function buildPurpose(purpose: string, otherPurpose: string) {
+  const note = otherPurpose.trim();
+  return purpose === "Other" ? (note ? `Other: ${note}` : "Other") : purpose;
+}
+
 function Mileage() {
   const { user } = useAuth();
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -90,14 +204,23 @@ function Mileage() {
   const [editing, setEditing] = useState<Trip | null>(null);
 
   const reload = async () => {
-    if (!user) { setTrips([]); setLoading(false); return; }
+    if (!user) {
+      setTrips([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
-    const { data } = await supabase.from("mileage_trips").select("*").order("date", { ascending: false });
+    const { data } = await supabase
+      .from("mileage_trips")
+      .select("*")
+      .order("date", { ascending: false });
     setTrips((data ?? []) as Trip[]);
     setLoading(false);
   };
 
-  useEffect(() => { reload(); /* eslint-disable-next-line */ }, [user]);
+  useEffect(() => {
+    reload(); /* eslint-disable-next-line */
+  }, [user]);
 
   const [filters, setFilters, resetFilters] = useTableFilters();
   const filteredTrips = applyTableFilters(trips, filters, {
@@ -105,7 +228,8 @@ function Mileage() {
     date: (t) => t.date,
     amount: (t) => Number(t.miles),
     selectValue: (t, key) => {
-      if (key === "purpose") return t.purpose ?? "";
+      if (key === "purpose")
+        return (t.purpose ?? "").startsWith("Other") ? "Other" : (t.purpose ?? "");
       if (key === "mode") return t.mode;
       return "";
     },
@@ -125,35 +249,52 @@ function Mileage() {
       purpose: t.purpose ?? null,
       mode: t.mode,
     });
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Trip logged");
     await reload();
   };
 
   const updateTrip = async (id: string, t: NewTrip) => {
-    const { error } = await supabase.from("mileage_trips").update({
-      date: t.date ?? new Date().toISOString().slice(0, 10),
-      miles: t.miles,
-      from_address: t.from_address ?? null,
-      to_address: t.to_address ?? null,
-      purpose: t.purpose ?? null,
-      mode: t.mode,
-    }).eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    const { error } = await supabase
+      .from("mileage_trips")
+      .update({
+        date: t.date ?? new Date().toISOString().slice(0, 10),
+        miles: t.miles,
+        from_address: t.from_address ?? null,
+        to_address: t.to_address ?? null,
+        purpose: t.purpose ?? null,
+        mode: t.mode,
+      })
+      .eq("id", id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Trip updated");
     await reload();
   };
 
   const deleteTrip = async (id: string) => {
     const { error } = await supabase.from("mileage_trips").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     await reload();
   };
 
   if (!user) {
     return (
       <PageShell title="Mileage Tracker" subtitle="Sign in to log and track trips.">
-        <Link to="/auth" className="inline-flex bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium">Sign in</Link>
+        <Link
+          to="/auth"
+          className="inline-flex bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium"
+        >
+          Sign in
+        </Link>
       </PageShell>
     );
   }
@@ -175,7 +316,10 @@ function Mileage() {
               { header: "To", accessor: (t) => t.to_address },
               { header: "Purpose", accessor: (t) => t.purpose },
               { header: "Mode", accessor: (t) => t.mode },
-              { header: "Deduction (USD)", accessor: (t) => Number((Number(t.miles) * irsRate).toFixed(2)) },
+              {
+                header: "Deduction (USD)",
+                accessor: (t) => Number((Number(t.miles) * irsRate).toFixed(2)),
+              },
             ]}
           />
           <button
@@ -204,12 +348,20 @@ function Mileage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
         <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
-          <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Total miles</div>
-          <div className="text-3xl font-bold tabular-nums font-display">{totalMiles.toFixed(1)}</div>
+          <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+            Total miles
+          </div>
+          <div className="text-3xl font-bold tabular-nums font-display">
+            {totalMiles.toFixed(1)}
+          </div>
         </div>
         <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
-          <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Estimated deduction</div>
-          <div className="text-3xl font-bold tabular-nums font-display text-success">{formatMoneyCents(deduction)}</div>
+          <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+            Estimated deduction
+          </div>
+          <div className="text-3xl font-bold tabular-nums font-display text-success">
+            {formatMoneyCents(deduction)}
+          </div>
           <div className="text-xs text-muted-foreground mt-1">@ ${irsRate}/mi (IRS 2025)</div>
         </div>
         <div className="bg-primary text-primary-foreground rounded-2xl p-5 shadow-card flex items-center gap-3">
@@ -222,9 +374,24 @@ function Mileage() {
       </div>
 
       <div className="flex gap-1 mb-5 border-b border-border">
-        <ModeTab active={mode === "live"} onClick={() => setMode("live")} icon={Navigation} label="Live GPS" />
-        <ModeTab active={mode === "route"} onClick={() => setMode("route")} icon={MapPin} label="Address to address" />
-        <ModeTab active={mode === "manual"} onClick={() => setMode("manual")} icon={Pencil} label="Manual entry" />
+        <ModeTab
+          active={mode === "live"}
+          onClick={() => setMode("live")}
+          icon={Navigation}
+          label="Live GPS"
+        />
+        <ModeTab
+          active={mode === "route"}
+          onClick={() => setMode("route")}
+          icon={MapPin}
+          label="Address to address"
+        />
+        <ModeTab
+          active={mode === "manual"}
+          onClick={() => setMode("manual")}
+          icon={Pencil}
+          label="Manual entry"
+        />
       </div>
 
       <div className="mb-8">
@@ -240,19 +407,27 @@ function Mileage() {
         searchPlaceholder="Search from, to, or purpose..."
         showAmount
         selects={[
-          { key: "purpose", label: "Purpose", options: [
-            { value: "Showing", label: "Showing" },
-            { value: "Listing visit", label: "Listing visit" },
-            { value: "Closing", label: "Closing" },
-            { value: "Inspection", label: "Inspection" },
-            { value: "Client meeting", label: "Client meeting" },
-            { value: "Other", label: "Other" },
-          ]},
-          { key: "mode", label: "Mode", options: [
-            { value: "live", label: "Live" },
-            { value: "address", label: "Address" },
-            { value: "manual", label: "Manual" },
-          ]},
+          {
+            key: "purpose",
+            label: "Purpose",
+            options: [
+              { value: "Showing", label: "Showing" },
+              { value: "Listing visit", label: "Listing visit" },
+              { value: "Closing", label: "Closing" },
+              { value: "Inspection", label: "Inspection" },
+              { value: "Client meeting", label: "Client meeting" },
+              { value: "Other", label: "Other" },
+            ],
+          },
+          {
+            key: "mode",
+            label: "Mode",
+            options: [
+              { value: "live", label: "Live" },
+              { value: "address", label: "Address" },
+              { value: "manual", label: "Manual" },
+            ],
+          },
         ]}
       />
 
@@ -260,48 +435,135 @@ function Mileage() {
         {loading ? (
           <div className="p-8 text-sm text-muted-foreground text-center">Loading trips...</div>
         ) : filteredTrips.length === 0 ? (
-          <div className="p-8 text-sm text-muted-foreground text-center">{trips.length === 0 ? "No trips logged yet." : "No trips match your filters."}</div>
-        ) : (
-          <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-sm">
-            <thead>
-              <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
-                <th className="text-left font-medium py-3 px-6">Date</th>
-                <th className="text-left font-medium py-3">From</th>
-                <th className="text-left font-medium py-3">To</th>
-                <th className="text-left font-medium py-3">Purpose</th>
-                <th className="text-right font-medium py-3">Miles</th>
-                <th className="text-right font-medium py-3">Deduction</th>
-                <th className="w-20 pr-4"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTrips.map((m) => (
-                <tr key={m.id} className="border-t border-border hover:bg-muted/30">
-                  <td className="py-4 px-6 text-muted-foreground text-xs tabular-nums">{m.date}</td>
-                  <td className="py-4">{m.from_address ?? "N/A"}</td>
-                  <td className="py-4">{m.to_address ?? "N/A"}</td>
-                  <td className="py-4 text-muted-foreground">{m.purpose ?? "N/A"}</td>
-                  <td className="py-4 text-right tabular-nums font-medium">{Number(m.miles).toFixed(1)}</td>
-                  <td className="py-4 text-right tabular-nums font-medium text-success">{formatMoneyCents(Number(m.miles) * irsRate)}</td>
-                  <td className="py-4 pr-4">
-                    <div className="flex items-center justify-end gap-1">
-                      <button onClick={() => setEditing(m)} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Edit trip">
-                        <Pencil className="h-3.5 w-3.5" />
-                      </button>
-                      <button onClick={() => { if (confirm("Delete this trip?")) deleteTrip(m.id); }} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive" aria-label="Delete trip">
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="p-8 text-sm text-muted-foreground text-center">
+            {trips.length === 0 ? "No trips logged yet." : "No trips match your filters."}
           </div>
+        ) : (
+          <>
+            <div className="divide-y divide-border md:hidden">
+              {filteredTrips.map((m) => (
+                <div key={m.id} className="space-y-3 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                        {m.date}
+                      </div>
+                      <div className="mt-1 font-medium break-words">{m.purpose ?? "N/A"}</div>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <div className="font-semibold tabular-nums">
+                        {Number(m.miles).toFixed(1)} mi
+                      </div>
+                      <div className="text-xs font-medium text-success tabular-nums">
+                        {formatMoneyCents(Number(m.miles) * irsRate)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2 text-sm text-muted-foreground">
+                    <div>
+                      <div className="text-[10px] uppercase tracking-wider">From</div>
+                      <div className="break-words text-foreground">{m.from_address ?? "N/A"}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase tracking-wider">To</div>
+                      <div className="break-words text-foreground">{m.to_address ?? "N/A"}</div>
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-1">
+                    <button
+                      onClick={() => setEditing(m)}
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                      aria-label="Edit trip"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm("Delete this trip?")) deleteTrip(m.id);
+                      }}
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
+                      aria-label="Delete trip"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="hidden overflow-x-auto md:block">
+              <table className="w-full min-w-[760px] text-sm">
+                <thead>
+                  <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-muted/40">
+                    <th className="text-left font-medium py-3 px-6">Date</th>
+                    <th className="text-left font-medium py-3">From</th>
+                    <th className="text-left font-medium py-3">To</th>
+                    <th className="text-left font-medium py-3">Purpose</th>
+                    <th className="text-right font-medium py-3">Miles</th>
+                    <th className="text-right font-medium py-3">Deduction</th>
+                    <th className="w-20 pr-4"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredTrips.map((m) => (
+                    <tr key={m.id} className="border-t border-border hover:bg-muted/30">
+                      <td className="py-4 px-6 text-muted-foreground text-xs tabular-nums">
+                        {m.date}
+                      </td>
+                      <td className="py-4">{m.from_address ?? "N/A"}</td>
+                      <td className="py-4">{m.to_address ?? "N/A"}</td>
+                      <td className="py-4 text-muted-foreground">{m.purpose ?? "N/A"}</td>
+                      <td className="py-4 text-right tabular-nums font-medium">
+                        {Number(m.miles).toFixed(1)}
+                      </td>
+                      <td className="py-4 text-right tabular-nums font-medium text-success">
+                        {formatMoneyCents(Number(m.miles) * irsRate)}
+                      </td>
+                      <td className="py-4 pr-4">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => setEditing(m)}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                            aria-label="Edit trip"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (confirm("Delete this trip?")) deleteTrip(m.id);
+                            }}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
+                            aria-label="Delete trip"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </PageShell>
+  );
+}
+
+function PurposeSelect({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {PURPOSE_OPTIONS.map((option) => (
+          <SelectItem key={option} value={option}>
+            {option}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 
@@ -324,23 +586,34 @@ function TripDialog({
   const [from, setFrom] = useState(initial?.from_address ?? "");
   const [to, setTo] = useState(initial?.to_address ?? "");
   const [miles, setMiles] = useState(initial?.miles ?? "");
-  const [purpose, setPurpose] = useState(initial?.purpose ?? "Showing");
+  const initialPurpose = splitPurpose(initial?.purpose);
+  const [purpose, setPurpose] = useState(initialPurpose.purpose);
+  const [otherPurpose, setOtherPurpose] = useState(initialPurpose.otherPurpose);
   const [mode, setMode] = useState<NewTrip["mode"]>(initial?.mode ?? "manual");
 
   useEffect(() => {
     if (!open) return;
+    const nextPurpose = splitPurpose(initial?.purpose);
     setDate(initial?.date ?? new Date().toISOString().slice(0, 10));
     setFrom(initial?.from_address ?? "");
     setTo(initial?.to_address ?? "");
     setMiles(initial?.miles ?? "");
-    setPurpose(initial?.purpose ?? "Showing");
+    setPurpose(nextPurpose.purpose);
+    setOtherPurpose(nextPurpose.otherPurpose);
     setMode(initial?.mode ?? "manual");
   }, [open, initial]);
 
   const save = async () => {
     const m = parseFloat(miles);
     if (!from || !to || !m) return;
-    await onSubmit({ date, from_address: from, to_address: to, miles: m, purpose, mode });
+    await onSubmit({
+      date,
+      from_address: from,
+      to_address: to,
+      miles: m,
+      purpose: buildPurpose(purpose, otherPurpose),
+      mode,
+    });
     onOpenChange(false);
   };
 
@@ -356,7 +629,9 @@ function TripDialog({
           </Field>
           <Field label="Mode">
             <Select value={mode} onValueChange={(v) => setMode(v as NewTrip["mode"])}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="live">Live</SelectItem>
                 <SelectItem value="address">Address</SelectItem>
@@ -381,24 +656,37 @@ function TripDialog({
             />
           </Field>
           <Field label="Miles">
-            <Input value={miles} onChange={(e) => setMiles(e.target.value)} placeholder="Enter miles driven" inputMode="decimal" className="tabular-nums" />
+            <Input
+              value={miles}
+              onChange={(e) => setMiles(e.target.value)}
+              placeholder="Enter miles driven"
+              inputMode="decimal"
+              className="tabular-nums"
+            />
           </Field>
           <Field label="Purpose">
-            <Select value={purpose} onValueChange={setPurpose}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Showing">Showing</SelectItem>
-                <SelectItem value="Listing visit">Listing visit</SelectItem>
-                <SelectItem value="Closing">Closing</SelectItem>
-                <SelectItem value="Inspection">Inspection</SelectItem>
-                <SelectItem value="Client meeting">Client meeting</SelectItem>
-                <SelectItem value="Other">Other</SelectItem>
-              </SelectContent>
-            </Select>
+            <PurposeSelect
+              value={purpose}
+              onChange={(value) => {
+                setPurpose(value);
+                if (value !== "Other") setOtherPurpose("");
+              }}
+            />
           </Field>
+          {purpose === "Other" && (
+            <Field label="Other notes" className="md:col-span-2">
+              <Input
+                value={otherPurpose}
+                onChange={(e) => setOtherPurpose(e.target.value)}
+                placeholder="Describe this mileage purpose"
+              />
+            </Field>
+          )}
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
           <Button onClick={save}>{submitLabel}</Button>
         </DialogFooter>
       </DialogContent>
@@ -406,12 +694,24 @@ function TripDialog({
   );
 }
 
-function ModeTab({ active, onClick, icon: Icon, label }: { active: boolean; onClick: () => void; icon: React.ComponentType<{ className?: string }>; label: string }) {
+function ModeTab({
+  active,
+  onClick,
+  icon: Icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+}) {
   return (
     <button
       onClick={onClick}
       className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-        active ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
+        active
+          ? "border-primary text-foreground"
+          : "border-transparent text-muted-foreground hover:text-foreground"
       }`}
     >
       <Icon className="h-4 w-4" /> {label}
@@ -421,13 +721,20 @@ function ModeTab({ active, onClick, icon: Icon, label }: { active: boolean; onCl
 
 type Status = "idle" | "running" | "stopped";
 
-function LiveTracker({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise<void>; activeTabKey: string }) {
+function LiveTracker({
+  onSave,
+  activeTabKey,
+}: {
+  onSave: (t: NewTrip) => Promise<void>;
+  activeTabKey: string;
+}) {
   const [status, setStatus] = useState<Status>("idle");
   const [miles, setMiles] = useState(0);
   const [seconds, setSeconds] = useState(0);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [purpose, setPurpose] = useState("Showing");
+  const [otherPurpose, setOtherPurpose] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [addressLoading, setAddressLoading] = useState(false);
 
@@ -437,26 +744,44 @@ function LiveTracker({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise
   const startedAt = useRef<number>(0);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => () => {
-    if (watchId.current !== null) navigator.geolocation.clearWatch(watchId.current);
-    if (tickRef.current) clearInterval(tickRef.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (watchId.current !== null) navigator.geolocation.clearWatch(watchId.current);
+      if (tickRef.current) clearInterval(tickRef.current);
+    },
+    [],
+  );
 
   const start = () => {
     setError(null);
-    if (!("geolocation" in navigator)) { setError("Your browser doesn't support geolocation."); return; }
-    setMiles(0); setSeconds(0); lastPos.current = null; firstPos.current = null;
-    setFrom(""); setTo(""); setAddressLoading(false);
+    if (!("geolocation" in navigator)) {
+      setError("Your browser doesn't support geolocation.");
+      return;
+    }
+    setMiles(0);
+    setSeconds(0);
+    lastPos.current = null;
+    firstPos.current = null;
+    setFrom("");
+    setTo("");
+    setAddressLoading(false);
+    setPurpose("Showing");
+    setOtherPurpose("");
     startedAt.current = Date.now();
     setStatus("running");
-    tickRef.current = setInterval(() => setSeconds(Math.floor((Date.now() - startedAt.current) / 1000)), 1000);
+    tickRef.current = setInterval(
+      () => setSeconds(Math.floor((Date.now() - startedAt.current) / 1000)),
+      1000,
+    );
     watchId.current = navigator.geolocation.watchPosition(
       (pos) => {
         if (!firstPos.current) firstPos.current = pos;
         if (lastPos.current) {
           const d = haversineMiles(
-            lastPos.current.coords.latitude, lastPos.current.coords.longitude,
-            pos.coords.latitude, pos.coords.longitude,
+            lastPos.current.coords.latitude,
+            lastPos.current.coords.longitude,
+            pos.coords.latitude,
+            pos.coords.longitude,
           );
           if (d > 0.005 && d < 5) setMiles((m) => m + d);
         }
@@ -470,7 +795,8 @@ function LiveTracker({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise
   const stop = () => {
     if (watchId.current !== null) navigator.geolocation.clearWatch(watchId.current);
     if (tickRef.current) clearInterval(tickRef.current);
-    watchId.current = null; tickRef.current = null;
+    watchId.current = null;
+    tickRef.current = null;
     setStatus("stopped");
     void hydrateAddressesFromGps();
   };
@@ -480,12 +806,28 @@ function LiveTracker({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise
       from_address: from || "Start location",
       to_address: to || "End location",
       miles: Number(miles.toFixed(2)),
-      purpose, mode: "live",
+      purpose: buildPurpose(purpose, otherPurpose),
+      mode: "live",
     });
-    setStatus("idle"); setMiles(0); setSeconds(0); setFrom(""); setTo("");
+    setStatus("idle");
+    setMiles(0);
+    setSeconds(0);
+    setFrom("");
+    setTo("");
+    setPurpose("Showing");
+    setOtherPurpose("");
   };
 
-  const discard = () => { setStatus("idle"); setMiles(0); setSeconds(0); setFrom(""); setTo(""); setAddressLoading(false); };
+  const discard = () => {
+    setStatus("idle");
+    setMiles(0);
+    setSeconds(0);
+    setFrom("");
+    setTo("");
+    setPurpose("Showing");
+    setOtherPurpose("");
+    setAddressLoading(false);
+  };
 
   async function hydrateAddressesFromGps() {
     const startCoords = firstPos.current?.coords;
@@ -495,7 +837,9 @@ function LiveTracker({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise
     setAddressLoading(true);
     try {
       const [startAddress, endAddress] = await Promise.all([
-        startCoords ? reverseGeocode(startCoords.latitude, startCoords.longitude) : Promise.resolve(null),
+        startCoords
+          ? reverseGeocode(startCoords.latitude, startCoords.longitude)
+          : Promise.resolve(null),
         endCoords ? reverseGeocode(endCoords.latitude, endCoords.longitude) : Promise.resolve(null),
       ]);
 
@@ -515,26 +859,41 @@ function LiveTracker({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise
     <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
       <div className="flex flex-col md:flex-row md:items-center gap-6">
         <div className="flex items-center gap-5">
-          <div className={`h-16 w-16 rounded-2xl flex items-center justify-center ${
-            status === "running" ? "bg-success/15 text-success animate-pulse" : "bg-muted text-muted-foreground"
-          }`}>
+          <div
+            className={`h-16 w-16 rounded-2xl flex items-center justify-center ${
+              status === "running"
+                ? "bg-success/15 text-success animate-pulse"
+                : "bg-muted text-muted-foreground"
+            }`}
+          >
             <Navigation className="h-7 w-7" />
           </div>
           <div>
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{
-              status === "idle" ? "Ready" : status === "running" ? "Recording..." : "Stopped"
-            }</div>
-            <div className="text-4xl font-bold tabular-nums font-display">{miles.toFixed(2)} <span className="text-base font-normal text-muted-foreground">mi</span></div>
-            <div className="text-xs text-muted-foreground mt-0.5 tabular-nums">{mm}:{ss} elapsed</div>
+            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+              {status === "idle" ? "Ready" : status === "running" ? "Recording..." : "Stopped"}
+            </div>
+            <div className="text-4xl font-bold tabular-nums font-display">
+              {miles.toFixed(2)}{" "}
+              <span className="text-base font-normal text-muted-foreground">mi</span>
+            </div>
+            <div className="text-xs text-muted-foreground mt-0.5 tabular-nums">
+              {mm}:{ss} elapsed
+            </div>
           </div>
         </div>
         <div className="flex gap-2 md:ml-auto">
           {status !== "running" ? (
-            <button onClick={start} className="inline-flex items-center gap-2 bg-success text-white px-5 py-3 rounded-lg text-sm font-medium">
+            <button
+              onClick={start}
+              className="inline-flex items-center gap-2 bg-success text-white px-5 py-3 rounded-lg text-sm font-medium"
+            >
               <Play className="h-4 w-4" /> Start trip
             </button>
           ) : (
-            <button onClick={stop} className="inline-flex items-center gap-2 bg-destructive text-destructive-foreground px-5 py-3 rounded-lg text-sm font-medium">
+            <button
+              onClick={stop}
+              className="inline-flex items-center gap-2 bg-destructive text-destructive-foreground px-5 py-3 rounded-lg text-sm font-medium"
+            >
               <Square className="h-4 w-4" /> Stop trip
             </button>
           )}
@@ -548,7 +907,9 @@ function LiveTracker({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise
               value={from}
               onChange={setFrom}
               onSelect={(suggestion) => setFrom(suggestion.label)}
-              placeholder={addressLoading ? "Finding starting location..." : "Enter starting location"}
+              placeholder={
+                addressLoading ? "Finding starting location..." : "Enter starting location"
+              }
               activeTabKey={activeTabKey}
             />
           </Field>
@@ -562,21 +923,36 @@ function LiveTracker({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise
             />
           </Field>
           <Field label="Purpose">
-            <Select value={purpose} onValueChange={setPurpose}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Showing">Showing</SelectItem>
-                <SelectItem value="Listing visit">Listing visit</SelectItem>
-                <SelectItem value="Closing">Closing</SelectItem>
-                <SelectItem value="Inspection">Inspection</SelectItem>
-                <SelectItem value="Client meeting">Client meeting</SelectItem>
-                <SelectItem value="Other">Other</SelectItem>
-              </SelectContent>
-            </Select>
+            <PurposeSelect
+              value={purpose}
+              onChange={(value) => {
+                setPurpose(value);
+                if (value !== "Other") setOtherPurpose("");
+              }}
+            />
           </Field>
+          {purpose === "Other" && (
+            <Field label="Other notes" className="md:col-span-2">
+              <Input
+                value={otherPurpose}
+                onChange={(e) => setOtherPurpose(e.target.value)}
+                placeholder="Describe this mileage purpose"
+              />
+            </Field>
+          )}
           <div className="flex items-end gap-2">
-            <button onClick={save} className="flex-1 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">Save trip</button>
-            <button onClick={discard} className="px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted">Discard</button>
+            <button
+              onClick={save}
+              className="flex-1 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium"
+            >
+              Save trip
+            </button>
+            <button
+              onClick={discard}
+              className="px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted"
+            >
+              Discard
+            </button>
           </div>
         </div>
       )}
@@ -591,17 +967,25 @@ function LiveTracker({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise
         onClick={startBackgroundTracking}
         className="mt-5 cursor-pointer rounded-lg border border-amber-300 bg-amber-100 px-3 py-3 text-xs text-amber-900 shadow-sm transition-all hover:bg-amber-200/80 active:scale-[0.99] dark:border-amber-400/30 dark:bg-amber-500/15 dark:text-amber-100 dark:hover:bg-amber-500/20"
       >
-        <strong className="text-amber-900 dark:text-amber-300">Live Tracking Enabled:</strong>{" "}
-        Your native background foreground service is ready. Tap this card directly to arm the real-time background mileage logging pipeline.
+        <strong className="text-amber-900 dark:text-amber-300">Live Tracking Enabled:</strong> Your
+        native background foreground service is ready. Tap this card directly to arm the real-time
+        background mileage logging pipeline.
       </div>
     </div>
   );
 }
 
-function RouteCalc({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise<void>; activeTabKey: string }) {
+function RouteCalc({
+  onSave,
+  activeTabKey,
+}: {
+  onSave: (t: NewTrip) => Promise<void>;
+  activeTabKey: string;
+}) {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [purpose, setPurpose] = useState("Showing");
+  const [otherPurpose, setOtherPurpose] = useState("");
   const [miles, setMiles] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -610,7 +994,7 @@ function RouteCalc({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise<v
     setLoading(true);
     setTimeout(() => {
       const seed = (from + to).split("").reduce((s, c) => s + c.charCodeAt(0), 0);
-      const est = ((seed % 230) / 10) + 1.2;
+      const est = (seed % 230) / 10 + 1.2;
       setMiles(Number(est.toFixed(1)));
       setLoading(false);
     }, 600);
@@ -618,8 +1002,18 @@ function RouteCalc({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise<v
 
   const save = async () => {
     if (miles == null) return;
-    await onSave({ from_address: from, to_address: to, miles, purpose, mode: "address" });
-    setFrom(""); setTo(""); setMiles(null);
+    await onSave({
+      from_address: from,
+      to_address: to,
+      miles,
+      purpose: buildPurpose(purpose, otherPurpose),
+      mode: "address",
+    });
+    setFrom("");
+    setTo("");
+    setMiles(null);
+    setPurpose("Showing");
+    setOtherPurpose("");
   };
 
   return (
@@ -644,7 +1038,11 @@ function RouteCalc({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise<v
           />
         </Field>
         <div className="flex items-end">
-          <button onClick={calc} disabled={!from || !to || loading} className="w-full bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50">
+          <button
+            onClick={calc}
+            disabled={!from || !to || loading}
+            className="w-full bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50"
+          >
             {loading ? "Calculating..." : "Calculate"}
           </button>
         </div>
@@ -653,46 +1051,82 @@ function RouteCalc({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise<v
       {miles != null && (
         <div className="mt-5 flex flex-col md:flex-row md:items-center gap-4">
           <div className="flex-1">
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Driving distance</div>
-            <div className="text-3xl font-bold font-display tabular-nums">{miles.toFixed(1)} mi</div>
-            <div className="text-xs text-success tabular-nums mt-0.5">{formatMoneyCents(miles * irsRate)} deduction</div>
+            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+              Driving distance
+            </div>
+            <div className="text-3xl font-bold font-display tabular-nums">
+              {miles.toFixed(1)} mi
+            </div>
+            <div className="text-xs text-success tabular-nums mt-0.5">
+              {formatMoneyCents(miles * irsRate)} deduction
+            </div>
           </div>
-          <Field label="Purpose">
-            <Select value={purpose} onValueChange={setPurpose}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Showing">Showing</SelectItem>
-                <SelectItem value="Listing visit">Listing visit</SelectItem>
-                <SelectItem value="Closing">Closing</SelectItem>
-                <SelectItem value="Inspection">Inspection</SelectItem>
-                <SelectItem value="Client meeting">Client meeting</SelectItem>
-                <SelectItem value="Other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <button onClick={save} className="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-medium">Save trip</button>
+          <div className="w-full space-y-3 md:w-64">
+            <Field label="Purpose">
+              <PurposeSelect
+                value={purpose}
+                onChange={(value) => {
+                  setPurpose(value);
+                  if (value !== "Other") setOtherPurpose("");
+                }}
+              />
+            </Field>
+            {purpose === "Other" && (
+              <Field label="Other notes">
+                <Input
+                  value={otherPurpose}
+                  onChange={(e) => setOtherPurpose(e.target.value)}
+                  placeholder="Describe this mileage purpose"
+                />
+              </Field>
+            )}
+          </div>
+          <button
+            onClick={save}
+            className="w-full bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-medium md:w-auto"
+          >
+            Save trip
+          </button>
         </div>
       )}
 
       <div className="mt-5 text-xs text-muted-foreground bg-muted/40 rounded-lg p-3">
-        <strong className="text-foreground">Address assist:</strong> start and destination suggestions appear while you type. Distance is still estimated locally for now.
-        Add a Google Maps or Mapbox API key later and we can switch this to exact driving distance.
+        <strong className="text-foreground">Address assist:</strong> start and destination
+        suggestions appear while you type. Distance is still estimated locally for now. Add a Google
+        Maps or Mapbox API key later and we can switch this to exact driving distance.
       </div>
     </div>
   );
 }
 
-function ManualEntry({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise<void>; activeTabKey: string }) {
+function ManualEntry({
+  onSave,
+  activeTabKey,
+}: {
+  onSave: (t: NewTrip) => Promise<void>;
+  activeTabKey: string;
+}) {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [miles, setMiles] = useState("");
   const [purpose, setPurpose] = useState("Showing");
+  const [otherPurpose, setOtherPurpose] = useState("");
 
   const save = async () => {
     const m = parseFloat(miles);
     if (!from || !to || !m) return;
-    await onSave({ from_address: from, to_address: to, miles: m, purpose, mode: "manual" });
-    setFrom(""); setTo(""); setMiles("");
+    await onSave({
+      from_address: from,
+      to_address: to,
+      miles: m,
+      purpose: buildPurpose(purpose, otherPurpose),
+      mode: "manual",
+    });
+    setFrom("");
+    setTo("");
+    setMiles("");
+    setPurpose("Showing");
+    setOtherPurpose("");
   };
 
   return (
@@ -716,32 +1150,60 @@ function ManualEntry({ onSave, activeTabKey }: { onSave: (t: NewTrip) => Promise
             activeTabKey={activeTabKey}
           />
         </Field>
-        <Field label="Miles"><Input value={miles} onChange={(e) => setMiles(e.target.value)} placeholder="Enter miles driven" inputMode="decimal" className="tabular-nums" /></Field>
-        <Field label="Purpose">
-          <Select value={purpose} onValueChange={setPurpose}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Showing">Showing</SelectItem>
-              <SelectItem value="Listing visit">Listing visit</SelectItem>
-              <SelectItem value="Closing">Closing</SelectItem>
-              <SelectItem value="Inspection">Inspection</SelectItem>
-              <SelectItem value="Client meeting">Client meeting</SelectItem>
-              <SelectItem value="Other">Other</SelectItem>
-            </SelectContent>
-          </Select>
+        <Field label="Miles">
+          <Input
+            value={miles}
+            onChange={(e) => setMiles(e.target.value)}
+            placeholder="Enter miles driven"
+            inputMode="decimal"
+            className="tabular-nums"
+          />
         </Field>
+        <Field label="Purpose">
+          <PurposeSelect
+            value={purpose}
+            onChange={(value) => {
+              setPurpose(value);
+              if (value !== "Other") setOtherPurpose("");
+            }}
+          />
+        </Field>
+        {purpose === "Other" && (
+          <Field label="Other notes" className="md:col-span-2">
+            <Input
+              value={otherPurpose}
+              onChange={(e) => setOtherPurpose(e.target.value)}
+              placeholder="Describe this mileage purpose"
+            />
+          </Field>
+        )}
         <div className="flex items-end">
-          <button onClick={save} className="w-full bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">Add trip</button>
+          <button
+            onClick={save}
+            className="w-full bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium"
+          >
+            Add trip
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-function Field({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
+function Field({
+  label,
+  children,
+  className,
+}: {
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
     <label className={`block ${className ?? ""}`}>
-      <span className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5 block">{label}</span>
+      <span className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5 block">
+        {label}
+      </span>
       {children}
     </label>
   );
@@ -768,7 +1230,7 @@ function AddressAutocompleteInput({
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   // Google Places session token — groups all keystrokes of one query into a
   // single billable session. Rotated after a suggestion is chosen.
-  const sessionTokenRef = useRef<any>(null);
+  const sessionTokenRef = useRef<GoogleAutocompleteSessionToken | null>(null);
   const lastSelectedRef = useRef<string>("");
 
   const [placesError, setPlacesError] = useState<string | null>(null);
@@ -864,8 +1326,9 @@ function AddressAutocompleteInput({
     setOpen(false);
     setHighlightedIndex(-1);
     // End of Places session — rotate token so next query starts a fresh one.
-    if ((window as any).google?.maps?.places) {
-      sessionTokenRef.current = new (window as any).google.maps.places.AutocompleteSessionToken();
+    const googleApi = googleWindow().google;
+    if (googleApi?.maps?.places) {
+      sessionTokenRef.current = new googleApi.maps.places.AutocompleteSessionToken();
     }
   };
 
@@ -901,27 +1364,30 @@ function AddressAutocompleteInput({
         disabled={!placesReady && !placesError}
       />
 
-      {placesError && (
-        <p className="mt-1 text-xs text-destructive">{placesError}</p>
-      )}
+      {placesError && <p className="mt-1 text-xs text-destructive">{placesError}</p>}
 
       {placesReady && open && (loading || suggestions.length > 0) && (
         <div className="absolute z-20 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border border-border bg-popover shadow-xl">
           {loading && (
-            <div className="px-3 py-2 text-sm text-muted-foreground">Finding address matches...</div>
+            <div className="px-3 py-2 text-sm text-muted-foreground">
+              Finding address matches...
+            </div>
           )}
-          {!loading && suggestions.map((suggestion, index) => (
-            <button
-              key={suggestion.id}
-              type="button"
-              onClick={() => choose(suggestion)}
-              className={`block w-full px-3 py-2 text-left text-sm transition-colors ${
-                index === highlightedIndex ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              {suggestion.label}
-            </button>
-          ))}
+          {!loading &&
+            suggestions.map((suggestion, index) => (
+              <button
+                key={suggestion.id}
+                type="button"
+                onClick={() => choose(suggestion)}
+                className={`block w-full px-3 py-2 text-left text-sm transition-colors ${
+                  index === highlightedIndex
+                    ? "bg-muted text-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                {suggestion.label}
+              </button>
+            ))}
         </div>
       )}
     </div>
@@ -953,14 +1419,16 @@ function haversineMiles(lat1: number, lon1: number, lat2: number, lon2: number):
   const toRad = (d: number) => (d * Math.PI) / 180;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
-  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
 import { getGoogleMapsKey } from "@/lib/maps.functions";
 
 const GOOGLE_MAPS_SCRIPT_ID = "google-maps-places-script";
-let googleMapsPlacesPromise: Promise<any> | null = null;
+let googleMapsPlacesPromise: Promise<GoogleMapsApi> | null = null;
 let googleMapsKeyPromise: Promise<string> | null = null;
 
 async function fetchGoogleMapsKey(): Promise<string> {
@@ -1017,8 +1485,8 @@ function newSessionToken(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function loadGoogleMapsPlaces(): Promise<any> {
-  const existingGoogle = (window as any).google;
+function loadGoogleMapsPlaces(): Promise<GoogleMapsApi> {
+  const existingGoogle = googleWindow().google;
   if (existingGoogle?.maps?.places) {
     return Promise.resolve(existingGoogle);
   }
@@ -1030,18 +1498,39 @@ function loadGoogleMapsPlaces(): Promise<any> {
   googleMapsPlacesPromise = (async () => {
     const apiKey = await fetchGoogleMapsKey();
 
-    return new Promise<any>((resolve, reject) => {
-      const existingScript = document.getElementById(GOOGLE_MAPS_SCRIPT_ID) as HTMLScriptElement | null;
+    return new Promise<GoogleMapsApi>((resolve, reject) => {
+      const existingScript = document.getElementById(
+        GOOGLE_MAPS_SCRIPT_ID,
+      ) as HTMLScriptElement | null;
       if (existingScript) {
-        existingScript.addEventListener("load", () => resolve((window as any).google), { once: true });
-        existingScript.addEventListener("error", () => reject(new Error("Google Maps script failed to load")), { once: true });
+        existingScript.addEventListener(
+          "load",
+          () => {
+            try {
+              resolve(currentGoogleMapsApi());
+            } catch (error) {
+              reject(error);
+            }
+          },
+          {
+            once: true,
+          },
+        );
+        existingScript.addEventListener(
+          "error",
+          () => reject(new Error("Google Maps script failed to load")),
+          { once: true },
+        );
         return;
       }
 
       const callbackName = "__abtGoogleMapsPlacesLoaded";
-      (window as any)[callbackName] = () => {
-        resolve((window as any).google);
-        delete (window as any)[callbackName];
+      googleWindow()[callbackName] = () => {
+        try {
+          resolve(currentGoogleMapsApi());
+        } finally {
+          delete googleWindow()[callbackName];
+        }
       };
 
       const script = document.createElement("script");
@@ -1066,7 +1555,7 @@ function loadGoogleMapsPlaces(): Promise<any> {
 async function searchAddressSuggestions(
   query: string,
   signal: AbortSignal,
-  sessionToken: any,
+  sessionToken: GoogleAutocompleteSessionToken | null,
 ): Promise<AddressSuggestion[]> {
   const googleApi = await loadGoogleMapsPlaces();
   if (signal.aborted) throw new DOMException("Aborted", "AbortError");
@@ -1075,13 +1564,13 @@ async function searchAddressSuggestions(
   // one query so Google bills it as a single autocomplete session.
   const service = new googleApi.maps.places.AutocompleteService();
 
-  const predictions = await new Promise<any[]>((resolve, reject) => {
+  const predictions = await new Promise<GooglePlacePrediction[]>((resolve, reject) => {
     service.getPlacePredictions(
       {
         input: query,
         sessionToken,
       },
-      (results: any[] | null, status: string) => {
+      (results, status) => {
         if (signal.aborted) {
           reject(new DOMException("Aborted", "AbortError"));
           return;
@@ -1104,4 +1593,3 @@ async function searchAddressSuggestions(
     label: prediction.description,
   }));
 }
-

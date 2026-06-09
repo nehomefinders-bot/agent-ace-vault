@@ -5,10 +5,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { PageShell, StatusPill } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
@@ -16,7 +29,11 @@ export const Route = createFileRoute("/tasks")({
   head: () => ({
     meta: [
       { title: "Tasks - Agent Business Tracker" },
-      { name: "description", content: "Log and track your tasks. Update status, priority, dates, and times in one place." },
+      {
+        name: "description",
+        content:
+          "Log and track your tasks. Update status, priority, dates, and times in one place.",
+      },
     ],
   }),
   component: TasksPage,
@@ -111,10 +128,17 @@ function formatTaskDue(task: Pick<Task, "due_at" | "due_date">) {
 }
 
 function compareTasks(a: Task, b: Task) {
+  const aDone = a.status === "done";
+  const bDone = b.status === "done";
+  if (aDone !== bDone) return aDone ? 1 : -1;
+
+  const aCreated = new Date(a.created_at).getTime();
+  const bCreated = new Date(b.created_at).getTime();
+  if (aCreated !== bCreated) return bCreated - aCreated;
+
   const aDate = parseTaskDate(a)?.getTime() ?? Number.MAX_SAFE_INTEGER;
   const bDate = parseTaskDate(b)?.getTime() ?? Number.MAX_SAFE_INTEGER;
-  if (aDate !== bDate) return aDate - bDate;
-  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  return aDate - bDate;
 }
 
 function TasksPage() {
@@ -139,7 +163,10 @@ function TasksPage() {
     }
 
     setLoading(true);
-    const { data, error } = await supabase.from("tasks").select("*").order("created_at", { ascending: false });
+    const { data, error } = await supabase
+      .from("tasks")
+      .select("*")
+      .order("created_at", { ascending: false });
     if (error) {
       toast.error(error.message);
     } else {
@@ -201,9 +228,16 @@ function TasksPage() {
   async function setStatus(task: Task, status: Status) {
     const completed_at = status === "done" ? new Date().toISOString() : null;
     const previous = tasks;
-    setTasks((current) => current.map((item) => (item.id === task.id ? { ...item, status, completed_at } : item)));
+    setTasks((current) =>
+      current
+        .map((item) => (item.id === task.id ? { ...item, status, completed_at } : item))
+        .sort(compareTasks),
+    );
 
-    const { error } = await supabase.from("tasks").update({ status, completed_at }).eq("id", task.id);
+    const { error } = await supabase
+      .from("tasks")
+      .update({ status, completed_at })
+      .eq("id", task.id);
     if (error) {
       setTasks(previous);
       toast.error(error.message);
@@ -223,12 +257,15 @@ function TasksPage() {
     toast.success("Task deleted");
   }
 
-  const counts = useMemo(() => ({
-    all: tasks.length,
-    todo: tasks.filter((task) => task.status === "todo").length,
-    in_progress: tasks.filter((task) => task.status === "in_progress").length,
-    done: tasks.filter((task) => task.status === "done").length,
-  }), [tasks]);
+  const counts = useMemo(
+    () => ({
+      all: tasks.length,
+      todo: tasks.filter((task) => task.status === "todo").length,
+      in_progress: tasks.filter((task) => task.status === "in_progress").length,
+      done: tasks.filter((task) => task.status === "done").length,
+    }),
+    [tasks],
+  );
 
   const visible = useMemo(() => {
     const filtered = filter === "all" ? tasks : tasks.filter((task) => task.status === filter);
@@ -239,7 +276,7 @@ function TasksPage() {
     <PageShell
       title="Tasks"
       subtitle="Plan, track and complete your work."
-      actions={(
+      actions={
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -276,7 +313,10 @@ function TasksPage() {
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div className="space-y-1.5">
                   <Label>Priority</Label>
-                  <Select value={priority} onValueChange={(value) => setPriority(value as Priority)}>
+                  <Select
+                    value={priority}
+                    onValueChange={(value) => setPriority(value as Priority)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -289,11 +329,21 @@ function TasksPage() {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="due">Due date</Label>
-                  <Input id="due" type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} />
+                  <Input
+                    id="due"
+                    type="date"
+                    value={dueDate}
+                    onChange={(event) => setDueDate(event.target.value)}
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="due-time">Due time</Label>
-                  <Input id="due-time" type="time" value={dueTime} onChange={(event) => setDueTime(event.target.value)} />
+                  <Input
+                    id="due-time"
+                    type="time"
+                    value={dueTime}
+                    onChange={(event) => setDueTime(event.target.value)}
+                  />
                 </div>
               </div>
               <DialogFooter>
@@ -307,15 +357,17 @@ function TasksPage() {
             </form>
           </DialogContent>
         </Dialog>
-      )}
+      }
     >
       <div className="mb-6 flex flex-wrap items-center gap-2">
-        {([
-          ["all", "All"],
-          ["todo", "To do"],
-          ["in_progress", "In progress"],
-          ["done", "Done"],
-        ] as const).map(([key, label]) => (
+        {(
+          [
+            ["all", "All"],
+            ["todo", "To do"],
+            ["in_progress", "In progress"],
+            ["done", "Done"],
+          ] as const
+        ).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setFilter(key)}
@@ -334,67 +386,84 @@ function TasksPage() {
       {loading ? (
         <div className="py-12 text-center text-sm text-muted-foreground">Loading...</div>
       ) : !user ? (
-        <div className="py-12 text-center text-sm text-muted-foreground">Sign in to manage tasks.</div>
+        <div className="py-12 text-center text-sm text-muted-foreground">
+          Sign in to manage tasks.
+        </div>
       ) : visible.length === 0 ? (
         <div className="rounded-xl border border-dashed py-16 text-center">
           <ListTodo className="mx-auto mb-3 h-10 w-10 text-muted-foreground/60" />
           <div className="font-medium">No tasks here</div>
           <div className="mt-1 text-sm text-muted-foreground">
-            {filter === "all" ? "Add your first task to get started." : "Try another filter or add a new task."}
+            {filter === "all"
+              ? "Add your first task to get started."
+              : "Try another filter or add a new task."}
           </div>
         </div>
       ) : (
         <ul className="space-y-2">
           {visible.map((task) => {
             const dueAt = parseTaskDate(task);
-            const overdue = Boolean(dueAt && task.status !== "done" && dueAt.getTime() < Date.now());
+            const overdue = Boolean(
+              dueAt && task.status !== "done" && dueAt.getTime() < Date.now(),
+            );
             const dueLabel = formatTaskDue(task);
 
             return (
               <li
                 key={task.id}
-                className="group flex items-start gap-3 rounded-xl border bg-card p-4 transition-shadow hover:shadow-sm"
+                className="group flex flex-col gap-3 rounded-xl border bg-card p-4 transition-shadow hover:shadow-sm sm:flex-row sm:items-start"
               >
-                <button
-                  onClick={() => setStatus(task, task.status === "done" ? "todo" : "done")}
-                  className="mt-0.5 text-muted-foreground hover:text-primary"
-                  aria-label="Toggle complete"
-                >
-                  {task.status === "done" ? (
-                    <CheckCircle2 className="h-5 w-5 text-success" />
-                  ) : task.status === "in_progress" ? (
-                    <Clock className="h-5 w-5 text-primary" />
-                  ) : (
-                    <Circle className="h-5 w-5" />
-                  )}
-                </button>
+                <div className="flex min-w-0 flex-1 items-start gap-3">
+                  <button
+                    onClick={() => setStatus(task, task.status === "done" ? "todo" : "done")}
+                    className="mt-0.5 shrink-0 text-muted-foreground hover:text-primary"
+                    aria-label="Toggle complete"
+                  >
+                    {task.status === "done" ? (
+                      <CheckCircle2 className="h-5 w-5 text-success" />
+                    ) : task.status === "in_progress" ? (
+                      <Clock className="h-5 w-5 text-primary" />
+                    ) : (
+                      <Circle className="h-5 w-5" />
+                    )}
+                  </button>
 
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className={`font-medium ${task.status === "done" ? "line-through text-muted-foreground" : ""}`}>
-                      {task.title}
-                    </span>
-                    <StatusPill tone={PRIORITY_TONE[task.priority]}>{task.priority}</StatusPill>
-                    {dueLabel && (
-                      <span className={`text-xs ${overdue ? "font-medium text-destructive" : "text-muted-foreground"}`}>
-                        Due {dueLabel}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`break-words font-medium ${task.status === "done" ? "line-through text-muted-foreground" : ""}`}
+                      >
+                        {task.title}
                       </span>
+                      <StatusPill tone={PRIORITY_TONE[task.priority]}>{task.priority}</StatusPill>
+                      {dueLabel && (
+                        <span
+                          className={`text-xs ${overdue ? "font-medium text-destructive" : "text-muted-foreground"}`}
+                        >
+                          Due {dueLabel}
+                        </span>
+                      )}
+                    </div>
+                    {task.description && (
+                      <p className="mt-1 whitespace-pre-wrap break-words text-sm text-muted-foreground">
+                        {task.description}
+                      </p>
+                    )}
+                    {task.due_date && (
+                      <div className="mt-2 flex flex-wrap gap-2 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                        <span>Date: {getTaskDateValue(task)}</span>
+                        {getTaskTimeValue(task) && <span>Time: {getTaskTimeValue(task)}</span>}
+                      </div>
                     )}
                   </div>
-                  {task.description && (
-                    <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">{task.description}</p>
-                  )}
-                  {task.due_date && (
-                    <div className="mt-2 flex flex-wrap gap-2 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                      <span>Date: {getTaskDateValue(task)}</span>
-                      {getTaskTimeValue(task) && <span>Time: {getTaskTimeValue(task)}</span>}
-                    </div>
-                  )}
                 </div>
 
-                <div className="flex shrink-0 items-center gap-2">
-                  <Select value={task.status} onValueChange={(value) => setStatus(task, value as Status)}>
-                    <SelectTrigger className="h-8 w-[140px] text-xs">
+                <div className="flex w-full shrink-0 items-center gap-2 sm:w-auto">
+                  <Select
+                    value={task.status}
+                    onValueChange={(value) => setStatus(task, value as Status)}
+                  >
+                    <SelectTrigger className="h-9 min-w-0 flex-1 text-xs sm:h-8 sm:w-[140px] sm:flex-none">
                       <SelectValue>{STATUS_LABEL[task.status]}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -405,7 +474,7 @@ function TasksPage() {
                   </Select>
                   <button
                     onClick={() => remove(task)}
-                    className="p-1 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+                    className="p-1 text-muted-foreground opacity-100 transition-opacity hover:text-destructive sm:opacity-0 sm:group-hover:opacity-100"
                     aria-label="Delete task"
                   >
                     <Trash2 className="h-4 w-4" />
