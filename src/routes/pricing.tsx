@@ -28,6 +28,22 @@ function PricingPage() {
   const { subscription, isActive } = useSubscription();
   const navigate = useNavigate();
 
+  // Auto-open checkout when the URL has ?checkout=<priceId> (e.g. from
+  // landing page "Claim Founder Access" → /auth?next=/pricing?checkout=beta_monthly).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!user) return;
+    const params = new URLSearchParams(window.location.search);
+    const desired = params.get("checkout");
+    if (!desired) return;
+    if (isActive) return;
+    setCheckoutPriceId(desired);
+    params.delete("checkout");
+    const qs = params.toString();
+    window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
+  }, [user, isActive]);
+
+
   async function subscribe(priceId: string) {
     if (!user) {
       navigate({ to: "/auth" });
