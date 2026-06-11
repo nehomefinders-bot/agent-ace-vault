@@ -1,11 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { getRequestHeader } from "@tanstack/react-start/server";
 
-function buildRedirectUri(): string {
+async function buildRedirectUri(): Promise<string> {
   // Prefer explicit configured URL; otherwise derive from request host.
   const explicit = process.env.GOOGLE_OAUTH_REDIRECT_URI;
   if (explicit) return explicit;
+  const { getRequestHeader } = await import("@tanstack/react-start/server");
   const host = getRequestHeader("x-forwarded-host") || getRequestHeader("host");
   const proto = getRequestHeader("x-forwarded-proto") || "https";
   return `${proto}://${host}/api/public/google/calendar-callback`;
