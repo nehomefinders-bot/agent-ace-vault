@@ -528,14 +528,25 @@ function CalendarPage() {
           access_type: "offline",
           prompt: "consent",
         },
+        skipBrowserRedirect: true,
       },
     } as const;
 
-    const { error } = user
+    const { data, error } = user
       ? await supabase.auth.linkIdentity(credentials)
       : await supabase.auth.signInWithOAuth(credentials);
 
-    if (error) toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    if (!data?.url) {
+      toast.error("Google did not return a login URL.");
+      return;
+    }
+
+    window.location.assign(data.url);
   }
 
   async function updateTask(taskId: string, updates: Partial<Task>) {
