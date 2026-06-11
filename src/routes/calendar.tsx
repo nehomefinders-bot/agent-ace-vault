@@ -25,7 +25,22 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  buildGoogleEventDatePatch,
+  clearGoogleProviderTokens,
+  deleteGoogleCalendarEvent,
+  GOOGLE_CALENDAR_SCOPES,
+  GoogleCalendarAuthError,
+  type GoogleCalendarEvent,
+  type GoogleCalendarEventPatch,
+  type GoogleSyncedTask,
+  hasStoredGoogleProviderToken,
+  patchGoogleCalendarEvent,
+  storeGoogleProviderTokens,
+  syncTasksWithGoogleCalendar,
+} from "@/lib/google-calendar-sync";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/calendar")({
@@ -45,19 +60,7 @@ type CalendarView = "dayGridMonth" | "timeGridWeek" | "timeGridDay";
 type TaskStatus = "todo" | "in_progress" | "done";
 type TaskPriority = "low" | "medium" | "high";
 
-interface Task {
-  id: string;
-  user_id: string;
-  title: string;
-  description: string | null;
-  status: TaskStatus;
-  priority: TaskPriority;
-  due_at: string | null;
-  due_date: string | null;
-  completed_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
+type Task = GoogleSyncedTask;
 
 interface DealMilestone {
   id: string;
@@ -68,20 +71,21 @@ interface DealMilestone {
   side: string;
 }
 
-interface GoogleCalendarEvent {
-  id: string;
-  summary?: string;
-  description?: string;
-  location?: string;
-  htmlLink?: string;
-  start?: { date?: string; dateTime?: string };
-  end?: { date?: string; dateTime?: string };
-}
-
 type SelectedCalendarItem =
   | { source: "task"; task: Task }
   | { source: "deal"; deal: DealMilestone }
   | { source: "google"; google: GoogleCalendarEvent };
+
+interface GoogleEventDraft {
+  summary: string;
+  description: string;
+  location: string;
+  allDay: boolean;
+  start_date: string;
+  start_time: string;
+  end_date: string;
+  end_time: string;
+}
 
 const STATUS_LABEL: Record<TaskStatus, string> = {
   todo: "To do",
@@ -149,6 +153,68 @@ function buildDuePayload(dueDate: string, dueTime: string) {
   return {
     due_date: dueDate,
     due_at: dueAt.toISOString(),
+  };
+}
+
+function addDays(date: string, days: number) {
+  const parsed = new Date(`${date}T12:00:00`);
+  parsed.setDate(parsed.getDate() + days);
+  return dateOnly(parsed);
+}
+
+function subtractDays(date: string, days: number) {
+  return addDays(date, -days);
+}
+
+function timeOnly(date: Date) {
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+}
+
+function combineDateTime(date: string, time: string) {
+  return new Date(`${date}T${time || "00:00"}:00`);
+}
+
+function googleEventDraftFromEvent(event: GoogleCalendarEvent): GoogleEventDraft {
+  const allDay = Boolean(event.start?.date);
+  const startDateTime = event.start?.dateTime ? new Date(event.start.dateTime) : null;
+  const endDateTime = event.end?.dateTime ? new Date(event.end.dateTime) : null;
+  const startDate = event.start?.date ?? (startDateTime ? dateOnly(startDateTime) : dateOnly(new Date()));
+  const exclusiveEndDate = event.end?.date ?? (endDateTime ? dateOnly(endDateTime) : addDays(startDate, 1));
+
+  return {
+    summary: event.summary || "Google Calendar event",
+    description: event.description ?? "",
+    location: event.location ?? "",
+    allDay,
+    start_date: startDate,
+    start_time: allDay ? "" : timeOnly(startDateTime ?? new Date()),
+    end_date: allDay ? subtractDays(exclusiveEndDate, 1) : dateOnly(endDateTime ?? new Date((startDateTime ?? new Date()).getTime() + 30 * 60_000)),
+    end_time: allDay ? "" : timeOnly(endDateTime ?? new Date((startDateTime ?? new Date()).getTime() + 30 * 60_000)),
+  };
+}
+
+function googleEventPatchFromDraft(draft: GoogleEventDraft): GoogleCalendarEventPatch {
+  if (draft.allDay) {
+    const endDate = draft.end_date && draft.end_date >= draft.start_date ? draft.end_date : draft.start_date;
+    return {
+      summary: draft.summary.trim(),
+      description: draft.description.trim(),
+      location: draft.location.trim(),
+      start: { date: draft.start_date },
+      end: { date: addDays(endDate, 1) },
+    };
+  }
+
+  const start = combineDateTime(draft.start_date, draft.start_time);
+  const end = combineDateTime(draft.end_date || draft.start_date, draft.end_time || draft.start_time);
+  return {
+    summary: draft.summary.trim(),
+    description: draft.description.trim(),
+    location: draft.location.trim(),
+    start: { dateTime: start.toISOString() },
+    end: { dateTime: end.getTime() > start.getTime() ? end.toISOString() : new Date(start.getTime() + 30 * 60_000).toISOString() },
   };
 }
 
@@ -226,6 +292,16 @@ function CalendarPage() {
     due_date: "",
     due_time: "",
   });
+  const [googleDraft, setGoogleDraft] = useState<GoogleEventDraft>({
+    summary: "",
+    description: "",
+    location: "",
+    allDay: false,
+    start_date: dateOnly(new Date()),
+    start_time: timeOnly(new Date()),
+    end_date: dateOnly(new Date()),
+    end_time: timeOnly(new Date(new Date().getTime() + 30 * 60_000)),
+  });
   const [newTaskOpen, setNewTaskOpen] = useState(false);
   const [newTaskDraft, setNewTaskDraft] = useState({
     title: "",
@@ -262,55 +338,47 @@ function CalendarPage() {
     setLoading(false);
   }, [user]);
 
-  const loadGoogleEvents = useCallback(async () => {
-    setGoogleLoading(true);
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
-
-    if (sessionError) {
-      toast.error(sessionError.message);
-      setGoogleLoading(false);
-      return;
-    }
-
-    const providerToken = session?.provider_token;
-    if (!providerToken) {
-      setGoogleConnected(false);
-      setGoogleLoading(false);
-      return;
-    }
-
-    const { timeMin, timeMax } = rangeForGoogle(dateRange);
-    const params = new URLSearchParams({
-      timeMin,
-      timeMax,
-      singleEvents: "true",
-      orderBy: "startTime",
-      maxResults: "250",
-    });
-
-    try {
-      const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?${params}`, {
-        headers: { Authorization: `Bearer ${providerToken}` },
-      });
-
-      if (!response.ok) {
+  const syncGoogleCalendar = useCallback(
+    async (options: { silent?: boolean; skipMissingToken?: boolean } = {}) => {
+      if (!user) {
+        setGoogleEvents([]);
         setGoogleConnected(false);
-        throw new Error("Google Calendar needs to be reconnected.");
+        return;
       }
 
-      const payload = (await response.json()) as { items?: GoogleCalendarEvent[] };
-      setGoogleEvents(payload.items ?? []);
-      setGoogleConnected(true);
-    } catch (error) {
-      setGoogleEvents([]);
-      toast.error(error instanceof Error ? error.message : "Could not load Google Calendar events.");
-    } finally {
-      setGoogleLoading(false);
-    }
-  }, [dateRange]);
+      if (options.skipMissingToken && !hasStoredGoogleProviderToken()) {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        storeGoogleProviderTokens(session);
+        if (!session?.provider_token && !hasStoredGoogleProviderToken()) {
+          setGoogleConnected(false);
+          return;
+        }
+      }
+
+      setGoogleLoading(true);
+      try {
+        const result = await syncTasksWithGoogleCalendar(user.id, dateRange);
+        setTasks(result.tasks);
+        setGoogleEvents(result.externalEvents);
+        setGoogleConnected(true);
+        if (!options.silent) toast.success("Google Calendar synced");
+      } catch (error) {
+        if (error instanceof GoogleCalendarAuthError) {
+          setGoogleConnected(false);
+          setGoogleEvents([]);
+          if (!options.skipMissingToken && !options.silent) toast.error(error.message);
+          return;
+        }
+
+        toast.error(error instanceof Error ? error.message : "Could not sync Google Calendar.");
+      } finally {
+        setGoogleLoading(false);
+      }
+    },
+    [dateRange, user],
+  );
 
   useEffect(() => {
     if (!authLoading) void loadInternalEvents();
@@ -339,8 +407,27 @@ function CalendarPage() {
   }, [authLoading, loadInternalEvents, user]);
 
   useEffect(() => {
-    if (!authLoading) void loadGoogleEvents();
-  }, [authLoading, loadGoogleEvents]);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        clearGoogleProviderTokens();
+        setGoogleConnected(false);
+        setGoogleEvents([]);
+        return;
+      }
+
+      storeGoogleProviderTokens(session);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!authLoading) void syncGoogleCalendar({ silent: true, skipMissingToken: true });
+  }, [authLoading, syncGoogleCalendar]);
 
   useEffect(() => {
     if (selectedItem?.source !== "task") return;
@@ -352,6 +439,11 @@ function CalendarPage() {
       due_date: getTaskDateValue(selectedItem.task),
       due_time: getTaskTimeValue(selectedItem.task),
     });
+  }, [selectedItem]);
+
+  useEffect(() => {
+    if (selectedItem?.source !== "google") return;
+    setGoogleDraft(googleEventDraftFromEvent(selectedItem.google));
   }, [selectedItem]);
 
   const calendarEvents = useMemo(() => {
@@ -395,7 +487,7 @@ function CalendarPage() {
           start,
           end: event.end?.dateTime ?? event.end?.date,
           allDay: Boolean(event.start?.date),
-          editable: false,
+          editable: true,
           classNames: ["abt-google-event"],
           extendedProps: { source: "google", google: event },
         };
@@ -427,13 +519,21 @@ function CalendarPage() {
   }
 
   async function connectGoogleCalendar() {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const credentials = {
       provider: "google",
       options: {
         redirectTo: window.location.origin + "/calendar",
-        scopes: "https://www.googleapis.com/auth/calendar.events",
+        scopes: GOOGLE_CALENDAR_SCOPES,
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
       },
-    });
+    } as const;
+
+    const { error } = user
+      ? await supabase.auth.linkIdentity(credentials)
+      : await supabase.auth.signInWithOAuth(credentials);
 
     if (error) toast.error(error.message);
   }
@@ -443,35 +543,53 @@ function CalendarPage() {
     const nextTasks = tasks.map((task) => (task.id === taskId ? { ...task, ...updates } : task));
     setTasks(nextTasks);
 
-    const { error } = await supabase.from("tasks").update(updates).eq("id", taskId);
+    const { data, error } = await supabase.from("tasks").update(updates).eq("id", taskId).select("*").single();
     if (error) {
       setTasks(previous);
       toast.error(error.message);
       return false;
     }
 
+    setTasks((current) => current.map((task) => (task.id === taskId ? (data as Task) : task)));
+    void syncGoogleCalendar({ silent: true, skipMissingToken: true });
     return true;
   }
 
   async function handleEventDrop(info: EventDropArg) {
     const source = info.event.extendedProps.source as string | undefined;
-    if (source !== "task") {
-      info.revert();
-      return;
-    }
-
-    const task = info.event.extendedProps.task as Task;
     if (!info.event.start) {
       info.revert();
       return;
     }
 
-    const success = await updateTask(task.id, {
-      due_date: dateOnly(info.event.start),
-      due_at: info.event.allDay ? null : info.event.start.toISOString(),
-    });
-    if (!success) info.revert();
-    else toast.success("Task rescheduled");
+    if (source === "task") {
+      const task = info.event.extendedProps.task as Task;
+      const success = await updateTask(task.id, {
+        due_date: dateOnly(info.event.start),
+        due_at: info.event.allDay ? null : info.event.start.toISOString(),
+      });
+      if (!success) info.revert();
+      else toast.success("Task rescheduled");
+      return;
+    }
+
+    if (source === "google") {
+      const google = info.event.extendedProps.google as GoogleCalendarEvent;
+      try {
+        await patchGoogleCalendarEvent(
+          google.id,
+          buildGoogleEventDatePatch(info.event.start, info.event.end, info.event.allDay),
+        );
+        toast.success("Google event rescheduled");
+        void syncGoogleCalendar({ silent: true });
+      } catch (error) {
+        info.revert();
+        toast.error(error instanceof Error ? error.message : "Could not reschedule the Google event.");
+      }
+      return;
+    }
+
+    info.revert();
   }
 
   function handleEventClick(info: EventClickArg) {
@@ -533,10 +651,22 @@ function CalendarPage() {
   async function deleteSelectedTask() {
     if (selectedItem?.source !== "task") return;
 
+    const task = selectedItem.task;
     const taskId = selectedItem.task.id;
     const previous = tasks;
     setTasks((current) => current.filter((task) => task.id !== taskId));
     setSelectedItem(null);
+
+    if (task.google_event_id) {
+      try {
+        await deleteGoogleCalendarEvent(task.google_event_id);
+      } catch (error) {
+        setTasks(previous);
+        setSelectedItem({ source: "task", task });
+        toast.error(error instanceof Error ? error.message : "Could not delete the Google Calendar event.");
+        return;
+      }
+    }
 
     const { error } = await supabase.from("tasks").delete().eq("id", taskId);
     if (error) {
@@ -548,18 +678,52 @@ function CalendarPage() {
     toast.success("Task deleted");
   }
 
+  async function saveSelectedGoogleEvent() {
+    if (selectedItem?.source !== "google" || !googleDraft.summary.trim() || !googleDraft.start_date) return;
+
+    setSaving(true);
+    try {
+      await patchGoogleCalendarEvent(selectedItem.google.id, googleEventPatchFromDraft(googleDraft));
+      toast.success("Google event updated");
+      setSelectedItem(null);
+      await syncGoogleCalendar({ silent: true });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not update the Google event.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deleteSelectedGoogleEvent() {
+    if (selectedItem?.source !== "google") return;
+
+    const eventId = selectedItem.google.id;
+    setSaving(true);
+    try {
+      await deleteGoogleCalendarEvent(eventId);
+      setGoogleEvents((current) => current.filter((event) => event.id !== eventId));
+      setSelectedItem(null);
+      toast.success("Google event deleted");
+      await syncGoogleCalendar({ silent: true });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not delete the Google event.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function createTask(event: React.FormEvent) {
     event.preventDefault();
     if (!user || !newTaskDraft.title.trim()) return;
 
     setSaving(true);
-    const { error } = await supabase.from("tasks").insert({
+    const { data, error } = await supabase.from("tasks").insert({
       user_id: user.id,
       title: newTaskDraft.title.trim(),
       description: newTaskDraft.description.trim() || null,
       priority: newTaskDraft.priority,
       ...buildDuePayload(newTaskDraft.due_date, newTaskDraft.due_time),
-    });
+    }).select("*").single();
     setSaving(false);
 
     if (error) {
@@ -569,7 +733,8 @@ function CalendarPage() {
 
     toast.success("Task scheduled");
     setNewTaskOpen(false);
-    void loadInternalEvents();
+    if (data) setTasks((current) => [...current, data as Task]);
+    void syncGoogleCalendar({ silent: true, skipMissingToken: true });
   }
 
   const selectedTitle = selectedItem?.source === "task"
@@ -587,7 +752,7 @@ function CalendarPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => void loadGoogleEvents()}
+            onClick={() => void syncGoogleCalendar()}
             disabled={googleLoading}
             className="border-slate-300 bg-white text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-100 dark:hover:bg-slate-800"
           >
@@ -596,7 +761,7 @@ function CalendarPage() {
           </Button>
           <Button
             type="button"
-            onClick={googleConnected ? () => void loadGoogleEvents() : connectGoogleCalendar}
+            onClick={googleConnected ? () => void syncGoogleCalendar() : connectGoogleCalendar}
             className="bg-amber-500 text-slate-950 hover:bg-amber-400"
           >
             <Cloud className="mr-2 h-4 w-4" />
@@ -1115,19 +1280,89 @@ function CalendarPage() {
           )}
 
           {selectedItem?.source === "google" && (
-            <div className="rounded-2xl border border-indigo-300/40 bg-indigo-50 p-4 dark:border-indigo-300/20 dark:bg-indigo-500/10">
-              <div className="text-xs uppercase tracking-[0.18em] text-indigo-700 dark:text-indigo-200/80">External Google event</div>
-              <h3 className="mt-2 text-xl font-bold text-slate-950 dark:text-white">
-                {selectedItem.google.summary || "Google Calendar event"}
-              </h3>
-              {selectedItem.google.description && (
-                <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">{selectedItem.google.description}</p>
-              )}
-              {selectedItem.google.location && (
-                <p className="mt-3 text-sm text-slate-700 dark:text-slate-300">
-                  <span className="text-slate-500 dark:text-slate-500">Location:</span> {selectedItem.google.location}
-                </p>
-              )}
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="google-event-title">Title</Label>
+                <Input
+                  id="google-event-title"
+                  value={googleDraft.summary}
+                  onChange={(event) => setGoogleDraft((draft) => ({ ...draft, summary: event.target.value }))}
+                  className="border-slate-300 bg-white text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="google-event-description">Description</Label>
+                <Textarea
+                  id="google-event-description"
+                  value={googleDraft.description}
+                  onChange={(event) => setGoogleDraft((draft) => ({ ...draft, description: event.target.value }))}
+                  rows={4}
+                  className="border-slate-300 bg-white text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="google-event-location">Location</Label>
+                <Input
+                  id="google-event-location"
+                  value={googleDraft.location}
+                  onChange={(event) => setGoogleDraft((draft) => ({ ...draft, location: event.target.value }))}
+                  className="border-slate-300 bg-white text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <Switch
+                  id="google-event-all-day"
+                  checked={googleDraft.allDay}
+                  onCheckedChange={(checked) => setGoogleDraft((draft) => ({ ...draft, allDay: checked }))}
+                />
+                <Label htmlFor="google-event-all-day">All day</Label>
+              </div>
+              <div className={`grid gap-3 ${googleDraft.allDay ? "sm:grid-cols-2" : "sm:grid-cols-4"}`}>
+                <div className="space-y-1.5">
+                  <Label htmlFor="google-event-start-date">Start date</Label>
+                  <Input
+                    id="google-event-start-date"
+                    type="date"
+                    value={googleDraft.start_date}
+                    onChange={(event) => setGoogleDraft((draft) => ({ ...draft, start_date: event.target.value }))}
+                    className="border-slate-300 bg-white text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                  />
+                </div>
+                {!googleDraft.allDay && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="google-event-start-time">Start time</Label>
+                    <Input
+                      id="google-event-start-time"
+                      type="time"
+                      value={googleDraft.start_time}
+                      onChange={(event) => setGoogleDraft((draft) => ({ ...draft, start_time: event.target.value }))}
+                      className="border-slate-300 bg-white text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                    />
+                  </div>
+                )}
+                <div className="space-y-1.5">
+                  <Label htmlFor="google-event-end-date">End date</Label>
+                  <Input
+                    id="google-event-end-date"
+                    type="date"
+                    value={googleDraft.end_date}
+                    onChange={(event) => setGoogleDraft((draft) => ({ ...draft, end_date: event.target.value }))}
+                    className="border-slate-300 bg-white text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                  />
+                </div>
+                {!googleDraft.allDay && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="google-event-end-time">End time</Label>
+                    <Input
+                      id="google-event-end-time"
+                      type="time"
+                      value={googleDraft.end_time}
+                      onChange={(event) => setGoogleDraft((draft) => ({ ...draft, end_time: event.target.value }))}
+                      className="border-slate-300 bg-white text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                    />
+                  </div>
+                )}
+              </div>
               {selectedItem.google.htmlLink && (
                 <a
                   href={selectedItem.google.htmlLink}
@@ -1142,7 +1377,7 @@ function CalendarPage() {
           )}
 
           <DialogFooter className="gap-2 sm:justify-between">
-            {selectedItem?.source === "task" ? (
+            {selectedItem?.source === "task" && (
               <>
                 <Button
                   type="button"
@@ -1166,7 +1401,34 @@ function CalendarPage() {
                   Save changes
                 </Button>
               </>
-            ) : (
+            )}
+            {selectedItem?.source === "google" && (
+              <>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => void deleteSelectedGoogleEvent()}
+                  disabled={saving}
+                  className="mr-auto"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setSelectedItem(null)} disabled={saving}>
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => void saveSelectedGoogleEvent()}
+                  disabled={saving || !googleDraft.summary.trim() || !googleDraft.start_date}
+                  className="bg-amber-500 text-slate-950 hover:bg-amber-400"
+                >
+                  {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
+                  Save changes
+                </Button>
+              </>
+            )}
+            {selectedItem?.source === "deal" && (
               <Button type="button" onClick={() => setSelectedItem(null)} className="bg-amber-500 text-slate-950 hover:bg-amber-400">
                 Close
               </Button>

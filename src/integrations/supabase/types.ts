@@ -776,6 +776,11 @@ export type Database = {
           description: string | null
           due_at: string | null
           due_date: string | null
+          google_calendar_id: string | null
+          google_event_etag: string | null
+          google_event_id: string | null
+          google_event_synced_at: string | null
+          google_event_updated_at: string | null
           id: string
           priority: string
           status: string
@@ -789,6 +794,11 @@ export type Database = {
           description?: string | null
           due_at?: string | null
           due_date?: string | null
+          google_calendar_id?: string | null
+          google_event_etag?: string | null
+          google_event_id?: string | null
+          google_event_synced_at?: string | null
+          google_event_updated_at?: string | null
           id?: string
           priority?: string
           status?: string
@@ -802,6 +812,11 @@ export type Database = {
           description?: string | null
           due_at?: string | null
           due_date?: string | null
+          google_calendar_id?: string | null
+          google_event_etag?: string | null
+          google_event_id?: string | null
+          google_event_synced_at?: string | null
+          google_event_updated_at?: string | null
           id?: string
           priority?: string
           status?: string

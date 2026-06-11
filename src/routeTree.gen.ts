@@ -32,6 +32,7 @@ import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as DealsRouteImport } from './routes/deals'
 import { Route as CommissionsRouteImport } from './routes/commissions'
 import { Route as ClientsRouteImport } from './routes/clients'
+import { Route as CalenderRouteImport } from './routes/calender'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as BillingRouteImport } from './routes/billing'
@@ -163,6 +164,11 @@ const ClientsRoute = ClientsRouteImport.update({
   path: '/clients',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CalenderRoute = CalenderRouteImport.update({
+  id: '/calender',
+  path: '/calender',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CalendarRoute = CalendarRouteImport.update({
   id: '/calendar',
   path: '/calendar',
@@ -247,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/billing': typeof BillingRoute
   '/books': typeof BooksRouteWithChildren
   '/calendar': typeof CalendarRoute
+  '/calender': typeof CalenderRoute
   '/clients': typeof ClientsRoute
   '/commissions': typeof CommissionsRoute
   '/deals': typeof DealsRoute
@@ -286,6 +293,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/billing': typeof BillingRoute
   '/calendar': typeof CalendarRoute
+  '/calender': typeof CalenderRoute
   '/clients': typeof ClientsRoute
   '/commissions': typeof CommissionsRoute
   '/deals': typeof DealsRoute
@@ -327,6 +335,7 @@ export interface FileRoutesById {
   '/billing': typeof BillingRoute
   '/books': typeof BooksRouteWithChildren
   '/calendar': typeof CalendarRoute
+  '/calender': typeof CalenderRoute
   '/clients': typeof ClientsRoute
   '/commissions': typeof CommissionsRoute
   '/deals': typeof DealsRoute
@@ -369,6 +378,7 @@ export interface FileRouteTypes {
     | '/billing'
     | '/books'
     | '/calendar'
+    | '/calender'
     | '/clients'
     | '/commissions'
     | '/deals'
@@ -408,6 +418,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/billing'
     | '/calendar'
+    | '/calender'
     | '/clients'
     | '/commissions'
     | '/deals'
@@ -448,6 +459,7 @@ export interface FileRouteTypes {
     | '/billing'
     | '/books'
     | '/calendar'
+    | '/calender'
     | '/clients'
     | '/commissions'
     | '/deals'
@@ -489,6 +501,7 @@ export interface RootRouteChildren {
   BillingRoute: typeof BillingRoute
   BooksRoute: typeof BooksRouteWithChildren
   CalendarRoute: typeof CalendarRoute
+  CalenderRoute: typeof CalenderRoute
   ClientsRoute: typeof ClientsRoute
   CommissionsRoute: typeof CommissionsRoute
   DealsRoute: typeof DealsRoute
@@ -680,6 +693,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClientsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/calender': {
+      id: '/calender'
+      path: '/calender'
+      fullPath: '/calender'
+      preLoaderRoute: typeof CalenderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/calendar': {
       id: '/calendar'
       path: '/calendar'
@@ -816,6 +836,7 @@ const rootRouteChildren: RootRouteChildren = {
   BillingRoute: BillingRoute,
   BooksRoute: BooksRouteWithChildren,
   CalendarRoute: CalendarRoute,
+  CalenderRoute: CalenderRoute,
   ClientsRoute: ClientsRoute,
   CommissionsRoute: CommissionsRoute,
   DealsRoute: DealsRoute,
