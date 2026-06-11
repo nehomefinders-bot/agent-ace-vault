@@ -42,6 +42,7 @@ import {
   syncTasksWithGoogleCalendar,
 } from "@/lib/google-calendar-sync";
 import { toast } from "sonner";
+import { GoogleCalendarConnectPanel } from "@/components/google-calendar-connect-panel";
 
 export const Route = createFileRoute("/calendar")({
   head: () => ({
@@ -781,7 +782,9 @@ function CalendarPage() {
         </>
       }
     >
+      <GoogleCalendarConnectPanel />
       <div className="calendar-shell -mx-4 bg-slate-50 px-4 py-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+
         <style>{`
           .calendar-shell .fc {
             --fc-border-color: rgba(148, 163, 184, 0.2);
