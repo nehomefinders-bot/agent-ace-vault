@@ -20,7 +20,7 @@ export const getGoogleCalendarAuthUrl = createServerFn({ method: "POST" })
       "@/lib/google-oauth.server"
     );
     const state = signState(context.userId);
-    const redirectUri = buildRedirectUri();
+    const redirectUri = await buildRedirectUri();
     const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     url.searchParams.set("client_id", clientId);
     url.searchParams.set("redirect_uri", redirectUri);
