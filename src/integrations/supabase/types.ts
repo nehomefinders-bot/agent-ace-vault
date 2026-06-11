@@ -378,6 +378,42 @@ export type Database = {
         }
         Relationships: []
       }
+      google_calendar_tokens: {
+        Row: {
+          access_token: string
+          created_at: string
+          expires_at: string
+          google_email: string | null
+          refresh_token: string
+          scope: string
+          token_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          expires_at: string
+          google_email?: string | null
+          refresh_token: string
+          scope: string
+          token_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          expires_at?: string
+          google_email?: string | null
+          refresh_token?: string
+          scope?: string
+          token_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       integration_settings: {
         Row: {
           config: Json
