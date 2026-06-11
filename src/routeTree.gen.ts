@@ -47,6 +47,7 @@ import { Route as BooksCategoriesRouteImport } from './routes/books.categories'
 import { Route as BooksAccountsRouteImport } from './routes/books.accounts'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicPaymentsApplyTaxCodesRouteImport } from './routes/api/public/payments/apply-tax-codes'
+import { Route as ApiPublicGoogleCalendarCallbackRouteImport } from './routes/api/public/google/calendar-callback'
 import { Route as ApiPublicGhlWebhookRouteImport } from './routes/api/public/ghl.webhook'
 
 const TestRoute = TestRouteImport.update({
@@ -241,6 +242,12 @@ const ApiPublicPaymentsApplyTaxCodesRoute =
     path: '/api/public/payments/apply-tax-codes',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicGoogleCalendarCallbackRoute =
+  ApiPublicGoogleCalendarCallbackRouteImport.update({
+    id: '/api/public/google/calendar-callback',
+    path: '/api/public/google/calendar-callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicGhlWebhookRoute = ApiPublicGhlWebhookRouteImport.update({
   id: '/api/public/ghl/webhook',
   path: '/api/public/ghl/webhook',
@@ -285,6 +292,7 @@ export interface FileRoutesByFullPath {
   '/books/transactions': typeof BooksTransactionsRoute
   '/books/': typeof BooksIndexRoute
   '/api/public/ghl/webhook': typeof ApiPublicGhlWebhookRoute
+  '/api/public/google/calendar-callback': typeof ApiPublicGoogleCalendarCallbackRoute
   '/api/public/payments/apply-tax-codes': typeof ApiPublicPaymentsApplyTaxCodesRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -325,6 +333,7 @@ export interface FileRoutesByTo {
   '/books/transactions': typeof BooksTransactionsRoute
   '/books': typeof BooksIndexRoute
   '/api/public/ghl/webhook': typeof ApiPublicGhlWebhookRoute
+  '/api/public/google/calendar-callback': typeof ApiPublicGoogleCalendarCallbackRoute
   '/api/public/payments/apply-tax-codes': typeof ApiPublicPaymentsApplyTaxCodesRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -367,6 +376,7 @@ export interface FileRoutesById {
   '/books/transactions': typeof BooksTransactionsRoute
   '/books/': typeof BooksIndexRoute
   '/api/public/ghl/webhook': typeof ApiPublicGhlWebhookRoute
+  '/api/public/google/calendar-callback': typeof ApiPublicGoogleCalendarCallbackRoute
   '/api/public/payments/apply-tax-codes': typeof ApiPublicPaymentsApplyTaxCodesRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -410,6 +420,7 @@ export interface FileRouteTypes {
     | '/books/transactions'
     | '/books/'
     | '/api/public/ghl/webhook'
+    | '/api/public/google/calendar-callback'
     | '/api/public/payments/apply-tax-codes'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -450,6 +461,7 @@ export interface FileRouteTypes {
     | '/books/transactions'
     | '/books'
     | '/api/public/ghl/webhook'
+    | '/api/public/google/calendar-callback'
     | '/api/public/payments/apply-tax-codes'
     | '/api/public/payments/webhook'
   id:
@@ -491,6 +503,7 @@ export interface FileRouteTypes {
     | '/books/transactions'
     | '/books/'
     | '/api/public/ghl/webhook'
+    | '/api/public/google/calendar-callback'
     | '/api/public/payments/apply-tax-codes'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
@@ -526,6 +539,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TestRoute: typeof TestRoute
   ApiPublicGhlWebhookRoute: typeof ApiPublicGhlWebhookRoute
+  ApiPublicGoogleCalendarCallbackRoute: typeof ApiPublicGoogleCalendarCallbackRoute
   ApiPublicPaymentsApplyTaxCodesRoute: typeof ApiPublicPaymentsApplyTaxCodesRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
@@ -798,6 +812,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsApplyTaxCodesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/google/calendar-callback': {
+      id: '/api/public/google/calendar-callback'
+      path: '/api/public/google/calendar-callback'
+      fullPath: '/api/public/google/calendar-callback'
+      preLoaderRoute: typeof ApiPublicGoogleCalendarCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/ghl/webhook': {
       id: '/api/public/ghl/webhook'
       path: '/api/public/ghl/webhook'
@@ -861,6 +882,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TestRoute: TestRoute,
   ApiPublicGhlWebhookRoute: ApiPublicGhlWebhookRoute,
+  ApiPublicGoogleCalendarCallbackRoute: ApiPublicGoogleCalendarCallbackRoute,
   ApiPublicPaymentsApplyTaxCodesRoute: ApiPublicPaymentsApplyTaxCodesRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
