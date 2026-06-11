@@ -42,7 +42,7 @@ import {
   syncTasksWithGoogleCalendar,
 } from "@/lib/google-calendar-sync";
 import { toast } from "sonner";
-import { GoogleCalendarConnectPanel } from "@/components/google-calendar-connect-panel";
+
 
 export const Route = createFileRoute("/calendar")({
   head: () => ({
@@ -773,16 +773,20 @@ function CalendarPage() {
           </Button>
           <Button
             type="button"
-            onClick={googleConnected ? () => void syncGoogleCalendar() : connectGoogleCalendar}
-            className="bg-amber-500 text-slate-950 hover:bg-amber-400"
+            disabled
+            aria-disabled="true"
+            title="Coming soon"
+            className="bg-amber-500 text-slate-950 hover:bg-amber-400 disabled:opacity-70"
           >
             <Cloud className="mr-2 h-4 w-4" />
-            {googleConnected ? "Google connected" : "Connect Google Calendar"}
+            Connect Google Calendar
+            <span className="ml-2 rounded-full bg-slate-950/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-900">
+              Coming soon
+            </span>
           </Button>
         </>
       }
     >
-      <GoogleCalendarConnectPanel />
       <div className="calendar-shell -mx-4 bg-slate-50 px-4 py-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
 
         <style>{`
