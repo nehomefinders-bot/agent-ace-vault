@@ -34,7 +34,7 @@ const sections = [
   {
     label: "Business",
     items: [
-      { to: "/", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { to: "/mileage", label: "Mileage Tracker", icon: Car },
       { to: "/clients", label: "Contacts", icon: Users },
       { to: "/calendar", label: "Calendar", icon: CalendarDays },
