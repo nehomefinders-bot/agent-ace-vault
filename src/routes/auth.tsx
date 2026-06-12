@@ -201,21 +201,21 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
                 />
                 <span>
                   I have read and agree to the{" "}
-                  <button
-                    type="button"
-                    onClick={() => setLegalDoc("terms")}
+                  <Link
+                    to="/terms-and-conditions"
+                    target="_blank"
                     className="font-medium underline underline-offset-4 hover:text-foreground"
                   >
                     Terms and Conditions
-                  </button>{" "}
+                  </Link>{" "}
                   and{" "}
-                  <button
-                    type="button"
-                    onClick={() => setLegalDoc("privacy")}
+                  <Link
+                    to="/privacy-policy"
+                    target="_blank"
                     className="font-medium underline underline-offset-4 hover:text-foreground"
                   >
                     Privacy Policy
-                  </button>
+                  </Link>
                   .
                 </span>
               </label>
