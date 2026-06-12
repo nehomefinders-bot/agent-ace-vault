@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
 import { Check, Loader2, Sparkles } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { PLANS, isTestMode } from "@/lib/stripe";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { PaymentTestBanner } from "@/components/payment-test-banner";
@@ -42,10 +42,14 @@ function PricingPage() {
 
       setBusy(priceId);
       try {
-        const { data, error } = await supabase.functions.invoke("stripe-checkout", {
+        const bypassSupabase = createClient(
+          "https://cbospmbzmetqkuibrskt.supabase.co",
+          "sb_publishable_EyjaxaW-c__76p_M6H5seg_yU54tnJk",
+        );
+
+        const { data, error } = await bypassSupabase.functions.invoke("stripe-checkout", {
           body: {
             email: userEmail,
-            priceId,
           },
         });
 
