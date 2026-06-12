@@ -172,7 +172,6 @@ function Landing() {
   const nav = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [newsletterEmail, setNewsletterEmail] = useState("");
-  const [legalDoc, setLegalDoc] = useState<LegalDocumentKind | null>(null);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   useEffect(() => {
