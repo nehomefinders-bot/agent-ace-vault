@@ -22,6 +22,8 @@ import {
   X,
   CalendarDays,
   User,
+  Shield,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
