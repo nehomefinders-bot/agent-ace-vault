@@ -817,14 +817,6 @@ function Landing() {
           </div>
         </div>
 
-        <LegalDocumentModal
-          open={legalDoc !== null}
-          onOpenChange={(open) => {
-            if (!open) setLegalDoc(null);
-          }}
-          kind={legalDoc ?? "terms"}
-          onKindChange={setLegalDoc}
-        />
       </footer>
     </div>
   );
