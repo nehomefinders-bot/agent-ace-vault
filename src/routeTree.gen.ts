@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestRouteImport } from './routes/test'
+import { Route as TermsAndConditionsRouteImport } from './routes/terms-and-conditions'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as SupportRouteImport } from './routes/support'
@@ -18,6 +19,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReceiptsRouteImport } from './routes/receipts'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PipelineRouteImport } from './routes/pipeline'
@@ -53,6 +55,11 @@ import { Route as ApiPublicGhlWebhookRouteImport } from './routes/api/public/ghl
 const TestRoute = TestRouteImport.update({
   id: '/test',
   path: '/test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsAndConditionsRoute = TermsAndConditionsRouteImport.update({
+  id: '/terms-and-conditions',
+  path: '/terms-and-conditions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -93,6 +100,11 @@ const ReceiptsRoute = ReceiptsRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -275,6 +287,7 @@ export interface FileRoutesByFullPath {
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/profile': typeof ProfileRoute
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -283,6 +296,7 @@ export interface FileRoutesByFullPath {
   '/support': typeof SupportRoute
   '/tasks': typeof TasksRoute
   '/terms': typeof TermsRoute
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/test': typeof TestRoute
   '/books/accounts': typeof BooksAccountsRoute
   '/books/categories': typeof BooksCategoriesRoute
@@ -316,6 +330,7 @@ export interface FileRoutesByTo {
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/profile': typeof ProfileRoute
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -324,6 +339,7 @@ export interface FileRoutesByTo {
   '/support': typeof SupportRoute
   '/tasks': typeof TasksRoute
   '/terms': typeof TermsRoute
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/test': typeof TestRoute
   '/books/accounts': typeof BooksAccountsRoute
   '/books/categories': typeof BooksCategoriesRoute
@@ -359,6 +375,7 @@ export interface FileRoutesById {
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/profile': typeof ProfileRoute
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -367,6 +384,7 @@ export interface FileRoutesById {
   '/support': typeof SupportRoute
   '/tasks': typeof TasksRoute
   '/terms': typeof TermsRoute
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/test': typeof TestRoute
   '/books/accounts': typeof BooksAccountsRoute
   '/books/categories': typeof BooksCategoriesRoute
@@ -403,6 +421,7 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/pricing'
     | '/privacy'
+    | '/privacy-policy'
     | '/profile'
     | '/receipts'
     | '/reset-password'
@@ -411,6 +430,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/tasks'
     | '/terms'
+    | '/terms-and-conditions'
     | '/test'
     | '/books/accounts'
     | '/books/categories'
@@ -444,6 +464,7 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/pricing'
     | '/privacy'
+    | '/privacy-policy'
     | '/profile'
     | '/receipts'
     | '/reset-password'
@@ -452,6 +473,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/tasks'
     | '/terms'
+    | '/terms-and-conditions'
     | '/test'
     | '/books/accounts'
     | '/books/categories'
@@ -486,6 +508,7 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/pricing'
     | '/privacy'
+    | '/privacy-policy'
     | '/profile'
     | '/receipts'
     | '/reset-password'
@@ -494,6 +517,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/tasks'
     | '/terms'
+    | '/terms-and-conditions'
     | '/test'
     | '/books/accounts'
     | '/books/categories'
@@ -529,6 +553,7 @@ export interface RootRouteChildren {
   PipelineRoute: typeof PipelineRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   ProfileRoute: typeof ProfileRoute
   ReceiptsRoute: typeof ReceiptsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -537,6 +562,7 @@ export interface RootRouteChildren {
   SupportRoute: typeof SupportRoute
   TasksRoute: typeof TasksRoute
   TermsRoute: typeof TermsRoute
+  TermsAndConditionsRoute: typeof TermsAndConditionsRoute
   TestRoute: typeof TestRoute
   ApiPublicGhlWebhookRoute: typeof ApiPublicGhlWebhookRoute
   ApiPublicGoogleCalendarCallbackRoute: typeof ApiPublicGoogleCalendarCallbackRoute
@@ -551,6 +577,13 @@ declare module '@tanstack/react-router' {
       path: '/test'
       fullPath: '/test'
       preLoaderRoute: typeof TestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms-and-conditions': {
+      id: '/terms-and-conditions'
+      path: '/terms-and-conditions'
+      fullPath: '/terms-and-conditions'
+      preLoaderRoute: typeof TermsAndConditionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -607,6 +640,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -872,6 +912,7 @@ const rootRouteChildren: RootRouteChildren = {
   PipelineRoute: PipelineRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   ProfileRoute: ProfileRoute,
   ReceiptsRoute: ReceiptsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
@@ -880,6 +921,7 @@ const rootRouteChildren: RootRouteChildren = {
   SupportRoute: SupportRoute,
   TasksRoute: TasksRoute,
   TermsRoute: TermsRoute,
+  TermsAndConditionsRoute: TermsAndConditionsRoute,
   TestRoute: TestRoute,
   ApiPublicGhlWebhookRoute: ApiPublicGhlWebhookRoute,
   ApiPublicGoogleCalendarCallbackRoute: ApiPublicGoogleCalendarCallbackRoute,
