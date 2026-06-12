@@ -279,21 +279,21 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
           {mode === "signup" && (
             <div className="mt-4 text-center text-[11px] text-muted-foreground">
               By continuing you agree to our{" "}
-              <button
-                type="button"
-                onClick={() => setLegalDoc("terms")}
+              <Link
+                to="/terms-and-conditions"
+                target="_blank"
                 className="underline underline-offset-4 hover:text-foreground"
               >
                 Terms
-              </button>{" "}
+              </Link>{" "}
               and{" "}
-              <button
-                type="button"
-                onClick={() => setLegalDoc("privacy")}
+              <Link
+                to="/privacy-policy"
+                target="_blank"
                 className="underline underline-offset-4 hover:text-foreground"
               >
                 Privacy Policy
-              </button>
+              </Link>
               .
             </div>
           )}
@@ -305,15 +305,6 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
           </Link>
         </div>
       </div>
-
-      <LegalDocumentModal
-        open={legalDoc !== null}
-        onOpenChange={(open) => {
-          if (!open) setLegalDoc(null);
-        }}
-        kind={legalDoc ?? "terms"}
-        onKindChange={setLegalDoc}
-      />
     </div>
   );
 }
