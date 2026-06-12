@@ -3,7 +3,6 @@ import { useEffect, useState, type ComponentType, type FormEvent, type ReactNode
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { LegalDocumentModal, type LegalDocumentKind } from "@/components/legal-documents";
 import { BrandLockup } from "@/components/brand-lockup";
 import { PasswordVisibilityInput } from "@/components/password-visibility-input";
 import { toast } from "sonner";
