@@ -32,9 +32,8 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
   const [hasConsent, setHasConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
-  const [legalDoc, setLegalDoc] = useState<LegalDocumentKind | null>(null);
   const busy = loading || oauthLoading;
 
   const nextDest = (() => {
