@@ -3,7 +3,6 @@ import { useEffect, useState, type ComponentType, type FormEvent, type ReactNode
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { LegalDocumentModal, type LegalDocumentKind } from "@/components/legal-documents";
 import { BrandLockup } from "@/components/brand-lockup";
 import { PasswordVisibilityInput } from "@/components/password-visibility-input";
 import { toast } from "sonner";
@@ -33,9 +32,8 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
   const [hasConsent, setHasConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
-  const [legalDoc, setLegalDoc] = useState<LegalDocumentKind | null>(null);
   const busy = loading || oauthLoading;
 
   const nextDest = (() => {
@@ -203,21 +201,21 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
                 />
                 <span>
                   I have read and agree to the{" "}
-                  <button
-                    type="button"
-                    onClick={() => setLegalDoc("terms")}
+                  <Link
+                    to="/terms-and-conditions"
+                    target="_blank"
                     className="font-medium underline underline-offset-4 hover:text-foreground"
                   >
                     Terms and Conditions
-                  </button>{" "}
+                  </Link>{" "}
                   and{" "}
-                  <button
-                    type="button"
-                    onClick={() => setLegalDoc("privacy")}
+                  <Link
+                    to="/privacy-policy"
+                    target="_blank"
                     className="font-medium underline underline-offset-4 hover:text-foreground"
                   >
                     Privacy Policy
-                  </button>
+                  </Link>
                   .
                 </span>
               </label>
@@ -281,21 +279,21 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
           {mode === "signup" && (
             <div className="mt-4 text-center text-[11px] text-muted-foreground">
               By continuing you agree to our{" "}
-              <button
-                type="button"
-                onClick={() => setLegalDoc("terms")}
+              <Link
+                to="/terms-and-conditions"
+                target="_blank"
                 className="underline underline-offset-4 hover:text-foreground"
               >
                 Terms
-              </button>{" "}
+              </Link>{" "}
               and{" "}
-              <button
-                type="button"
-                onClick={() => setLegalDoc("privacy")}
+              <Link
+                to="/privacy-policy"
+                target="_blank"
                 className="underline underline-offset-4 hover:text-foreground"
               >
                 Privacy Policy
-              </button>
+              </Link>
               .
             </div>
           )}
@@ -307,15 +305,6 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
           </Link>
         </div>
       </div>
-
-      <LegalDocumentModal
-        open={legalDoc !== null}
-        onOpenChange={(open) => {
-          if (!open) setLegalDoc(null);
-        }}
-        kind={legalDoc ?? "terms"}
-        onKindChange={setLegalDoc}
-      />
     </div>
   );
 }

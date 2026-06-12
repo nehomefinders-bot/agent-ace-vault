@@ -9,7 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ThankyouRouteImport } from './routes/thankyou'
 import { Route as TestRouteImport } from './routes/test'
+import { Route as TermsAndConditionsRouteImport } from './routes/terms-and-conditions'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as SupportRouteImport } from './routes/support'
@@ -18,6 +20,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReceiptsRouteImport } from './routes/receipts'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PipelineRouteImport } from './routes/pipeline'
@@ -30,6 +33,7 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ExpensesRouteImport } from './routes/expenses'
 import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as DealsRouteImport } from './routes/deals'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CommissionsRouteImport } from './routes/commissions'
 import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as CalenderRouteImport } from './routes/calender'
@@ -50,9 +54,19 @@ import { Route as ApiPublicPaymentsApplyTaxCodesRouteImport } from './routes/api
 import { Route as ApiPublicGoogleCalendarCallbackRouteImport } from './routes/api/public/google/calendar-callback'
 import { Route as ApiPublicGhlWebhookRouteImport } from './routes/api/public/ghl.webhook'
 
+const ThankyouRoute = ThankyouRouteImport.update({
+  id: '/thankyou',
+  path: '/thankyou',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TestRoute = TestRouteImport.update({
   id: '/test',
   path: '/test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsAndConditionsRoute = TermsAndConditionsRouteImport.update({
+  id: '/terms-and-conditions',
+  path: '/terms-and-conditions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -93,6 +107,11 @@ const ReceiptsRoute = ReceiptsRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -153,6 +172,11 @@ const DocumentsRoute = DocumentsRouteImport.update({
 const DealsRoute = DealsRouteImport.update({
   id: '/deals',
   path: '/deals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommissionsRoute = CommissionsRouteImport.update({
@@ -263,6 +287,7 @@ export interface FileRoutesByFullPath {
   '/calender': typeof CalenderRoute
   '/clients': typeof ClientsRoute
   '/commissions': typeof CommissionsRoute
+  '/dashboard': typeof DashboardRoute
   '/deals': typeof DealsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
@@ -275,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/profile': typeof ProfileRoute
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -283,7 +309,9 @@ export interface FileRoutesByFullPath {
   '/support': typeof SupportRoute
   '/tasks': typeof TasksRoute
   '/terms': typeof TermsRoute
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/test': typeof TestRoute
+  '/thankyou': typeof ThankyouRoute
   '/books/accounts': typeof BooksAccountsRoute
   '/books/categories': typeof BooksCategoriesRoute
   '/books/owner-loan': typeof BooksOwnerLoanRoute
@@ -304,6 +332,7 @@ export interface FileRoutesByTo {
   '/calender': typeof CalenderRoute
   '/clients': typeof ClientsRoute
   '/commissions': typeof CommissionsRoute
+  '/dashboard': typeof DashboardRoute
   '/deals': typeof DealsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
@@ -316,6 +345,7 @@ export interface FileRoutesByTo {
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/profile': typeof ProfileRoute
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -324,7 +354,9 @@ export interface FileRoutesByTo {
   '/support': typeof SupportRoute
   '/tasks': typeof TasksRoute
   '/terms': typeof TermsRoute
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/test': typeof TestRoute
+  '/thankyou': typeof ThankyouRoute
   '/books/accounts': typeof BooksAccountsRoute
   '/books/categories': typeof BooksCategoriesRoute
   '/books/owner-loan': typeof BooksOwnerLoanRoute
@@ -347,6 +379,7 @@ export interface FileRoutesById {
   '/calender': typeof CalenderRoute
   '/clients': typeof ClientsRoute
   '/commissions': typeof CommissionsRoute
+  '/dashboard': typeof DashboardRoute
   '/deals': typeof DealsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
@@ -359,6 +392,7 @@ export interface FileRoutesById {
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/profile': typeof ProfileRoute
   '/receipts': typeof ReceiptsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -367,7 +401,9 @@ export interface FileRoutesById {
   '/support': typeof SupportRoute
   '/tasks': typeof TasksRoute
   '/terms': typeof TermsRoute
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/test': typeof TestRoute
+  '/thankyou': typeof ThankyouRoute
   '/books/accounts': typeof BooksAccountsRoute
   '/books/categories': typeof BooksCategoriesRoute
   '/books/owner-loan': typeof BooksOwnerLoanRoute
@@ -391,6 +427,7 @@ export interface FileRouteTypes {
     | '/calender'
     | '/clients'
     | '/commissions'
+    | '/dashboard'
     | '/deals'
     | '/documents'
     | '/expenses'
@@ -403,6 +440,7 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/pricing'
     | '/privacy'
+    | '/privacy-policy'
     | '/profile'
     | '/receipts'
     | '/reset-password'
@@ -411,7 +449,9 @@ export interface FileRouteTypes {
     | '/support'
     | '/tasks'
     | '/terms'
+    | '/terms-and-conditions'
     | '/test'
+    | '/thankyou'
     | '/books/accounts'
     | '/books/categories'
     | '/books/owner-loan'
@@ -432,6 +472,7 @@ export interface FileRouteTypes {
     | '/calender'
     | '/clients'
     | '/commissions'
+    | '/dashboard'
     | '/deals'
     | '/documents'
     | '/expenses'
@@ -444,6 +485,7 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/pricing'
     | '/privacy'
+    | '/privacy-policy'
     | '/profile'
     | '/receipts'
     | '/reset-password'
@@ -452,7 +494,9 @@ export interface FileRouteTypes {
     | '/support'
     | '/tasks'
     | '/terms'
+    | '/terms-and-conditions'
     | '/test'
+    | '/thankyou'
     | '/books/accounts'
     | '/books/categories'
     | '/books/owner-loan'
@@ -474,6 +518,7 @@ export interface FileRouteTypes {
     | '/calender'
     | '/clients'
     | '/commissions'
+    | '/dashboard'
     | '/deals'
     | '/documents'
     | '/expenses'
@@ -486,6 +531,7 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/pricing'
     | '/privacy'
+    | '/privacy-policy'
     | '/profile'
     | '/receipts'
     | '/reset-password'
@@ -494,7 +540,9 @@ export interface FileRouteTypes {
     | '/support'
     | '/tasks'
     | '/terms'
+    | '/terms-and-conditions'
     | '/test'
+    | '/thankyou'
     | '/books/accounts'
     | '/books/categories'
     | '/books/owner-loan'
@@ -517,6 +565,7 @@ export interface RootRouteChildren {
   CalenderRoute: typeof CalenderRoute
   ClientsRoute: typeof ClientsRoute
   CommissionsRoute: typeof CommissionsRoute
+  DashboardRoute: typeof DashboardRoute
   DealsRoute: typeof DealsRoute
   DocumentsRoute: typeof DocumentsRoute
   ExpensesRoute: typeof ExpensesRoute
@@ -529,6 +578,7 @@ export interface RootRouteChildren {
   PipelineRoute: typeof PipelineRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   ProfileRoute: typeof ProfileRoute
   ReceiptsRoute: typeof ReceiptsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -537,7 +587,9 @@ export interface RootRouteChildren {
   SupportRoute: typeof SupportRoute
   TasksRoute: typeof TasksRoute
   TermsRoute: typeof TermsRoute
+  TermsAndConditionsRoute: typeof TermsAndConditionsRoute
   TestRoute: typeof TestRoute
+  ThankyouRoute: typeof ThankyouRoute
   ApiPublicGhlWebhookRoute: typeof ApiPublicGhlWebhookRoute
   ApiPublicGoogleCalendarCallbackRoute: typeof ApiPublicGoogleCalendarCallbackRoute
   ApiPublicPaymentsApplyTaxCodesRoute: typeof ApiPublicPaymentsApplyTaxCodesRoute
@@ -546,11 +598,25 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/thankyou': {
+      id: '/thankyou'
+      path: '/thankyou'
+      fullPath: '/thankyou'
+      preLoaderRoute: typeof ThankyouRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/test': {
       id: '/test'
       path: '/test'
       fullPath: '/test'
       preLoaderRoute: typeof TestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms-and-conditions': {
+      id: '/terms-and-conditions'
+      path: '/terms-and-conditions'
+      fullPath: '/terms-and-conditions'
+      preLoaderRoute: typeof TermsAndConditionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -607,6 +673,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -691,6 +764,13 @@ declare module '@tanstack/react-router' {
       path: '/deals'
       fullPath: '/deals'
       preLoaderRoute: typeof DealsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/commissions': {
@@ -860,6 +940,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalenderRoute: CalenderRoute,
   ClientsRoute: ClientsRoute,
   CommissionsRoute: CommissionsRoute,
+  DashboardRoute: DashboardRoute,
   DealsRoute: DealsRoute,
   DocumentsRoute: DocumentsRoute,
   ExpensesRoute: ExpensesRoute,
@@ -872,6 +953,7 @@ const rootRouteChildren: RootRouteChildren = {
   PipelineRoute: PipelineRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   ProfileRoute: ProfileRoute,
   ReceiptsRoute: ReceiptsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
@@ -880,7 +962,9 @@ const rootRouteChildren: RootRouteChildren = {
   SupportRoute: SupportRoute,
   TasksRoute: TasksRoute,
   TermsRoute: TermsRoute,
+  TermsAndConditionsRoute: TermsAndConditionsRoute,
   TestRoute: TestRoute,
+  ThankyouRoute: ThankyouRoute,
   ApiPublicGhlWebhookRoute: ApiPublicGhlWebhookRoute,
   ApiPublicGoogleCalendarCallbackRoute: ApiPublicGoogleCalendarCallbackRoute,
   ApiPublicPaymentsApplyTaxCodesRoute: ApiPublicPaymentsApplyTaxCodesRoute,

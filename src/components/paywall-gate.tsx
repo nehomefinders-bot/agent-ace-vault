@@ -1,15 +1,15 @@
-import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Lock, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { supabase } from "@/integrations/supabase/client";
 
 // Routes that are always accessible without auth or active subscription.
-// NOTE: "/" is the dashboard (auth-required) and is intentionally NOT here.
-const PUBLIC_PATHS = ["/landing", "/auth", "/signup", "/forgot-password", "/reset-password", "/terms", "/privacy"];
+// NOTE: "/" is the index redirector and is intentionally NOT here.
+const PUBLIC_PATHS = ["/landing", "/auth", "/signup", "/forgot-password", "/reset-password", "/terms", "/privacy", "/privacy-policy", "/terms-and-conditions"];
 // Account-management and sandbox routes that signed-in users may reach without an active subscription.
-const ACCOUNT_PATHS = ["/pricing", "/billing", "/help", "/settings", "/test"];
+const ACCOUNT_PATHS = ["/pricing", "/billing", "/help", "/settings", "/test", "/thankyou"];
 
 export function PaywallGate({ children }: { children: React.ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -43,6 +43,16 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
     };
   }, [authLoading, user, path, nav]);
 
+  // Signed-in users without an active subscription on a gated route → /thankyou.
+  useEffect(() => {
+    if (authLoading || subLoading) return;
+    if (!user) return;
+    if (PUBLIC_PATHS.includes(path)) return;
+    if (ACCOUNT_PATHS.some((p) => path === p || path.startsWith(p + "/"))) return;
+    if (isActive) return;
+    nav({ to: "/thankyou", replace: true });
+  }, [authLoading, subLoading, user, isActive, path, nav]);
+
   // Public pages: pass through.
   if (PUBLIC_PATHS.includes(path)) return <>{children}</>;
 
@@ -68,27 +78,10 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
 
   if (isActive) return <>{children}</>;
 
+  // About to redirect to /thankyou — render a spinner in the meantime.
   return (
-    <div className="min-h-dvh flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-card border border-border rounded-2xl p-8 shadow-card text-center">
-        <div className="mx-auto h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-          <Lock className="h-5 w-5 text-primary" />
-        </div>
-        <h2 className="font-display text-xl font-bold">Subscription required</h2>
-        <p className="text-sm text-muted-foreground mt-2 mb-6">
-          Start your 14-day free trial to access deals, books, mileage and the rest of the app.
-        </p>
-        <div className="flex flex-col gap-2">
-          <Link to="/pricing"
-            className="bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">
-            View plans & start trial
-          </Link>
-          <Link to="/billing"
-            className="text-xs text-muted-foreground hover:text-foreground">
-            Manage existing subscription
-          </Link>
-        </div>
-      </div>
+    <div className="min-h-dvh flex items-center justify-center">
+      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
     </div>
   );
 }

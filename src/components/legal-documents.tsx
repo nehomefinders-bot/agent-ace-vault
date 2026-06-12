@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuth } from "@/hooks/use-auth";
+import { ArrowLeft, Home, LayoutDashboard } from "lucide-react";
 
 export type LegalDocumentKind = "terms" | "privacy";
 
@@ -232,12 +234,32 @@ export function LegalDocumentContent({
 }
 
 export function LegalDocumentPage({ kind }: { kind: LegalDocumentKind }) {
+  const { user } = useAuth();
+  
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16">
-      <Link to="/landing" className="text-sm text-muted-foreground hover:text-foreground">
-        Back
-      </Link>
-      <div className="mt-6">
+    <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mb-8 flex items-center justify-between border-b border-border/40 pb-5">
+        {user ? (
+          <Link 
+            to="/" 
+            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <LayoutDashboard className="h-4 w-4" />
+            <span>Back to Dashboard</span>
+          </Link>
+        ) : (
+          <Link 
+            to="/landing" 
+            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <Home className="h-4 w-4" />
+            <span>Back to Home</span>
+          </Link>
+        )}
+      </div>
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-10">
         <LegalDocumentContent kind={kind} />
       </div>
     </div>

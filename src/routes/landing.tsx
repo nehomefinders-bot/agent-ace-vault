@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import maColonialHeroBg from "@/assets/landing-house-autumn.jpeg";
 import { useAuth } from "@/hooks/use-auth";
-import { LegalDocumentModal, type LegalDocumentKind } from "@/components/legal-documents";
 import { BRAND_TITLE, BrandLockup } from "@/components/brand-lockup";
 import { Reveal } from "@/components/reveal";
 import { toast } from "sonner";
@@ -142,7 +141,7 @@ const features = [
   },
 ];
 
-type FooterLink = { label: string; to: string } | { label: string; doc: LegalDocumentKind };
+type FooterLink = { label: string; to: string };
 
 type FooterColumn = {
   title: string;
@@ -169,8 +168,8 @@ const footerColumns: FooterColumn[] = [
   {
     title: "Trust & Privacy",
     links: [
-      { label: "Privacy Policy", doc: "privacy" },
-      { label: "Terms & Conditions", doc: "terms" },
+      { label: "Privacy Policy", to: "/privacy-policy" },
+      { label: "Terms & Conditions", to: "/terms-and-conditions" },
     ],
   },
 ];
@@ -179,7 +178,6 @@ function Landing() {
   const nav = useNavigate();
   const { user, session } = useAuth();
   const [newsletterEmail, setNewsletterEmail] = useState("");
-  const [legalDoc, setLegalDoc] = useState<LegalDocumentKind | null>(null);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [isFounderCheckoutLoading, setIsFounderCheckoutLoading] = useState(false);
 
@@ -867,26 +865,15 @@ function Landing() {
                     {column.title}
                   </div>
                   <div className="space-y-3">
-                    {column.links.map((link) =>
-                      "to" in link ? (
-                        <Link
-                          key={link.label}
-                          to={link.to}
-                          className="block font-display text-base text-slate-200 transition-colors hover:text-white"
-                        >
-                          {link.label}
-                        </Link>
-                      ) : (
-                        <button
-                          key={link.label}
-                          type="button"
-                          onClick={() => setLegalDoc(link.doc)}
-                          className="block w-full text-left font-display text-base text-slate-200 transition-colors hover:text-white"
-                        >
-                          {link.label}
-                        </button>
-                      ),
-                    )}
+                    {column.links.map((link) => (
+                      <Link
+                        key={link.label}
+                        to={link.to}
+                        className="block font-display text-base text-slate-200 transition-colors hover:text-white"
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
                   </div>
                 </div>
               ))}
@@ -929,14 +916,6 @@ function Landing() {
           </div>
         </div>
 
-        <LegalDocumentModal
-          open={legalDoc !== null}
-          onOpenChange={(open) => {
-            if (!open) setLegalDoc(null);
-          }}
-          kind={legalDoc ?? "terms"}
-          onKindChange={setLegalDoc}
-        />
       </footer>
     </div>
   );

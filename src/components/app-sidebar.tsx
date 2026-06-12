@@ -22,6 +22,8 @@ import {
   X,
   CalendarDays,
   User,
+  Shield,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -32,7 +34,7 @@ const sections = [
   {
     label: "Business",
     items: [
-      { to: "/", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { to: "/mileage", label: "Mileage Tracker", icon: Car },
       { to: "/clients", label: "Contacts", icon: Users },
       { to: "/calendar", label: "Calendar", icon: CalendarDays },
@@ -61,6 +63,8 @@ const sections = [
       { to: "/pricing", label: "Plans", icon: Sparkles },
       { to: "/support", label: "Support", icon: LifeBuoy },
       { to: "/help", label: "How-to", icon: BookOpen },
+      { to: "/privacy-policy", label: "Privacy Policy", icon: Shield },
+      { to: "/terms-and-conditions", label: "Terms of Service", icon: FileText },
     ],
   },
 ] as const;
@@ -129,7 +133,7 @@ export function AppSidebar() {
             </div>
             <div className="space-y-0.5">
               {section.items.map(({ to, label, icon: Icon }) => {
-                const active = to === "/" ? path === "/" : path === to || path.startsWith(to + "/");
+                const active = path === to || path.startsWith(to + "/");
                 return (
                   <Link
                     key={to}
@@ -207,7 +211,7 @@ export function AppSidebar() {
           textClassName="max-w-[min(10rem,calc(100vw-9rem))]"
         />
         <Link
-          to="/"
+          to="/dashboard"
           title="Dashboard"
           aria-label="Go to dashboard"
           className="ml-auto inline-flex h-11 w-11 items-center justify-center rounded-lg hover:bg-sidebar-accent"
