@@ -3,13 +3,11 @@ import { useCallback, useEffect, useState } from "react";
 import { Check, Loader2, Sparkles } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { PLANS, isTestMode } from "@/lib/stripe";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { PaymentTestBanner } from "@/components/payment-test-banner";
 import { toast } from "sonner";
-
-const STRIPE_CHECKOUT_URL =
-  "https://cbospmbzmetqkuibrskt.supabase.co/functions/v1/stripe-checkout";
 
 export const Route = createFileRoute("/pricing")({
   component: PricingPage,
@@ -24,7 +22,7 @@ export const Route = createFileRoute("/pricing")({
 function PricingPage() {
   const [interval, setInterval] = useState<"monthly" | "yearly">("monthly");
   const [busy, setBusy] = useState<string | null>(null);
-  const { user, session, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { subscription, isActive } = useSubscription();
 
   const startStandaloneCheckout = useCallback(
@@ -44,34 +42,17 @@ function PricingPage() {
 
       setBusy(priceId);
       try {
-        const headers: Record<string, string> = {
-          "Content-Type": "application/json",
-        };
-
-        const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
-        if (publishableKey) {
-          headers.apikey = publishableKey;
-        }
-        if (session?.access_token) {
-          headers.Authorization = `Bearer ${session.access_token}`;
-        }
-
-        const response = await fetch(STRIPE_CHECKOUT_URL, {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            userEmail,
-            userId: user.id,
+        const { data, error } = await supabase.functions.invoke("stripe-checkout", {
+          body: {
+            email: userEmail,
             priceId,
-          }),
+          },
         });
 
-        const data = (await response.json().catch(() => null)) as
-          | { url?: string; error?: string }
-          | null;
-
-        if (!response.ok) {
-          throw new Error(data?.error ?? "Could not start checkout");
+        if (error) {
+          console.error("Supabase Edge Function Error:", error);
+          toast.error(error.message ?? "Could not start checkout");
+          return;
         }
 
         if (!data?.url) {
@@ -85,7 +66,7 @@ function PricingPage() {
         setBusy(null);
       }
     },
-    [session?.access_token, user?.email, user?.id],
+    [user?.email],
   );
 
   useEffect(() => {
