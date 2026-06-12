@@ -86,14 +86,22 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const { user } = useAuth();
+  
+  const isLegalPath = 
+    path === "/terms" || 
+    path === "/privacy" || 
+    path === "/terms-and-conditions" || 
+    path === "/privacy-policy";
+
   const bare =
     path === "/auth" ||
     path === "/landing" ||
     path === "/signup" ||
     path === "/forgot-password" ||
     path === "/reset-password" ||
-    path === "/terms" ||
-    path === "/privacy";
+    (isLegalPath && !user);
+    
   const showSupportFab = !bare;
   return (
     <>
