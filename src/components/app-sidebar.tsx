@@ -211,7 +211,7 @@ export function AppSidebar() {
           textClassName="max-w-[min(10rem,calc(100vw-9rem))]"
         />
         <Link
-          to="/"
+          to="/dashboard"
           title="Dashboard"
           aria-label="Go to dashboard"
           className="ml-auto inline-flex h-11 w-11 items-center justify-center rounded-lg hover:bg-sidebar-accent"
