@@ -136,7 +136,7 @@ const features = [
   },
 ];
 
-type FooterLink = { label: string; to: string } | { label: string; doc: LegalDocumentKind };
+type FooterLink = { label: string; to: string };
 
 type FooterColumn = {
   title: string;
@@ -163,8 +163,8 @@ const footerColumns: FooterColumn[] = [
   {
     title: "Trust & Privacy",
     links: [
-      { label: "Privacy Policy", doc: "privacy" },
-      { label: "Terms & Conditions", doc: "terms" },
+      { label: "Privacy Policy", to: "/privacy-policy" },
+      { label: "Terms & Conditions", to: "/terms-and-conditions" },
     ],
   },
 ];
