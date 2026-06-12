@@ -768,26 +768,15 @@ function Landing() {
                     {column.title}
                   </div>
                   <div className="space-y-3">
-                    {column.links.map((link) =>
-                      "to" in link ? (
-                        <Link
-                          key={link.label}
-                          to={link.to}
-                          className="block font-display text-base text-slate-200 transition-colors hover:text-white"
-                        >
-                          {link.label}
-                        </Link>
-                      ) : (
-                        <button
-                          key={link.label}
-                          type="button"
-                          onClick={() => setLegalDoc(link.doc)}
-                          className="block w-full text-left font-display text-base text-slate-200 transition-colors hover:text-white"
-                        >
-                          {link.label}
-                        </button>
-                      ),
-                    )}
+                    {column.links.map((link) => (
+                      <Link
+                        key={link.label}
+                        to={link.to}
+                        className="block font-display text-base text-slate-200 transition-colors hover:text-white"
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
                   </div>
                 </div>
               ))}
