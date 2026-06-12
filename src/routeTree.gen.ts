@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ThankyouRouteImport } from './routes/thankyou'
 import { Route as TestRouteImport } from './routes/test'
 import { Route as TermsAndConditionsRouteImport } from './routes/terms-and-conditions'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -53,6 +54,11 @@ import { Route as ApiPublicPaymentsApplyTaxCodesRouteImport } from './routes/api
 import { Route as ApiPublicGoogleCalendarCallbackRouteImport } from './routes/api/public/google/calendar-callback'
 import { Route as ApiPublicGhlWebhookRouteImport } from './routes/api/public/ghl.webhook'
 
+const ThankyouRoute = ThankyouRouteImport.update({
+  id: '/thankyou',
+  path: '/thankyou',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TestRoute = TestRouteImport.update({
   id: '/test',
   path: '/test',
@@ -305,6 +311,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/test': typeof TestRoute
+  '/thankyou': typeof ThankyouRoute
   '/books/accounts': typeof BooksAccountsRoute
   '/books/categories': typeof BooksCategoriesRoute
   '/books/owner-loan': typeof BooksOwnerLoanRoute
@@ -349,6 +356,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/test': typeof TestRoute
+  '/thankyou': typeof ThankyouRoute
   '/books/accounts': typeof BooksAccountsRoute
   '/books/categories': typeof BooksCategoriesRoute
   '/books/owner-loan': typeof BooksOwnerLoanRoute
@@ -395,6 +403,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/test': typeof TestRoute
+  '/thankyou': typeof ThankyouRoute
   '/books/accounts': typeof BooksAccountsRoute
   '/books/categories': typeof BooksCategoriesRoute
   '/books/owner-loan': typeof BooksOwnerLoanRoute
@@ -442,6 +451,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/terms-and-conditions'
     | '/test'
+    | '/thankyou'
     | '/books/accounts'
     | '/books/categories'
     | '/books/owner-loan'
@@ -486,6 +496,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/terms-and-conditions'
     | '/test'
+    | '/thankyou'
     | '/books/accounts'
     | '/books/categories'
     | '/books/owner-loan'
@@ -531,6 +542,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/terms-and-conditions'
     | '/test'
+    | '/thankyou'
     | '/books/accounts'
     | '/books/categories'
     | '/books/owner-loan'
@@ -577,6 +589,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TermsAndConditionsRoute: typeof TermsAndConditionsRoute
   TestRoute: typeof TestRoute
+  ThankyouRoute: typeof ThankyouRoute
   ApiPublicGhlWebhookRoute: typeof ApiPublicGhlWebhookRoute
   ApiPublicGoogleCalendarCallbackRoute: typeof ApiPublicGoogleCalendarCallbackRoute
   ApiPublicPaymentsApplyTaxCodesRoute: typeof ApiPublicPaymentsApplyTaxCodesRoute
@@ -585,6 +598,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/thankyou': {
+      id: '/thankyou'
+      path: '/thankyou'
+      fullPath: '/thankyou'
+      preLoaderRoute: typeof ThankyouRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/test': {
       id: '/test'
       path: '/test'
@@ -944,6 +964,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TermsAndConditionsRoute: TermsAndConditionsRoute,
   TestRoute: TestRoute,
+  ThankyouRoute: ThankyouRoute,
   ApiPublicGhlWebhookRoute: ApiPublicGhlWebhookRoute,
   ApiPublicGoogleCalendarCallbackRoute: ApiPublicGoogleCalendarCallbackRoute,
   ApiPublicPaymentsApplyTaxCodesRoute: ApiPublicPaymentsApplyTaxCodesRoute,
