@@ -1,14 +1,15 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useCallback, useEffect, useState } from "react";
 import { Check, Loader2, Sparkles } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
-import { PLANS, getStripeEnvironment, isTestMode } from "@/lib/stripe";
+import { PLANS, isTestMode } from "@/lib/stripe";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
-import { createPortalSession } from "@/utils/payments.functions";
-import { EmbeddedCheckoutModal } from "@/components/embedded-checkout-modal";
 import { PaymentTestBanner } from "@/components/payment-test-banner";
 import { toast } from "sonner";
+
+const STRIPE_CHECKOUT_URL =
+  "https://cbospmbzmetqkuibrskt.supabase.co/functions/v1/stripe-checkout";
 
 export const Route = createFileRoute("/pricing")({
   component: PricingPage,
@@ -23,50 +24,94 @@ export const Route = createFileRoute("/pricing")({
 function PricingPage() {
   const [interval, setInterval] = useState<"monthly" | "yearly">("monthly");
   const [busy, setBusy] = useState<string | null>(null);
-  const [checkoutPriceId, setCheckoutPriceId] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user, session, loading: authLoading } = useAuth();
   const { subscription, isActive } = useSubscription();
-  const navigate = useNavigate();
 
-  // Auto-open checkout when the URL has ?checkout=<priceId> (e.g. from
-  // landing page "Claim Founder Access" → /auth?next=/pricing?checkout=beta_monthly).
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!user) return;
-    const params = new URLSearchParams(window.location.search);
-    const desired = params.get("checkout");
-    if (!desired) return;
-    if (isActive) return;
-    setCheckoutPriceId(desired);
-    params.delete("checkout");
-    const qs = params.toString();
-    window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
-  }, [user, isActive]);
+  const startStandaloneCheckout = useCallback(
+    async (priceId: string) => {
+      if (typeof window === "undefined") return;
 
-
-  async function subscribe(priceId: string) {
-    if (!user) {
-      navigate({ to: "/auth" });
-      return;
-    }
-
-    setBusy(priceId);
-    try {
-      if (isActive && subscription) {
-        const { url } = await createPortalSession({
-          data: { environment: getStripeEnvironment(), returnUrl: `${window.location.origin}/billing` },
-        });
-        window.open(url, "_blank");
+      if (!user?.email) {
+        window.location.assign(`/auth?next=${encodeURIComponent(`/pricing?checkout=${priceId}`)}`);
         return;
       }
 
-      setCheckoutPriceId(priceId);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not start checkout");
-    } finally {
-      setBusy(null);
+      const userEmail = user.email.trim();
+      if (!userEmail) {
+        toast.error("Your account email is missing.");
+        return;
+      }
+
+      setBusy(priceId);
+      try {
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+
+        const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
+        if (publishableKey) {
+          headers.apikey = publishableKey;
+        }
+        if (session?.access_token) {
+          headers.Authorization = `Bearer ${session.access_token}`;
+        }
+
+        const response = await fetch(STRIPE_CHECKOUT_URL, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            userEmail,
+            userId: user.id,
+            priceId,
+          }),
+        });
+
+        const data = (await response.json().catch(() => null)) as
+          | { url?: string; error?: string }
+          | null;
+
+        if (!response.ok) {
+          throw new Error(data?.error ?? "Could not start checkout");
+        }
+
+        if (!data?.url) {
+          throw new Error("Stripe did not return a checkout URL.");
+        }
+
+        window.location.assign(data.url);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Could not start checkout");
+      } finally {
+        setBusy(null);
+      }
+    },
+    [session?.access_token, user?.email, user?.id],
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const desired = params.get("checkout");
+    if (!desired) return;
+    if (authLoading) return;
+
+    if (!user?.email) {
+      window.location.assign(`/auth?next=${encodeURIComponent(`/pricing?checkout=${desired}`)}`);
+      return;
     }
-  }
+
+    if (subscription?.price_id === desired && isActive) {
+      params.delete("checkout");
+      const qs = params.toString();
+      window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
+      return;
+    }
+
+    params.delete("checkout");
+    const qs = params.toString();
+    window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
+    void startStandaloneCheckout(desired);
+  }, [authLoading, isActive, startStandaloneCheckout, subscription?.price_id, user]);
 
   return (
     <PageShell title="Pricing" subtitle="Start with a 14-day free trial. Cancel anytime - no contracts.">
@@ -103,7 +148,8 @@ function PricingPage() {
         <div className={`mx-auto grid gap-5 grid-cols-1 sm:grid-cols-2 ${interval === "yearly" ? "max-w-5xl lg:grid-cols-3" : "max-w-6xl lg:grid-cols-4"}`}>
           {PLANS.filter((plan) => !(interval === "yearly" && plan.id === "beta_tester")).map((plan) => {
             const price = plan[interval];
-            const isCurrent = subscription?.price_id === price.priceId && isActive;
+            const stripePriceId = price.priceId;
+            const isCurrent = subscription?.price_id === stripePriceId && isActive;
             const isFounders = plan.id === "beta_tester";
             const isComingSoon = !isFounders;
             // Block Founders subscribers from switching tiers until 6-month milestone
@@ -141,7 +187,7 @@ function PricingPage() {
 
                 <button
                   type="button"
-                  onClick={() => subscribe(price.priceId)}
+                  onClick={() => void startStandaloneCheckout(stripePriceId)}
                   disabled={!!busy || isCurrent || isComingSoon || founderLocked}
                   title={founderLocked ? "Plan changes are locked until your 6-month Founders retention milestone ends." : undefined}
                   className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed ${
@@ -152,8 +198,8 @@ function PricingPage() {
                       : "border border-border bg-background text-foreground hover:bg-muted disabled:opacity-60"
                   }`}
                 >
-                  {busy === price.priceId && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {isComingSoon ? "Coming Soon" : isCurrent ? "Current plan" : founderLocked ? "Locked — Founders 6-month term" : isActive ? "Switch plan" : "Start 14-day free trial"}
+                  {busy === stripePriceId && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {isComingSoon ? "Coming Soon" : isCurrent ? "Current plan" : founderLocked ? "Locked - Founders 6-month term" : isActive ? "Upgrade" : "Subscribe"}
                 </button>
 
                 <ul className={`mt-6 space-y-2.5 ${isComingSoon ? "grayscale opacity-50" : ""}`}>
@@ -171,7 +217,7 @@ function PricingPage() {
 
         {isActive && subscription && PLANS.find((p) => p.monthly.priceId === subscription.price_id || p.yearly.priceId === subscription.price_id)?.id === "beta_tester" && (
           <p className="mt-6 text-center text-sm text-amber-500">
-            You're on the Founders' Program. Your exclusive $19.99/mo base rate unlocks after your 6-month founder retention milestone — plan changes are locked until then.
+            You're on the Founders' Program. Your exclusive $19.99/mo base rate unlocks after your 6-month founder retention milestone - plan changes are locked until then.
           </p>
         )}
 
@@ -181,13 +227,6 @@ function PricingPage() {
           {isTestMode() && " Currently in test mode - no real charges."}
         </p>
       </div>
-
-      <EmbeddedCheckoutModal
-        priceId={checkoutPriceId}
-        open={!!checkoutPriceId}
-        onClose={() => setCheckoutPriceId(null)}
-        returnUrl={`${typeof window !== "undefined" ? window.location.origin : ""}/billing?welcome=1`}
-      />
     </PageShell>
   );
 }

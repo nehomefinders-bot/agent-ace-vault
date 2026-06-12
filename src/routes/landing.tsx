@@ -14,12 +14,18 @@ import {
   PieChart,
   X,
   Star,
+  Loader2,
 } from "lucide-react";
 import maColonialHeroBg from "@/assets/landing-house-autumn.jpeg";
 import { useAuth } from "@/hooks/use-auth";
 import { LegalDocumentModal, type LegalDocumentKind } from "@/components/legal-documents";
 import { BRAND_TITLE, BrandLockup } from "@/components/brand-lockup";
 import { Reveal } from "@/components/reveal";
+import { toast } from "sonner";
+
+const FOUNDER_CHECKOUT_URL =
+  "https://cbospmbzmetqkuibrskt.supabase.co/functions/v1/stripe-checkout";
+const FOUNDER_PRICE_KEY = import.meta.env.VITE_FOUNDER_PRICE_ID?.trim() || "beta_monthly";
 
 export const Route = createFileRoute("/landing")({
   component: Landing,
@@ -171,10 +177,11 @@ const footerColumns: FooterColumn[] = [
 
 function Landing() {
   const nav = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, session } = useAuth();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [legalDoc, setLegalDoc] = useState<LegalDocumentKind | null>(null);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [isFounderCheckoutLoading, setIsFounderCheckoutLoading] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -187,12 +194,6 @@ function Landing() {
       root.style.colorScheme = prevScheme;
     };
   }, []);
-
-  useEffect(() => {
-    if (authLoading) return;
-    if (!user) return;
-    nav({ to: "/", replace: true });
-  }, [authLoading, user, nav]);
 
   useEffect(() => {
     if (!isVideoOpen) return;
@@ -220,6 +221,66 @@ function Landing() {
     setNewsletterEmail("");
   };
 
+  const handleFounderAccessClick = async () => {
+    if (!user?.email) {
+      nav({ to: "/auth" });
+      return;
+    }
+
+    const userEmail = user.email.trim();
+    if (!userEmail) {
+      toast.error("Your account email is missing.");
+      return;
+    }
+
+    setIsFounderCheckoutLoading(true);
+    try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
+      if (publishableKey) {
+        headers.apikey = publishableKey;
+      }
+      if (session?.access_token) {
+        headers.Authorization = `Bearer ${session.access_token}`;
+      }
+
+      const response = await fetch(FOUNDER_CHECKOUT_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          userEmail,
+          userId: user.id,
+          priceId: FOUNDER_PRICE_KEY,
+          price_override: FOUNDER_PRICE_KEY,
+          metadata: {
+            founder_price_id: FOUNDER_PRICE_KEY,
+            lovable_external_id: FOUNDER_PRICE_KEY,
+          },
+        }),
+      });
+
+      const data = (await response.json().catch(() => null)) as
+        | { url?: string; error?: string }
+        | null;
+
+      if (!response.ok) {
+        throw new Error(data?.error ?? "Could not start Founder checkout.");
+      }
+
+      if (!data?.url) {
+        throw new Error("Stripe did not return a checkout URL.");
+      }
+
+      window.location.assign(data.url);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not start Founder checkout");
+    } finally {
+      setIsFounderCheckoutLoading(false);
+    }
+  };
+
   return (
     <div className="dark min-h-dvh w-full overflow-x-hidden bg-slate-950 text-white">
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#050b22]/88 backdrop-blur-xl">
@@ -240,12 +301,21 @@ function Landing() {
             >
               Sign in
             </Link>
-            <a
-              href="/auth?next=%2Fpricing%3Fcheckout%3Dbeta_monthly"
-              className="founder-nav-cta whitespace-nowrap rounded-lg bg-[#d4af37] px-3 py-2 text-sm font-bold text-slate-950 shadow-[0_12px_30px_-12px_rgba(212,175,55,0.7)] transition-colors hover:bg-[#c89e2f] sm:px-4 sm:text-base"
+            <button
+              type="button"
+              onClick={handleFounderAccessClick}
+              disabled={isFounderCheckoutLoading}
+              className="founder-nav-cta whitespace-nowrap rounded-lg bg-[#d4af37] px-3 py-2 text-sm font-bold text-slate-950 shadow-[0_12px_30px_-12px_rgba(212,175,55,0.7)] transition-colors hover:bg-[#c89e2f] disabled:cursor-not-allowed disabled:opacity-70 sm:px-4 sm:text-base"
             >
-              Claim Founder Access
-            </a>
+              {isFounderCheckoutLoading ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Opening Stripe...
+                </span>
+              ) : (
+                "Claim Founder Access"
+              )}
+            </button>
           </div>
         </div>
       </nav>
@@ -369,13 +439,24 @@ function Landing() {
                 ))}
               </ul>
               <div className="mt-8 flex flex-wrap items-center gap-4">
-                <a
-                  href="/auth?next=%2Fpricing%3Fcheckout%3Dbeta_monthly"
-                  className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-7 py-3.5 text-base font-bold text-slate-950 shadow-[0_18px_50px_-12px_rgba(212,175,55,0.7)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-12px_rgba(212,175,55,0.85)]"
+                <button
+                  type="button"
+                  onClick={handleFounderAccessClick}
+                  disabled={isFounderCheckoutLoading}
+                  className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-7 py-3.5 text-base font-bold text-slate-950 shadow-[0_18px_50px_-12px_rgba(212,175,55,0.7)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-12px_rgba(212,175,55,0.85)] disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                  Claim Founder Access <ArrowRight className="h-4 w-4" />
-                </a>
+                  {isFounderCheckoutLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Opening Stripe...
+                    </>
+                  ) : (
+                    <>
+                      Claim Founder Access <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
+                </button>
                 <span className="text-sm text-white/55">
                   No charge until day 15 - Cancel anytime
                 </span>
@@ -477,12 +558,21 @@ function Landing() {
               <h2 className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">
                 Ready to track your Real Estate Business?
               </h2>
-              <a
-                href="/auth?next=%2Fpricing%3Fcheckout%3Dbeta_monthly"
-                className="inline-flex items-center justify-center rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_28px_-14px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f]"
+              <button
+                type="button"
+                onClick={handleFounderAccessClick}
+                disabled={isFounderCheckoutLoading}
+                className="inline-flex items-center justify-center rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_28px_-14px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f] disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Join the Founders' Program
-              </a>
+                {isFounderCheckoutLoading ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Opening Stripe...
+                  </span>
+                ) : (
+                  "Join the Founders' Program"
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -685,13 +775,22 @@ function Landing() {
                     </div>
                     <div className={isComingSoon ? "grayscale opacity-35 pointer-events-none" : ""}>
                       {isFounders ? (
-                        <a
-                          href="/auth?next=%2Fpricing%3Fcheckout%3Dbeta_monthly"
-                          className="group relative mb-6 block w-full overflow-hidden rounded-lg bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-4 py-3 text-center text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_24px_60px_-12px_rgba(212,175,55,0.85)]"
+                        <button
+                          type="button"
+                          onClick={handleFounderAccessClick}
+                          disabled={isFounderCheckoutLoading}
+                          className="group relative mb-6 block w-full overflow-hidden rounded-lg bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-4 py-3 text-center text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_24px_60px_-12px_rgba(212,175,55,0.85)] disabled:cursor-not-allowed disabled:opacity-70"
                         >
                           <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/70 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                          {tier.cta}
-                        </a>
+                          {isFounderCheckoutLoading ? (
+                            <span className="inline-flex items-center gap-2">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              Opening Stripe...
+                            </span>
+                          ) : (
+                            tier.cta
+                          )}
+                        </button>
                       ) : (
                         <button
                           type="button"
