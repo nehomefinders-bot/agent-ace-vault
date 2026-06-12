@@ -133,7 +133,7 @@ export function AppSidebar() {
             </div>
             <div className="space-y-0.5">
               {section.items.map(({ to, label, icon: Icon }) => {
-                const active = to === "/" ? path === "/" : path === to || path.startsWith(to + "/");
+                const active = path === to || path.startsWith(to + "/");
                 return (
                   <Link
                     key={to}
