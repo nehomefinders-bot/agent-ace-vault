@@ -5,6 +5,7 @@ import { PaywallGate } from "@/components/paywall-gate";
 import { SupportFab } from "@/components/support-fab";
 import { applyTheme, createThemeSync, getStoredTheme, getThemeBootstrapScript } from "@/lib/theme";
 import { installServerFnAuth } from "@/integrations/supabase/server-fn-auth";
+import { useAuth } from "@/hooks/use-auth";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -85,14 +86,22 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const { user } = useAuth();
+  
+  const isLegalPath = 
+    path === "/terms" || 
+    path === "/privacy" || 
+    path === "/terms-and-conditions" || 
+    path === "/privacy-policy";
+
   const bare =
     path === "/auth" ||
     path === "/landing" ||
     path === "/signup" ||
     path === "/forgot-password" ||
     path === "/reset-password" ||
-    path === "/terms" ||
-    path === "/privacy";
+    (isLegalPath && !user);
+    
   const showSupportFab = !bare;
   return (
     <>

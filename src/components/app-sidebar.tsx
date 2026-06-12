@@ -22,6 +22,8 @@ import {
   X,
   CalendarDays,
   User,
+  Shield,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -61,6 +63,8 @@ const sections = [
       { to: "/pricing", label: "Plans", icon: Sparkles },
       { to: "/support", label: "Support", icon: LifeBuoy },
       { to: "/help", label: "How-to", icon: BookOpen },
+      { to: "/privacy-policy", label: "Privacy Policy", icon: Shield },
+      { to: "/terms-and-conditions", label: "Terms of Service", icon: FileText },
     ],
   },
 ] as const;
