@@ -32,6 +32,7 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ExpensesRouteImport } from './routes/expenses'
 import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as DealsRouteImport } from './routes/deals'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CommissionsRouteImport } from './routes/commissions'
 import { Route as ClientsRouteImport } from './routes/clients'
 import { Route as CalenderRouteImport } from './routes/calender'
@@ -167,6 +168,11 @@ const DealsRoute = DealsRouteImport.update({
   path: '/deals',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CommissionsRoute = CommissionsRouteImport.update({
   id: '/commissions',
   path: '/commissions',
@@ -275,6 +281,7 @@ export interface FileRoutesByFullPath {
   '/calender': typeof CalenderRoute
   '/clients': typeof ClientsRoute
   '/commissions': typeof CommissionsRoute
+  '/dashboard': typeof DashboardRoute
   '/deals': typeof DealsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
@@ -318,6 +325,7 @@ export interface FileRoutesByTo {
   '/calender': typeof CalenderRoute
   '/clients': typeof ClientsRoute
   '/commissions': typeof CommissionsRoute
+  '/dashboard': typeof DashboardRoute
   '/deals': typeof DealsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
@@ -363,6 +371,7 @@ export interface FileRoutesById {
   '/calender': typeof CalenderRoute
   '/clients': typeof ClientsRoute
   '/commissions': typeof CommissionsRoute
+  '/dashboard': typeof DashboardRoute
   '/deals': typeof DealsRoute
   '/documents': typeof DocumentsRoute
   '/expenses': typeof ExpensesRoute
@@ -409,6 +418,7 @@ export interface FileRouteTypes {
     | '/calender'
     | '/clients'
     | '/commissions'
+    | '/dashboard'
     | '/deals'
     | '/documents'
     | '/expenses'
@@ -452,6 +462,7 @@ export interface FileRouteTypes {
     | '/calender'
     | '/clients'
     | '/commissions'
+    | '/dashboard'
     | '/deals'
     | '/documents'
     | '/expenses'
@@ -496,6 +507,7 @@ export interface FileRouteTypes {
     | '/calender'
     | '/clients'
     | '/commissions'
+    | '/dashboard'
     | '/deals'
     | '/documents'
     | '/expenses'
@@ -541,6 +553,7 @@ export interface RootRouteChildren {
   CalenderRoute: typeof CalenderRoute
   ClientsRoute: typeof ClientsRoute
   CommissionsRoute: typeof CommissionsRoute
+  DashboardRoute: typeof DashboardRoute
   DealsRoute: typeof DealsRoute
   DocumentsRoute: typeof DocumentsRoute
   ExpensesRoute: typeof ExpensesRoute
@@ -733,6 +746,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DealsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/commissions': {
       id: '/commissions'
       path: '/commissions'
@@ -900,6 +920,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalenderRoute: CalenderRoute,
   ClientsRoute: ClientsRoute,
   CommissionsRoute: CommissionsRoute,
+  DashboardRoute: DashboardRoute,
   DealsRoute: DealsRoute,
   DocumentsRoute: DocumentsRoute,
   ExpensesRoute: ExpensesRoute,
@@ -931,3 +952,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
