@@ -34,6 +34,7 @@ export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
+      { name: "google-site-verification", content: "Gd_9nS-KU6exPxV8U6JmUAWvvm46TnkTw-h2af7gZKk" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Agent Business Tracker - Business tracker for brokers & agents" },
       { name: "description", content: "QuickBooks for real estate. Track deals, commissions, invoices, expenses, mileage and clients in one cockpit." },
