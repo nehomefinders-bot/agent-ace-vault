@@ -31,7 +31,6 @@ import {
   buildGoogleEventDatePatch,
   clearGoogleProviderTokens,
   deleteGoogleCalendarEvent,
-  GOOGLE_CALENDAR_SCOPES,
   GoogleCalendarAuthError,
   type GoogleCalendarEvent,
   type GoogleCalendarEventPatch,
@@ -542,35 +541,20 @@ function CalendarPage() {
     calendarRef.current?.getApi().changeView(nextView);
   }
 
-  async function connectGoogleCalendar() {
-    const credentials = {
+  const handleGoogleConnect = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin + "/calendar",
-        scopes: GOOGLE_CALENDAR_SCOPES,
+        scopes: "https://www.googleapis.com/auth/calendar.events",
         queryParams: {
           access_type: "offline",
           prompt: "consent",
         },
-        skipBrowserRedirect: true,
+        redirectTo: window.location.origin + "/calendar",
       },
-    } as const;
+    });
 
-    const { data, error } = user
-      ? await supabase.auth.linkIdentity(credentials)
-      : await supabase.auth.signInWithOAuth(credentials);
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    if (!data?.url) {
-      toast.error("Google did not return a login URL.");
-      return;
-    }
-
-    window.location.assign(data.url);
+    if (error) console.error("OAuth Connection Error:", error.message);
   }
 
   async function updateTask(taskId: string, updates: Partial<Task>) {
@@ -808,16 +792,11 @@ function CalendarPage() {
           </Button>
           <Button
             type="button"
-            disabled
-            aria-disabled="true"
-            title="Coming soon"
+            onClick={handleGoogleConnect}
             className="bg-amber-500 text-slate-950 hover:bg-amber-400 disabled:opacity-70"
           >
             <Cloud className="mr-2 h-4 w-4" />
             Connect Google Calendar
-            <span className="ml-2 rounded-full bg-slate-950/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-900">
-              Coming soon
-            </span>
           </Button>
         </>
       }
