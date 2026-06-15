@@ -219,6 +219,29 @@ function googleEventPatchFromDraft(draft: GoogleEventDraft): GoogleCalendarEvent
   };
 }
 
+async function syncToGoogleCalendar(
+  eventTitle: string,
+  eventDescription: string | null,
+  startDate: string | Date,
+  endDate: string | Date,
+) {
+  const { data, error } = await supabase.functions.invoke("google-calendar-sync", {
+    body: {
+      summary: eventTitle,
+      description: eventDescription || "Tracker Event",
+      startDateTime: new Date(startDate).toISOString(),
+      endDateTime: new Date(endDate).toISOString(),
+    },
+  });
+
+  if (error) {
+    console.error("Google Calendar sync failed:", error);
+    return null;
+  }
+
+  return data;
+}
+
 function hashString(value: string) {
   let hash = 0;
   for (let index = 0; index < value.length; index += 1) {
@@ -729,10 +752,17 @@ function CalendarPage() {
     if (!user || !newTaskDraft.title.trim()) return;
 
     setSaving(true);
+    const eventTitle = newTaskDraft.title.trim();
+    const eventDescription = newTaskDraft.description.trim() || null;
+    const eventStart = newTaskDraft.due_time
+      ? new Date(`${newTaskDraft.due_date}T${newTaskDraft.due_time}:00`)
+      : new Date(`${newTaskDraft.due_date}T12:00:00`);
+    const eventEnd = new Date(eventStart.getTime() + 30 * 60_000);
+
     const { data, error } = await supabase.from("tasks").insert({
       user_id: user.id,
-      title: newTaskDraft.title.trim(),
-      description: newTaskDraft.description.trim() || null,
+      title: eventTitle,
+      description: eventDescription,
       priority: newTaskDraft.priority,
       ...buildDuePayload(newTaskDraft.due_date, newTaskDraft.due_time),
     }).select("*").single();
@@ -746,6 +776,11 @@ function CalendarPage() {
     toast.success("Task scheduled");
     setNewTaskOpen(false);
     if (data) setTasks((current) => [...current, data as Task]);
+    try {
+      await syncToGoogleCalendar(eventTitle, eventDescription, eventStart, eventEnd);
+    } catch (error) {
+      console.error("Google Calendar sync failed:", error);
+    }
     void syncGoogleCalendar({ silent: true, skipMissingToken: true });
   }
 
