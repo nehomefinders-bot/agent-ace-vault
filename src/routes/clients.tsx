@@ -491,18 +491,6 @@ function DirectoryPage() {
         projection: { name: true, phones: true, emails: true },
       });
 
-      return (result.contacts ?? [])
-        .map((c) => {
-          const display =
-            c.name?.display ||
-            [c.name?.given, c.name?.middle, c.name?.family].filter(Boolean).join(" ").trim();
-          const tel = (c.phones ?? [])
-            .map((p) => p?.number)
-            .filter((n): n is string => !!n);
-          const email = (c.emails ?? [])
-            .map((e) => e?.address)
-            .filter((a): a is string => !!a);
-          if (!display && !tel.length && !email.length) return null;
       const mapped: DeviceContact[] = [];
       for (const c of result.contacts ?? []) {
         const display =
