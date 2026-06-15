@@ -428,36 +428,91 @@ function DirectoryPage() {
   async function syncPhoneContacts() {
     if (!user) return;
 
-    const contactsApi = (navigator as ContactPickerNavigator).contacts;
-    if (!contactsApi?.select) {
-      phoneFileInputRef.current?.click();
-      return;
-    }
-
     setPhoneSyncing(true);
     try {
-      const selected = await contactsApi.select(["name", "email", "tel"], { multiple: true });
-      if (!selected.length) return;
-      openPhoneReview(selected);
+      // 1) Capacitor native plugin (Android/iOS APK)
+      const native = await tryNativeCapacitorContacts();
+      if (native === "unsupported") {
+        // 2) Web Contact Picker API (Chrome Android in a browser tab)
+        const contactsApi = (navigator as ContactPickerNavigator).contacts;
+        if (contactsApi?.select) {
+          try {
+            const selected = await contactsApi.select(["name", "email", "tel"], { multiple: true });
+            if (!selected.length) return;
+            openPhoneReview(selected);
+            return;
+          } catch (error: unknown) {
+            if (error instanceof DOMException && error.name === "AbortError") return;
+            if (error instanceof DOMException && error.name === "NotAllowedError") {
+              toast.error(
+                "Contact access was blocked. You can still import an exported phone contacts file instead.",
+              );
+              phoneFileInputRef.current?.click();
+              return;
+            }
+            if (!(error instanceof TypeError)) throw error;
+          }
+        }
+        // 3) CSV / vCard fallback
+        phoneFileInputRef.current?.click();
+        return;
+      }
+
+      if (native === "denied") {
+        toast.error("Contacts permission was denied. Enable it in Android settings or import a file instead.");
+        phoneFileInputRef.current?.click();
+        return;
+      }
+
+      if (!native.length) {
+        toast.message("No contacts were selected.");
+        return;
+      }
+
+      openPhoneReview(native);
     } catch (error: unknown) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
-      if (error instanceof DOMException && error.name === "NotAllowedError") {
-        toast.error(
-          "Contact access was blocked. You can still import an exported phone contacts file instead.",
-        );
-        phoneFileInputRef.current?.click();
-        return;
-      }
-      if (error instanceof TypeError) {
-        toast.error(
-          "Direct contact access is not available in this browser. Import an exported phone contacts file instead.",
-        );
-        phoneFileInputRef.current?.click();
-        return;
-      }
       toast.error(error instanceof Error ? error.message : "Could not sync phone contacts");
     } finally {
       setPhoneSyncing(false);
+    }
+  }
+
+  async function tryNativeCapacitorContacts(): Promise<DeviceContact[] | "unsupported" | "denied"> {
+    try {
+      const { Capacitor } = await import("@capacitor/core");
+      if (!Capacitor.isNativePlatform()) return "unsupported";
+
+      const { Contacts } = await import("@capacitor-community/contacts");
+
+      const perm = await Contacts.requestPermissions();
+      if (perm.contacts !== "granted") return "denied";
+
+      const result = await Contacts.getContacts({
+        projection: { name: true, phones: true, emails: true },
+      });
+
+      return (result.contacts ?? [])
+        .map((c) => {
+          const display =
+            c.name?.display ||
+            [c.name?.given, c.name?.middle, c.name?.family].filter(Boolean).join(" ").trim();
+          const tel = (c.phones ?? [])
+            .map((p) => p?.number)
+            .filter((n): n is string => !!n);
+          const email = (c.emails ?? [])
+            .map((e) => e?.address)
+            .filter((a): a is string => !!a);
+          if (!display && !tel.length && !email.length) return null;
+          return {
+            name: display ? [display] : [],
+            tel,
+            email,
+          } satisfies DeviceContact;
+        })
+        .filter((c): c is DeviceContact => c !== null);
+    } catch (error) {
+      console.warn("[contacts] native plugin unavailable", error);
+      return "unsupported";
     }
   }
 
