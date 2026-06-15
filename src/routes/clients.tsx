@@ -503,13 +503,21 @@ function DirectoryPage() {
             .map((e) => e?.address)
             .filter((a): a is string => !!a);
           if (!display && !tel.length && !email.length) return null;
-          return {
-            name: display ? [display] : [],
-            tel,
-            email,
-          } satisfies DeviceContact;
-        })
-        .filter((c): c is DeviceContact => c !== null);
+      const mapped: DeviceContact[] = [];
+      for (const c of result.contacts ?? []) {
+        const display =
+          c.name?.display ||
+          [c.name?.given, c.name?.middle, c.name?.family].filter(Boolean).join(" ").trim();
+        const tel = (c.phones ?? []).map((p) => p?.number).filter((n): n is string => !!n);
+        const email = (c.emails ?? []).map((e) => e?.address).filter((a): a is string => !!a);
+        if (!display && !tel.length && !email.length) continue;
+        mapped.push({
+          name: display ? [display] : undefined,
+          tel: tel.length ? tel : undefined,
+          email: email.length ? email : undefined,
+        });
+      }
+      return mapped;
     } catch (error) {
       console.warn("[contacts] native plugin unavailable", error);
       return "unsupported";
