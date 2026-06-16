@@ -129,6 +129,7 @@ function DirectoryPage() {
   const [editing, setEditing] = useState<Client | null>(null);
   const [syncing, setSyncing] = useState<string | null>(null);
   const [phoneSyncing, setPhoneSyncing] = useState(false);
+  const [phonePermissionOpen, setPhonePermissionOpen] = useState(false);
   const [phoneImporting, setPhoneImporting] = useState(false);
   const [phoneDesyncing, setPhoneDesyncing] = useState(false);
   const [phoneConverting, setPhoneConverting] = useState(false);
