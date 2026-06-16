@@ -963,7 +963,21 @@ function DirectoryPage() {
         </div>
       </div>
 
-      <AlertDialog open={phonePermissionOpen} onOpenChange={setPhonePermissionOpen}>
+      <AlertDialog
+        open={phonePermissionOpen}
+        onOpenChange={(next) => {
+          // Catches every dismissal path: "Not now", Esc key, and
+          // backdrop click. Only fire the rejection toast when we
+          // were actually open (avoids a stray toast on first mount).
+          if (!next && phonePermissionOpen) {
+            toast.message("Phone contact sync canceled", {
+              description:
+                "We didn't read any contacts. You can start the sync again anytime from this banner.",
+            });
+          }
+          setPhonePermissionOpen(next);
+        }}
+      >
         <AlertDialogContent className="border-border bg-card">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-foreground">
@@ -974,7 +988,8 @@ function DirectoryPage() {
               We&apos;ll open your device address book so you can pick which contacts to add to
               your tracker. Names and phone numbers are stored under the{" "}
               <span className="font-medium text-foreground">Phone sync</span> source. Manual,
-              imported, and GHL-linked contacts are never touched.
+              imported, and GHL-linked contacts are never touched. You can change your mind
+              anytime in your device settings.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -993,6 +1008,7 @@ function DirectoryPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
 
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
