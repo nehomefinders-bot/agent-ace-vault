@@ -984,12 +984,18 @@ function DirectoryPage() {
               <Smartphone className="h-5 w-5 text-primary" />
               Allow Endless Prospects to read your contacts?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
-              We&apos;ll open your device address book so you can pick which contacts to add to
-              your tracker. Names and phone numbers are stored under the{" "}
-              <span className="font-medium text-foreground">Phone sync</span> source. Manual,
-              imported, and GHL-linked contacts are never touched. You can change your mind
-              anytime in your device settings.
+            <AlertDialogDescription className="text-muted-foreground space-y-3">
+              <span>
+                We&apos;ll open your device address book so you can pick which contacts to add to
+                your tracker. Names and phone numbers are stored under the{" "}
+                <strong className="font-medium text-foreground">Phone sync</strong> source. Manual,
+                imported, and GHL-linked contacts are never touched.
+              </span>
+              <span className="block text-xs bg-muted/40 p-3 rounded-lg border border-border/60 text-muted-foreground/90 mt-2">
+                <strong className="font-semibold text-primary block mb-1">💡 Keep getting prompted or blocked?</strong>
+                If you previously denied access, you may need to enable it manually. Go to your device&apos;s{" "}
+                <strong className="font-medium text-foreground">Settings &gt; Apps &gt; Endless Prospects &gt; Permissions &gt; Contacts</strong> and select <strong className="font-medium text-foreground">Allow</strong>.
+              </span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
