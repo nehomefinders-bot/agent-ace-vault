@@ -2163,8 +2163,18 @@ function formatDateTime(value: string) {
 }
 
 function normalizePhone(value: string | null | undefined) {
-  const digits = (value ?? "").replace(/[^\d+]/g, "");
-  return digits || "";
+  // Strip everything that isn't a digit so formatting differences
+  // ("(555) 123-4567", "555.123.4567", "+1 555-123-4567", "5551234567")
+  // collapse to the same canonical key.
+  const digits = (value ?? "").replace(/\D/g, "");
+  if (!digits) return "";
+  // North-American numbers: drop the country code so "+15551234567",
+  // "15551234567", and "5551234567" all dedupe together.
+  if (digits.length === 11 && digits.startsWith("1")) return digits.slice(1);
+  // For longer international numbers, fall back to the last 10 digits
+  // as a stable suffix key (handles trunk prefixes / IDD variations).
+  if (digits.length > 11) return digits.slice(-10);
+  return digits;
 }
 
 function normalizeEmail(value: string | null | undefined) {
