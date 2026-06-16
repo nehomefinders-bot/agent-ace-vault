@@ -577,28 +577,67 @@ function DirectoryPage() {
 
     setPhoneImporting(true);
     try {
-      const inserts = selectedCandidates.map((candidate) => ({
-        user_id: user.id,
-        name: candidate.name,
-        email: candidate.email || null,
-        phone: candidate.phone || null,
-        company: null,
-        notes: null,
-        client_type: null,
-        timeline: null,
-        address: null,
-        pre_approved: null,
-        budget_min: null,
-        budget_max: null,
-        locality: null,
-        source: "phone_sync",
-      }));
+      // Re-fetch existing phones right before insert so two sync runs
+      // (or a stale `rows` snapshot) can't race in duplicates.
+      const { data: existingRowsForDedup, error: dedupFetchError } = await supabase
+        .from("clients")
+        .select("phone")
+        .eq("user_id", user.id);
+      if (dedupFetchError) return toast.error(dedupFetchError.message);
+
+      const existingPhoneKeys = new Set(
+        (existingRowsForDedup ?? [])
+          .map((row) => normalizePhone(row.phone))
+          .filter(Boolean) as string[],
+      );
+
+      const seenInBatch = new Set<string>();
+      const inserts: Array<Record<string, unknown>> = [];
+      let skippedDuringInsert = 0;
+
+      for (const candidate of selectedCandidates) {
+        const key = normalizePhone(candidate.phone);
+        if (key) {
+          if (existingPhoneKeys.has(key) || seenInBatch.has(key)) {
+            skippedDuringInsert += 1;
+            continue;
+          }
+          seenInBatch.add(key);
+        }
+        inserts.push({
+          user_id: user.id,
+          name: candidate.name,
+          email: candidate.email || null,
+          phone: candidate.phone || null,
+          company: null,
+          notes: null,
+          client_type: null,
+          timeline: null,
+          address: null,
+          pre_approved: null,
+          budget_min: null,
+          budget_max: null,
+          locality: null,
+          source: "phone_sync",
+        });
+      }
+
+      if (!inserts.length) {
+        toast.message("All selected contacts were already in your directory.");
+        setPhoneReviewOpen(false);
+        resetPhoneReviewState();
+        return;
+      }
 
       const { error } = await supabase.from("clients").insert(inserts);
       if (error) return toast.error(error.message);
 
       toast.success(
-        `Added ${selectedCandidates.length} phone contact${selectedCandidates.length === 1 ? "" : "s"} to your directory`,
+        `Added ${inserts.length} phone contact${inserts.length === 1 ? "" : "s"} to your directory${
+          skippedDuringInsert > 0
+            ? ` (skipped ${skippedDuringInsert} duplicate${skippedDuringInsert === 1 ? "" : "s"})`
+            : ""
+        }`,
       );
       setPhoneReviewOpen(false);
       resetPhoneReviewState();
@@ -607,6 +646,7 @@ function DirectoryPage() {
       setPhoneImporting(false);
     }
   }
+
 
   async function desyncPhoneContacts(target?: Client | Client[]) {
     if (!user) return;
