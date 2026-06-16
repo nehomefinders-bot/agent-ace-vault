@@ -5,9 +5,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 
 // === Google Ads conversion tracking ===
-// Replace these with your real IDs from Google Ads → Tools → Conversions.
-const GOOGLE_ADS_ID = "AW-XXXXXXXXXX"; // e.g. "AW-1234567890"
-const GOOGLE_ADS_CONVERSION_LABEL = "XXXXXXXXXXXXXXXXXX"; // the label after the slash in the snippet
+const GOOGLE_ADS_ID = "AW-444-670-3525";
+const GOOGLE_ADS_CONVERSION_LABEL = "17129648704";
+
 
 export const Route = createFileRoute("/thankyou")({
   component: ThankYouPage,
