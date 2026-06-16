@@ -592,7 +592,22 @@ function DirectoryPage() {
       );
 
       const seenInBatch = new Set<string>();
-      const inserts: Array<Record<string, unknown>> = [];
+      const inserts: Array<{
+        user_id: string;
+        name: string;
+        email: string | null;
+        phone: string | null;
+        company: null;
+        notes: null;
+        client_type: null;
+        timeline: null;
+        address: null;
+        pre_approved: null;
+        budget_min: null;
+        budget_max: null;
+        locality: null;
+        source: "phone_sync";
+      }> = [];
       let skippedDuringInsert = 0;
 
       for (const candidate of selectedCandidates) {
