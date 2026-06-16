@@ -846,63 +846,34 @@ function DirectoryPage() {
             {[
               { value: "all" as const, label: `All contacts (${rows.length})` },
               {
-          <div className="text-xs text-muted-foreground">
-            Manual, imported, and GHL-linked contacts stay untouched.
-          </div>
-          <button
-            type="button"
-            onClick={() => setPhonePermissionOpen(true)}
-            disabled={phoneSyncing || phoneImporting}
-            className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-card transition-colors hover:bg-primary/90 disabled:opacity-60"
-          >
-            {phoneSyncing || phoneImporting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Smartphone className="h-4 w-4" />
-            )}
-            {phoneSyncing || phoneImporting ? "Syncing…" : "Sync Phone Contacts"}
-          </button>
-        </div>
-      </div>
-
-      <AlertDialog open={phonePermissionOpen} onOpenChange={setPhonePermissionOpen}>
-        <AlertDialogContent className="border-border bg-card">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-foreground">
-              <Smartphone className="h-5 w-5 text-primary" />
-              Allow Endless Prospects to read your contacts?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
-              We&apos;ll open your device address book so you can pick which contacts to add to
-              your tracker. Names and phone numbers are stored under the{" "}
-              <span className="font-medium text-foreground">Phone sync</span> source. Manual,
-              imported, and GHL-linked contacts are never touched.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="border-border bg-background hover:bg-muted">
-              Not now
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                setPhonePermissionOpen(false);
-                void syncPhoneContacts();
-              }}
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
+          <div className="flex flex-col items-stretch gap-2 sm:items-end">
+            <button
+              type="button"
+              onClick={() => setPhonePermissionOpen(true)}
+              disabled={phoneSyncing || phoneImporting}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-card transition-colors hover:bg-primary/90 disabled:opacity-60"
             >
-              Allow & continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <div style={{ display: "none" }}>
-        {[
-          { value: "all" as const, label: `All contacts (${rows.length})` },
-          {
-            value: "phone_sync" as const,
-            label: `Phone sync only (${phoneSyncedRows.length})`,
-          },
+              {phoneSyncing || phoneImporting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Smartphone className="h-4 w-4" />
+              )}
+              {phoneSyncing || phoneImporting ? "Syncing…" : "Sync Phone Contacts"}
+            </button>
+            <div className="text-xs text-muted-foreground sm:text-right">
+              Manual, imported, and GHL-linked contacts stay untouched.
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-2">
+            {[
+              { value: "all" as const, label: `All contacts (${rows.length})` },
+              {
+                value: "phone_sync" as const,
+                label: `Phone sync only (${phoneSyncedRows.length})`,
+              },
+            ].map((option) => (
               <button
                 key={option.value}
                 type="button"
@@ -945,6 +916,38 @@ function DirectoryPage() {
           </div>
         </div>
       </div>
+
+      <AlertDialog open={phonePermissionOpen} onOpenChange={setPhonePermissionOpen}>
+        <AlertDialogContent className="border-border bg-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-foreground">
+              <Smartphone className="h-5 w-5 text-primary" />
+              Allow Endless Prospects to read your contacts?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              We&apos;ll open your device address book so you can pick which contacts to add to
+              your tracker. Names and phone numbers are stored under the{" "}
+              <span className="font-medium text-foreground">Phone sync</span> source. Manual,
+              imported, and GHL-linked contacts are never touched.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-border bg-background hover:bg-muted">
+              Not now
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setPhonePermissionOpen(false);
+                void syncPhoneContacts();
+              }}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              Allow & continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
         {loading ? (
