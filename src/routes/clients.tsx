@@ -21,6 +21,16 @@ import { ImportButton, type ImportColumn } from "@/components/import-button";
 import { PageShell } from "@/components/page-shell";
 import { TableExportButton } from "@/components/table-export-button";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -129,6 +139,7 @@ function DirectoryPage() {
   const [editing, setEditing] = useState<Client | null>(null);
   const [syncing, setSyncing] = useState<string | null>(null);
   const [phoneSyncing, setPhoneSyncing] = useState(false);
+  const [phonePermissionOpen, setPhonePermissionOpen] = useState(false);
   const [phoneImporting, setPhoneImporting] = useState(false);
   const [phoneDesyncing, setPhoneDesyncing] = useState(false);
   const [phoneConverting, setPhoneConverting] = useState(false);
@@ -826,8 +837,23 @@ function DirectoryPage() {
               <span className="font-medium text-foreground">Phone sync</span> source.
             </p>
           </div>
-          <div className="text-xs text-muted-foreground">
-            Manual, imported, and GHL-linked contacts stay untouched.
+          <div className="flex flex-col items-stretch gap-2 sm:items-end">
+            <button
+              type="button"
+              onClick={() => setPhonePermissionOpen(true)}
+              disabled={phoneSyncing || phoneImporting}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-card transition-colors hover:bg-primary/90 disabled:opacity-60"
+            >
+              {phoneSyncing || phoneImporting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Smartphone className="h-4 w-4" />
+              )}
+              {phoneSyncing || phoneImporting ? "Syncing…" : "Sync Phone Contacts"}
+            </button>
+            <div className="text-xs text-muted-foreground sm:text-right">
+              Manual, imported, and GHL-linked contacts stay untouched.
+            </div>
           </div>
         </div>
         <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
@@ -881,6 +907,38 @@ function DirectoryPage() {
           </div>
         </div>
       </div>
+
+      <AlertDialog open={phonePermissionOpen} onOpenChange={setPhonePermissionOpen}>
+        <AlertDialogContent className="border-border bg-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-foreground">
+              <Smartphone className="h-5 w-5 text-primary" />
+              Allow Endless Prospects to read your contacts?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              We&apos;ll open your device address book so you can pick which contacts to add to
+              your tracker. Names and phone numbers are stored under the{" "}
+              <span className="font-medium text-foreground">Phone sync</span> source. Manual,
+              imported, and GHL-linked contacts are never touched.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-border bg-background hover:bg-muted">
+              Not now
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setPhonePermissionOpen(false);
+                void syncPhoneContacts();
+              }}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              Allow & continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
         {loading ? (
