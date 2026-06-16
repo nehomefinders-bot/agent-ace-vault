@@ -837,15 +837,6 @@ function DirectoryPage() {
               <span className="font-medium text-foreground">Phone sync</span> source.
             </p>
           </div>
-          <div className="text-xs text-muted-foreground">
-            Manual, imported, and GHL-linked contacts stay untouched.
-          </div>
-        </div>
-        <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap gap-2">
-            {[
-              { value: "all" as const, label: `All contacts (${rows.length})` },
-              {
           <div className="flex flex-col items-stretch gap-2 sm:items-end">
             <button
               type="button"
