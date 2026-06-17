@@ -112,7 +112,7 @@ function BillingPage() {
             <CreditCard className="h-5 w-5 text-muted-foreground" />
           </div>
           <h3 className="font-display text-lg font-bold">No active subscription</h3>
-          <p className="text-sm text-muted-foreground mb-5 mt-1">Start a 14-day free trial — cancel anytime before day 15.</p>
+          <p className="text-sm text-muted-foreground mb-5 mt-1">Founders' Program — $10/month, every feature unlocked. Cancel anytime.</p>
           <Link to="/pricing" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">
             View plans
           </Link>

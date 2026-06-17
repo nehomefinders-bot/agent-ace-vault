@@ -204,7 +204,7 @@ function Landing() {
                   Opening Stripe...
                 </span>
               ) : (
-                "Claim Founder Access"
+                "Claim Founders Access"
               )}
             </button>
           </div>
@@ -342,13 +342,10 @@ function Landing() {
                     </>
                   ) : (
                     <>
-                      Claim Founder Access <ArrowRight className="h-4 w-4" />
+                      Claim Founders Access <ArrowRight className="h-4 w-4" />
                     </>
                   )}
                 </button>
-                <span className="text-sm text-white/55">
-                  No charge until day 15 - Cancel anytime
-                </span>
               </div>
             </div>
           </Reveal>
@@ -683,7 +680,7 @@ function Landing() {
                 to="/signup"
                 className="mt-8 inline-flex items-center justify-center rounded-full bg-[#d4af37] px-6 py-3 text-sm font-semibold text-slate-950 shadow-[0_14px_36px_-16px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f]"
               >
-                Start Your 14-Day Free Trial
+                Claim Founders Access
               </Link>
             </div>
           </div>
