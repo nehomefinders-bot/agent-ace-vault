@@ -437,11 +437,12 @@ function Landing() {
                     <span className="font-display text-5xl font-bold tabular-nums text-white">
                       $10
                     </span>
-                    <span className="text-sm text-white/55">/mo - 6 months</span>
+                    <span className="text-sm text-white/55">/month — locked in for life</span>
                   </div>
                   <div className="mt-2 text-xs text-white/45">
-                    Then $29/mo - standard Solo Agent plan
+                    Every feature unlocked. Cancel anytime.
                   </div>
+
                   <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
                     <div className="h-full w-[24%] rounded-full bg-gradient-to-r from-[#d4af37] to-[#fff0a8]" />
                   </div>
