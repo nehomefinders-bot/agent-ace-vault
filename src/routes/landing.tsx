@@ -17,14 +17,9 @@ import {
   Loader2,
 } from "lucide-react";
 import maColonialHeroBg from "@/assets/landing-house-autumn.jpeg";
-import { useAuth } from "@/hooks/use-auth";
 import { BRAND_TITLE, BrandLockup } from "@/components/brand-lockup";
 import { Reveal } from "@/components/reveal";
-import { toast } from "sonner";
 
-const FOUNDER_CHECKOUT_URL =
-  "https://cbospmbzmetqkuibrskt.supabase.co/functions/v1/stripe-checkout";
-const FOUNDER_PRICE_KEY = import.meta.env.VITE_FOUNDER_PRICE_ID?.trim() || "beta_monthly";
 
 export const Route = createFileRoute("/landing")({
   component: Landing,
@@ -240,10 +235,10 @@ function Landing() {
             </p>
             <div className="mt-7 flex w-full max-w-4xl flex-col items-center gap-4 sm:flex-row sm:justify-between sm:gap-0">
               <Link
-                to="/auth"
+                to="/signup"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-[#c89e2f] hover:shadow-[0_18px_50px_-8px_rgba(212,175,55,0.7)] sm:w-auto sm:px-7"
               >
-                Start your free 14-day trial <ArrowRight className="h-4 w-4" />
+                Claim Founders Access <ArrowRight className="h-4 w-4" />
               </Link>
               <button
                 type="button"
@@ -253,9 +248,9 @@ function Landing() {
                 See live demo
               </button>
             </div>
-            <p className="mt-5 text-base font-bold tracking-wide text-[#ffe066] drop-shadow-[0_4px_18px_rgba(0,0,0,0.95)] md:text-lg">
-              No charge until day 15 &bull; Cancel anytime
-            </p>
+
+
+
           </div>
         </div>
       </section>
