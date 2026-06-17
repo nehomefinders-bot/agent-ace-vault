@@ -17,14 +17,9 @@ import {
   Loader2,
 } from "lucide-react";
 import maColonialHeroBg from "@/assets/landing-house-autumn.jpeg";
-import { useAuth } from "@/hooks/use-auth";
 import { BRAND_TITLE, BrandLockup } from "@/components/brand-lockup";
 import { Reveal } from "@/components/reveal";
-import { toast } from "sonner";
 
-const FOUNDER_CHECKOUT_URL =
-  "https://cbospmbzmetqkuibrskt.supabase.co/functions/v1/stripe-checkout";
-const FOUNDER_PRICE_KEY = import.meta.env.VITE_FOUNDER_PRICE_ID?.trim() || "beta_monthly";
 
 export const Route = createFileRoute("/landing")({
   component: Landing,
@@ -61,7 +56,7 @@ const tiers = [
       "Priority bug-fix turnaround",
       "Help shape the product roadmap",
     ],
-    cta: "Claim Founder Access",
+    cta: "Claim Founders Access",
     featured: true,
     badge: "Best Value",
   },
@@ -88,11 +83,12 @@ const features = [
   },
   {
     icon: ShieldCheck,
-    title: "Cancel anytime",
-    body: "Credit card is not charged until after the 14-day trial. Cancel anytime.",
+    title: "Founder pricing",
+    body: "Lock in $10/month for life. Cancel anytime from your billing page.",
     glow: "from-white via-[#e8f5ee] to-[#4d7c5f]",
   },
 ];
+
 
 type FooterLink = { label: string; to: string };
 
@@ -129,10 +125,8 @@ const footerColumns: FooterColumn[] = [
 
 function Landing() {
   const nav = useNavigate();
-  const { user, session } = useAuth();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const [isFounderCheckoutLoading, setIsFounderCheckoutLoading] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -172,65 +166,11 @@ function Landing() {
     setNewsletterEmail("");
   };
 
-  const handleFounderAccessClick = async () => {
-    if (!user?.email) {
-      nav({ to: "/auth" });
-      return;
-    }
-
-    const userEmail = user.email.trim();
-    if (!userEmail) {
-      toast.error("Your account email is missing.");
-      return;
-    }
-
-    setIsFounderCheckoutLoading(true);
-    try {
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
-      if (publishableKey) {
-        headers.apikey = publishableKey;
-      }
-      if (session?.access_token) {
-        headers.Authorization = `Bearer ${session.access_token}`;
-      }
-
-      const response = await fetch(FOUNDER_CHECKOUT_URL, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          userEmail,
-          userId: user.id,
-          priceId: FOUNDER_PRICE_KEY,
-          price_override: FOUNDER_PRICE_KEY,
-          metadata: {
-            founder_price_id: FOUNDER_PRICE_KEY,
-            lovable_external_id: FOUNDER_PRICE_KEY,
-          },
-        }),
-      });
-
-      const data = (await response.json().catch(() => null)) as
-        | { url?: string; error?: string }
-        | null;
-
-      if (!response.ok) {
-        throw new Error(data?.error ?? "Could not start Founder checkout.");
-      }
-
-      if (!data?.url) {
-        throw new Error("Stripe did not return a checkout URL.");
-      }
-
-      window.location.assign(data.url);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not start Founder checkout");
-    } finally {
-      setIsFounderCheckoutLoading(false);
-    }
+  const handleFounderAccessClick = () => {
+    nav({ to: "/signup" });
   };
+  const isFounderCheckoutLoading = false;
+
 
   return (
     <div className="dark min-h-dvh w-full overflow-x-hidden bg-slate-950 text-white">
@@ -264,7 +204,7 @@ function Landing() {
                   Opening Stripe...
                 </span>
               ) : (
-                "Claim Founder Access"
+                "Claim Founders Access"
               )}
             </button>
           </div>
@@ -295,10 +235,10 @@ function Landing() {
             </p>
             <div className="mt-7 flex w-full max-w-4xl flex-col items-center gap-4 sm:flex-row sm:justify-between sm:gap-0">
               <Link
-                to="/auth"
+                to="/signup"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-[#c89e2f] hover:shadow-[0_18px_50px_-8px_rgba(212,175,55,0.7)] sm:w-auto sm:px-7"
               >
-                Start your free 14-day trial <ArrowRight className="h-4 w-4" />
+                Claim Founders Access <ArrowRight className="h-4 w-4" />
               </Link>
               <button
                 type="button"
@@ -308,9 +248,9 @@ function Landing() {
                 See live demo
               </button>
             </div>
-            <p className="mt-5 text-base font-bold tracking-wide text-[#ffe066] drop-shadow-[0_4px_18px_rgba(0,0,0,0.95)] md:text-lg">
-              No charge until day 15 &bull; Cancel anytime
-            </p>
+
+
+
           </div>
         </div>
       </section>
@@ -402,13 +342,10 @@ function Landing() {
                     </>
                   ) : (
                     <>
-                      Claim Founder Access <ArrowRight className="h-4 w-4" />
+                      Claim Founders Access <ArrowRight className="h-4 w-4" />
                     </>
                   )}
                 </button>
-                <span className="text-sm text-white/55">
-                  No charge until day 15 - Cancel anytime
-                </span>
               </div>
             </div>
           </Reveal>
@@ -743,7 +680,7 @@ function Landing() {
                 to="/signup"
                 className="mt-8 inline-flex items-center justify-center rounded-full bg-[#d4af37] px-6 py-3 text-sm font-semibold text-slate-950 shadow-[0_14px_36px_-16px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f]"
               >
-                Start Your 14-Day Free Trial
+                Claim Founders Access
               </Link>
             </div>
           </div>
