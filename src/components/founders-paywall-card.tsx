@@ -1,12 +1,6 @@
-import { useState } from "react";
-import { Check, Loader2, Sparkles } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
-import { toast } from "sonner";
+import { Check, Sparkles } from "lucide-react";
 
-const FOUNDER_CHECKOUT_URL =
-  "https://cbospmbzmetqkuibrskt.supabase.co/functions/v1/stripe-checkout";
-const FOUNDER_PRICE_KEY =
-  import.meta.env.VITE_FOUNDER_PRICE_ID?.trim() || "beta_monthly";
+const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/3cI9ASaDK6bu9XT8Gj9AA04";
 
 const FEATURES = [
   "Every feature unlocked — no tiers, no upsells",
@@ -17,37 +11,8 @@ const FEATURES = [
 ];
 
 export function FoundersPaywallCard() {
-  const { user, session } = useAuth();
-  const [loading, setLoading] = useState(false);
-
-  const handleSubscribe = async () => {
-    if (!user?.email) {
-      window.location.assign("/auth");
-      return;
-    }
-    setLoading(true);
-    try {
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-      const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
-      if (publishableKey) headers.apikey = publishableKey;
-      if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
-
-      const res = await fetch(FOUNDER_CHECKOUT_URL, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          userEmail: user.email.trim(),
-          userId: user.id,
-        }),
-      });
-      const data = (await res.json().catch(() => null)) as { url?: string; error?: string } | null;
-      if (!res.ok) throw new Error(data?.error ?? "Could not start checkout.");
-      if (!data?.url) throw new Error("Stripe did not return a checkout URL.");
-      window.location.assign(data.url);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not start checkout");
-      setLoading(false);
-    }
+  const handleSubscribe = () => {
+    window.location.href = STRIPE_PAYMENT_LINK;
   };
 
   return (
@@ -79,11 +44,9 @@ export function FoundersPaywallCard() {
         <button
           type="button"
           onClick={handleSubscribe}
-          disabled={loading}
-          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#d4af37] px-5 py-4 text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition hover:bg-[#c89e2f] disabled:cursor-not-allowed disabled:opacity-70"
+          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#d4af37] px-5 py-4 text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition hover:bg-[#c89e2f]"
         >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-          {loading ? "Opening Stripe..." : "Subscribe — $10/month"}
+          Subscribe — $10/month
         </button>
 
         <ul className="mt-6 space-y-3">
