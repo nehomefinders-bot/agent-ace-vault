@@ -1,22 +1,26 @@
 import { useRouterState, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { useSubscription } from "@/hooks/use-subscription";
+import { FoundersPaywallCard } from "@/components/founders-paywall-card";
 
-// Single Founders' Program plan — every signed-in user has full access.
-// The "paywall" now only enforces auth, not subscription state.
+// Routes accessible without an active subscription.
 const PUBLIC_PATHS = [
   "/landing", "/auth", "/signup", "/forgot-password", "/reset-password",
   "/terms", "/privacy", "/privacy-policy", "/terms-and-conditions",
+  "/thankyou", "/pricing",
 ];
 
 export function PaywallGate({ children }: { children: React.ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const { user, loading: authLoading } = useAuth();
+  const { isActive, loading: subLoading } = useSubscription();
   const nav = useNavigate();
+  const [profilePlan, setProfilePlan] = useState<string | null | undefined>(undefined);
 
-  // Send unauthenticated users away from non-public app routes.
+  // Redirect unauthenticated users away from non-public routes.
   useEffect(() => {
     if (authLoading) return;
     if (user) return;
@@ -40,6 +44,21 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
     };
   }, [authLoading, user, path, nav]);
 
+  // Load profile.plan to support manual activation via /thankyou.
+  useEffect(() => {
+    if (!user) { setProfilePlan(undefined); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("plan")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!cancelled) setProfilePlan((data?.plan ?? null) as string | null);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
   if (PUBLIC_PATHS.includes(path)) return <>{children}</>;
 
   if (authLoading) {
@@ -58,6 +77,17 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Signed in → full access to every feature.
+  // Wait for subscription + profile to resolve before deciding.
+  if (subLoading || profilePlan === undefined) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  const hasAccess = isActive || profilePlan === "active";
+  if (!hasAccess) return <FoundersPaywallCard />;
+
   return <>{children}</>;
 }
