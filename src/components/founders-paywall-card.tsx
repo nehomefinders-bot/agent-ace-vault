@@ -38,12 +38,6 @@ export function FoundersPaywallCard() {
         body: JSON.stringify({
           userEmail: user.email.trim(),
           userId: user.id,
-          priceId: FOUNDER_PRICE_KEY,
-          price_override: FOUNDER_PRICE_KEY,
-          metadata: {
-            founder_price_id: FOUNDER_PRICE_KEY,
-            lovable_external_id: FOUNDER_PRICE_KEY,
-          },
         }),
       });
       const data = (await res.json().catch(() => null)) as { url?: string; error?: string } | null;
