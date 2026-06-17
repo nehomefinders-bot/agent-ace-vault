@@ -665,114 +665,67 @@ function Landing() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {tiers.map((tier, idx) => {
-              const isFounders = tier.name === "Founders' Program";
-              const isComingSoon = !isFounders;
-              return (
-                <Reveal key={tier.name} direction="up" delay={idx * 100} className="h-full">
-                  <div
-                    className={`relative h-full overflow-visible flex flex-col rounded-2xl border p-7 pt-9 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.18)] transition-all duration-300 ease-out ${
-                      isFounders
-                        ? "border-[#cfb15a] bg-[linear-gradient(180deg,#fffaf1_0%,#f4e4b4_100%)] shadow-[0_0_0_1px_rgba(207,177,90,0.4),0_34px_84px_-30px_rgba(184,137,24,0.55)] lg:-translate-y-2 lg:scale-[1.03] hover:-translate-y-3 hover:shadow-2xl"
-                        : "border-[#ddd1bf] bg-[#fffaf1] select-none"
-                    }`}
-                  >
-                    {isFounders && (
-                      <div className="pointer-events-none absolute -inset-px rounded-2xl bg-[radial-gradient(circle_at_top,rgba(219,191,107,0.25)_0%,rgba(255,247,227,0.14)_30%,transparent_75%)]" />
-                    )}
-                    {isFounders && tier.badge && (
-                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-[#d8bb66] px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-950 shadow-[0_12px_30px_-10px_rgba(184,137,24,0.82)]">
-                        {tier.badge}
-                      </div>
-                    )}
-                    {isComingSoon && (
-                      <div className="absolute -top-3 left-1/2 z-20 -translate-x-1/2 rounded-full border-2 border-amber-400 bg-slate-950 px-4 py-1 text-[10px] font-extrabold uppercase tracking-[0.22em] text-amber-400 opacity-100 shadow-[0_10px_24px_-8px_rgba(212,175,55,0.55)]">
-                        Coming Soon
-                      </div>
-                    )}
-                    <div
-                      className={
-                        isComingSoon
-                          ? "grayscale opacity-35 pointer-events-none select-none"
-                          : undefined
-                      }
-                    >
-                      <div className="flex items-center gap-2 font-display text-xl font-bold text-slate-900">
-                        {isFounders && (
-                          <Star
-                            className="h-5 w-5 shrink-0 fill-[#d4af37] text-[#b88918] drop-shadow-[0_4px_10px_rgba(212,175,55,0.65)]"
-                            strokeWidth={2.2}
-                          />
-                        )}
-                        <span>{tier.name}</span>
-                      </div>
-                      <div className="mt-1 mb-5 min-h-[5.5rem] text-base text-slate-600">
-                        {tier.blurb}
-                      </div>
-                      <div className="mb-6 flex items-baseline gap-1">
-                        <div
-                          className={`font-display text-5xl font-bold tabular-nums ${
-                            isFounders ? "text-[#8f6b12]" : "text-slate-900"
-                          }`}
-                        >
-                          ${tier.price}
-                        </div>
-                        <div className="text-base text-slate-500">/mo</div>
-                      </div>
-                      <div className="mb-4 min-h-[1rem] text-sm text-slate-500">
-                        {tier.seat ? `+ $${tier.seat}/agent seat` : null}
-                      </div>
+          <div className="mx-auto grid max-w-md grid-cols-1 gap-6">
+            {tiers.map((tier, idx) => (
+              <Reveal key={tier.name} direction="up" delay={idx * 100} className="h-full">
+                <div className="relative h-full overflow-visible flex flex-col rounded-2xl border border-[#cfb15a] bg-[linear-gradient(180deg,#fffaf1_0%,#f4e4b4_100%)] p-7 pt-9 shadow-[0_0_0_1px_rgba(207,177,90,0.4),0_34px_84px_-30px_rgba(184,137,24,0.55)] transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl">
+                  <div className="pointer-events-none absolute -inset-px rounded-2xl bg-[radial-gradient(circle_at_top,rgba(219,191,107,0.25)_0%,rgba(255,247,227,0.14)_30%,transparent_75%)]" />
+                  {tier.badge && (
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-[#d8bb66] px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-950 shadow-[0_12px_30px_-10px_rgba(184,137,24,0.82)]">
+                      {tier.badge}
                     </div>
-                    <div className={isComingSoon ? "grayscale opacity-35 pointer-events-none" : ""}>
-                      {isFounders ? (
-                        <button
-                          type="button"
-                          onClick={handleFounderAccessClick}
-                          disabled={isFounderCheckoutLoading}
-                          className="group relative mb-6 block w-full overflow-hidden rounded-lg bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-4 py-3 text-center text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_24px_60px_-12px_rgba(212,175,55,0.85)] disabled:cursor-not-allowed disabled:opacity-70"
-                        >
-                          <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/70 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                          {isFounderCheckoutLoading ? (
-                            <span className="inline-flex items-center gap-2">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              Opening Stripe...
-                            </span>
-                          ) : (
-                            tier.cta
-                          )}
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          disabled
-                          className="mb-6 block w-full cursor-not-allowed rounded-lg border border-slate-950 bg-slate-950 px-4 py-2.5 text-center text-base font-extrabold uppercase tracking-wider text-white shadow-[0_8px_24px_-10px_rgba(15,23,42,0.5)]"
-                        >
-                          Coming Soon
-                        </button>
-                      )}
-                      <ul className="space-y-2.5">
-                        {tier.features.map((f) => (
-                          <li key={f} className="flex items-start gap-2 text-base text-slate-700">
-                            <Check
-                              className={`mt-0.5 h-4 w-4 shrink-0 ${
-                                isFounders ? "text-[#c59a22]" : "text-[#d4af37]"
-                              }`}
-                            />
-                            <span>{f}</span>
-                          </li>
-                        ))}
-                      </ul>
+                  )}
+                  <div>
+                    <div className="flex items-center gap-2 font-display text-xl font-bold text-slate-900">
+                      <Star
+                        className="h-5 w-5 shrink-0 fill-[#d4af37] text-[#b88918] drop-shadow-[0_4px_10px_rgba(212,175,55,0.65)]"
+                        strokeWidth={2.2}
+                      />
+                      <span>{tier.name}</span>
+                    </div>
+                    <div className="mt-1 mb-5 text-base text-slate-600">{tier.blurb}</div>
+                    <div className="mb-6 flex items-baseline gap-1">
+                      <div className="font-display text-5xl font-bold tabular-nums text-[#8f6b12]">
+                        ${tier.price}
+                      </div>
+                      <div className="text-base text-slate-500">/month</div>
                     </div>
                   </div>
-                </Reveal>
-              );
-            })}
+                  <div>
+                    <button
+                      type="button"
+                      onClick={handleFounderAccessClick}
+                      disabled={isFounderCheckoutLoading}
+                      className="group relative mb-6 block w-full overflow-hidden rounded-lg bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-4 py-3 text-center text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_24px_60px_-12px_rgba(212,175,55,0.85)] disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/70 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                      {isFounderCheckoutLoading ? (
+                        <span className="inline-flex items-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Opening Stripe...
+                        </span>
+                      ) : (
+                        tier.cta
+                      )}
+                    </button>
+                    <ul className="space-y-2.5">
+                      {tier.features.map((f) => (
+                        <li key={f} className="flex items-start gap-2 text-base text-slate-700">
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#c59a22]" />
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
           </div>
 
           <p className="mt-8 text-center text-sm text-slate-500">
-            All plans include unlimited transactions, secure cloud backup, and free updates.
+            Every feature unlocked. Unlimited transactions, secure cloud backup, free updates.
           </p>
+
         </div>
       </section>
 
