@@ -130,10 +130,8 @@ const footerColumns: FooterColumn[] = [
 
 function Landing() {
   const nav = useNavigate();
-  const { user, session } = useAuth();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const [isFounderCheckoutLoading, setIsFounderCheckoutLoading] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -173,65 +171,11 @@ function Landing() {
     setNewsletterEmail("");
   };
 
-  const handleFounderAccessClick = async () => {
-    if (!user?.email) {
-      nav({ to: "/auth" });
-      return;
-    }
-
-    const userEmail = user.email.trim();
-    if (!userEmail) {
-      toast.error("Your account email is missing.");
-      return;
-    }
-
-    setIsFounderCheckoutLoading(true);
-    try {
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
-      if (publishableKey) {
-        headers.apikey = publishableKey;
-      }
-      if (session?.access_token) {
-        headers.Authorization = `Bearer ${session.access_token}`;
-      }
-
-      const response = await fetch(FOUNDER_CHECKOUT_URL, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          userEmail,
-          userId: user.id,
-          priceId: FOUNDER_PRICE_KEY,
-          price_override: FOUNDER_PRICE_KEY,
-          metadata: {
-            founder_price_id: FOUNDER_PRICE_KEY,
-            lovable_external_id: FOUNDER_PRICE_KEY,
-          },
-        }),
-      });
-
-      const data = (await response.json().catch(() => null)) as
-        | { url?: string; error?: string }
-        | null;
-
-      if (!response.ok) {
-        throw new Error(data?.error ?? "Could not start Founder checkout.");
-      }
-
-      if (!data?.url) {
-        throw new Error("Stripe did not return a checkout URL.");
-      }
-
-      window.location.assign(data.url);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not start Founder checkout");
-    } finally {
-      setIsFounderCheckoutLoading(false);
-    }
+  const handleFounderAccessClick = () => {
+    nav({ to: "/signup" });
   };
+  const isFounderCheckoutLoading = false;
+
 
   return (
     <div className="dark min-h-dvh w-full overflow-x-hidden bg-slate-950 text-white">
