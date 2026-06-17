@@ -1,16 +1,6 @@
 import Stripe from "https://esm.sh/stripe?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-type CheckoutSession = {
-  id?: string;
-  metadata?: Record<string, string | undefined> | null;
-  client_reference_id?: string | null;
-  customer_details?: {
-    email?: string | null;
-  } | null;
-  customer_email?: string | null;
-};
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -22,18 +12,13 @@ const corsHeaders = {
 function textResponse(body: string, status = 200) {
   return new Response(body, {
     status,
-    headers: {
-      ...corsHeaders,
-      "Content-Type": "text/plain; charset=utf-8",
-    },
+    headers: { ...corsHeaders, "Content-Type": "text/plain; charset=utf-8" },
   });
 }
 
 function getRequiredEnv(name: string) {
   const value = Deno.env.get(name);
-  if (!value) {
-    throw new Error(`${name} is not configured`);
-  }
+  if (!value) throw new Error(`${name} is not configured`);
   return value;
 }
 
@@ -43,117 +28,103 @@ function getStripe() {
 
 function getSupabaseAdmin() {
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? Deno.env.get("SUPABASE_PUBLIC_URL");
-  const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-
-  if (!supabaseUrl || !supabaseServiceRoleKey) {
-    const missing = [
-      ...(!supabaseUrl ? ["SUPABASE_URL"] : []),
-      ...(!supabaseServiceRoleKey ? ["SUPABASE_SERVICE_ROLE_KEY"] : []),
-    ];
-    throw new Error(`Missing Supabase environment variable(s): ${missing.join(", ")}`);
+  const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseUrl || !serviceRole) {
+    throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
   }
-
-  return createClient(supabaseUrl, supabaseServiceRoleKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
+  return createClient(supabaseUrl, serviceRole, {
+    auth: { persistSession: false, autoRefreshToken: false },
   });
 }
 
-function normalizeEmail(value?: string | null) {
-  const trimmed = value?.trim().toLowerCase();
-  return trimmed ? trimmed : null;
+function normalizeEmail(v?: string | null) {
+  const t = v?.trim().toLowerCase();
+  return t ? t : null;
+}
+function normalizeId(v?: string | null) {
+  const t = v?.trim();
+  return t ? t : null;
+}
+function isUuid(v: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
 }
 
-function normalizeId(value?: string | null) {
-  const trimmed = value?.trim();
-  return trimmed ? trimmed : null;
-}
+type Admin = ReturnType<typeof getSupabaseAdmin>;
 
-function isUuid(value: string) {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-    value,
-  );
-}
-
-function extractLookup(session: CheckoutSession) {
-  const metadataUserId = normalizeId(
-    session.metadata?.userId ?? session.metadata?.user_id ?? session.client_reference_id,
-  );
-  const metadataEmail = normalizeEmail(
-    session.metadata?.userEmail ?? session.metadata?.email ?? null,
-  );
-  const customerEmail = normalizeEmail(
-    session.customer_details?.email ?? session.customer_email ?? null,
-  );
-
-  return {
-    userId: metadataUserId && isUuid(metadataUserId) ? metadataUserId : null,
-    email: metadataEmail ?? customerEmail,
-  };
-}
-
-async function findUserIdByEmail(
-  supabaseAdmin: ReturnType<typeof getSupabaseAdmin>,
-  email: string,
-) {
+async function findUserIdByEmail(admin: Admin, email: string) {
   const perPage = 100;
-
   for (let page = 1; page <= 20; page += 1) {
-    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    const matchedUser = data.users.find((user) => normalizeEmail(user.email) === email);
-    if (matchedUser) {
-      return matchedUser.id;
-    }
-
-    if (data.users.length < perPage) {
-      break;
-    }
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage });
+    if (error) throw new Error(error.message);
+    const match = data.users.find((u) => normalizeEmail(u.email) === email);
+    if (match) return match.id;
+    if (data.users.length < perPage) break;
   }
-
   return null;
 }
 
-async function applyFounderTier(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>, userId: string) {
-  const { data, error } = await supabaseAdmin
+async function resolveEmailFromCustomer(stripe: Stripe, customerId: string | null) {
+  if (!customerId) return null;
+  try {
+    const customer = await stripe.customers.retrieve(customerId);
+    if ((customer as { deleted?: boolean }).deleted) return null;
+    return normalizeEmail((customer as Stripe.Customer).email);
+  } catch (e) {
+    console.error("stripe-webhook: customer retrieve failed", e);
+    return null;
+  }
+}
+
+async function activateUser(admin: Admin, userId: string) {
+  const { data, error } = await admin
     .from("profiles")
-    .update({ plan: "Founder Tier" })
+    .update({ plan: "active" })
     .eq("id", userId)
     .select("id")
     .maybeSingle();
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
+  if (error) throw new Error(error.message);
   return Boolean(data);
 }
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+async function resolveUserId(
+  admin: Admin,
+  stripe: Stripe,
+  opts: {
+    metadataUserId?: string | null;
+    metadataEmail?: string | null;
+    fallbackEmail?: string | null;
+    customerId?: string | null;
+  },
+) {
+  const metaId = normalizeId(opts.metadataUserId);
+  if (metaId && isUuid(metaId)) return metaId;
 
-  if (req.method !== "POST") {
-    return textResponse("Method not allowed", 405);
+  const candidates: (string | null)[] = [
+    normalizeEmail(opts.metadataEmail),
+    normalizeEmail(opts.fallbackEmail),
+    await resolveEmailFromCustomer(stripe, opts.customerId ?? null),
+  ];
+  for (const email of candidates) {
+    if (!email) continue;
+    const id = await findUserIdByEmail(admin, email);
+    if (id) return id;
   }
+  return null;
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") return textResponse("Method not allowed", 405);
 
   try {
     const signature = req.headers.get("stripe-signature");
-    if (!signature) {
-      return textResponse("Missing Stripe signature", 400);
-    }
+    if (!signature) return textResponse("Missing Stripe signature", 400);
 
     const rawBody = await req.text();
     const stripe = getStripe();
     const webhookSecret = getRequiredEnv("STRIPE_WEBHOOK_SIGNING_SECRET");
 
-    let event;
+    let event: Stripe.Event;
     try {
       event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
     } catch (error) {
@@ -161,40 +132,49 @@ Deno.serve(async (req) => {
       return textResponse("Invalid signature", 400);
     }
 
-    if (event.type !== "checkout.session.completed") {
+    const admin = getSupabaseAdmin();
+    let userId: string | null = null;
+
+    if (event.type === "checkout.session.completed") {
+      const s = event.data.object as Stripe.Checkout.Session;
+      userId = await resolveUserId(admin, stripe, {
+        metadataUserId: s.metadata?.userId ?? s.metadata?.user_id ?? s.client_reference_id,
+        metadataEmail: s.metadata?.userEmail ?? s.metadata?.email,
+        fallbackEmail: s.customer_details?.email ?? s.customer_email,
+        customerId: typeof s.customer === "string" ? s.customer : s.customer?.id ?? null,
+      });
+    } else if (event.type === "invoice.payment_succeeded") {
+      const inv = event.data.object as Stripe.Invoice & {
+        subscription?: string | Stripe.Subscription | null;
+      };
+      let subMetadata: Record<string, string | undefined> | null = null;
+      const subRef = inv.subscription;
+      const subId = typeof subRef === "string" ? subRef : subRef?.id ?? null;
+      if (subId) {
+        try {
+          const sub = await stripe.subscriptions.retrieve(subId);
+          subMetadata = sub.metadata ?? null;
+        } catch (e) {
+          console.error("stripe-webhook: subscription retrieve failed", e);
+        }
+      }
+      userId = await resolveUserId(admin, stripe, {
+        metadataUserId: subMetadata?.userId ?? subMetadata?.user_id,
+        metadataEmail: subMetadata?.userEmail ?? subMetadata?.email,
+        fallbackEmail: inv.customer_email,
+        customerId: typeof inv.customer === "string" ? inv.customer : inv.customer?.id ?? null,
+      });
+    } else {
       return textResponse("OK", 200);
-    }
-
-    const session = event.data.object as CheckoutSession;
-    const { userId: metadataUserId, email } = extractLookup(session);
-    const supabaseAdmin = getSupabaseAdmin();
-
-    let userId = metadataUserId;
-    if (!userId && email) {
-      userId = await findUserIdByEmail(supabaseAdmin, email);
     }
 
     if (!userId) {
-      console.warn("stripe-webhook: unable to resolve user for checkout session", {
-        sessionId: session.id,
-        email,
-      });
+      console.warn("stripe-webhook: unable to resolve user", { type: event.type, id: event.id });
       return textResponse("OK", 200);
     }
 
-    const updated = await applyFounderTier(supabaseAdmin, userId);
-    if (!updated) {
-      console.warn("stripe-webhook: no profile row found for user", {
-        sessionId: session.id,
-        userId,
-      });
-    } else {
-      console.log("stripe-webhook: founder tier applied", {
-        sessionId: session.id,
-        userId,
-      });
-    }
-
+    const ok = await activateUser(admin, userId);
+    console.log("stripe-webhook: activation", { type: event.type, userId, updated: ok });
     return textResponse("OK", 200);
   } catch (error) {
     console.error("stripe-webhook error", error);
