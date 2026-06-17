@@ -83,16 +83,23 @@ function PricingPage() {
       <div className="mx-auto max-w-md">
         <div className="relative rounded-2xl border border-primary/30 bg-card p-8 shadow-card">
           <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-primary-foreground shadow-sm">
-            <Sparkles className="h-3 w-3" /> Founders' Program
+            <Sparkles className="h-3 w-3" /> Limited Seats Available
           </div>
 
           <div className="font-display text-2xl font-bold text-foreground">{plan.name}</div>
           <div className="mt-1 mb-6 text-sm text-muted-foreground">{plan.tagline}</div>
 
-          <div className="mb-6 flex items-baseline gap-1">
+          <div className="mb-4 flex items-baseline gap-1">
             <span className="font-display text-5xl font-bold tabular-nums text-foreground">$10</span>
             <span className="text-sm text-muted-foreground">/month</span>
           </div>
+
+          <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+            The Founders Program entry window is open for{" "}
+            <span className="font-semibold text-foreground">6 months only</span>. Members who join today lock in the{" "}
+            <span className="font-semibold text-foreground">$10/month</span> price for life and avoid the future standard base plan rate of{" "}
+            <span className="font-semibold text-foreground">$19.99/month</span>.
+          </p>
 
           <button
             type="button"

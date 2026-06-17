@@ -338,7 +338,7 @@ function Landing() {
             </button>
             <iframe
               className="h-full w-full"
-              src="https://www.youtube.com/embed/pZbKHFhtemU?autoplay=1&rel=0"
+              src="https://www.youtube.com/embed/g-FDTVZ-InI?autoplay=1&rel=0"
               title="Agent Business Tracker live demo"
               allow="autoplay; fullscreen; picture-in-picture"
               allowFullScreen
@@ -360,7 +360,7 @@ function Landing() {
           <Reveal direction="left">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[#f0cf6a]">
-                <Sparkles className="h-3.5 w-3.5" /> Founders Program - Limited
+                <Sparkles className="h-3.5 w-3.5" /> Limited Seats Available
               </div>
               <h2 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl">
                 Get in early.{" "}
@@ -369,9 +369,10 @@ function Landing() {
                 </span>
               </h2>
               <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/80">
-                Join the Founders Program for just{" "}
-                <span className="font-semibold text-[#f0cf6a]">$10/month</span>, locked in for life.
-                Every feature unlocked from day one — no upsells, no tiers, no surprises.
+                The Founders Program entry window is open for{" "}
+                <span className="font-semibold text-[#f0cf6a]">6 months only</span>. Members who join today lock in the{" "}
+                <span className="font-semibold text-[#f0cf6a]">$10/month</span> price for life and avoid the future standard base plan rate of{" "}
+                <span className="font-semibold text-white">$19.99/month</span>.
               </p>
 
               <ul className="mt-6 space-y-2.5 text-base text-white/80">
