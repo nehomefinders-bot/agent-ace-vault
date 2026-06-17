@@ -370,13 +370,10 @@ function Landing() {
               </h2>
               <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/80">
                 Join the Founders Program for just{" "}
-                <span className="font-semibold text-[#f0cf6a]">$10/month</span> for the first 6
-                months. As a special Founder's reward, you will automatically lock in an exclusive
-                base plan rate of only{" "}
-                <span className="font-semibold text-[#f0cf6a]">$19.99/month</span> after the initial
-                6 months end (instead of the standard{" "}
-                <span className="text-white/60 line-through">$29/month</span>).
+                <span className="font-semibold text-[#f0cf6a]">$10/month</span>, locked in for life.
+                Every feature unlocked from day one — no upsells, no tiers, no surprises.
               </p>
+
               <ul className="mt-6 space-y-2.5 text-base text-white/80">
                 {[
                   "All Pro & Team features unlocked from day one",
