@@ -191,9 +191,10 @@ function BillingPage() {
             <ul className="text-sm space-y-2.5">
               <li className="flex gap-2"><Check /> Update payment method</li>
               <li className="flex gap-2"><Check /> Download invoices & receipts</li>
-              <li className="flex gap-2"><Check /> Switch monthly ↔ yearly</li>
               <li className="flex gap-2"><Check /> Update billing details</li>
+              <li className="flex gap-2"><Check /> Cancel anytime</li>
             </ul>
+
           </div>
         </div>
       )}
