@@ -168,8 +168,9 @@ function BillingPage() {
               </button>
               <Link to="/pricing"
                 className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">
-                Change plan
+                View plan
               </Link>
+
               {subscription.cancel_at_period_end ? (
                 <button onClick={doResume} disabled={!!busy}
                   className="inline-flex items-center gap-2 border border-border px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-muted">
