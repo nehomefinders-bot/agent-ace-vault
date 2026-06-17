@@ -456,7 +456,7 @@ function Landing() {
                     { l: "Features", v: "All Pro" },
                     { l: "Updates", v: "Priority" },
                     { l: "Support", v: "Founders" },
-                    { l: "Lock-in", v: "6 months" },
+                    { l: "Lock-in", v: "For life" },
                   ].map((k) => (
                     <div
                       key={k.l}
