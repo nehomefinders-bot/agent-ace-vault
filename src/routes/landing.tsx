@@ -61,7 +61,7 @@ const tiers = [
       "Priority bug-fix turnaround",
       "Help shape the product roadmap",
     ],
-    cta: "Claim Founder Access",
+    cta: "Claim Founders Access",
     featured: true,
     badge: "Best Value",
   },
@@ -88,11 +88,12 @@ const features = [
   },
   {
     icon: ShieldCheck,
-    title: "Cancel anytime",
-    body: "Credit card is not charged until after the 14-day trial. Cancel anytime.",
+    title: "Founder pricing",
+    body: "Lock in $10/month for life. Cancel anytime from your billing page.",
     glow: "from-white via-[#e8f5ee] to-[#4d7c5f]",
   },
 ];
+
 
 type FooterLink = { label: string; to: string };
 
