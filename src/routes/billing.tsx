@@ -135,15 +135,15 @@ function BillingPage() {
               </div>
             )}
 
-            {subscription.price_id === "beta_monthly" && (subscription as any).cancel_at && (
+            {subscription.price_id === "beta_monthly" && (
               <div className="mb-5 bg-primary/10 border border-primary/30 text-primary rounded-lg px-3 py-2.5 text-sm flex items-start gap-2">
                 <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" />
                 <div>
-                  <strong>Founders' Program active</strong> — your $9.99/mo Founders' Program access ends on{" "}
-                  {new Date((subscription as any).cancel_at).toLocaleDateString()}. You can switch to a regular plan anytime from "Change plan", and pick one back up after the program ends too.
+                  <strong>Founders' Program active</strong> — every feature unlocked at $10/month, locked in for life.
                 </div>
               </div>
             )}
+
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
@@ -168,8 +168,9 @@ function BillingPage() {
               </button>
               <Link to="/pricing"
                 className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">
-                Change plan
+                View plan
               </Link>
+
               {subscription.cancel_at_period_end ? (
                 <button onClick={doResume} disabled={!!busy}
                   className="inline-flex items-center gap-2 border border-border px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-muted">
@@ -190,9 +191,10 @@ function BillingPage() {
             <ul className="text-sm space-y-2.5">
               <li className="flex gap-2"><Check /> Update payment method</li>
               <li className="flex gap-2"><Check /> Download invoices & receipts</li>
-              <li className="flex gap-2"><Check /> Switch monthly ↔ yearly</li>
               <li className="flex gap-2"><Check /> Update billing details</li>
+              <li className="flex gap-2"><Check /> Cancel anytime</li>
             </ul>
+
           </div>
         </div>
       )}

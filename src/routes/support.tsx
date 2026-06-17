@@ -11,13 +11,11 @@ export const Route = createFileRoute("/support")({
 function SupportPage() {
   const { subscription } = useSubscription();
   const isBeta = subscription?.price_id === "beta_monthly";
-  const betaEnd = isBeta && (subscription as any)?.cancel_at
-    ? new Date((subscription as any).cancel_at).toLocaleDateString()
-    : null;
   const feedbackSubject = encodeURIComponent("Founders' Program Feedback");
   const feedbackBody = encodeURIComponent(
     `Hi team,\n\nHere's my feedback from the Founders' Program:\n\nWhat worked well:\n- \n\nWhat didn't / bugs:\n- \n\nFeature requests:\n- \n\nThanks!`
   );
+
 
   return (
     <PageShell
@@ -98,7 +96,7 @@ function SupportPage() {
             <h2 className="font-display font-bold text-xl">Founders' Program feedback</h2>
             <p className="text-sm text-muted-foreground mt-1">
               {isBeta
-                ? `Thanks for being part of the Founders' Program. Your access runs until ${betaEnd ?? "the end of your 6-month window"}. Send bugs, ideas, or anything that felt off and help shape the product.`
+                ? "Thanks for being part of the Founders' Program. Send bugs, ideas, or anything that felt off and help shape the product."
                 : "Are you on the Founders' Program plan? Send us bugs, ideas, or anything that felt off and help shape the product."}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
