@@ -25,10 +25,16 @@ function CardShell({
 }
 
 export function YtdCommissionCard({ value, trend }: { value: number; trend: { m: string; v: number }[] }) {
+  const last = trend[trend.length - 1]?.v ?? 0;
+  const prev = trend[trend.length - 2]?.v ?? 0;
+  const delta = prev > 0 ? ((last - prev) / prev) * 100 : last > 0 ? 100 : 0;
+  const hasData = trend.some((t) => t.v > 0);
   return (
     <CardShell label="YTD Commission" icon={TrendingUp}>
       <div className="text-3xl font-bold tabular-nums font-display">{formatMoney(value)}</div>
-      <div className="text-xs mt-1 font-medium text-success">+12.5% vs last year</div>
+      <div className={`text-xs mt-1 font-medium ${delta >= 0 ? "text-success" : "text-destructive"}`}>
+        {hasData ? `${delta >= 0 ? "+" : ""}${delta.toFixed(1)}% vs last month` : "No earnings yet"}
+      </div>
       <div className="h-16 mt-3 -mx-2">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={trend} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
