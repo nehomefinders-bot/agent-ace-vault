@@ -81,6 +81,15 @@ function PropertyThumb({ address }: { address: string }) {
   );
 }
 
+type CommissionRow = {
+  id: string;
+  address: string;
+  client_name: string | null;
+  net: number;
+  status: string;
+  close_date: string | null;
+};
+
 function Dashboard() {
   const { user } = useAuth();
   const [deals, setDeals] = useState<DashDeal[]>([]);
@@ -98,21 +107,75 @@ function Dashboard() {
     })();
   }, [user]);
 
+  const netFor = (deal: DashDeal) => {
+    const meta = parseCommissionNotes(deal.notes);
+    const gross = Number(deal.gross_commission) || 0;
+    const split = Number(deal.agent_split_pct) || 0;
+    return Math.max(0, gross * (split / 100) - meta.deductions);
+  };
+
   const activeDeals = deals.filter((d) => normalizeStage(d.status) !== "sold").length;
   const pipelineValue = deals.filter((d) => normalizeStage(d.status) !== "sold").reduce((s, d) => s + Number(d.sale_price), 0);
   const recentDeals = deals.slice(0, 6);
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+
+  const ytdCommission = useMemo(() => {
+    return deals.reduce((sum, d) => {
+      if (normalizeStage(d.status) !== "sold" || !d.close_date) return sum;
+      const dt = new Date(d.close_date);
+      if (dt.getFullYear() !== currentYear) return sum;
+      return sum + netFor(d);
+    }, 0);
+  }, [deals, currentYear]);
+
+  const ytdTrend = useMemo(() => {
+    const months = Array.from({ length: 6 }, (_, i) => {
+      const dt = new Date(currentYear, currentMonth - 5 + i, 1);
+      return { y: dt.getFullYear(), m: dt.getMonth(), label: dt.toLocaleString("en-US", { month: "short" }) };
+    });
+    return months.map(({ y, m, label }) => {
+      const v = deals.reduce((sum, d) => {
+        if (normalizeStage(d.status) !== "sold" || !d.close_date) return sum;
+        const dt = new Date(d.close_date);
+        if (dt.getFullYear() === y && dt.getMonth() === m) return sum + netFor(d);
+        return sum;
+      }, 0);
+      return { m: label, v };
+    });
+  }, [deals, currentYear, currentMonth]);
+
+  const closedThisMonth = deals.filter((d) => {
+    if (normalizeStage(d.status) !== "sold" || !d.close_date) return false;
+    const dt = new Date(d.close_date);
+    return dt.getFullYear() === currentYear && dt.getMonth() === currentMonth;
+  }).length;
+
   const outstandingCommission = deals.reduce((sum, deal) => {
     const meta = parseCommissionNotes(deal.notes);
     if (meta.status === "Paid") return sum;
-    const gross = Number(deal.gross_commission) || 0;
-    const split = Number(deal.agent_split_pct) || 0;
-    return sum + gross * (split / 100) - meta.deductions;
+    return sum + netFor(deal);
   }, 0);
   const overdueCommissions = deals.filter((deal) => {
     const meta = parseCommissionNotes(deal.notes);
     if (meta.status === "Paid" || !deal.close_date) return false;
     return deal.close_date < new Date().toISOString().slice(0, 10);
   }).length;
+
+  const recentCommissions: CommissionRow[] = deals
+    .filter((d) => (Number(d.gross_commission) || 0) > 0)
+    .slice(0, 5)
+    .map((d) => ({
+      id: d.id,
+      address: d.address,
+      client_name: d.client_name,
+      net: netFor(d),
+      status: parseCommissionNotes(d.notes).status,
+      close_date: d.close_date,
+    }));
+
 
   const deleteDeal = async (dealId: string) => {
     const { error } = await supabase.from("deals").delete().eq("id", dealId);
