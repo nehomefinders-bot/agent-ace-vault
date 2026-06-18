@@ -20,6 +20,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ImportButton, type ImportColumn } from "@/components/import-button";
 import { PageShell } from "@/components/page-shell";
+import { HowToGuide } from "@/components/how-to-guide";
 import { TableExportButton } from "@/components/table-export-button";
 import {
   AlertDialog,
