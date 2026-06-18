@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Loader2, X } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { useSubscription } from "@/hooks/use-subscription";
 
 // === Google Ads conversion tracking ===
 const GOOGLE_ADS_ID = "AW-444-670-3525";
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/thankyou")({
 function ThankYouPage() {
   const nav = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { refetch: refetchSubscription } = useSubscription();
   const [activating, setActivating] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const ranRef = useRef(false);
@@ -96,8 +98,21 @@ function ThankYouPage() {
     })();
   }, [authLoading, user, nav]);
 
-  const dismiss = () => {
+  const dismiss = async () => {
     setShowModal(false);
+    try {
+      if (user) {
+        await supabase
+          .from("profiles")
+          .upsert(
+            { id: user.id, plan: "active", updated_at: new Date().toISOString() },
+            { onConflict: "id" },
+          );
+      }
+      await refetchSubscription();
+    } catch {
+      // best-effort sync; proceed regardless
+    }
     nav({ to: "/dashboard", replace: true });
   };
 
