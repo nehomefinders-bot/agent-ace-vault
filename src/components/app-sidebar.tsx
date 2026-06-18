@@ -131,6 +131,7 @@ export function AppSidebar() {
   let statusTone: StatusTone = "slate";
   let statusLabel = "No plan";
   let statusDetail: string | null = null;
+  const profileActive = profilePlan === "active";
 
   if (user) {
     if (status === "trialing") {
@@ -166,7 +167,7 @@ export function AppSidebar() {
         statusTone = "slate";
         statusLabel = "Canceled";
       }
-    } else if (isActive) {
+    } else if (isActive || profileActive) {
       statusTone = "emerald";
       statusLabel = "Active";
     }
@@ -179,7 +180,8 @@ export function AppSidebar() {
     slate: { dot: "bg-slate-500", text: "text-sidebar-foreground/70" },
   };
   const tone = toneClasses[statusTone];
-  const showPlanLine = !!user && (status !== null || isActive);
+  const showPlanLine = !!user && (status !== null || isActive || profileActive);
+
 
 
 
