@@ -245,8 +245,23 @@ function Dashboard() {
             </Link>
           </header>
           {recentDeals.length === 0 ? (
-            <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-              No deals yet. <Link to="/deals" className="text-primary font-medium">Add your first deal</Link>
+            <div className="flex flex-col items-center gap-3 px-6 py-12 text-center">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-muted">
+                <HomeIcon className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-sm font-semibold text-foreground">No deals in your pipeline yet</h3>
+                <p className="mx-auto max-w-xs text-xs text-muted-foreground">
+                  Track your first transaction to see it appear here with status and value.
+                </p>
+              </div>
+              <Link
+                to="/deals"
+                className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-card hover:bg-primary/90"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Add your first deal
+              </Link>
             </div>
           ) : (
             <>
@@ -355,11 +370,23 @@ function Dashboard() {
             <Link to="/commissions" className="text-xs text-primary font-medium hover:underline">View all</Link>
           </header>
           {recentCommissions.length === 0 ? (
-            <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-              <ReceiptIcon className="h-8 w-8 mx-auto mb-3 text-muted-foreground/50" />
-              <p>No revenue tracked yet.</p>
-              <Link to="/commissions" className="text-primary font-medium mt-1 inline-block">Add Transaction</Link>
-              <p className="text-xs mt-1">to log your first deal.</p>
+            <div className="flex flex-col items-center gap-3 px-6 py-12 text-center">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-muted">
+                <ReceiptIcon className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-sm font-semibold text-foreground">No revenue tracked yet</h3>
+                <p className="mx-auto max-w-xs text-xs text-muted-foreground">
+                  Log your first commission to start tracking net earnings.
+                </p>
+              </div>
+              <Link
+                to="/commissions"
+                className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-card hover:bg-primary/90"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Add transaction
+              </Link>
             </div>
           ) : (
             <ul className="divide-y divide-border">
@@ -395,8 +422,23 @@ function Dashboard() {
           <Link to="/expenses" className="text-xs text-primary font-medium hover:underline">View all</Link>
         </header>
         {expenses.length === 0 ? (
-          <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-            No expenses yet. <Link to="/expenses" className="text-primary font-medium">Log your first expense</Link>
+          <div className="flex flex-col items-center gap-3 px-6 py-12 text-center">
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-muted">
+              <ReceiptIcon className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-sm font-semibold text-foreground">No expenses logged yet</h3>
+              <p className="mx-auto max-w-xs text-xs text-muted-foreground">
+                Snap a receipt or add an expense manually to start your deduction trail.
+              </p>
+            </div>
+            <Link
+              to="/expenses"
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-card hover:bg-primary/90"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Log your first expense
+            </Link>
           </div>
         ) : (
           <ul className="divide-y divide-border">

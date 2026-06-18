@@ -435,8 +435,20 @@ function Mileage() {
         {loading ? (
           <div className="p-8 text-sm text-muted-foreground text-center">Loading trips...</div>
         ) : filteredTrips.length === 0 ? (
-          <div className="p-8 text-sm text-muted-foreground text-center">
-            {trips.length === 0 ? "No trips logged yet." : "No trips match your filters."}
+          <div className="flex flex-col items-center gap-4 px-6 py-16 text-center">
+            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-muted">
+              <Car className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-semibold text-foreground">
+                {trips.length === 0 ? "No trips recorded yet" : "No trips match your filters"}
+              </h3>
+              <p className="mx-auto max-w-sm text-sm text-muted-foreground">
+                {trips.length === 0
+                  ? "Click \u201CLog Trip\u201D to track your first drive — we\u2019ll calculate the IRS deduction automatically."
+                  : "Try clearing or adjusting the filters above to see more trips."}
+              </p>
+            </div>
           </div>
         ) : (
           <>
