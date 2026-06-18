@@ -390,13 +390,19 @@ function TasksPage() {
           Sign in to manage tasks.
         </div>
       ) : visible.length === 0 ? (
-        <div className="rounded-xl border border-dashed py-16 text-center">
-          <ListTodo className="mx-auto mb-3 h-10 w-10 text-muted-foreground/60" />
-          <div className="font-medium">No tasks here</div>
-          <div className="mt-1 text-sm text-muted-foreground">
-            {filter === "all"
-              ? "Add your first task to get started."
-              : "Try another filter or add a new task."}
+        <div className="flex flex-col items-center gap-4 rounded-2xl border-2 border-dashed border-border bg-card/40 px-6 py-16 text-center">
+          <div className="grid h-14 w-14 place-items-center rounded-2xl bg-muted">
+            <ListTodo className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-base font-semibold text-foreground">
+              {filter === "all" ? "No tasks yet" : "Nothing in this view"}
+            </h3>
+            <p className="mx-auto max-w-sm text-sm text-muted-foreground">
+              {filter === "all"
+                ? "Click \u201CAdd Task\u201D to create your first to-do and keep follow-ups on track."
+                : "Try another filter or add a new task to populate this view."}
+            </p>
           </div>
         </div>
       ) : (
