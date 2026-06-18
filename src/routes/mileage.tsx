@@ -332,6 +332,14 @@ function Mileage() {
         </div>
       }
     >
+      <HowToGuide storageKey="mileage" title="Tracking Your Business Mileage">
+        <p>
+          Maximize your tax deductions with simple vehicle logging: Click "Log Trip" to add a
+          manual entry. Enter your starting point, destination location, and total odometer
+          count. Categorize the drive as Business or Personal to instantly calculate your
+          automated tax deduction estimates.
+        </p>
+      </HowToGuide>
       <TripDialog
         open={!!editing}
         onOpenChange={(open) => {
