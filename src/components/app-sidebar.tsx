@@ -28,6 +28,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { PLANS } from "@/lib/stripe";
+import { supabase } from "@/integrations/supabase/client";
 import { BrandLockup } from "@/components/brand-lockup";
 
 const sections = [
@@ -73,8 +74,29 @@ export function AppSidebar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const nav = useNavigate();
   const { user, signOut } = useAuth();
-  const { subscription, isActive } = useSubscription();
+  const { subscription, isActive, refetch } = useSubscription();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profilePlan, setProfilePlan] = useState<string | null>(null);
+
+  // Force a clean re-fetch of subscription + profile state whenever the user
+  // arrives on the dashboard (e.g. coming from /thankyou → "Enter the Dashboard").
+  useEffect(() => {
+    if (!user?.id) {
+      setProfilePlan(null);
+      return;
+    }
+    let cancelled = false;
+    refetch();
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("plan")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!cancelled) setProfilePlan((data?.plan as string | null) ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id, path, refetch]);
 
   // Close drawer on route change
   useEffect(() => {
@@ -109,6 +131,7 @@ export function AppSidebar() {
   let statusTone: StatusTone = "slate";
   let statusLabel = "No plan";
   let statusDetail: string | null = null;
+  const profileActive = profilePlan === "active";
 
   if (user) {
     if (status === "trialing") {
@@ -144,7 +167,7 @@ export function AppSidebar() {
         statusTone = "slate";
         statusLabel = "Canceled";
       }
-    } else if (isActive) {
+    } else if (isActive || profileActive) {
       statusTone = "emerald";
       statusLabel = "Active";
     }
@@ -157,7 +180,8 @@ export function AppSidebar() {
     slate: { dot: "bg-slate-500", text: "text-sidebar-foreground/70" },
   };
   const tone = toneClasses[statusTone];
-  const showPlanLine = !!user && (status !== null || isActive);
+  const showPlanLine = !!user && (status !== null || isActive || profileActive);
+
 
 
 
