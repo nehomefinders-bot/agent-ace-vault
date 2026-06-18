@@ -458,11 +458,11 @@ function ListingCard({
           <Trash2 className="h-3.5 w-3.5" />
         </button>
       </div>
-      <div className="p-5">
-        <div className="text-2xl font-bold tabular-nums font-display">
+      <div className="p-4 sm:p-5">
+        <div className="text-xl sm:text-2xl font-bold tabular-nums font-display text-foreground">
           {formatMoney(Number(l.list_price))}
         </div>
-        <div className="text-sm text-muted-foreground mt-1">{l.address}</div>
+        <div className="text-sm text-muted-foreground mt-1 break-words">{l.address}</div>
         {l.notes && (
           <p className="mt-3 line-clamp-3 whitespace-pre-wrap break-words text-sm text-muted-foreground">
             {l.notes}
