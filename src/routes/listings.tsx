@@ -260,12 +260,17 @@ function Listings() {
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : rows.length === 0 ? (
-        <div className="border border-dashed rounded-xl py-16 text-center">
-          <HomeIcon className="h-10 w-10 mx-auto text-muted-foreground/60 mb-3" />
-          <div className="font-medium">No listings yet</div>
-          <div className="text-sm text-muted-foreground mt-1">
-            Add your first listing to get started.
+        <div className="rounded-2xl border-2 border-dashed border-border bg-card/40 px-6 py-16 text-center">
+          <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-muted">
+            <HomeIcon className="h-7 w-7 text-muted-foreground" />
           </div>
+          <h3 className="text-lg font-semibold text-foreground">No listings yet</h3>
+          <p className="mx-auto mt-1.5 max-w-sm text-sm text-muted-foreground">
+            Add your first property to start tracking inventory across your portfolio.
+          </p>
+          <Button className="mt-5" onClick={() => setOpen(true)}>
+            <Plus className="h-4 w-4 mr-1.5" /> New Listing
+          </Button>
         </div>
       ) : (
         <>
@@ -276,7 +281,7 @@ function Listings() {
             onApply={bulkUpdateStatus}
             onClear={() => setSelected(new Set())}
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-3">
             {rows.map((l) => (
               <ListingCard
                 key={l.id}
