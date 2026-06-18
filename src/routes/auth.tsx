@@ -122,8 +122,13 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
     <div className="min-h-dvh w-full flex items-center justify-center px-4 bg-background">
       <div className="w-full max-w-md">
         <Link to="/landing" className="flex items-center gap-2.5 mb-8 justify-center">
-          <BrandLockup />
+          <BrandLockup
+            logoClassName="h-16 w-16 rounded-2xl"
+            titleClassName="text-2xl"
+            taglineClassName="text-sm tracking-wider"
+          />
         </Link>
+
 
         <div className="bg-card border border-border rounded-2xl p-8 shadow-card">
           <h1 className="font-display text-2xl font-bold mb-1">

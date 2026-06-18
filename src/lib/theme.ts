@@ -3,11 +3,12 @@ export type Theme = "light" | "dark" | "system";
 export const THEME_STORAGE_KEY = "theme";
 
 export function getStoredTheme(): Theme {
-  if (typeof window === "undefined") return "system";
+  if (typeof window === "undefined") return "light";
   const value = window.localStorage.getItem(THEME_STORAGE_KEY);
   if (value === "light" || value === "dark" || value === "system") return value;
-  return "system";
+  return "light";
 }
+
 
 export function isDarkTheme(theme: Theme): boolean {
   if (theme === "dark") return true;
@@ -28,7 +29,7 @@ export function applyTheme(theme: Theme) {
 export function getThemeBootstrapScript() {
   return `(() => {
     try {
-      const theme = localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)}) || "system";
+      const theme = localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)}) || "light";
       const isDark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
       const root = document.documentElement;
       root.classList.toggle("dark", isDark);
@@ -37,6 +38,7 @@ export function getThemeBootstrapScript() {
     } catch (e) {}
   })();`;
 }
+
 
 export function createThemeSync() {
   if (typeof window === "undefined") return () => {};

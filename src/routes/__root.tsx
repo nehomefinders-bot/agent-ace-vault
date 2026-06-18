@@ -5,6 +5,8 @@ import { PaywallGate } from "@/components/paywall-gate";
 import { SupportFab } from "@/components/support-fab";
 import { applyTheme, createThemeSync, getStoredTheme, getThemeBootstrapScript } from "@/lib/theme";
 import { installServerFnAuth } from "@/integrations/supabase/server-fn-auth";
+import { useSubscription } from "@/hooks/use-subscription";
+
 import { useAuth } from "@/hooks/use-auth";
 import appCss from "../styles.css?url";
 
@@ -133,11 +135,25 @@ function RootComponent() {
 }
 
 function ThemeBridge() {
+  const { isActive, loading } = useSubscription();
+
   useEffect(() => {
     installServerFnAuth();
     applyTheme(getStoredTheme());
     return createThemeSync();
   }, []);
 
+  // Lock non-subscribers to light mode. Unsubscribed/loading users cannot
+  // use dark/system; theme toggle is hidden in Settings for the same group.
+  useEffect(() => {
+    if (loading) return;
+    if (!isActive) {
+      applyTheme("light");
+    } else {
+      applyTheme(getStoredTheme());
+    }
+  }, [isActive, loading]);
+
   return null;
 }
+
