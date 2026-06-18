@@ -1,4 +1,9 @@
 import { Check, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
+import { useSubscription } from "@/hooks/use-subscription";
+import { supabase } from "@/integrations/supabase/client";
 
 const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/3cI9ASaDK6bu9XT8Gj9AA04";
 
@@ -11,7 +16,31 @@ const FEATURES = [
 ];
 
 export function FoundersPaywallCard() {
+  const { user } = useAuth();
+  const { isActive } = useSubscription();
+  const [profileActive, setProfileActive] = useState(false);
+
+  useEffect(() => {
+    if (!user) { setProfileActive(false); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("plan")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!cancelled) setProfileActive(data?.plan === "active");
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
+  const alreadyMember = isActive || profileActive;
+
   const handleSubscribe = () => {
+    if (alreadyMember) {
+      toast.message("You're already a member.");
+      return;
+    }
     window.location.href = STRIPE_PAYMENT_LINK;
   };
 
@@ -41,13 +70,24 @@ export function FoundersPaywallCard() {
           <span className="font-semibold text-white">$19.99/month</span>.
         </p>
 
-        <button
-          type="button"
-          onClick={handleSubscribe}
-          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#d4af37] px-5 py-4 text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition hover:bg-[#c89e2f]"
-        >
-          Subscribe — $10/month
-        </button>
+        {alreadyMember ? (
+          <button
+            type="button"
+            disabled
+            aria-disabled="true"
+            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white/10 px-5 py-4 text-base font-bold text-white/50 cursor-not-allowed pointer-events-none select-none"
+          >
+            Already Subscribed
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={handleSubscribe}
+            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#d4af37] px-5 py-4 text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition hover:bg-[#c89e2f]"
+          >
+            Subscribe — $10/month
+          </button>
+        )}
 
         <ul className="mt-6 space-y-3">
           {FEATURES.map((f) => (
