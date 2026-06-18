@@ -215,6 +215,13 @@ function Dashboard() {
         </>
       }
     >
+      <HowToGuide storageKey="dashboard" title="Dashboard Overview">
+        <p>
+          Welcome to your command center. This screen automatically consolidates your active
+          transaction data, monthly revenue metrics, pending pipelines, and total mileage
+          deductions. Use the quick action modals to log items instantly on the fly.
+        </p>
+      </HowToGuide>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         <YtdCommissionCard value={ytdCommission} trend={ytdTrend} />
         <PipelineGaugeCard value={pipelineValue} goal={3_000_000} />
