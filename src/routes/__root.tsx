@@ -5,6 +5,8 @@ import { PaywallGate } from "@/components/paywall-gate";
 import { SupportFab } from "@/components/support-fab";
 import { applyTheme, createThemeSync, getStoredTheme, getThemeBootstrapScript } from "@/lib/theme";
 import { installServerFnAuth } from "@/integrations/supabase/server-fn-auth";
+import { useSubscription } from "@/hooks/use-subscription";
+
 import { useAuth } from "@/hooks/use-auth";
 import appCss from "../styles.css?url";
 
