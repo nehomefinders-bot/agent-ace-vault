@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-import { Check, Loader2, Sparkles } from "lucide-react";
+import { useCallback, useEffect } from "react";
+import { Check, Sparkles } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { PLANS, isTestMode } from "@/lib/stripe";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { PaymentTestBanner } from "@/components/payment-test-banner";
-import { toast } from "sonner";
+
+const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/3cI9ASaDK6bu9XT8Gj9AA04";
 
 export const Route = createFileRoute("/pricing")({
   component: PricingPage,
@@ -20,43 +20,14 @@ export const Route = createFileRoute("/pricing")({
 });
 
 function PricingPage() {
-  const [busy, setBusy] = useState(false);
   const { user, loading: authLoading } = useAuth();
   const { subscription, isActive } = useSubscription();
   const plan = PLANS[0];
 
-  const startCheckout = useCallback(async () => {
+  const startCheckout = useCallback(() => {
     if (typeof window === "undefined") return;
-
-    if (!user?.email) {
-      window.location.assign(`/auth?next=${encodeURIComponent(`/pricing?checkout=1`)}`);
-      return;
-    }
-
-    setBusy(true);
-    try {
-      const bypassSupabase = createClient(
-        "https://cbospmbzmetqkuibrskt.supabase.co",
-        "sb_publishable_EyjaxaW-c__76p_M6H5seg_yU54tnJk",
-      );
-
-      const { data, error } = await bypassSupabase.functions.invoke("stripe-checkout", {
-        body: { email: user.email.trim() },
-      });
-
-      if (error) {
-        toast.error(error.message ?? "Could not start checkout");
-        return;
-      }
-      if (!data?.url) throw new Error("Stripe did not return a checkout URL.");
-
-      window.location.assign(data.url);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not start checkout");
-    } finally {
-      setBusy(false);
-    }
-  }, [user?.email]);
+    window.location.href = STRIPE_PAYMENT_LINK;
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -73,7 +44,7 @@ function PricingPage() {
     const qs = params.toString();
     window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
 
-    if (!isActive) void startCheckout();
+    if (!isActive) startCheckout();
   }, [authLoading, isActive, startCheckout, user]);
 
   return (
@@ -114,11 +85,10 @@ function PricingPage() {
 
           <button
             type="button"
-            onClick={() => void startCheckout()}
-            disabled={busy || isActive}
+            onClick={startCheckout}
+            disabled={isActive}
             className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {busy && <Loader2 className="h-4 w-4 animate-spin" />}
             {isActive ? "You're subscribed" : subscription ? "Resubscribe" : "Subscribe — $10/month"}
           </button>
 
