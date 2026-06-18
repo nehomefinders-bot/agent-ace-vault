@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, Download, Eye, FileDown, FileText, Loader2, Mail, Pencil, Search, Sparkles, Trash2, Users, UserCheck } from "lucide-react";
 import { AIExecutiveReportModal, type AIReportCommissionRow } from "@/components/ai-executive-report";
 import { PageShell } from "@/components/page-shell";
+import { HowToGuide } from "@/components/how-to-guide";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -748,6 +749,14 @@ function Commissions() {
         </>
       }
     >
+      <HowToGuide storageKey="commissions" title="Revenue & GCI Pipeline">
+        <p>
+          Track your income from list to close: Log an upcoming transaction by adding the total
+          sale price, target closing date, and your commission split percentage. The system will
+          automatically calculate your Gross Commission Income (GCI) and update your dashboard
+          charts.
+        </p>
+      </HowToGuide>
       <AIExecutiveReportModal
         open={aiReportOpen}
         onOpenChange={setAiReportOpen}

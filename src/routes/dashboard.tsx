@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRight, AlertCircle, Plus, Search, Pencil, Trash2, Home as HomeIcon, Receipt as ReceiptIcon } from "lucide-react";
 import { PageShell, StatusPill } from "@/components/page-shell";
+import { HowToGuide } from "@/components/how-to-guide";
 import { formatMoney } from "@/lib/mock-data";
 import { YtdCommissionCard, PipelineGaugeCard, DealsClosedRingCard } from "@/components/dashboard-kpis";
 import { parseCommissionNotes } from "@/lib/commission-notes";
@@ -214,6 +215,13 @@ function Dashboard() {
         </>
       }
     >
+      <HowToGuide storageKey="dashboard" title="Dashboard Overview">
+        <p>
+          Welcome to your command center. This screen automatically consolidates your active
+          transaction data, monthly revenue metrics, pending pipelines, and total mileage
+          deductions. Use the quick action modals to log items instantly on the fly.
+        </p>
+      </HowToGuide>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         <YtdCommissionCard value={ytdCommission} trend={ytdTrend} />
         <PipelineGaugeCard value={pipelineValue} goal={3_000_000} />

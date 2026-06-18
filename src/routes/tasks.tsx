@@ -4,6 +4,7 @@ import { CheckCircle2, Circle, Clock, ListTodo, Plus, Trash2 } from "lucide-reac
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { PageShell, StatusPill } from "@/components/page-shell";
+import { HowToGuide } from "@/components/how-to-guide";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -359,6 +360,13 @@ function TasksPage() {
         </Dialog>
       }
     >
+      <HowToGuide storageKey="tasks" title="Managing Daily Real Estate Tasks">
+        <p>
+          Stay on top of your escrow timelines: Create a new action item, set a priority level
+          (Low, Medium, High), and assign a strict due date. You can filter items by status to
+          keep your deal milestones on schedule.
+        </p>
+      </HowToGuide>
       <div className="mb-6 flex flex-wrap items-center gap-2">
         {(
           [
