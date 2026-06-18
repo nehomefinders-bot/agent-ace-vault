@@ -12,6 +12,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
+import { HowToGuide } from "@/components/how-to-guide";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatMoneyCents } from "@/hooks/use-books";
