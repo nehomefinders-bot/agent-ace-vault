@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Check, Sparkles } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { PLANS } from "@/lib/stripe";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
+import { supabase } from "@/integrations/supabase/client";
 
 const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/3cI9ASaDK6bu9XT8Gj9AA04";
 
@@ -21,16 +22,33 @@ export const Route = createFileRoute("/pricing")({
 function PricingPage() {
   const { user, loading: authLoading } = useAuth();
   const { subscription, isActive } = useSubscription();
+  const [profileActive, setProfileActive] = useState(false);
   const plan = PLANS[0];
+
+  useEffect(() => {
+    if (!user) { setProfileActive(false); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("plan")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!cancelled) setProfileActive(data?.plan === "active");
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
+  const isSubscribed = isActive || profileActive;
 
   const startCheckout = useCallback(() => {
     if (typeof window === "undefined") return;
-    if (isActive) {
+    if (isSubscribed) {
       import("sonner").then(({ toast }) => toast.message("You're already a member."));
       return;
     }
     window.location.href = STRIPE_PAYMENT_LINK;
-  }, [isActive]);
+  }, [isSubscribed]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -47,13 +65,13 @@ function PricingPage() {
     const qs = params.toString();
     window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
 
-    if (!isActive) startCheckout();
-  }, [authLoading, isActive, startCheckout, user]);
+    if (!isSubscribed) startCheckout();
+  }, [authLoading, isSubscribed, startCheckout, user]);
 
   return (
     <PageShell title="Pricing" subtitle="One plan. Every feature. Cancel anytime.">
 
-      {isActive && (
+      {isSubscribed && (
         <div className="mx-auto mb-6 max-w-md rounded-2xl border border-success/30 bg-success/10 px-5 py-4 text-sm text-success flex items-start gap-3">
           <Check className="h-5 w-5 mt-0.5 shrink-0" />
           <div>
@@ -64,7 +82,7 @@ function PricingPage() {
       )}
 
 
-      <div className={`mx-auto max-w-md ${isActive ? "hidden" : ""}`}>
+      <div className="mx-auto max-w-md">
         <div className="relative rounded-2xl border border-primary/30 bg-card p-8 shadow-card">
           <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-primary-foreground shadow-sm">
             <Sparkles className="h-3 w-3" /> Limited Seats Available
@@ -88,15 +106,15 @@ function PricingPage() {
           <button
             type="button"
             onClick={startCheckout}
-            disabled={isActive}
-            aria-disabled={isActive}
+            disabled={isSubscribed}
+            aria-disabled={isSubscribed}
             className={
-              isActive
-                ? "inline-flex w-full items-center justify-center gap-2 rounded-lg bg-muted px-4 py-3 text-sm font-medium text-muted-foreground cursor-not-allowed pointer-events-none select-none"
-                : "inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+              isSubscribed
+                ? "inline-flex w-full items-center justify-center gap-2 rounded-lg bg-muted border border-border/50 px-4 py-3 text-sm font-semibold text-muted-foreground/60 opacity-75 cursor-not-allowed pointer-events-none select-none"
+                : "inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#0b2545] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#134074] shadow-md cursor-pointer"
             }
           >
-            {isActive ? "Already Subscribed" : subscription ? "Resubscribe" : "Subscribe — $10/month"}
+            {isSubscribed ? "Already Subscribed" : subscription ? "Resubscribe" : "Subscribe — $10/month"}
           </button>
 
           <ul className="mt-6 space-y-2.5">
