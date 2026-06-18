@@ -133,11 +133,25 @@ function RootComponent() {
 }
 
 function ThemeBridge() {
+  const { isActive, loading } = useSubscription();
+
   useEffect(() => {
     installServerFnAuth();
     applyTheme(getStoredTheme());
     return createThemeSync();
   }, []);
 
+  // Lock non-subscribers to light mode. Unsubscribed/loading users cannot
+  // use dark/system; theme toggle is hidden in Settings for the same group.
+  useEffect(() => {
+    if (loading) return;
+    if (!isActive) {
+      applyTheme("light");
+    } else {
+      applyTheme(getStoredTheme());
+    }
+  }, [isActive, loading]);
+
   return null;
 }
+
