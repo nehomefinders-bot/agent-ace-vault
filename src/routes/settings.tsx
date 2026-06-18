@@ -534,23 +534,32 @@ function SettingsPage() {
           </Section>
         )}
 
-        <Section icon={<Palette className="h-4 w-4" />} title="Appearance" desc="Theme used across the app.">
-          <div className="flex gap-2 flex-wrap">
-            {(["light", "dark", "system"] as Theme[]).map((nextTheme) => (
-              <button
-                key={nextTheme}
-                onClick={() => changeTheme(nextTheme)}
-                className={`px-4 py-2 rounded-lg border text-sm capitalize transition ${
-                  theme === nextTheme
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "border-border hover:bg-muted"
-                }`}
-              >
-                {nextTheme}
-              </button>
-            ))}
-          </div>
-        </Section>
+        {isActive ? (
+          <Section icon={<Palette className="h-4 w-4" />} title="Appearance" desc="Theme used across the app.">
+            <div className="flex gap-2 flex-wrap">
+              {(["light", "dark", "system"] as Theme[]).map((nextTheme) => (
+                <button
+                  key={nextTheme}
+                  onClick={() => changeTheme(nextTheme)}
+                  className={`px-4 py-2 rounded-lg border text-sm capitalize transition ${
+                    theme === nextTheme
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-border hover:bg-muted"
+                  }`}
+                >
+                  {nextTheme}
+                </button>
+              ))}
+            </div>
+          </Section>
+        ) : (
+          <Section icon={<Palette className="h-4 w-4" />} title="Appearance" desc="Dark mode unlocks with an active subscription.">
+            <p className="text-xs text-muted-foreground">
+              Subscribe to the Founders' Program to customize your theme.
+            </p>
+          </Section>
+        )}
+
 
         <Section title="Notifications" desc="Email preferences.">
           <div className="space-y-3">
