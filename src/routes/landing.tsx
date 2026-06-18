@@ -15,7 +15,17 @@ import {
   X,
   Star,
   Loader2,
+  Copy,
+  Mail,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 import maColonialHeroBg from "@/assets/landing-house-autumn.jpeg";
 import { BRAND_TITLE, BrandLockup } from "@/components/brand-lockup";
 import { Reveal } from "@/components/reveal";
@@ -90,7 +100,7 @@ const features = [
 ];
 
 
-type FooterLink = { label: string; to: string };
+type FooterLink = { label: string; to?: string; action?: "contact" };
 
 type FooterColumn = {
   title: string;
@@ -109,8 +119,7 @@ const footerColumns: FooterColumn[] = [
   {
     title: "Support",
     links: [
-      { label: "Help Center", to: "/help" },
-      { label: "Contact Support", to: "/support" },
+      { label: "Contact Support", action: "contact" },
       { label: "Sign In", to: "/auth" },
     ],
   },
@@ -127,6 +136,16 @@ function Landing() {
   const nav = useNavigate();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
+  const supportEmail = "livingandlearningwithjackie@gmail.com";
+  const copySupportEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(supportEmail);
+      toast.success("Email copied to clipboard");
+    } catch {
+      toast.error("Unable to copy email");
+    }
+  };
 
   useEffect(() => {
     const root = document.documentElement;
@@ -707,15 +726,31 @@ function Landing() {
                     {column.title}
                   </div>
                   <div className="space-y-3">
-                    {column.links.map((link) => (
-                      <Link
-                        key={link.label}
-                        to={link.to}
-                        className="block font-display text-base text-slate-200 transition-colors hover:text-white"
-                      >
-                        {link.label}
-                      </Link>
-                    ))}
+                    {column.links.map((link) => {
+                      const linkClass =
+                        "block w-full text-left font-display text-base text-slate-200 transition-colors hover:text-white";
+                      if (link.action === "contact") {
+                        return (
+                          <button
+                            key={link.label}
+                            type="button"
+                            onClick={() => setIsContactOpen(true)}
+                            className={linkClass}
+                          >
+                            {link.label}
+                          </button>
+                        );
+                      }
+                      return (
+                        <Link
+                          key={link.label}
+                          to={link.to!}
+                          className={linkClass}
+                        >
+                          {link.label}
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               ))}
@@ -759,6 +794,41 @@ function Landing() {
         </div>
 
       </footer>
+
+      <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
+        <DialogContent className="max-w-md border border-white/10 bg-[#0b1220] text-slate-100 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8)] sm:rounded-2xl">
+          <DialogHeader className="text-center sm:text-center">
+            <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-[#d4af37]/15 ring-1 ring-[#d4af37]/30">
+              <Mail className="h-5 w-5 text-[#d4af37]" aria-hidden="true" />
+            </div>
+            <DialogTitle className="text-center font-display text-2xl font-bold text-white">
+              Get in Touch
+            </DialogTitle>
+            <DialogDescription className="text-center text-sm text-slate-300">
+              Questions, feedback, or need a hand? Email our support team and we'll get right back to you.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-2 rounded-xl border border-white/10 bg-white/5 p-3">
+            <div className="flex items-center gap-2">
+              <a
+                href={`mailto:${supportEmail}`}
+                className="min-w-0 flex-1 truncate font-display text-sm font-semibold text-[#d4af37] underline-offset-4 hover:underline sm:text-base"
+              >
+                {supportEmail}
+              </a>
+              <button
+                type="button"
+                onClick={copySupportEmail}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-xs font-medium text-slate-100 transition-colors hover:bg-white/10"
+                aria-label="Copy support email"
+              >
+                <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                Copy
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
