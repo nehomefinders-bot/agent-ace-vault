@@ -2,10 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect } from "react";
 import { Check, Sparkles } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
-import { PLANS, isTestMode } from "@/lib/stripe";
+import { PLANS } from "@/lib/stripe";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
-import { PaymentTestBanner } from "@/components/payment-test-banner";
 
 const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/3cI9ASaDK6bu9XT8Gj9AA04";
 
@@ -49,7 +48,6 @@ function PricingPage() {
 
   return (
     <PageShell title="Pricing" subtitle="One plan. Every feature. Cancel anytime.">
-      <PaymentTestBanner />
 
       {isActive && (
         <div className="mx-auto mb-6 max-w-md rounded-2xl border border-success/30 bg-success/10 px-5 py-4 text-sm text-success flex items-start gap-3">
@@ -104,7 +102,6 @@ function PricingPage() {
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
           Cancel anytime from your billing page.
-          {isTestMode() && " Currently in test mode - no real charges."}
         </p>
       </div>
     </PageShell>

@@ -3,7 +3,7 @@ import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe
 import { X, Loader2 } from "lucide-react";
 import { getStripe, getStripeEnvironment } from "@/lib/stripe";
 import { createCheckoutSession } from "@/utils/payments.functions";
-import { PaymentTestBanner } from "@/components/payment-test-banner";
+
 
 export function EmbeddedCheckoutModal({
   priceId,
@@ -55,7 +55,6 @@ export function EmbeddedCheckoutModal({
           <X className="h-4 w-4" />
         </button>
         <div className="p-5 pt-6">
-          <PaymentTestBanner />
           {error ? (
             <div className="rounded-xl border border-destructive/30 bg-destructive/10 text-destructive px-4 py-6 text-sm text-center">
               <div className="font-medium mb-1">Couldn't start checkout</div>
