@@ -802,6 +802,15 @@ function CalendarPage() {
         </>
       }
     >
+      <HowToGuide storageKey="calendar" title="Google Calendar Integration Guide">
+        <p>Sync your workflow effortlessly with Google Calendar:</p>
+        <ol className="list-decimal space-y-1 pl-5">
+          <li>Click the "Connect Google Calendar" authorization button within your Account Settings.</li>
+          <li>Log in with your preferred Google account and grant secure access permissions.</li>
+          <li>Once connected, your personal time blocks, listing appointments, and scheduled client walkthroughs will automatically sync bidirectionally.</li>
+          <li>Task due dates created in this tracker will pass directly to your phone's calendar app in real time.</li>
+        </ol>
+      </HowToGuide>
       <div className="calendar-shell -mx-4 bg-slate-50 px-4 py-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
 
         <style>{`
