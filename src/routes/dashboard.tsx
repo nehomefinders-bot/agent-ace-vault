@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { ArrowUpRight, AlertCircle, Plus, Search, Pencil, Trash2, Home as HomeIcon } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowUpRight, AlertCircle, Plus, Search, Pencil, Trash2, Home as HomeIcon, Receipt as ReceiptIcon } from "lucide-react";
 import { PageShell, StatusPill } from "@/components/page-shell";
-import { invoices, kpis, formatMoney } from "@/lib/mock-data";
+import { formatMoney } from "@/lib/mock-data";
 import { YtdCommissionCard, PipelineGaugeCard, DealsClosedRingCard } from "@/components/dashboard-kpis";
 import { parseCommissionNotes } from "@/lib/commission-notes";
 import { supabase } from "@/integrations/supabase/client";
@@ -81,6 +81,15 @@ function PropertyThumb({ address }: { address: string }) {
   );
 }
 
+type CommissionRow = {
+  id: string;
+  address: string;
+  client_name: string | null;
+  net: number;
+  status: string;
+  close_date: string | null;
+};
+
 function Dashboard() {
   const { user } = useAuth();
   const [deals, setDeals] = useState<DashDeal[]>([]);
@@ -98,21 +107,75 @@ function Dashboard() {
     })();
   }, [user]);
 
+  const netFor = (deal: DashDeal) => {
+    const meta = parseCommissionNotes(deal.notes);
+    const gross = Number(deal.gross_commission) || 0;
+    const split = Number(deal.agent_split_pct) || 0;
+    return Math.max(0, gross * (split / 100) - meta.deductions);
+  };
+
   const activeDeals = deals.filter((d) => normalizeStage(d.status) !== "sold").length;
   const pipelineValue = deals.filter((d) => normalizeStage(d.status) !== "sold").reduce((s, d) => s + Number(d.sale_price), 0);
   const recentDeals = deals.slice(0, 6);
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+
+  const ytdCommission = useMemo(() => {
+    return deals.reduce((sum, d) => {
+      if (normalizeStage(d.status) !== "sold" || !d.close_date) return sum;
+      const dt = new Date(d.close_date);
+      if (dt.getFullYear() !== currentYear) return sum;
+      return sum + netFor(d);
+    }, 0);
+  }, [deals, currentYear]);
+
+  const ytdTrend = useMemo(() => {
+    const months = Array.from({ length: 6 }, (_, i) => {
+      const dt = new Date(currentYear, currentMonth - 5 + i, 1);
+      return { y: dt.getFullYear(), m: dt.getMonth(), label: dt.toLocaleString("en-US", { month: "short" }) };
+    });
+    return months.map(({ y, m, label }) => {
+      const v = deals.reduce((sum, d) => {
+        if (normalizeStage(d.status) !== "sold" || !d.close_date) return sum;
+        const dt = new Date(d.close_date);
+        if (dt.getFullYear() === y && dt.getMonth() === m) return sum + netFor(d);
+        return sum;
+      }, 0);
+      return { m: label, v };
+    });
+  }, [deals, currentYear, currentMonth]);
+
+  const closedThisMonth = deals.filter((d) => {
+    if (normalizeStage(d.status) !== "sold" || !d.close_date) return false;
+    const dt = new Date(d.close_date);
+    return dt.getFullYear() === currentYear && dt.getMonth() === currentMonth;
+  }).length;
+
   const outstandingCommission = deals.reduce((sum, deal) => {
     const meta = parseCommissionNotes(deal.notes);
     if (meta.status === "Paid") return sum;
-    const gross = Number(deal.gross_commission) || 0;
-    const split = Number(deal.agent_split_pct) || 0;
-    return sum + gross * (split / 100) - meta.deductions;
+    return sum + netFor(deal);
   }, 0);
   const overdueCommissions = deals.filter((deal) => {
     const meta = parseCommissionNotes(deal.notes);
     if (meta.status === "Paid" || !deal.close_date) return false;
     return deal.close_date < new Date().toISOString().slice(0, 10);
   }).length;
+
+  const recentCommissions: CommissionRow[] = deals
+    .filter((d) => (Number(d.gross_commission) || 0) > 0)
+    .slice(0, 5)
+    .map((d) => ({
+      id: d.id,
+      address: d.address,
+      client_name: d.client_name,
+      net: netFor(d),
+      status: parseCommissionNotes(d.notes).status,
+      close_date: d.close_date,
+    }));
+
 
   const deleteDeal = async (dealId: string) => {
     const { error } = await supabase.from("deals").delete().eq("id", dealId);
@@ -152,18 +215,8 @@ function Dashboard() {
       }
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        <YtdCommissionCard
-          value={kpis.ytdCommission}
-          trend={[
-            { m: "May", v: 22 },
-            { m: "Jun", v: 28 },
-            { m: "Jul", v: 31 },
-            { m: "Aug", v: 27 },
-            { m: "Sep", v: 38 },
-            { m: "Oct", v: 45 },
-          ]}
-        />
-        <PipelineGaugeCard value={pipelineValue || kpis.pipelineValue} goal={3_000_000} />
+        <YtdCommissionCard value={ytdCommission} trend={ytdTrend} />
+        <PipelineGaugeCard value={pipelineValue} goal={3_000_000} />
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <div className="flex items-start justify-between mb-4">
             <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Outstanding Commissions</span>
@@ -172,13 +225,13 @@ function Dashboard() {
             </div>
           </div>
           <div className="text-3xl font-bold tabular-nums font-display">{formatMoney(outstandingCommission)}</div>
-          <div className="text-xs mt-2 font-medium text-destructive">{overdueCommissions} overdue</div>
+          <div className="text-xs mt-2 font-medium text-destructive">
+            {overdueCommissions > 0 ? `${overdueCommissions} overdue` : `${activeDeals} active deal${activeDeals === 1 ? "" : "s"}`}
+          </div>
         </div>
-        <DealsClosedRingCard
-          closed={deals.filter((d) => d.status === "sold").length || kpis.closedDealsMTD}
-          goal={10}
-        />
+        <DealsClosedRingCard closed={closedThisMonth} goal={10} />
       </div>
+
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
         <section className="xl:col-span-2 rounded-2xl border border-border bg-card shadow-card overflow-hidden">
@@ -297,26 +350,41 @@ function Dashboard() {
           <header className="flex items-center justify-between px-6 py-5 border-b border-border">
             <div>
               <h2 className="text-lg font-bold">Recent Commissions</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Stripe-ready</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Latest net earnings</p>
             </div>
             <Link to="/commissions" className="text-xs text-primary font-medium hover:underline">View all</Link>
           </header>
-          <ul className="divide-y divide-border">
-            {invoices.slice(0, 5).map((inv) => (
-              <li key={inv.id} className="px-6 py-4 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="font-medium text-sm truncate">{inv.id}</div>
-                  <div className="text-xs text-muted-foreground truncate">{inv.client} - {inv.description}</div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="tabular-nums font-medium text-sm">{formatMoney(inv.amount)}</div>
-                  <div className="mt-1"><StatusPill tone={statusTone[inv.status]}>{inv.status}</StatusPill></div>
-                </div>
-              </li>
-            ))}
-          </ul>
+          {recentCommissions.length === 0 ? (
+            <div className="px-6 py-10 text-center text-sm text-muted-foreground">
+              <ReceiptIcon className="h-8 w-8 mx-auto mb-3 text-muted-foreground/50" />
+              <p>No revenue tracked yet.</p>
+              <Link to="/commissions" className="text-primary font-medium mt-1 inline-block">Add Transaction</Link>
+              <p className="text-xs mt-1">to log your first deal.</p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-border">
+              {recentCommissions.map((row) => {
+                const tone = statusTone[row.status] ?? "muted";
+                return (
+                  <li key={row.id} className="px-6 py-4 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-medium text-sm truncate">{row.address}</div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {row.client_name ?? "No client"}{row.close_date ? ` • ${row.close_date}` : ""}
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="tabular-nums font-medium text-sm">{formatMoney(row.net)}</div>
+                      <div className="mt-1"><StatusPill tone={tone}>{row.status}</StatusPill></div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </section>
       </div>
+
 
       <section className="rounded-2xl border border-border bg-card shadow-card overflow-hidden">
         <header className="flex items-center justify-between px-6 py-5 border-b border-border">
