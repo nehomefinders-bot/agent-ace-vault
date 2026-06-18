@@ -215,18 +215,8 @@ function Dashboard() {
       }
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        <YtdCommissionCard
-          value={kpis.ytdCommission}
-          trend={[
-            { m: "May", v: 22 },
-            { m: "Jun", v: 28 },
-            { m: "Jul", v: 31 },
-            { m: "Aug", v: 27 },
-            { m: "Sep", v: 38 },
-            { m: "Oct", v: 45 },
-          ]}
-        />
-        <PipelineGaugeCard value={pipelineValue || kpis.pipelineValue} goal={3_000_000} />
+        <YtdCommissionCard value={ytdCommission} trend={ytdTrend} />
+        <PipelineGaugeCard value={pipelineValue} goal={3_000_000} />
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <div className="flex items-start justify-between mb-4">
             <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Outstanding Commissions</span>
@@ -235,13 +225,13 @@ function Dashboard() {
             </div>
           </div>
           <div className="text-3xl font-bold tabular-nums font-display">{formatMoney(outstandingCommission)}</div>
-          <div className="text-xs mt-2 font-medium text-destructive">{overdueCommissions} overdue</div>
+          <div className="text-xs mt-2 font-medium text-destructive">
+            {overdueCommissions > 0 ? `${overdueCommissions} overdue` : `${activeDeals} active deal${activeDeals === 1 ? "" : "s"}`}
+          </div>
         </div>
-        <DealsClosedRingCard
-          closed={deals.filter((d) => d.status === "sold").length || kpis.closedDealsMTD}
-          goal={10}
-        />
+        <DealsClosedRingCard closed={closedThisMonth} goal={10} />
       </div>
+
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
         <section className="xl:col-span-2 rounded-2xl border border-border bg-card shadow-card overflow-hidden">
