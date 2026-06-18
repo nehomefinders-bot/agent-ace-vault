@@ -155,7 +155,19 @@ export function AppSidebar() {
           <div className="mb-1 text-xs uppercase tracking-wider text-sidebar-foreground/75">
             Plan
           </div>
-          <div className="text-base font-medium text-sidebar-foreground">{planLabel}</div>
+          {!user ? (
+            <div className="text-base font-medium text-sidebar-foreground">—</div>
+          ) : isActive ? (
+            <>
+              <div className="text-base font-semibold text-sidebar-foreground">{planName}</div>
+              <div className="mt-1 flex items-center gap-1.5 text-xs text-sidebar-foreground/80">
+                <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)]" aria-hidden />
+                <span className="font-medium text-emerald-400">{isTrialing ? "Trial" : "Active"}</span>
+              </div>
+            </>
+          ) : (
+            <div className="text-base font-medium text-sidebar-foreground">No plan</div>
+          )}
         </div>
         {user ? (
           <div className="pt-2 border-t border-sidebar-border">
