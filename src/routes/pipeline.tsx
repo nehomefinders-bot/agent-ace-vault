@@ -291,11 +291,11 @@ function Pipeline() {
         </>
       }
     >
-      <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Tabs value={view} onValueChange={(value) => setView(value as PipelineView)} className="w-full lg:w-auto">
-          <TabsList className="w-full flex flex-wrap gap-2">
+          <TabsList className="w-full flex justify-start overflow-x-auto overflow-y-hidden flex-nowrap gap-1.5 p-1 bg-muted/60 scrollbar-none rounded-xl">
             {PIPELINE_VIEWS.map((item) => (
-              <TabsTrigger key={item.key} value={item.key} className="text-xs sm:text-sm">
+              <TabsTrigger key={item.key} value={item.key} className="text-xs sm:text-sm whitespace-nowrap px-3 py-1.5 rounded-lg">
                 {item.label}
               </TabsTrigger>
             ))}
@@ -307,8 +307,21 @@ function Pipeline() {
         <div className="flex justify-center py-20">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
+      ) : deals.length === 0 ? (
+        <div className="rounded-2xl border-2 border-dashed border-border bg-card/40 px-6 py-16 text-center">
+          <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-muted">
+            <TrendingUp className="h-7 w-7 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground">No opportunities tracked yet</h3>
+          <p className="mx-auto mt-1.5 max-w-sm text-sm text-muted-foreground">
+            Track deals across different stages from lead to closed to keep your pipeline visible and organized.
+          </p>
+          <Button className="mt-5" onClick={openNewOpportunity}>
+            <Plus className="h-4 w-4 mr-1.5" /> New Opportunity
+          </Button>
+        </div>
       ) : (
-        <div className={view === "all" ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5" : "grid grid-cols-1 gap-5 max-w-3xl"}>
+        <div className={view === "all" ? "grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-4" : "grid grid-cols-1 gap-4 sm:gap-5 max-w-3xl"}>
           {(view === "all" ? STAGES : STAGES.filter((s) => s.key === view)).map((s) => {
             const items = deals.filter((deal) => normalizeStage(deal.status) === s.key);
             const total = items.reduce((sum, deal) => sum + Number(deal.sale_price), 0);
@@ -347,16 +360,16 @@ function StageColumn({
   onDelete: (dealId: string) => Promise<void>;
 }) {
   return (
-    <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden flex flex-col min-h-[320px]">
-      <header className="px-5 py-4 border-b border-border">
+    <div className="bg-card/40 border border-border rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[320px]">
+      <header className="px-5 py-4 border-b border-border bg-card/60">
         <div className="flex items-center justify-between mb-1">
           <StatusPill tone={stage.tone}>{stage.label}</StatusPill>
-          <span className="text-xs text-muted-foreground">{items.length}</span>
+          <span className="text-xs font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{items.length}</span>
         </div>
-        <div className="text-lg font-bold tabular-nums font-display mt-2">{formatMoney(total)}</div>
+        <div className="text-xl font-bold tabular-nums text-foreground font-display mt-2">{formatMoney(total)}</div>
       </header>
 
-      <ul className="p-3 space-y-2 flex-1 min-h-[120px]">
+      <ul className="p-3 space-y-3 flex-1 min-h-[120px]">
         {items.map((deal) => (
           <DealCard
             key={deal.id}
@@ -366,7 +379,7 @@ function StageColumn({
             onDelete={onDelete}
           />
         ))}
-        {items.length === 0 && <li className="text-xs text-muted-foreground text-center py-8">No deals</li>}
+        {items.length === 0 && <li className="text-xs text-muted-foreground text-center py-10">No deals in this stage</li>}
       </ul>
     </div>
   );
