@@ -80,6 +80,17 @@ function PricingPage() {
     <PageShell title="Pricing" subtitle="One plan. Every feature. Cancel anytime.">
       <PaymentTestBanner />
 
+      {isActive && (
+        <div className="mx-auto mb-6 max-w-md rounded-2xl border border-success/30 bg-success/10 px-5 py-4 text-sm text-success flex items-start gap-3">
+          <Check className="h-5 w-5 mt-0.5 shrink-0" />
+          <div>
+            <div className="font-semibold text-foreground">You're already subscribed to the Founders Program.</div>
+            <div className="mt-1 text-muted-foreground">Thank you for being an early partner!</div>
+          </div>
+        </div>
+      )}
+
+
       <div className="mx-auto max-w-md">
         <div className="relative rounded-2xl border border-primary/30 bg-card p-8 shadow-card">
           <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-primary-foreground shadow-sm">
