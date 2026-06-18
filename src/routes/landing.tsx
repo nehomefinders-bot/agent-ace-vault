@@ -794,6 +794,41 @@ function Landing() {
         </div>
 
       </footer>
+
+      <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
+        <DialogContent className="max-w-md border border-white/10 bg-[#0b1220] text-slate-100 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8)] sm:rounded-2xl">
+          <DialogHeader className="text-center sm:text-center">
+            <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-[#d4af37]/15 ring-1 ring-[#d4af37]/30">
+              <Mail className="h-5 w-5 text-[#d4af37]" aria-hidden="true" />
+            </div>
+            <DialogTitle className="text-center font-display text-2xl font-bold text-white">
+              Get in Touch
+            </DialogTitle>
+            <DialogDescription className="text-center text-sm text-slate-300">
+              Questions, feedback, or need a hand? Email our support team and we'll get right back to you.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-2 rounded-xl border border-white/10 bg-white/5 p-3">
+            <div className="flex items-center gap-2">
+              <a
+                href={`mailto:${supportEmail}`}
+                className="min-w-0 flex-1 truncate font-display text-sm font-semibold text-[#d4af37] underline-offset-4 hover:underline sm:text-base"
+              >
+                {supportEmail}
+              </a>
+              <button
+                type="button"
+                onClick={copySupportEmail}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-xs font-medium text-slate-100 transition-colors hover:bg-white/10"
+                aria-label="Copy support email"
+              >
+                <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                Copy
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
