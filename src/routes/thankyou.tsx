@@ -98,8 +98,21 @@ function ThankYouPage() {
     })();
   }, [authLoading, user, nav]);
 
-  const dismiss = () => {
+  const dismiss = async () => {
     setShowModal(false);
+    try {
+      if (user) {
+        await supabase
+          .from("profiles")
+          .upsert(
+            { id: user.id, plan: "active", updated_at: new Date().toISOString() },
+            { onConflict: "id" },
+          );
+      }
+      await refetchSubscription();
+    } catch {
+      // best-effort sync; proceed regardless
+    }
     nav({ to: "/dashboard", replace: true });
   };
 
