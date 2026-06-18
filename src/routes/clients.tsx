@@ -881,6 +881,13 @@ function DirectoryPage() {
         </div>
       }
     >
+      <HowToGuide storageKey="contacts" title="Managing Your Client Base">
+        <p>
+          Your relationship database: Click "Add Contact" to register a new lead, buyer, or
+          seller. Fill out their profile information and assign them tags. You can directly link
+          these client records to active deals and task lists across other tabs.
+        </p>
+      </HowToGuide>
       <div className="mb-5 rounded-2xl border border-border bg-card p-4 shadow-card sm:p-5">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
           <div>
