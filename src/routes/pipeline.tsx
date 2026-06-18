@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { Loader2, Mail, Phone, Plus, Trash2, User } from "lucide-react";
+import { Loader2, Mail, Phone, Plus, Trash2, User, TrendingUp } from "lucide-react";
 import { STAGES, normalizeStage, type Stage } from "@/lib/pipeline-stages";
 import { PageShell, StatusPill } from "@/components/page-shell";
 import { supabase } from "@/integrations/supabase/client";
@@ -291,11 +291,11 @@ function Pipeline() {
         </>
       }
     >
-      <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Tabs value={view} onValueChange={(value) => setView(value as PipelineView)} className="w-full lg:w-auto">
-          <TabsList className="w-full flex flex-wrap gap-2">
+          <TabsList className="w-full flex justify-start overflow-x-auto overflow-y-hidden flex-nowrap gap-1.5 p-1 bg-muted/60 scrollbar-none rounded-xl">
             {PIPELINE_VIEWS.map((item) => (
-              <TabsTrigger key={item.key} value={item.key} className="text-xs sm:text-sm">
+              <TabsTrigger key={item.key} value={item.key} className="text-xs sm:text-sm whitespace-nowrap px-3 py-1.5 rounded-lg">
                 {item.label}
               </TabsTrigger>
             ))}
@@ -307,8 +307,21 @@ function Pipeline() {
         <div className="flex justify-center py-20">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
+      ) : deals.length === 0 ? (
+        <div className="rounded-2xl border-2 border-dashed border-border bg-card/40 px-6 py-16 text-center">
+          <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-muted">
+            <TrendingUp className="h-7 w-7 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground">No opportunities tracked yet</h3>
+          <p className="mx-auto mt-1.5 max-w-sm text-sm text-muted-foreground">
+            Track deals across different stages from lead to closed to keep your pipeline visible and organized.
+          </p>
+          <Button className="mt-5" onClick={openNewOpportunity}>
+            <Plus className="h-4 w-4 mr-1.5" /> New Opportunity
+          </Button>
+        </div>
       ) : (
-        <div className={view === "all" ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5" : "grid grid-cols-1 gap-5 max-w-3xl"}>
+        <div className={view === "all" ? "grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-4" : "grid grid-cols-1 gap-4 sm:gap-5 max-w-3xl"}>
           {(view === "all" ? STAGES : STAGES.filter((s) => s.key === view)).map((s) => {
             const items = deals.filter((deal) => normalizeStage(deal.status) === s.key);
             const total = items.reduce((sum, deal) => sum + Number(deal.sale_price), 0);
@@ -347,16 +360,16 @@ function StageColumn({
   onDelete: (dealId: string) => Promise<void>;
 }) {
   return (
-    <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden flex flex-col min-h-[320px]">
-      <header className="px-5 py-4 border-b border-border">
+    <div className="bg-card/40 border border-border rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[320px]">
+      <header className="px-5 py-4 border-b border-border bg-card/60">
         <div className="flex items-center justify-between mb-1">
           <StatusPill tone={stage.tone}>{stage.label}</StatusPill>
-          <span className="text-xs text-muted-foreground">{items.length}</span>
+          <span className="text-xs font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{items.length}</span>
         </div>
-        <div className="text-lg font-bold tabular-nums font-display mt-2">{formatMoney(total)}</div>
+        <div className="text-xl font-bold tabular-nums text-foreground font-display mt-2">{formatMoney(total)}</div>
       </header>
 
-      <ul className="p-3 space-y-2 flex-1 min-h-[120px]">
+      <ul className="p-3 space-y-3 flex-1 min-h-[120px]">
         {items.map((deal) => (
           <DealCard
             key={deal.id}
@@ -366,7 +379,7 @@ function StageColumn({
             onDelete={onDelete}
           />
         ))}
-        {items.length === 0 && <li className="text-xs text-muted-foreground text-center py-8">No deals</li>}
+        {items.length === 0 && <li className="text-xs text-muted-foreground text-center py-10">No deals in this stage</li>}
       </ul>
     </div>
   );
@@ -386,11 +399,13 @@ function DealCard({
   const currentStage = normalizeStage(deal.status);
 
   return (
-    <li className="p-3 rounded-lg border border-border hover:border-secondary hover:shadow-sm transition bg-background">
+    <li className="p-4 rounded-xl border border-border/80 hover:border-foreground/20 hover:shadow-md transition bg-card shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <div className="font-medium text-sm truncate">{deal.address}</div>
-          <div className="mt-1 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+          <div className="font-semibold text-sm text-foreground truncate" title={deal.address}>
+            {deal.address}
+          </div>
+          <div className="mt-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
             {formatSideLabel(deal.side)}
           </div>
         </div>
@@ -399,35 +414,35 @@ function DealCard({
           onClick={() => onDelete(deal.id)}
           disabled={busy}
           aria-label={`Delete ${deal.address}`}
-          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
         >
-          <Trash2 className="h-3.5 w-3.5" />
+          <Trash2 className="h-4 w-4" />
         </button>
       </div>
 
       {(deal.client_name || deal.client_email || deal.client_phone) && (
-        <div className="mt-2 space-y-1 border-l-2 border-muted pl-2.5">
+        <div className="mt-3 space-y-1.5 border-l-2 border-primary/20 pl-3">
           {deal.client_name && (
-            <div className="flex items-center gap-1.5 text-xs text-foreground/90">
-              <User className="h-3 w-3 shrink-0 text-muted-foreground" />
+            <div className="flex items-center gap-2 text-xs text-foreground/90">
+              <User className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
               <span className="truncate font-medium">{deal.client_name}</span>
             </div>
           )}
           {deal.client_email && (
             <a
               href={`mailto:${deal.client_email}`}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition"
+              className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
-              <Mail className="h-3 w-3 shrink-0" />
+              <Mail className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">{deal.client_email}</span>
             </a>
           )}
           {deal.client_phone && (
             <a
               href={`tel:${deal.client_phone}`}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition"
+              className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
-              <Phone className="h-3 w-3 shrink-0" />
+              <Phone className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate tabular-nums">{deal.client_phone}</span>
             </a>
           )}
@@ -436,7 +451,7 @@ function DealCard({
 
       <div className="mt-3">
         <Select value={currentStage} onValueChange={(value) => onStageChange(deal.id, value as Stage)}>
-          <SelectTrigger className="h-8 w-full text-xs" disabled={busy} aria-label={`Change stage for ${deal.address}`}>
+          <SelectTrigger className="h-9 w-full text-xs rounded-lg border-border" disabled={busy} aria-label={`Change stage for ${deal.address}`}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -449,9 +464,13 @@ function DealCard({
         </Select>
       </div>
 
-      <div className="flex items-center justify-between mt-3 gap-2 pt-2 border-t border-border/60">
-        <span className="text-sm tabular-nums font-semibold">{formatMoney(Number(deal.sale_price))}</span>
-        {deal.close_date && <span className="text-[11px] text-muted-foreground">{deal.close_date}</span>}
+      <div className="flex items-center justify-between mt-3 gap-2 pt-3 border-t border-border/60">
+        <span className="text-sm tabular-nums font-bold text-foreground">{formatMoney(Number(deal.sale_price))}</span>
+        {deal.close_date && (
+          <span className="text-[11px] font-medium text-muted-foreground bg-muted/50 px-2 py-0.5 rounded">
+            {deal.close_date}
+          </span>
+        )}
       </div>
     </li>
   );
