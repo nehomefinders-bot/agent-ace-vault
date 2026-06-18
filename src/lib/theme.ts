@@ -29,7 +29,7 @@ export function applyTheme(theme: Theme) {
 export function getThemeBootstrapScript() {
   return `(() => {
     try {
-      const theme = localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)}) || "system";
+      const theme = localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)}) || "light";
       const isDark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
       const root = document.documentElement;
       root.classList.toggle("dark", isDark);
@@ -38,6 +38,7 @@ export function getThemeBootstrapScript() {
     } catch (e) {}
   })();`;
 }
+
 
 export function createThemeSync() {
   if (typeof window === "undefined") return () => {};
