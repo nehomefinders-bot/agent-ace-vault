@@ -14,6 +14,7 @@ import {
   Send,
   Smartphone,
   Trash2,
+  Users,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -879,8 +880,8 @@ function DirectoryPage() {
         </div>
       }
     >
-      <div className="mb-5 rounded-2xl border border-border bg-card p-4 shadow-card">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-5 rounded-2xl border border-border bg-card p-4 shadow-card sm:p-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
           <div>
             <div className="text-sm font-medium text-foreground">
               Phone-synced contacts in tracker: {phoneSyncedRows.length}
@@ -1023,10 +1024,30 @@ function DirectoryPage() {
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : visibleRows.length === 0 ? (
-          <div className="px-6 py-16 text-center text-sm text-muted-foreground">
-            {directoryFilter === "phone_sync"
-              ? "No phone-synced contacts yet. Sync your phone contacts on a supported device to see them here."
-              : "No contacts yet. Add one, import a list, or sync your phone contacts on a supported device."}
+          <div className="flex flex-col items-center gap-4 px-6 py-16 text-center">
+            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-muted">
+              <Users className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-semibold text-foreground">
+                {directoryFilter === "phone_sync" ? "No phone-synced contacts yet" : "No contacts yet"}
+              </h3>
+              <p className="mx-auto max-w-sm text-sm text-muted-foreground">
+                {directoryFilter === "phone_sync"
+                  ? "Sync your phone contacts on a supported device to see them here."
+                  : "Add a contact, import a list, or sync your phone contacts on a supported device."}
+              </p>
+            </div>
+            {directoryFilter !== "phone_sync" ? (
+              <button
+                type="button"
+                onClick={openNew}
+                className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-card hover:bg-primary/90"
+              >
+                <Plus className="h-4 w-4" />
+                Add contact
+              </button>
+            ) : null}
           </div>
         ) : (
           <>
