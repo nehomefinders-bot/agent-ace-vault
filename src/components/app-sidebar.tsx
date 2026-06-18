@@ -98,13 +98,9 @@ export function AppSidebar() {
           p.monthly.priceId === subscription.price_id || p.yearly.priceId === subscription.price_id,
       )
     : null;
-  const planLabel = !user
-    ? "-"
-    : !isActive
-      ? "No plan"
-      : subscription?.status === "trialing"
-        ? `${currentPlan?.name ?? "Trial"} (trial)`
-        : (currentPlan?.name ?? "Active");
+  const isTrialing = subscription?.status === "trialing";
+  const planName = currentPlan?.name ?? "Founders Program";
+
 
   const sidebarContent = (
     <div className="flex h-full min-h-0 flex-col">
