@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRight, AlertCircle, Plus, Search, Pencil, Trash2, Home as HomeIcon, Receipt as ReceiptIcon } from "lucide-react";
 import { PageShell, StatusPill } from "@/components/page-shell";
+import { HowToGuide } from "@/components/how-to-guide";
 import { formatMoney } from "@/lib/mock-data";
 import { YtdCommissionCard, PipelineGaugeCard, DealsClosedRingCard } from "@/components/dashboard-kpis";
 import { parseCommissionNotes } from "@/lib/commission-notes";
