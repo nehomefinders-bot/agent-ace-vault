@@ -25,8 +25,12 @@ function PricingPage() {
 
   const startCheckout = useCallback(() => {
     if (typeof window === "undefined") return;
+    if (isActive) {
+      import("sonner").then(({ toast }) => toast.message("You're already a member."));
+      return;
+    }
     window.location.href = STRIPE_PAYMENT_LINK;
-  }, []);
+  }, [isActive]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
