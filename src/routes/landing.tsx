@@ -726,15 +726,31 @@ function Landing() {
                     {column.title}
                   </div>
                   <div className="space-y-3">
-                    {column.links.map((link) => (
-                      <Link
-                        key={link.label}
-                        to={link.to}
-                        className="block font-display text-base text-slate-200 transition-colors hover:text-white"
-                      >
-                        {link.label}
-                      </Link>
-                    ))}
+                    {column.links.map((link) => {
+                      const linkClass =
+                        "block w-full text-left font-display text-base text-slate-200 transition-colors hover:text-white";
+                      if (link.action === "contact") {
+                        return (
+                          <button
+                            key={link.label}
+                            type="button"
+                            onClick={() => setIsContactOpen(true)}
+                            className={linkClass}
+                          >
+                            {link.label}
+                          </button>
+                        );
+                      }
+                      return (
+                        <Link
+                          key={link.label}
+                          to={link.to!}
+                          className={linkClass}
+                        >
+                          {link.label}
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               ))}
