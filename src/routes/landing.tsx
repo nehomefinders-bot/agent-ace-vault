@@ -15,7 +15,17 @@ import {
   X,
   Star,
   Loader2,
+  Copy,
+  Mail,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 import maColonialHeroBg from "@/assets/landing-house-autumn.jpeg";
 import { BRAND_TITLE, BrandLockup } from "@/components/brand-lockup";
 import { Reveal } from "@/components/reveal";
