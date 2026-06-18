@@ -620,29 +620,38 @@ export type Database = {
       }
       profiles: {
         Row: {
+          agency_name: string | null
           avatar_url: string | null
+          contact_email: string | null
           cover_url: string | null
           created_at: string
           display_name: string | null
           id: string
+          phone: string | null
           plan: string | null
           updated_at: string
         }
         Insert: {
+          agency_name?: string | null
           avatar_url?: string | null
+          contact_email?: string | null
           cover_url?: string | null
           created_at?: string
           display_name?: string | null
           id: string
+          phone?: string | null
           plan?: string | null
           updated_at?: string
         }
         Update: {
+          agency_name?: string | null
           avatar_url?: string | null
+          contact_email?: string | null
           cover_url?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
+          phone?: string | null
           plan?: string | null
           updated_at?: string
         }
