@@ -23,6 +23,7 @@ export const Route = createFileRoute("/thankyou")({
 function ThankYouPage() {
   const nav = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { refetch: refetchSubscription } = useSubscription();
   const [activating, setActivating] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const ranRef = useRef(false);
