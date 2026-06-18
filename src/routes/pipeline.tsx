@@ -474,7 +474,6 @@ function DealCard({
       </div>
     </li>
   );
-  );
 }
 
 function formatSideLabel(side: string | null | undefined) {
