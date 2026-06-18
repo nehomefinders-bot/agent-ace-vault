@@ -28,6 +28,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { PLANS } from "@/lib/stripe";
+import { supabase } from "@/integrations/supabase/client";
 import { BrandLockup } from "@/components/brand-lockup";
 
 const sections = [
@@ -73,8 +74,29 @@ export function AppSidebar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const nav = useNavigate();
   const { user, signOut } = useAuth();
-  const { subscription, isActive } = useSubscription();
+  const { subscription, isActive, refetch } = useSubscription();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profilePlan, setProfilePlan] = useState<string | null>(null);
+
+  // Force a clean re-fetch of subscription + profile state whenever the user
+  // arrives on the dashboard (e.g. coming from /thankyou → "Enter the Dashboard").
+  useEffect(() => {
+    if (!user?.id) {
+      setProfilePlan(null);
+      return;
+    }
+    let cancelled = false;
+    refetch();
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("plan")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!cancelled) setProfilePlan((data?.plan as string | null) ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id, path, refetch]);
 
   // Close drawer on route change
   useEffect(() => {
