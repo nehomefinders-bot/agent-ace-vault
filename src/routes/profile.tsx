@@ -175,7 +175,7 @@ function ProfilePage() {
 
   if (authLoading || loading) {
     return (
-      <PageShell title="Profile" description="Manage your personal and business details.">
+      <PageShell title="Profile" subtitle="Manage your personal and business details.">
         <div className="flex min-h-[40vh] items-center justify-center">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
@@ -185,7 +185,7 @@ function ProfilePage() {
 
   if (!user) {
     return (
-      <PageShell title="Profile" description="Sign in to manage your profile.">
+      <PageShell title="Profile" subtitle="Sign in to manage your profile.">
         <div className="rounded-2xl border border-border bg-card p-6 text-center">
           <p className="text-sm text-muted-foreground">You need an account to view this page.</p>
           <Button asChild className="mt-4"><Link to="/auth">Sign in</Link></Button>
@@ -195,7 +195,7 @@ function ProfilePage() {
   }
 
   return (
-    <PageShell title="Profile" description="Manage your personal and business details.">
+    <PageShell title="Profile" subtitle="Manage your personal and business details.">
       <form
         onSubmit={onSubmit}
         className="mx-auto w-full max-w-2xl rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8"
