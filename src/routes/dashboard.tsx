@@ -350,26 +350,41 @@ function Dashboard() {
           <header className="flex items-center justify-between px-6 py-5 border-b border-border">
             <div>
               <h2 className="text-lg font-bold">Recent Commissions</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Stripe-ready</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Latest net earnings</p>
             </div>
             <Link to="/commissions" className="text-xs text-primary font-medium hover:underline">View all</Link>
           </header>
-          <ul className="divide-y divide-border">
-            {invoices.slice(0, 5).map((inv) => (
-              <li key={inv.id} className="px-6 py-4 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="font-medium text-sm truncate">{inv.id}</div>
-                  <div className="text-xs text-muted-foreground truncate">{inv.client} - {inv.description}</div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="tabular-nums font-medium text-sm">{formatMoney(inv.amount)}</div>
-                  <div className="mt-1"><StatusPill tone={statusTone[inv.status]}>{inv.status}</StatusPill></div>
-                </div>
-              </li>
-            ))}
-          </ul>
+          {recentCommissions.length === 0 ? (
+            <div className="px-6 py-10 text-center text-sm text-muted-foreground">
+              <ReceiptIcon className="h-8 w-8 mx-auto mb-3 text-muted-foreground/50" />
+              <p>No revenue tracked yet.</p>
+              <Link to="/commissions" className="text-primary font-medium mt-1 inline-block">Add Transaction</Link>
+              <p className="text-xs mt-1">to log your first deal.</p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-border">
+              {recentCommissions.map((row) => {
+                const tone = statusTone[row.status] ?? "muted";
+                return (
+                  <li key={row.id} className="px-6 py-4 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-medium text-sm truncate">{row.address}</div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {row.client_name ?? "No client"}{row.close_date ? ` • ${row.close_date}` : ""}
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="tabular-nums font-medium text-sm">{formatMoney(row.net)}</div>
+                      <div className="mt-1"><StatusPill tone={tone}>{row.status}</StatusPill></div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </section>
       </div>
+
 
       <section className="rounded-2xl border border-border bg-card shadow-card overflow-hidden">
         <header className="flex items-center justify-between px-6 py-5 border-b border-border">
