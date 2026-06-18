@@ -91,7 +91,7 @@ function PricingPage() {
       )}
 
 
-      <div className="mx-auto max-w-md">
+      <div className={`mx-auto max-w-md ${isActive ? "hidden" : ""}`}>
         <div className="relative rounded-2xl border border-primary/30 bg-card p-8 shadow-card">
           <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-primary-foreground shadow-sm">
             <Sparkles className="h-3 w-3" /> Limited Seats Available
