@@ -3,11 +3,12 @@ export type Theme = "light" | "dark" | "system";
 export const THEME_STORAGE_KEY = "theme";
 
 export function getStoredTheme(): Theme {
-  if (typeof window === "undefined") return "system";
+  if (typeof window === "undefined") return "light";
   const value = window.localStorage.getItem(THEME_STORAGE_KEY);
   if (value === "light" || value === "dark" || value === "system") return value;
-  return "system";
+  return "light";
 }
+
 
 export function isDarkTheme(theme: Theme): boolean {
   if (theme === "dark") return true;
