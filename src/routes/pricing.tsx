@@ -89,9 +89,14 @@ function PricingPage() {
             type="button"
             onClick={startCheckout}
             disabled={isActive}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+            aria-disabled={isActive}
+            className={
+              isActive
+                ? "inline-flex w-full items-center justify-center gap-2 rounded-lg bg-muted px-4 py-3 text-sm font-medium text-muted-foreground cursor-not-allowed pointer-events-none select-none"
+                : "inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+            }
           >
-            {isActive ? "You're subscribed" : subscription ? "Resubscribe" : "Subscribe — $10/month"}
+            {isActive ? "Already Subscribed" : subscription ? "Resubscribe" : "Subscribe — $10/month"}
           </button>
 
           <ul className="mt-6 space-y-2.5">
