@@ -100,7 +100,7 @@ const features = [
 ];
 
 
-type FooterLink = { label: string; to: string };
+type FooterLink = { label: string; to?: string; action?: "contact" };
 
 type FooterColumn = {
   title: string;
@@ -119,8 +119,7 @@ const footerColumns: FooterColumn[] = [
   {
     title: "Support",
     links: [
-      { label: "Help Center", to: "/help" },
-      { label: "Contact Support", to: "/support" },
+      { label: "Contact Support", action: "contact" },
       { label: "Sign In", to: "/auth" },
     ],
   },
