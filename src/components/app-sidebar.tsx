@@ -98,8 +98,67 @@ export function AppSidebar() {
           p.monthly.priceId === subscription.price_id || p.yearly.priceId === subscription.price_id,
       )
     : null;
-  const isTrialing = subscription?.status === "trialing";
   const planName = currentPlan?.name ?? "Founders Program";
+  const status = subscription?.status ?? null;
+  const cancelAtEnd = subscription?.cancel_at_period_end ?? false;
+  const periodEndLabel = subscription?.current_period_end
+    ? new Date(subscription.current_period_end).toLocaleDateString()
+    : null;
+
+  type StatusTone = "emerald" | "amber" | "rose" | "slate";
+  let statusTone: StatusTone = "slate";
+  let statusLabel = "No plan";
+  let statusDetail: string | null = null;
+
+  if (user) {
+    if (status === "trialing") {
+      statusTone = "emerald";
+      statusLabel = "Trial";
+      statusDetail = periodEndLabel ? `Ends ${periodEndLabel}` : null;
+    } else if (status === "active") {
+      if (cancelAtEnd) {
+        statusTone = "amber";
+        statusLabel = "Canceling";
+        statusDetail = periodEndLabel ? `Ends ${periodEndLabel}` : null;
+      } else {
+        statusTone = "emerald";
+        statusLabel = "Active";
+      }
+    } else if (status === "past_due") {
+      statusTone = "amber";
+      statusLabel = "Past due";
+      statusDetail = "Update payment";
+    } else if (status === "unpaid" || status === "incomplete" || status === "incomplete_expired") {
+      statusTone = "rose";
+      statusLabel = status === "unpaid" ? "Unpaid" : "Incomplete";
+      statusDetail = "Action required";
+    } else if (status === "paused") {
+      statusTone = "amber";
+      statusLabel = "Paused";
+    } else if (status === "canceled") {
+      if (isActive && periodEndLabel) {
+        statusTone = "amber";
+        statusLabel = "Canceled";
+        statusDetail = `Access until ${periodEndLabel}`;
+      } else {
+        statusTone = "slate";
+        statusLabel = "Canceled";
+      }
+    } else if (isActive) {
+      statusTone = "emerald";
+      statusLabel = "Active";
+    }
+  }
+
+  const toneClasses: Record<StatusTone, { dot: string; text: string }> = {
+    emerald: { dot: "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)]", text: "text-emerald-400" },
+    amber: { dot: "bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.7)]", text: "text-amber-400" },
+    rose: { dot: "bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.7)]", text: "text-rose-400" },
+    slate: { dot: "bg-slate-500", text: "text-sidebar-foreground/70" },
+  };
+  const tone = toneClasses[statusTone];
+  const showPlanLine = !!user && (status !== null || isActive);
+
 
 
   const sidebarContent = (
