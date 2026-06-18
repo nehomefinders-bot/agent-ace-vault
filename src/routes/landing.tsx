@@ -136,6 +136,16 @@ function Landing() {
   const nav = useNavigate();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
+  const supportEmail = "livingandlearningwithjackie@gmail.com";
+  const copySupportEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(supportEmail);
+      toast.success("Email copied to clipboard");
+    } catch {
+      toast.error("Unable to copy email");
+    }
+  };
 
   useEffect(() => {
     const root = document.documentElement;
