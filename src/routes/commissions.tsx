@@ -816,22 +816,22 @@ function Commissions() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-6">
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
-          <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Total GCI</div>
-          <div className="text-2xl font-bold tabular-nums font-display">{formatMoney(totalGci)}</div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 mb-6">
+        <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 shadow-card">
+          <div className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground mb-2">Total GCI</div>
+          <div className="text-xl sm:text-2xl font-bold tabular-nums font-display text-foreground">{formatMoney(totalGci)}</div>
         </div>
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
-          <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Net Commission</div>
-          <div className="text-2xl font-bold tabular-nums font-display">{formatMoney(totalNet)}</div>
+        <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 shadow-card">
+          <div className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground mb-2">Net Commission</div>
+          <div className="text-xl sm:text-2xl font-bold tabular-nums font-display text-foreground">{formatMoney(totalNet)}</div>
         </div>
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
-          <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Paid</div>
-          <div className="text-2xl font-bold tabular-nums font-display text-success">{formatMoney(paidNet)}</div>
+        <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 shadow-card">
+          <div className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground mb-2">Paid</div>
+          <div className="text-xl sm:text-2xl font-bold tabular-nums font-display text-success">{formatMoney(paidNet)}</div>
         </div>
-        <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
-          <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Pending</div>
-          <div className="text-2xl font-bold tabular-nums font-display text-warning">{formatMoney(pendingNet)}</div>
+        <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 shadow-card">
+          <div className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground mb-2">Pending</div>
+          <div className="text-xl sm:text-2xl font-bold tabular-nums font-display text-warning">{formatMoney(pendingNet)}</div>
         </div>
       </div>
 
@@ -844,19 +844,32 @@ function Commissions() {
       />
 
       <section className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
-        <header className="flex items-center justify-between gap-4 px-6 py-5 border-b border-border">
-          <div>
-            <h2 className="text-lg font-bold">Commission Tracker</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">{rows.length} closings - sorted by most recent</p>
+        <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 sm:px-6 py-4 sm:py-5 border-b border-border">
+          <div className="min-w-0">
+            <h2 className="text-base sm:text-lg font-bold text-foreground truncate">Commission Tracker</h2>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">{rows.length} closing{rows.length === 1 ? "" : "s"} — sorted by most recent</p>
           </div>
-          <div className="relative hidden md:block">
+          <div className="relative hidden md:block shrink-0">
             <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               placeholder="Search property..."
-              className="pl-9 pr-4 py-2 rounded-lg border border-border bg-background text-sm w-64 focus:outline-none focus:ring-2 focus:ring-ring"
+              className="pl-9 pr-4 py-2 rounded-lg border border-border bg-background text-sm w-56 lg:w-64 focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
         </header>
+
+        {!loading && rows.length === 0 ? (
+          <div className="px-6 py-16 text-center">
+            <div className="mx-auto h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+              <FileText className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="text-base font-semibold text-foreground mb-1">No revenue tracked yet</h3>
+            <p className="text-sm text-muted-foreground mb-5 max-w-sm mx-auto">
+              Click <span className="font-medium text-foreground">'Commission Form'</span> above to log your first deal.
+            </p>
+          </div>
+        ) : null}
+
 
         <ul className="md:hidden divide-y divide-border">
           {rows.map((r) => {
