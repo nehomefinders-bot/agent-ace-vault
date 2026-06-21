@@ -127,6 +127,25 @@ function Listings() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [viewing, setViewing] = useState<Listing | null>(null);
   const [editing, setEditing] = useState<Listing | null>(null);
+  const [docsListing, setDocsListing] = useState<Listing | null>(null);
+  const [docCounts, setDocCounts] = useState<Record<string, number>>({});
+
+  async function loadDocCounts(ids: string[]) {
+    if (!ids.length) {
+      setDocCounts({});
+      return;
+    }
+    const { data, error } = await supabase
+      .from("listing_documents")
+      .select("listing_id")
+      .in("listing_id", ids);
+    if (error) return;
+    const counts: Record<string, number> = {};
+    for (const r of (data ?? []) as { listing_id: string }[]) {
+      counts[r.listing_id] = (counts[r.listing_id] ?? 0) + 1;
+    }
+    setDocCounts(counts);
+  }
 
   async function load() {
     if (!user) {
@@ -151,6 +170,7 @@ function Listings() {
     setRows(nextRows);
     setSelected(new Set());
     setLoading(false);
+    loadDocCounts(nextRows.map((r) => r.id));
   }
   useEffect(() => {
     if (!authLoading) load(); /* eslint-disable-next-line */
