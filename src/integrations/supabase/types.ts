@@ -542,6 +542,7 @@ export type Database = {
           brokerage_split_pct: number
           client_name: string | null
           close_date: string | null
+          closing_date: string | null
           created_at: string
           deal_id: string | null
           deal_side: string | null
@@ -549,7 +550,10 @@ export type Database = {
           id: string
           image_paths: string[]
           list_price: number
+          lot_size: string | null
           notes: string | null
+          parking_spaces: number | null
+          property_type: string | null
           referral_pct: number
           referral_to: string | null
           seller_email: string | null
@@ -560,6 +564,7 @@ export type Database = {
           status: string
           updated_at: string
           user_id: string
+          year_built: number | null
         }
         Insert: {
           address: string
@@ -569,6 +574,7 @@ export type Database = {
           brokerage_split_pct?: number
           client_name?: string | null
           close_date?: string | null
+          closing_date?: string | null
           created_at?: string
           deal_id?: string | null
           deal_side?: string | null
@@ -576,7 +582,10 @@ export type Database = {
           id?: string
           image_paths?: string[]
           list_price?: number
+          lot_size?: string | null
           notes?: string | null
+          parking_spaces?: number | null
+          property_type?: string | null
           referral_pct?: number
           referral_to?: string | null
           seller_email?: string | null
@@ -587,6 +596,7 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id: string
+          year_built?: number | null
         }
         Update: {
           address?: string
@@ -596,6 +606,7 @@ export type Database = {
           brokerage_split_pct?: number
           client_name?: string | null
           close_date?: string | null
+          closing_date?: string | null
           created_at?: string
           deal_id?: string | null
           deal_side?: string | null
@@ -603,7 +614,10 @@ export type Database = {
           id?: string
           image_paths?: string[]
           list_price?: number
+          lot_size?: string | null
           notes?: string | null
+          parking_spaces?: number | null
+          property_type?: string | null
           referral_pct?: number
           referral_to?: string | null
           seller_email?: string | null
@@ -614,6 +628,7 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+          year_built?: number | null
         }
         Relationships: []
       }

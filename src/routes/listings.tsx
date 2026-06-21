@@ -23,8 +23,9 @@ import {
   Share2,
   Download,
 } from "lucide-react";
-import { shareListingViaEmail, downloadListingPdf } from "@/lib/listing-share";
+import { downloadListingPdf } from "@/lib/listing-share";
 import { ListingDocumentsModal } from "@/components/listing-documents-modal";
+import { ShareListingModal } from "@/components/share-listing-modal";
 import { PageShell } from "@/components/page-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -95,6 +96,11 @@ interface Listing {
   seller_email: string | null;
   seller_new_address: string | null;
   notes: string | null;
+  property_type: string | null;
+  year_built: number | null;
+  lot_size: string | null;
+  parking_spaces: number | null;
+  closing_date: string | null;
   image_urls?: string[];
 }
 
@@ -131,6 +137,7 @@ function Listings() {
   const [viewing, setViewing] = useState<Listing | null>(null);
   const [editing, setEditing] = useState<Listing | null>(null);
   const [docsListing, setDocsListing] = useState<Listing | null>(null);
+  const [sharingListing, setSharingListing] = useState<Listing | null>(null);
   const [docCounts, setDocCounts] = useState<Record<string, number>>({});
 
   async function loadDocCounts(ids: string[]) {
@@ -160,7 +167,7 @@ function Listings() {
     const { data, error } = await supabase
       .from("listings")
       .select(
-        "id,address,client_name,deal_side,close_date,gross_commission,agent_split_pct,brokerage_split_pct,referral_pct,referral_to,list_price,status,beds,baths,sqft,image_paths,seller_name,seller_phone,seller_email,seller_new_address,notes",
+        "id,address,client_name,deal_side,close_date,gross_commission,agent_split_pct,brokerage_split_pct,referral_pct,referral_to,list_price,status,beds,baths,sqft,image_paths,seller_name,seller_phone,seller_email,seller_new_address,notes,property_type,year_built,lot_size,parking_spaces,closing_date",
       )
       .order("created_at", { ascending: false });
     if (error) {
@@ -319,6 +326,7 @@ function Listings() {
                 onEdit={() => setEditing(l)}
                 onOpen={() => setViewing(l)}
                 onOpenDocs={() => setDocsListing(l)}
+                onShare={() => setSharingListing(l)}
                 docCount={docCounts[l.id] ?? 0}
               />
             ))}
@@ -331,7 +339,15 @@ function Listings() {
           listing={viewing}
           onClose={() => setViewing(null)}
           onOpenDocs={() => setDocsListing(viewing)}
+          onShare={() => setSharingListing(viewing)}
           docCount={docCounts[viewing.id] ?? 0}
+        />
+      )}
+      {sharingListing && (
+        <ShareListingModal
+          listing={sharingListing}
+          open={!!sharingListing}
+          onOpenChange={(v) => !v && setSharingListing(null)}
         />
       )}
       {docsListing && (
@@ -383,6 +399,7 @@ function ListingCard({
   onEdit,
   onOpen,
   onOpenDocs,
+  onShare,
   docCount,
 }: {
   listing: Listing;
@@ -393,6 +410,7 @@ function ListingCard({
   onEdit: () => void;
   onOpen: () => void;
   onOpenDocs: () => void;
+  onShare: () => void;
   docCount: number;
 }) {
   const images = l.image_paths ?? [];
@@ -638,7 +656,7 @@ function ListingCard({
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                shareListingViaEmail(l);
+                onShare();
               }}
               className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-muted/40 hover:bg-muted px-3 py-2 text-sm font-medium text-foreground transition"
             >
@@ -667,11 +685,13 @@ function ListingFullscreen({
   listing: l,
   onClose,
   onOpenDocs,
+  onShare,
   docCount,
 }: {
   listing: Listing;
   onClose: () => void;
   onOpenDocs: () => void;
+  onShare: () => void;
   docCount: number;
 }) {
   const images = l.image_paths ?? [];
@@ -769,7 +789,7 @@ function ListingFullscreen({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            shareListingViaEmail(l);
+            onShare();
           }}
           className="bg-black/70 hover:bg-black/85 text-white text-xs font-medium rounded-full px-3 py-2 inline-flex items-center gap-1.5"
         >
@@ -942,6 +962,11 @@ function NewListingDialog({
   const [beds, setBeds] = useState("");
   const [baths, setBaths] = useState("");
   const [sqft, setSqft] = useState("");
+  const [propertyType, setPropertyType] = useState("");
+  const [yearBuilt, setYearBuilt] = useState("");
+  const [lotSize, setLotSize] = useState("");
+  const [parkingSpaces, setParkingSpaces] = useState("");
+  const [closingDate, setClosingDate] = useState("");
   const [sellerName, setSellerName] = useState("");
   const [sellerEmail, setSellerEmail] = useState("");
   const [sellerPhone, setSellerPhone] = useState("");
@@ -1021,6 +1046,11 @@ function NewListingDialog({
           beds: beds ? parseInt(beds) : null,
           baths: baths ? parseFloat(baths) : null,
           sqft: sqft ? parseInt(sqft) : null,
+          property_type: propertyType || null,
+          year_built: yearBuilt ? parseInt(yearBuilt) : null,
+          lot_size: lotSize.trim() || null,
+          parking_spaces: parkingSpaces ? parseInt(parkingSpaces) : null,
+          closing_date: status === "Sold" && closingDate ? closingDate : null,
           image_paths: uploaded,
           seller_name: sellerName.trim() || null,
           seller_email: sellerEmail.trim() || null,
@@ -1150,6 +1180,18 @@ function NewListingDialog({
           </div>
         </div>
 
+        {status === "Sold" && (
+          <div className="space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+            <Label htmlFor="cd">Closing Date</Label>
+            <Input
+              id="cd"
+              type="date"
+              value={closingDate}
+              onChange={(e) => setClosingDate(e.target.value)}
+            />
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="bd">Beds</Label>
@@ -1183,6 +1225,56 @@ function NewListingDialog({
             />
           </div>
         </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label>Property Type</Label>
+            <Select value={propertyType} onValueChange={setPropertyType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Single Family">Single Family</SelectItem>
+                <SelectItem value="Condo">Condo</SelectItem>
+                <SelectItem value="Multi-Family">Multi-Family</SelectItem>
+                <SelectItem value="Land">Land</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="yb">Year Built</Label>
+            <Input
+              id="yb"
+              type="number"
+              min="1700"
+              max="2100"
+              value={yearBuilt}
+              onChange={(e) => setYearBuilt(e.target.value)}
+              placeholder="e.g. 1998"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="ls">Lot Size / Acreage</Label>
+            <Input
+              id="ls"
+              value={lotSize}
+              onChange={(e) => setLotSize(e.target.value)}
+              placeholder="e.g. 0.25 acres"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="pk">Garage / Parking Spaces</Label>
+            <Input
+              id="pk"
+              type="number"
+              min="0"
+              value={parkingSpaces}
+              onChange={(e) => setParkingSpaces(e.target.value)}
+              placeholder="e.g. 2"
+            />
+          </div>
+        </div>
+
 
         {/* Seller info */}
         <div className="space-y-3 pt-2 border-t">
@@ -1414,6 +1506,15 @@ function EditListingDialog({
   const [beds, setBeds] = useState(listing.beds == null ? "" : String(listing.beds));
   const [baths, setBaths] = useState(listing.baths == null ? "" : String(listing.baths));
   const [sqft, setSqft] = useState(listing.sqft == null ? "" : String(listing.sqft));
+  const [propertyType, setPropertyType] = useState(listing.property_type ?? "");
+  const [yearBuilt, setYearBuilt] = useState(
+    listing.year_built == null ? "" : String(listing.year_built),
+  );
+  const [lotSize, setLotSize] = useState(listing.lot_size ?? "");
+  const [parkingSpaces, setParkingSpaces] = useState(
+    listing.parking_spaces == null ? "" : String(listing.parking_spaces),
+  );
+  const [closingDate, setClosingDate] = useState(listing.closing_date ?? "");
   const [sellerName, setSellerName] = useState(listing.seller_name ?? "");
   const [sellerEmail, setSellerEmail] = useState(listing.seller_email ?? "");
   const [sellerPhone, setSellerPhone] = useState(listing.seller_phone ?? "");
@@ -1503,6 +1604,11 @@ function EditListingDialog({
           beds: beds ? parseInt(beds) : null,
           baths: baths ? parseFloat(baths) : null,
           sqft: sqft ? parseInt(sqft) : null,
+          property_type: propertyType || null,
+          year_built: yearBuilt ? parseInt(yearBuilt) : null,
+          lot_size: lotSize.trim() || null,
+          parking_spaces: parkingSpaces ? parseInt(parkingSpaces) : null,
+          closing_date: status === "Sold" && closingDate ? closingDate : null,
           image_paths: nextImagePaths,
           seller_name: sellerName.trim() || null,
           seller_email: sellerEmail.trim() || null,
@@ -1584,6 +1690,18 @@ function EditListingDialog({
           </div>
         </div>
 
+        {status === "Sold" && (
+          <div className="space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+            <Label htmlFor="edit-cd">Closing Date</Label>
+            <Input
+              id="edit-cd"
+              type="date"
+              value={closingDate}
+              onChange={(e) => setClosingDate(e.target.value)}
+            />
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="edit-bd">Beds</Label>
@@ -1617,6 +1735,56 @@ function EditListingDialog({
             />
           </div>
         </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label>Property Type</Label>
+            <Select value={propertyType} onValueChange={setPropertyType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Single Family">Single Family</SelectItem>
+                <SelectItem value="Condo">Condo</SelectItem>
+                <SelectItem value="Multi-Family">Multi-Family</SelectItem>
+                <SelectItem value="Land">Land</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-yb">Year Built</Label>
+            <Input
+              id="edit-yb"
+              type="number"
+              min="1700"
+              max="2100"
+              value={yearBuilt}
+              onChange={(e) => setYearBuilt(e.target.value)}
+              placeholder="e.g. 1998"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-ls">Lot Size / Acreage</Label>
+            <Input
+              id="edit-ls"
+              value={lotSize}
+              onChange={(e) => setLotSize(e.target.value)}
+              placeholder="e.g. 0.25 acres"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-pk">Garage / Parking Spaces</Label>
+            <Input
+              id="edit-pk"
+              type="number"
+              min="0"
+              value={parkingSpaces}
+              onChange={(e) => setParkingSpaces(e.target.value)}
+              placeholder="e.g. 2"
+            />
+          </div>
+        </div>
+
 
         <div className="space-y-3 pt-2 border-t">
           <div className="text-sm font-medium text-foreground">Seller</div>
