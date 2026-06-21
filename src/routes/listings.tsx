@@ -618,7 +618,7 @@ function ListingCard({
           </div>
         )}
 
-        <div className="mt-4 pt-3 border-t border-border">
+        <div className="mt-4 pt-3 border-t border-border space-y-2">
           <button
             type="button"
             onClick={(e) => {
@@ -633,6 +633,30 @@ function ListingCard({
               {docCount}
             </span>
           </button>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                shareListingViaEmail(l);
+              }}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-muted/40 hover:bg-muted px-3 py-2 text-sm font-medium text-foreground transition"
+            >
+              <Share2 className="h-4 w-4 text-primary" />
+              Share
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                downloadListingPdf(l);
+              }}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-muted/40 hover:bg-muted px-3 py-2 text-sm font-medium text-foreground transition"
+            >
+              <Download className="h-4 w-4 text-primary" />
+              PDF
+            </button>
+          </div>
         </div>
       </div>
     </div>
