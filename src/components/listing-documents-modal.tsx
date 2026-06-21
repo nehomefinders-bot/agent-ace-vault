@@ -432,6 +432,55 @@ export function ListingDocumentsModal({
           </div>
         )}
       </DialogContent>
+
+      {previewDoc && (
+        <Dialog open={!!previewDoc} onOpenChange={(v) => !v && setPreviewDoc(null)}>
+          <DialogContent className="max-w-5xl w-[95vw] max-h-[92vh] p-0 overflow-hidden flex flex-col">
+            <DialogHeader className="px-5 py-3 border-b border-border flex-row items-center justify-between space-y-0">
+              <DialogTitle className="text-base truncate pr-8">{previewDoc.name}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto bg-muted/30 flex items-center justify-center min-h-[400px]">
+              {!previewUrl ? (
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              ) : (() => {
+                  const mime = (previewDoc.mime_type ?? "").toLowerCase();
+                  const ext = previewDoc.name.split(".").pop()?.toLowerCase() ?? "";
+                  const isImage = mime.startsWith("image/") || ["png","jpg","jpeg","webp","gif"].includes(ext);
+                  const isPdf = mime === "application/pdf" || ext === "pdf";
+                  if (isImage) {
+                    return (
+                      <img
+                        src={previewUrl}
+                        alt={previewDoc.name}
+                        className="max-w-full max-h-[80vh] object-contain mx-auto"
+                      />
+                    );
+                  }
+                  if (isPdf) {
+                    return (
+                      <iframe
+                        src={previewUrl}
+                        title={previewDoc.name}
+                        className="w-full h-[80vh] border-0 bg-background"
+                      />
+                    );
+                  }
+                  return (
+                    <div className="text-center p-8 space-y-3">
+                      <FileIcon className="h-10 w-10 mx-auto text-muted-foreground" />
+                      <div className="text-sm text-muted-foreground">
+                        Preview not available for this file type.
+                      </div>
+                      <Button onClick={() => downloadOne(previewDoc.path, previewDoc.name)}>
+                        <Download className="h-4 w-4 mr-1.5" /> Download
+                      </Button>
+                    </div>
+                  );
+                })()}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </Dialog>
   );
 }
