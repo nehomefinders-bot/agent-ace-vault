@@ -96,6 +96,11 @@ interface Listing {
   seller_email: string | null;
   seller_new_address: string | null;
   notes: string | null;
+  property_type: string | null;
+  year_built: number | null;
+  lot_size: string | null;
+  parking_spaces: number | null;
+  closing_date: string | null;
   image_urls?: string[];
 }
 
