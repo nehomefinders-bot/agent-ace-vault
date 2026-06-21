@@ -985,7 +985,15 @@ function NewListingDialog({
 
       const newListingId = insertedRows?.id as string | undefined;
       if (newListingId && pendingDocs.length) {
-        const docUploads: { path: string; row: Record<string, unknown> }[] = [];
+        type DocInsert = {
+          listing_id: string;
+          user_id: string;
+          name: string;
+          path: string;
+          size: number;
+          mime_type: string | null;
+        };
+        const docUploads: { path: string; row: DocInsert }[] = [];
         for (const f of pendingDocs) {
           if (f.size > 25 * 1024 * 1024) {
             toast.error(`${f.name}: over 25MB, skipped`);
