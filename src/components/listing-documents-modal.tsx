@@ -314,7 +314,7 @@ export function ListingDocumentsModal({
                 />
                 <span className="flex-1">Name</span>
                 <span className="w-20 text-right">Size</span>
-                <span className="w-20 text-right">Actions</span>
+                <span className="w-32 text-right">Actions</span>
               </div>
               <ul className="divide-y divide-border">
                 {docs.map((d) => (
@@ -329,15 +329,70 @@ export function ListingDocumentsModal({
                     />
                     <div className="shrink-0">{iconFor(d.mime_type, d.name)}</div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-foreground truncate">{d.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {new Date(d.created_at).toLocaleDateString()}
-                      </div>
+                      {editingId === d.id ? (
+                        <div className="flex items-center gap-1.5">
+                          <Input
+                            autoFocus
+                            value={editingName}
+                            onChange={(e) => setEditingName(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") saveRename(d);
+                              if (e.key === "Escape") setEditingId(null);
+                            }}
+                            className="h-8 text-sm"
+                          />
+                          <button
+                            onClick={() => saveRename(d)}
+                            className="p-1.5 rounded-md hover:bg-emerald-500/10 text-emerald-600"
+                            aria-label="Save"
+                            title="Save"
+                          >
+                            <Check className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => setEditingId(null)}
+                            className="p-1.5 rounded-md hover:bg-muted text-muted-foreground"
+                            aria-label="Cancel"
+                            title="Cancel"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => openPreview(d)}
+                            className="text-sm font-medium text-foreground truncate hover:text-primary hover:underline text-left w-full"
+                            title="Preview"
+                          >
+                            {d.name}
+                          </button>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(d.created_at).toLocaleDateString()}
+                          </div>
+                        </>
+                      )}
                     </div>
                     <div className="w-20 text-right text-xs tabular-nums text-muted-foreground">
                       {formatBytes(d.size)}
                     </div>
-                    <div className="w-20 flex items-center justify-end gap-1">
+                    <div className="w-32 flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => openPreview(d)}
+                        className="p-1.5 rounded-md hover:bg-muted text-muted-foreground"
+                        aria-label="Preview"
+                        title="Preview"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => startRename(d)}
+                        className="p-1.5 rounded-md hover:bg-muted text-muted-foreground"
+                        aria-label="Rename"
+                        title="Rename"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
                       <button
                         onClick={() => downloadOne(d.path, d.name)}
                         className="p-1.5 rounded-md hover:bg-primary/10 text-primary"
