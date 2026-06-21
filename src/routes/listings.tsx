@@ -749,22 +749,44 @@ function ListingFullscreen({
         </>
       )}
 
-      {/* Documents button */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onOpenDocs();
-        }}
-        className="absolute top-4 right-40 bg-black/70 hover:bg-black/85 text-white text-xs font-medium rounded-full px-3 py-2 inline-flex items-center gap-1.5"
-      >
-        <FolderOpen className="h-3.5 w-3.5" />
-        Documents
-        {docCount > 0 && (
-          <span className="ml-1 bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-[10px] tabular-nums">
-            {docCount}
-          </span>
-        )}
-      </button>
+      {/* Action buttons */}
+      <div className="absolute top-4 right-40 flex items-center gap-2">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenDocs();
+          }}
+          className="bg-black/70 hover:bg-black/85 text-white text-xs font-medium rounded-full px-3 py-2 inline-flex items-center gap-1.5"
+        >
+          <FolderOpen className="h-3.5 w-3.5" />
+          Documents
+          {docCount > 0 && (
+            <span className="ml-1 bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-[10px] tabular-nums">
+              {docCount}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            shareListingViaEmail(l);
+          }}
+          className="bg-black/70 hover:bg-black/85 text-white text-xs font-medium rounded-full px-3 py-2 inline-flex items-center gap-1.5"
+        >
+          <Share2 className="h-3.5 w-3.5" />
+          Share
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            downloadListingPdf(l);
+          }}
+          className="bg-black/70 hover:bg-black/85 text-white text-xs font-medium rounded-full px-3 py-2 inline-flex items-center gap-1.5"
+        >
+          <Download className="h-3.5 w-3.5" />
+          PDF
+        </button>
+      </div>
 
       {/* Toggle for details overlay */}
       <button
