@@ -656,7 +656,7 @@ function ListingCard({
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                shareListingViaEmail(l);
+                onShare();
               }}
               className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-muted/40 hover:bg-muted px-3 py-2 text-sm font-medium text-foreground transition"
             >
