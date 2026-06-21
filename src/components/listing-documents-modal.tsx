@@ -98,7 +98,44 @@ export function ListingDocumentsModal({
   const [uploading, setUploading] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [dragOver, setDragOver] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
+  const [previewDoc, setPreviewDoc] = useState<ListingDocumentRow | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  async function openPreview(d: ListingDocumentRow) {
+    setPreviewDoc(d);
+    setPreviewUrl(null);
+    const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(d.path, 300);
+    if (error || !data?.signedUrl) {
+      toast.error(error?.message || "Failed to load preview");
+      setPreviewDoc(null);
+      return;
+    }
+    setPreviewUrl(data.signedUrl);
+  }
+
+  function startRename(d: ListingDocumentRow) {
+    setEditingId(d.id);
+    setEditingName(d.name);
+  }
+
+  async function saveRename(d: ListingDocumentRow) {
+    const name = editingName.trim();
+    if (!name || name === d.name) {
+      setEditingId(null);
+      return;
+    }
+    const { error } = await supabase
+      .from("listing_documents")
+      .update({ name })
+      .eq("id", d.id);
+    if (error) return toast.error(error.message);
+    setDocs((prev) => prev.map((x) => (x.id === d.id ? { ...x, name } : x)));
+    setEditingId(null);
+    toast.success("Renamed");
+  }
 
   async function load() {
     setLoading(true);
