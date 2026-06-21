@@ -339,7 +339,15 @@ function Listings() {
           listing={viewing}
           onClose={() => setViewing(null)}
           onOpenDocs={() => setDocsListing(viewing)}
+          onShare={() => setSharingListing(viewing)}
           docCount={docCounts[viewing.id] ?? 0}
+        />
+      )}
+      {sharingListing && (
+        <ShareListingModal
+          listing={sharingListing}
+          open={!!sharingListing}
+          onOpenChange={(v) => !v && setSharingListing(null)}
         />
       )}
       {docsListing && (
