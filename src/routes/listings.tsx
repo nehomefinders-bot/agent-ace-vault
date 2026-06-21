@@ -399,6 +399,7 @@ function ListingCard({
   onEdit,
   onOpen,
   onOpenDocs,
+  onShare,
   docCount,
 }: {
   listing: Listing;
@@ -409,6 +410,7 @@ function ListingCard({
   onEdit: () => void;
   onOpen: () => void;
   onOpenDocs: () => void;
+  onShare: () => void;
   docCount: number;
 }) {
   const images = l.image_paths ?? [];
