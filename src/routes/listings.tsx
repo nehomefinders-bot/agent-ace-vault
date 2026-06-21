@@ -962,6 +962,11 @@ function NewListingDialog({
   const [beds, setBeds] = useState("");
   const [baths, setBaths] = useState("");
   const [sqft, setSqft] = useState("");
+  const [propertyType, setPropertyType] = useState("");
+  const [yearBuilt, setYearBuilt] = useState("");
+  const [lotSize, setLotSize] = useState("");
+  const [parkingSpaces, setParkingSpaces] = useState("");
+  const [closingDate, setClosingDate] = useState("");
   const [sellerName, setSellerName] = useState("");
   const [sellerEmail, setSellerEmail] = useState("");
   const [sellerPhone, setSellerPhone] = useState("");
