@@ -18,7 +18,11 @@ import {
   FileImage,
   File as FileIcon,
   X,
+  Pencil,
+  Check,
+  Eye,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 const BUCKET = "listing-documents";
 const MAX_FILE_MB = 25;
@@ -94,7 +98,44 @@ export function ListingDocumentsModal({
   const [uploading, setUploading] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [dragOver, setDragOver] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
+  const [previewDoc, setPreviewDoc] = useState<ListingDocumentRow | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  async function openPreview(d: ListingDocumentRow) {
+    setPreviewDoc(d);
+    setPreviewUrl(null);
+    const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(d.path, 300);
+    if (error || !data?.signedUrl) {
+      toast.error(error?.message || "Failed to load preview");
+      setPreviewDoc(null);
+      return;
+    }
+    setPreviewUrl(data.signedUrl);
+  }
+
+  function startRename(d: ListingDocumentRow) {
+    setEditingId(d.id);
+    setEditingName(d.name);
+  }
+
+  async function saveRename(d: ListingDocumentRow) {
+    const name = editingName.trim();
+    if (!name || name === d.name) {
+      setEditingId(null);
+      return;
+    }
+    const { error } = await supabase
+      .from("listing_documents")
+      .update({ name })
+      .eq("id", d.id);
+    if (error) return toast.error(error.message);
+    setDocs((prev) => prev.map((x) => (x.id === d.id ? { ...x, name } : x)));
+    setEditingId(null);
+    toast.success("Renamed");
+  }
 
   async function load() {
     setLoading(true);
@@ -273,7 +314,7 @@ export function ListingDocumentsModal({
                 />
                 <span className="flex-1">Name</span>
                 <span className="w-20 text-right">Size</span>
-                <span className="w-20 text-right">Actions</span>
+                <span className="w-32 text-right">Actions</span>
               </div>
               <ul className="divide-y divide-border">
                 {docs.map((d) => (
@@ -288,15 +329,70 @@ export function ListingDocumentsModal({
                     />
                     <div className="shrink-0">{iconFor(d.mime_type, d.name)}</div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-foreground truncate">{d.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {new Date(d.created_at).toLocaleDateString()}
-                      </div>
+                      {editingId === d.id ? (
+                        <div className="flex items-center gap-1.5">
+                          <Input
+                            autoFocus
+                            value={editingName}
+                            onChange={(e) => setEditingName(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") saveRename(d);
+                              if (e.key === "Escape") setEditingId(null);
+                            }}
+                            className="h-8 text-sm"
+                          />
+                          <button
+                            onClick={() => saveRename(d)}
+                            className="p-1.5 rounded-md hover:bg-emerald-500/10 text-emerald-600"
+                            aria-label="Save"
+                            title="Save"
+                          >
+                            <Check className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => setEditingId(null)}
+                            className="p-1.5 rounded-md hover:bg-muted text-muted-foreground"
+                            aria-label="Cancel"
+                            title="Cancel"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => openPreview(d)}
+                            className="text-sm font-medium text-foreground truncate hover:text-primary hover:underline text-left w-full"
+                            title="Preview"
+                          >
+                            {d.name}
+                          </button>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(d.created_at).toLocaleDateString()}
+                          </div>
+                        </>
+                      )}
                     </div>
                     <div className="w-20 text-right text-xs tabular-nums text-muted-foreground">
                       {formatBytes(d.size)}
                     </div>
-                    <div className="w-20 flex items-center justify-end gap-1">
+                    <div className="w-32 flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => openPreview(d)}
+                        className="p-1.5 rounded-md hover:bg-muted text-muted-foreground"
+                        aria-label="Preview"
+                        title="Preview"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => startRename(d)}
+                        className="p-1.5 rounded-md hover:bg-muted text-muted-foreground"
+                        aria-label="Rename"
+                        title="Rename"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
                       <button
                         onClick={() => downloadOne(d.path, d.name)}
                         className="p-1.5 rounded-md hover:bg-primary/10 text-primary"
@@ -336,6 +432,55 @@ export function ListingDocumentsModal({
           </div>
         )}
       </DialogContent>
+
+      {previewDoc && (
+        <Dialog open={!!previewDoc} onOpenChange={(v) => !v && setPreviewDoc(null)}>
+          <DialogContent className="max-w-5xl w-[95vw] max-h-[92vh] p-0 overflow-hidden flex flex-col">
+            <DialogHeader className="px-5 py-3 border-b border-border flex-row items-center justify-between space-y-0">
+              <DialogTitle className="text-base truncate pr-8">{previewDoc.name}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto bg-muted/30 flex items-center justify-center min-h-[400px]">
+              {!previewUrl ? (
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              ) : (() => {
+                  const mime = (previewDoc.mime_type ?? "").toLowerCase();
+                  const ext = previewDoc.name.split(".").pop()?.toLowerCase() ?? "";
+                  const isImage = mime.startsWith("image/") || ["png","jpg","jpeg","webp","gif"].includes(ext);
+                  const isPdf = mime === "application/pdf" || ext === "pdf";
+                  if (isImage) {
+                    return (
+                      <img
+                        src={previewUrl}
+                        alt={previewDoc.name}
+                        className="max-w-full max-h-[80vh] object-contain mx-auto"
+                      />
+                    );
+                  }
+                  if (isPdf) {
+                    return (
+                      <iframe
+                        src={previewUrl}
+                        title={previewDoc.name}
+                        className="w-full h-[80vh] border-0 bg-background"
+                      />
+                    );
+                  }
+                  return (
+                    <div className="text-center p-8 space-y-3">
+                      <FileIcon className="h-10 w-10 mx-auto text-muted-foreground" />
+                      <div className="text-sm text-muted-foreground">
+                        Preview not available for this file type.
+                      </div>
+                      <Button onClick={() => downloadOne(previewDoc.path, previewDoc.name)}>
+                        <Download className="h-4 w-4 mr-1.5" /> Download
+                      </Button>
+                    </div>
+                  );
+                })()}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </Dialog>
   );
 }
