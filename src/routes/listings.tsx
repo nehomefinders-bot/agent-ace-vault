@@ -899,9 +899,11 @@ function NewListingDialog({
   const [sellerNewAddress, setSellerNewAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [images, setImages] = useState<PendingImage[]>([]);
+  const [pendingDocs, setPendingDocs] = useState<File[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const docFileRef = useRef<HTMLInputElement>(null);
   const imagesRef = useRef<PendingImage[]>([]);
 
   useEffect(() => {
