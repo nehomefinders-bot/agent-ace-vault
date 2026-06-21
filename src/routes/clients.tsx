@@ -119,7 +119,7 @@ export const Route = createFileRoute("/clients")({
   component: DirectoryPage,
   head: () => ({
     meta: [
-      { title: "Directory - Agent Business Tracker" },
+      { title: "Contacts - Agent Business Tracker" },
       {
         name: "description",
         content:
