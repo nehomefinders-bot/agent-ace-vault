@@ -326,6 +326,7 @@ function Listings() {
                 onEdit={() => setEditing(l)}
                 onOpen={() => setViewing(l)}
                 onOpenDocs={() => setDocsListing(l)}
+                onShare={() => setSharingListing(l)}
                 docCount={docCounts[l.id] ?? 0}
               />
             ))}
