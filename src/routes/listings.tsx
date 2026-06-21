@@ -685,11 +685,13 @@ function ListingFullscreen({
   listing: l,
   onClose,
   onOpenDocs,
+  onShare,
   docCount,
 }: {
   listing: Listing;
   onClose: () => void;
   onOpenDocs: () => void;
+  onShare: () => void;
   docCount: number;
 }) {
   const images = l.image_paths ?? [];
