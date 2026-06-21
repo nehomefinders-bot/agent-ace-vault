@@ -119,7 +119,7 @@ export const Route = createFileRoute("/clients")({
   component: DirectoryPage,
   head: () => ({
     meta: [
-      { title: "Directory - Agent Business Tracker" },
+      { title: "Contacts - Agent Business Tracker" },
       {
         name: "description",
         content:
@@ -797,7 +797,7 @@ function DirectoryPage() {
 
   if (authLoading) {
     return (
-      <PageShell title="Directory">
+      <PageShell title="Contacts">
         <div className="flex justify-center py-20">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
@@ -808,8 +808,8 @@ function DirectoryPage() {
   if (!user) {
     return (
       <PageShell
-        title="Directory"
-        subtitle="Sign in to access your contact directory and phone sync tools."
+        title="Contacts"
+        subtitle="Sign in to access your contacts and phone sync tools."
       >
         <div className="rounded-2xl border border-border bg-card px-6 py-16 text-center text-sm text-muted-foreground shadow-card">
           Sign in to manage your directory, sync contacts, and call people from the tracker.
@@ -820,13 +820,13 @@ function DirectoryPage() {
 
   return (
     <PageShell
-      title="Directory"
-      subtitle="Keep your contact directory in one place, sync phone contacts on supported devices, and call people directly from the app."
+      title="Contacts"
+      subtitle="Keep your contacts in one place, sync phone contacts on supported devices, and call people directly from the app."
       actions={
         <div className="flex flex-wrap items-center gap-2">
           <TableExportButton
             filename="directory"
-            sheetName="Directory"
+            sheetName="Contacts"
             rows={rows}
             columns={[
               { header: "Name", accessor: (row) => row.name },
