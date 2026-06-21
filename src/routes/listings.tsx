@@ -315,13 +315,39 @@ function Listings() {
                 onRemove={() => remove(l)}
                 onEdit={() => setEditing(l)}
                 onOpen={() => setViewing(l)}
+                onOpenDocs={() => setDocsListing(l)}
+                docCount={docCounts[l.id] ?? 0}
               />
             ))}
           </div>
         </>
       )}
 
-      {viewing && <ListingFullscreen listing={viewing} onClose={() => setViewing(null)} />}
+      {viewing && (
+        <ListingFullscreen
+          listing={viewing}
+          onClose={() => setViewing(null)}
+          onOpenDocs={() => setDocsListing(viewing)}
+          docCount={docCounts[viewing.id] ?? 0}
+        />
+      )}
+      {docsListing && (
+        <ListingDocumentsModal
+          open={!!docsListing}
+          onOpenChange={(v) => {
+            if (!v) {
+              setDocsListing(null);
+              if (user) loadDocCounts(rows.map((r) => r.id));
+            }
+          }}
+          listingId={docsListing.id}
+          userId={user.id}
+          listingLabel={docsListing.address}
+          onCountChange={(n) =>
+            setDocCounts((prev) => ({ ...prev, [docsListing.id]: n }))
+          }
+        />
+      )}
       {editing && (
         <Dialog
           open={!!editing}
@@ -353,6 +379,8 @@ function ListingCard({
   onRemove,
   onEdit,
   onOpen,
+  onOpenDocs,
+  docCount,
 }: {
   listing: Listing;
   selected: boolean;
@@ -361,6 +389,8 @@ function ListingCard({
   onRemove: () => void;
   onEdit: () => void;
   onOpen: () => void;
+  onOpenDocs: () => void;
+  docCount: number;
 }) {
   const images = l.image_paths ?? [];
   const imageUrls = l.image_urls ?? [];
