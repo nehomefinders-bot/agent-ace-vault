@@ -394,6 +394,7 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
     doc.addPage();
     y = M;
   }
+  const marketPage = doc.getNumberOfPages();
   y = sectionHeader(`MARKET HISTORY FOR ${(l.address || NA).toUpperCase()}`, y);
   const histCols = [
     { h: "MLS #", w: cw * 0.14 },
@@ -455,8 +456,10 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
 
   // ===== GALLERY PAGE (2x2) =====
   const urls = (l.image_urls ?? []).filter(Boolean);
+  let galleryPage: number | null = null;
   if (urls.length > 1) {
     doc.addPage();
+    galleryPage = doc.getNumberOfPages();
     let gy = M;
     doc.setFillColor(...HEAD_BG);
     doc.rect(M, gy, cw, 22, "F");
@@ -501,8 +504,28 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
     }
   }
 
+  (doc as unknown as { __pageMap: PdfPageMap }).__pageMap = {
+    details: 1,
+    market: marketPage,
+    gallery: galleryPage,
+    total: doc.getNumberOfPages(),
+  };
+
   return doc;
 }
+
+export interface PdfPageMap {
+  details: number;
+  market: number;
+  gallery: number | null;
+  total: number;
+}
+
+export interface ListingPdfPreview {
+  url: string;
+  pages: PdfPageMap;
+}
+
 
 export async function downloadListingPdf(l: ShareableListing) {
   const doc = await buildListingPdfDoc(l);
