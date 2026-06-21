@@ -492,6 +492,47 @@ export type Database = {
         }
         Relationships: []
       }
+      listing_documents: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          mime_type: string | null
+          name: string
+          path: string
+          size: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          mime_type?: string | null
+          name: string
+          path: string
+          size?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          mime_type?: string | null
+          name?: string
+          path?: string
+          size?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_documents_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listings: {
         Row: {
           address: string

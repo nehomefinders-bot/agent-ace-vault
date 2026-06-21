@@ -18,7 +18,10 @@ import {
   Phone,
   MapPin,
   Pencil,
+  FolderOpen,
+  FileText,
 } from "lucide-react";
+import { ListingDocumentsModal } from "@/components/listing-documents-modal";
 import { PageShell } from "@/components/page-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -124,6 +127,25 @@ function Listings() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [viewing, setViewing] = useState<Listing | null>(null);
   const [editing, setEditing] = useState<Listing | null>(null);
+  const [docsListing, setDocsListing] = useState<Listing | null>(null);
+  const [docCounts, setDocCounts] = useState<Record<string, number>>({});
+
+  async function loadDocCounts(ids: string[]) {
+    if (!ids.length) {
+      setDocCounts({});
+      return;
+    }
+    const { data, error } = await supabase
+      .from("listing_documents")
+      .select("listing_id")
+      .in("listing_id", ids);
+    if (error) return;
+    const counts: Record<string, number> = {};
+    for (const r of (data ?? []) as { listing_id: string }[]) {
+      counts[r.listing_id] = (counts[r.listing_id] ?? 0) + 1;
+    }
+    setDocCounts(counts);
+  }
 
   async function load() {
     if (!user) {
@@ -148,6 +170,7 @@ function Listings() {
     setRows(nextRows);
     setSelected(new Set());
     setLoading(false);
+    loadDocCounts(nextRows.map((r) => r.id));
   }
   useEffect(() => {
     if (!authLoading) load(); /* eslint-disable-next-line */
@@ -292,13 +315,39 @@ function Listings() {
                 onRemove={() => remove(l)}
                 onEdit={() => setEditing(l)}
                 onOpen={() => setViewing(l)}
+                onOpenDocs={() => setDocsListing(l)}
+                docCount={docCounts[l.id] ?? 0}
               />
             ))}
           </div>
         </>
       )}
 
-      {viewing && <ListingFullscreen listing={viewing} onClose={() => setViewing(null)} />}
+      {viewing && (
+        <ListingFullscreen
+          listing={viewing}
+          onClose={() => setViewing(null)}
+          onOpenDocs={() => setDocsListing(viewing)}
+          docCount={docCounts[viewing.id] ?? 0}
+        />
+      )}
+      {docsListing && (
+        <ListingDocumentsModal
+          open={!!docsListing}
+          onOpenChange={(v) => {
+            if (!v) {
+              setDocsListing(null);
+              if (user) loadDocCounts(rows.map((r) => r.id));
+            }
+          }}
+          listingId={docsListing.id}
+          userId={user.id}
+          listingLabel={docsListing.address}
+          onCountChange={(n) =>
+            setDocCounts((prev) => ({ ...prev, [docsListing.id]: n }))
+          }
+        />
+      )}
       {editing && (
         <Dialog
           open={!!editing}
@@ -330,6 +379,8 @@ function ListingCard({
   onRemove,
   onEdit,
   onOpen,
+  onOpenDocs,
+  docCount,
 }: {
   listing: Listing;
   selected: boolean;
@@ -338,6 +389,8 @@ function ListingCard({
   onRemove: () => void;
   onEdit: () => void;
   onOpen: () => void;
+  onOpenDocs: () => void;
+  docCount: number;
 }) {
   const images = l.image_paths ?? [];
   const imageUrls = l.image_urls ?? [];
@@ -561,12 +614,39 @@ function ListingCard({
             )}
           </div>
         )}
+
+        <div className="mt-4 pt-3 border-t border-border">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenDocs();
+            }}
+            className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-muted/40 hover:bg-muted px-3 py-2 text-sm font-medium text-foreground transition"
+          >
+            <FolderOpen className="h-4 w-4 text-primary" />
+            Documents
+            <span className="ml-1 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-primary/10 text-primary text-xs tabular-nums">
+              {docCount}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-function ListingFullscreen({ listing: l, onClose }: { listing: Listing; onClose: () => void }) {
+function ListingFullscreen({
+  listing: l,
+  onClose,
+  onOpenDocs,
+  docCount,
+}: {
+  listing: Listing;
+  onClose: () => void;
+  onOpenDocs: () => void;
+  docCount: number;
+}) {
   const images = l.image_paths ?? [];
   const imageUrls = l.image_urls ?? [];
   const [idx, setIdx] = useState(0);
@@ -641,6 +721,23 @@ function ListingFullscreen({ listing: l, onClose }: { listing: Listing; onClose:
           </div>
         </>
       )}
+
+      {/* Documents button */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpenDocs();
+        }}
+        className="absolute top-4 right-40 bg-black/70 hover:bg-black/85 text-white text-xs font-medium rounded-full px-3 py-2 inline-flex items-center gap-1.5"
+      >
+        <FolderOpen className="h-3.5 w-3.5" />
+        Documents
+        {docCount > 0 && (
+          <span className="ml-1 bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-[10px] tabular-nums">
+            {docCount}
+          </span>
+        )}
+      </button>
 
       {/* Toggle for details overlay */}
       <button
@@ -802,9 +899,11 @@ function NewListingDialog({
   const [sellerNewAddress, setSellerNewAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [images, setImages] = useState<PendingImage[]>([]);
+  const [pendingDocs, setPendingDocs] = useState<File[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const docFileRef = useRef<HTMLInputElement>(null);
   const imagesRef = useRef<PendingImage[]>([]);
 
   useEffect(() => {
@@ -863,22 +962,80 @@ function NewListingDialog({
         uploaded.push(path);
       }
 
-      const { error: insErr } = await supabase.from("listings").insert({
-        user_id: userId,
-        address: address.trim(),
-        list_price: parseFloat(price) || 0,
-        status,
-        beds: beds ? parseInt(beds) : null,
-        baths: baths ? parseFloat(baths) : null,
-        sqft: sqft ? parseInt(sqft) : null,
-        image_paths: uploaded,
-        seller_name: sellerName.trim() || null,
-        seller_email: sellerEmail.trim() || null,
-        seller_phone: sellerPhone.trim() || null,
-        seller_new_address: sellerNewAddress.trim() || null,
-        notes: notes.trim() || null,
-      });
+      const { data: insertedRows, error: insErr } = await supabase
+        .from("listings")
+        .insert({
+          user_id: userId,
+          address: address.trim(),
+          list_price: parseFloat(price) || 0,
+          status,
+          beds: beds ? parseInt(beds) : null,
+          baths: baths ? parseFloat(baths) : null,
+          sqft: sqft ? parseInt(sqft) : null,
+          image_paths: uploaded,
+          seller_name: sellerName.trim() || null,
+          seller_email: sellerEmail.trim() || null,
+          seller_phone: sellerPhone.trim() || null,
+          seller_new_address: sellerNewAddress.trim() || null,
+          notes: notes.trim() || null,
+        })
+        .select("id")
+        .single();
       if (insErr) throw insErr;
+
+      const newListingId = insertedRows?.id as string | undefined;
+      if (newListingId && pendingDocs.length) {
+        type DocInsert = {
+          listing_id: string;
+          user_id: string;
+          name: string;
+          path: string;
+          size: number;
+          mime_type: string | null;
+        };
+        const docUploads: { path: string; row: DocInsert }[] = [];
+        for (const f of pendingDocs) {
+          if (f.size > 25 * 1024 * 1024) {
+            toast.error(`${f.name}: over 25MB, skipped`);
+            continue;
+          }
+          const ext = f.name.split(".").pop() || "bin";
+          const path = `${userId}/${newListingId}/${crypto.randomUUID()}.${ext}`;
+          const { error: dupErr } = await supabase.storage
+            .from("listing-documents")
+            .upload(path, f, {
+              contentType: f.type || "application/octet-stream",
+              upsert: false,
+            });
+          if (dupErr) {
+            toast.error(`${f.name}: ${dupErr.message}`);
+            continue;
+          }
+          docUploads.push({
+            path,
+            row: {
+              listing_id: newListingId,
+              user_id: userId,
+              name: f.name,
+              path,
+              size: f.size,
+              mime_type: f.type || null,
+            },
+          });
+        }
+        if (docUploads.length) {
+          const { error: docInsErr } = await supabase
+            .from("listing_documents")
+            .insert(docUploads.map((u) => u.row));
+          if (docInsErr) {
+            await supabase.storage
+              .from("listing-documents")
+              .remove(docUploads.map((u) => u.path))
+              .catch(() => {});
+            toast.error(`Documents: ${docInsErr.message}`);
+          }
+        }
+      }
 
       toast.success("Listing added");
       images.forEach((i) => URL.revokeObjectURL(i.preview));
@@ -1032,6 +1189,68 @@ function NewListingDialog({
             rows={3}
             placeholder="Add listing notes"
           />
+        </div>
+
+        {/* Documents upload */}
+        <div className="space-y-2">
+          <Label>Documents</Label>
+          <div
+            onClick={() => docFileRef.current?.click()}
+            className="border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 rounded-xl p-5 text-center cursor-pointer transition"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              if (e.dataTransfer.files.length)
+                setPendingDocs((p) => [...p, ...Array.from(e.dataTransfer.files)]);
+            }}
+          >
+            <input
+              ref={docFileRef}
+              type="file"
+              multiple
+              accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,.doc,.docx,application/pdf,image/*,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files)
+                  setPendingDocs((p) => [...p, ...Array.from(e.target.files!)]);
+                e.target.value = "";
+              }}
+            />
+            <Upload className="h-6 w-6 mx-auto mb-1.5 text-muted-foreground" />
+            <div className="text-sm font-medium">Drag & drop or click to attach files</div>
+            <div className="text-xs text-muted-foreground mt-1">
+              PDF, PNG, JPEG, DOCX · up to 25MB each
+            </div>
+          </div>
+
+          {pendingDocs.length > 0 && (
+            <ul className="space-y-1.5 mt-2">
+              {pendingDocs.map((f, i) => (
+                <li
+                  key={`${f.name}-${i}`}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <span className="truncate">{f.name}</span>
+                    <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+                      {(f.size / 1024 / 1024).toFixed(f.size > 1024 * 1024 ? 1 : 2)} MB
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPendingDocs((prev) => prev.filter((_, idx) => idx !== i))
+                    }
+                    className="p-1 rounded hover:bg-destructive/10 text-destructive shrink-0"
+                    aria-label="Remove"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         {/* Image dropzone */}
