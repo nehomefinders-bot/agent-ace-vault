@@ -614,6 +614,23 @@ function ListingCard({
             )}
           </div>
         )}
+
+        <div className="mt-4 pt-3 border-t border-border">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenDocs();
+            }}
+            className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-muted/40 hover:bg-muted px-3 py-2 text-sm font-medium text-foreground transition"
+          >
+            <FolderOpen className="h-4 w-4 text-primary" />
+            Documents
+            <span className="ml-1 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-primary/10 text-primary text-xs tabular-nums">
+              {docCount}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );
