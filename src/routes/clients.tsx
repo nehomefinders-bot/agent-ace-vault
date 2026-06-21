@@ -808,8 +808,8 @@ function DirectoryPage() {
   if (!user) {
     return (
       <PageShell
-        title="Directory"
-        subtitle="Sign in to access your contact directory and phone sync tools."
+        title="Contacts"
+        subtitle="Sign in to access your contacts and phone sync tools."
       >
         <div className="rounded-2xl border border-border bg-card px-6 py-16 text-center text-sm text-muted-foreground shadow-card">
           Sign in to manage your directory, sync contacts, and call people from the tracker.
