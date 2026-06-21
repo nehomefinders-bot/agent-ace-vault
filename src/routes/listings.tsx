@@ -1226,6 +1226,56 @@ function NewListingDialog({
           </div>
         </div>
 
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label>Property Type</Label>
+            <Select value={propertyType} onValueChange={setPropertyType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Single Family">Single Family</SelectItem>
+                <SelectItem value="Condo">Condo</SelectItem>
+                <SelectItem value="Multi-Family">Multi-Family</SelectItem>
+                <SelectItem value="Land">Land</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="yb">Year Built</Label>
+            <Input
+              id="yb"
+              type="number"
+              min="1700"
+              max="2100"
+              value={yearBuilt}
+              onChange={(e) => setYearBuilt(e.target.value)}
+              placeholder="e.g. 1998"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="ls">Lot Size / Acreage</Label>
+            <Input
+              id="ls"
+              value={lotSize}
+              onChange={(e) => setLotSize(e.target.value)}
+              placeholder="e.g. 0.25 acres"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="pk">Garage / Parking Spaces</Label>
+            <Input
+              id="pk"
+              type="number"
+              min="0"
+              value={parkingSpaces}
+              onChange={(e) => setParkingSpaces(e.target.value)}
+              placeholder="e.g. 2"
+            />
+          </div>
+        </div>
+
+
         {/* Seller info */}
         <div className="space-y-3 pt-2 border-t">
           <div className="text-sm font-medium text-foreground">Seller</div>
