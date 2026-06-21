@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,16 +7,27 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, Mail, FileText, ExternalLink, Download } from "lucide-react";
+import {
+  Loader2,
+  Mail,
+  FileText,
+  ExternalLink,
+  Download,
+  LayoutGrid,
+  Images,
+  History,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   findListingMlsDocument,
-  listingPdfDataUrl,
+  buildListingPdfPreview,
   shareListingViaEmail,
   buildShareBody,
   buildShareSubject,
   downloadListingPdf,
   type ShareableListing,
   type MlsAttachment,
+  type PdfPageMap,
 } from "@/lib/listing-share";
 
 export function ShareListingModal({
@@ -31,6 +42,8 @@ export function ShareListingModal({
   const [loading, setLoading] = useState(true);
   const [mls, setMls] = useState<MlsAttachment | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [pages, setPages] = useState<PdfPageMap | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (!open) return;
@@ -39,12 +52,17 @@ export function ShareListingModal({
       setLoading(true);
       setMls(null);
       setPdfUrl(null);
+      setPages(null);
+      setCurrentPage(1);
       const found = listing.id ? await findListingMlsDocument(listing.id) : null;
       if (cancelled) return;
       if (found) {
         setMls(found);
       } else {
-        setPdfUrl(await listingPdfDataUrl(listing));
+        const preview = await buildListingPdfPreview(listing);
+        if (cancelled) return;
+        setPdfUrl(preview.url);
+        setPages(preview.pages);
       }
       setLoading(false);
     })();
@@ -53,7 +71,13 @@ export function ShareListingModal({
     };
   }, [open, listing]);
 
-  const previewUrl = mls?.url ?? pdfUrl ?? null;
+  const baseUrl = mls?.url ?? pdfUrl ?? null;
+  const previewUrl = useMemo(() => {
+    if (!baseUrl) return null;
+    if (mls) return baseUrl;
+    return `${baseUrl}#page=${currentPage}&zoom=page-width`;
+  }, [baseUrl, currentPage, mls]);
+
   const subject = buildShareSubject(listing);
   const body = buildShareBody(listing, mls?.url);
 
@@ -61,6 +85,15 @@ export function ShareListingModal({
     shareListingViaEmail(listing, mls?.url);
     onOpenChange(false);
   }
+
+  const navItems: Array<{ label: string; page: number | null; icon: typeof LayoutGrid }> =
+    pages
+      ? [
+          { label: "Details", page: pages.details, icon: LayoutGrid },
+          { label: "Market History", page: pages.market, icon: History },
+          { label: "Gallery", page: pages.gallery, icon: Images },
+        ]
+      : [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -79,12 +112,45 @@ export function ShareListingModal({
           </div>
         </DialogHeader>
 
+        {!mls && pages && (
+          <div className="flex flex-wrap items-center gap-1.5 px-5 py-2 border-b border-border bg-muted/30">
+            <span className="text-xs text-muted-foreground mr-1">Jump to:</span>
+            {navItems.map((item) => {
+              const disabled = item.page == null;
+              const active = item.page === currentPage;
+              const Icon = item.icon;
+              return (
+                <Button
+                  key={item.label}
+                  type="button"
+                  size="sm"
+                  variant={active ? "default" : "outline"}
+                  disabled={disabled}
+                  onClick={() => item.page && setCurrentPage(item.page)}
+                  className={cn("h-7 px-2.5 text-xs", disabled && "opacity-50")}
+                  title={disabled ? `${item.label} not in this sheet` : `Go to ${item.label}`}
+                >
+                  <Icon className="h-3.5 w-3.5 mr-1" />
+                  {item.label}
+                  {item.page != null && (
+                    <span className="ml-1 text-[10px] opacity-70">p.{item.page}</span>
+                  )}
+                </Button>
+              );
+            })}
+            <span className="ml-auto text-xs text-muted-foreground">
+              Page {currentPage} / {pages.total}
+            </span>
+          </div>
+        )}
+
         <div className="flex-1 grid grid-cols-1 md:grid-cols-[1fr_320px] overflow-hidden">
           <div className="bg-muted/30 overflow-y-auto min-h-[300px] flex items-center justify-center">
             {loading || !previewUrl ? (
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             ) : (
               <iframe
+                key={previewUrl}
                 src={previewUrl}
                 title="Listing preview"
                 className="w-full h-[70vh] md:h-full border-0 bg-background"
