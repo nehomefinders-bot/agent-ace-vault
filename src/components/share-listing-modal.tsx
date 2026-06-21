@@ -44,7 +44,7 @@ export function ShareListingModal({
       if (found) {
         setMls(found);
       } else {
-        setPdfUrl(listingPdfDataUrl(listing));
+        setPdfUrl(await listingPdfDataUrl(listing));
       }
       setLoading(false);
     })();
