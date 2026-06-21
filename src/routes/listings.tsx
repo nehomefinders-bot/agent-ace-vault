@@ -1180,6 +1180,18 @@ function NewListingDialog({
           </div>
         </div>
 
+        {status === "Sold" && (
+          <div className="space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+            <Label htmlFor="cd">Closing Date</Label>
+            <Input
+              id="cd"
+              type="date"
+              value={closingDate}
+              onChange={(e) => setClosingDate(e.target.value)}
+            />
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="bd">Beds</Label>
