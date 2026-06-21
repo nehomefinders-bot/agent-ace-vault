@@ -1506,6 +1506,15 @@ function EditListingDialog({
   const [beds, setBeds] = useState(listing.beds == null ? "" : String(listing.beds));
   const [baths, setBaths] = useState(listing.baths == null ? "" : String(listing.baths));
   const [sqft, setSqft] = useState(listing.sqft == null ? "" : String(listing.sqft));
+  const [propertyType, setPropertyType] = useState(listing.property_type ?? "");
+  const [yearBuilt, setYearBuilt] = useState(
+    listing.year_built == null ? "" : String(listing.year_built),
+  );
+  const [lotSize, setLotSize] = useState(listing.lot_size ?? "");
+  const [parkingSpaces, setParkingSpaces] = useState(
+    listing.parking_spaces == null ? "" : String(listing.parking_spaces),
+  );
+  const [closingDate, setClosingDate] = useState(listing.closing_date ?? "");
   const [sellerName, setSellerName] = useState(listing.seller_name ?? "");
   const [sellerEmail, setSellerEmail] = useState(listing.seller_email ?? "");
   const [sellerPhone, setSellerPhone] = useState(listing.seller_phone ?? "");
