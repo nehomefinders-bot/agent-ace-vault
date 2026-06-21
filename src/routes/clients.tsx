@@ -797,7 +797,7 @@ function DirectoryPage() {
 
   if (authLoading) {
     return (
-      <PageShell title="Directory">
+      <PageShell title="Contacts">
         <div className="flex justify-center py-20">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
