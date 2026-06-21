@@ -820,8 +820,8 @@ function DirectoryPage() {
 
   return (
     <PageShell
-      title="Directory"
-      subtitle="Keep your contact directory in one place, sync phone contacts on supported devices, and call people directly from the app."
+      title="Contacts"
+      subtitle="Keep your contacts in one place, sync phone contacts on supported devices, and call people directly from the app."
       actions={
         <div className="flex flex-wrap items-center gap-2">
           <TableExportButton
