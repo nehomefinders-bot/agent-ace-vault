@@ -619,7 +619,17 @@ function ListingCard({
   );
 }
 
-function ListingFullscreen({ listing: l, onClose }: { listing: Listing; onClose: () => void }) {
+function ListingFullscreen({
+  listing: l,
+  onClose,
+  onOpenDocs,
+  docCount,
+}: {
+  listing: Listing;
+  onClose: () => void;
+  onOpenDocs: () => void;
+  docCount: number;
+}) {
   const images = l.image_paths ?? [];
   const imageUrls = l.image_urls ?? [];
   const [idx, setIdx] = useState(0);
