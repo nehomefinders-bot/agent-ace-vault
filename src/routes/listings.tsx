@@ -137,6 +137,7 @@ function Listings() {
   const [viewing, setViewing] = useState<Listing | null>(null);
   const [editing, setEditing] = useState<Listing | null>(null);
   const [docsListing, setDocsListing] = useState<Listing | null>(null);
+  const [sharingListing, setSharingListing] = useState<Listing | null>(null);
   const [docCounts, setDocCounts] = useState<Record<string, number>>({});
 
   async function loadDocCounts(ids: string[]) {
