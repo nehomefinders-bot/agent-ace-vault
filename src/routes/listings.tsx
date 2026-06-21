@@ -20,7 +20,10 @@ import {
   Pencil,
   FolderOpen,
   FileText,
+  Share2,
+  Download,
 } from "lucide-react";
+import { shareListingViaEmail, downloadListingPdf } from "@/lib/listing-share";
 import { ListingDocumentsModal } from "@/components/listing-documents-modal";
 import { PageShell } from "@/components/page-shell";
 import { supabase } from "@/integrations/supabase/client";
