@@ -1191,6 +1191,68 @@ function NewListingDialog({
           />
         </div>
 
+        {/* Documents upload */}
+        <div className="space-y-2">
+          <Label>Documents</Label>
+          <div
+            onClick={() => docFileRef.current?.click()}
+            className="border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 rounded-xl p-5 text-center cursor-pointer transition"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              if (e.dataTransfer.files.length)
+                setPendingDocs((p) => [...p, ...Array.from(e.dataTransfer.files)]);
+            }}
+          >
+            <input
+              ref={docFileRef}
+              type="file"
+              multiple
+              accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,.doc,.docx,application/pdf,image/*,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files)
+                  setPendingDocs((p) => [...p, ...Array.from(e.target.files!)]);
+                e.target.value = "";
+              }}
+            />
+            <Upload className="h-6 w-6 mx-auto mb-1.5 text-muted-foreground" />
+            <div className="text-sm font-medium">Drag & drop or click to attach files</div>
+            <div className="text-xs text-muted-foreground mt-1">
+              PDF, PNG, JPEG, DOCX · up to 25MB each
+            </div>
+          </div>
+
+          {pendingDocs.length > 0 && (
+            <ul className="space-y-1.5 mt-2">
+              {pendingDocs.map((f, i) => (
+                <li
+                  key={`${f.name}-${i}`}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <span className="truncate">{f.name}</span>
+                    <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+                      {(f.size / 1024 / 1024).toFixed(f.size > 1024 * 1024 ? 1 : 2)} MB
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPendingDocs((prev) => prev.filter((_, idx) => idx !== i))
+                    }
+                    className="p-1 rounded hover:bg-destructive/10 text-destructive shrink-0"
+                    aria-label="Remove"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
         {/* Image dropzone */}
         <div className="space-y-2">
           <Label>Photos</Label>
