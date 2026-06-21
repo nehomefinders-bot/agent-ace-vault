@@ -18,7 +18,11 @@ import {
   FileImage,
   File as FileIcon,
   X,
+  Pencil,
+  Check,
+  Eye,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 const BUCKET = "listing-documents";
 const MAX_FILE_MB = 25;
