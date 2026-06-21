@@ -540,3 +540,12 @@ export async function listingPdfDataUrl(l: ShareableListing): Promise<string> {
   const doc = await buildListingPdfDoc(l);
   return doc.output("datauristring");
 }
+
+export async function buildListingPdfPreview(
+  l: ShareableListing,
+): Promise<ListingPdfPreview> {
+  const doc = await buildListingPdfDoc(l);
+  const pages = (doc as unknown as { __pageMap: PdfPageMap }).__pageMap;
+  return { url: doc.output("datauristring"), pages };
+}
+
