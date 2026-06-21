@@ -962,22 +962,72 @@ function NewListingDialog({
         uploaded.push(path);
       }
 
-      const { error: insErr } = await supabase.from("listings").insert({
-        user_id: userId,
-        address: address.trim(),
-        list_price: parseFloat(price) || 0,
-        status,
-        beds: beds ? parseInt(beds) : null,
-        baths: baths ? parseFloat(baths) : null,
-        sqft: sqft ? parseInt(sqft) : null,
-        image_paths: uploaded,
-        seller_name: sellerName.trim() || null,
-        seller_email: sellerEmail.trim() || null,
-        seller_phone: sellerPhone.trim() || null,
-        seller_new_address: sellerNewAddress.trim() || null,
-        notes: notes.trim() || null,
-      });
+      const { data: insertedRows, error: insErr } = await supabase
+        .from("listings")
+        .insert({
+          user_id: userId,
+          address: address.trim(),
+          list_price: parseFloat(price) || 0,
+          status,
+          beds: beds ? parseInt(beds) : null,
+          baths: baths ? parseFloat(baths) : null,
+          sqft: sqft ? parseInt(sqft) : null,
+          image_paths: uploaded,
+          seller_name: sellerName.trim() || null,
+          seller_email: sellerEmail.trim() || null,
+          seller_phone: sellerPhone.trim() || null,
+          seller_new_address: sellerNewAddress.trim() || null,
+          notes: notes.trim() || null,
+        })
+        .select("id")
+        .single();
       if (insErr) throw insErr;
+
+      const newListingId = insertedRows?.id as string | undefined;
+      if (newListingId && pendingDocs.length) {
+        const docUploads: { path: string; row: Record<string, unknown> }[] = [];
+        for (const f of pendingDocs) {
+          if (f.size > 25 * 1024 * 1024) {
+            toast.error(`${f.name}: over 25MB, skipped`);
+            continue;
+          }
+          const ext = f.name.split(".").pop() || "bin";
+          const path = `${userId}/${newListingId}/${crypto.randomUUID()}.${ext}`;
+          const { error: dupErr } = await supabase.storage
+            .from("listing-documents")
+            .upload(path, f, {
+              contentType: f.type || "application/octet-stream",
+              upsert: false,
+            });
+          if (dupErr) {
+            toast.error(`${f.name}: ${dupErr.message}`);
+            continue;
+          }
+          docUploads.push({
+            path,
+            row: {
+              listing_id: newListingId,
+              user_id: userId,
+              name: f.name,
+              path,
+              size: f.size,
+              mime_type: f.type || null,
+            },
+          });
+        }
+        if (docUploads.length) {
+          const { error: docInsErr } = await supabase
+            .from("listing_documents")
+            .insert(docUploads.map((u) => u.row));
+          if (docInsErr) {
+            await supabase.storage
+              .from("listing-documents")
+              .remove(docUploads.map((u) => u.path))
+              .catch(() => {});
+            toast.error(`Documents: ${docInsErr.message}`);
+          }
+        }
+      }
 
       toast.success("Listing added");
       images.forEach((i) => URL.revokeObjectURL(i.preview));
