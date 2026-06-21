@@ -826,7 +826,7 @@ function DirectoryPage() {
         <div className="flex flex-wrap items-center gap-2">
           <TableExportButton
             filename="directory"
-            sheetName="Directory"
+            sheetName="Contacts"
             rows={rows}
             columns={[
               { header: "Name", accessor: (row) => row.name },
