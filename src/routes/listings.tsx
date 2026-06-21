@@ -789,7 +789,7 @@ function ListingFullscreen({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            shareListingViaEmail(l);
+            onShare();
           }}
           className="bg-black/70 hover:bg-black/85 text-white text-xs font-medium rounded-full px-3 py-2 inline-flex items-center gap-1.5"
         >
