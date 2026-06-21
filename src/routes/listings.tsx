@@ -1690,6 +1690,18 @@ function EditListingDialog({
           </div>
         </div>
 
+        {status === "Sold" && (
+          <div className="space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+            <Label htmlFor="edit-cd">Closing Date</Label>
+            <Input
+              id="edit-cd"
+              type="date"
+              value={closingDate}
+              onChange={(e) => setClosingDate(e.target.value)}
+            />
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="edit-bd">Beds</Label>
@@ -1723,6 +1735,56 @@ function EditListingDialog({
             />
           </div>
         </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label>Property Type</Label>
+            <Select value={propertyType} onValueChange={setPropertyType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Single Family">Single Family</SelectItem>
+                <SelectItem value="Condo">Condo</SelectItem>
+                <SelectItem value="Multi-Family">Multi-Family</SelectItem>
+                <SelectItem value="Land">Land</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-yb">Year Built</Label>
+            <Input
+              id="edit-yb"
+              type="number"
+              min="1700"
+              max="2100"
+              value={yearBuilt}
+              onChange={(e) => setYearBuilt(e.target.value)}
+              placeholder="e.g. 1998"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-ls">Lot Size / Acreage</Label>
+            <Input
+              id="edit-ls"
+              value={lotSize}
+              onChange={(e) => setLotSize(e.target.value)}
+              placeholder="e.g. 0.25 acres"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-pk">Garage / Parking Spaces</Label>
+            <Input
+              id="edit-pk"
+              type="number"
+              min="0"
+              value={parkingSpaces}
+              onChange={(e) => setParkingSpaces(e.target.value)}
+              placeholder="e.g. 2"
+            />
+          </div>
+        </div>
+
 
         <div className="space-y-3 pt-2 border-t">
           <div className="text-sm font-medium text-foreground">Seller</div>
