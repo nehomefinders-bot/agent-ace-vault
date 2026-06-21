@@ -18,7 +18,10 @@ import {
   Phone,
   MapPin,
   Pencil,
+  FolderOpen,
+  FileText,
 } from "lucide-react";
+import { ListingDocumentsModal } from "@/components/listing-documents-modal";
 import { PageShell } from "@/components/page-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
