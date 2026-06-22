@@ -257,13 +257,17 @@ function Listings() {
     load();
   }
 
-  async function updateStatus(id: string, status: string) {
+  async function updateStatus(id: string, status: string, closingDate?: string | null) {
     const prev = rows;
-    setRows((cur) => cur.map((r) => (r.id === id ? { ...r, status } : r)));
-    const { error } = await supabase.from("listings").update({ status }).eq("id", id);
+    const patch: { status: string; closing_date?: string | null } = { status };
+    if (closingDate !== undefined) patch.closing_date = closingDate;
+    setRows((cur) => cur.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+    const { error } = await supabase.from("listings").update(patch).eq("id", id);
     if (error) {
       setRows(prev);
       toast.error(error.message);
+    } else if (closingDate) {
+      toast.success("Closing date saved");
     }
   }
 
