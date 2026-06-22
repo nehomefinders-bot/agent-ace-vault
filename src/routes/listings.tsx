@@ -1719,7 +1719,7 @@ function EditListingDialog({
   }
 
   return (
-    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <DialogContent className="max-w-2xl w-[95vw] max-h-[92vh] overflow-y-auto p-4 sm:p-6">
       <DialogHeader>
         <DialogTitle>Edit Listing</DialogTitle>
       </DialogHeader>
@@ -1735,6 +1735,30 @@ function EditListingDialog({
             placeholder="Enter property address here"
           />
         </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-mlsn">MLS Number</Label>
+            <Input
+              id="edit-mlsn"
+              value={mlsNumber}
+              onChange={(e) => setMlsNumber(e.target.value)}
+              placeholder="Leave blank for N/A"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="edit-public-remarks">Public Remarks / Description</Label>
+          <Textarea
+            id="edit-public-remarks"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            placeholder="Write a detailed marketing description for this property. This appears in the REMARKS section of the auto-generated MLS sheet."
+          />
+        </div>
+
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
