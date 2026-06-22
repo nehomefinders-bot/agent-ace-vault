@@ -17,6 +17,7 @@ import {
   LayoutGrid,
   Images,
   History,
+  Copy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -26,6 +27,7 @@ import {
   buildShareBody,
   buildShareSubject,
   downloadListingPdf,
+  copyEmailContentToClipboard,
   type ShareableListing,
   type MlsAttachment,
   type PdfPageMap,
