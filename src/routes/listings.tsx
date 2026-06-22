@@ -1931,6 +1931,29 @@ function EditListingDialog({
           </div>
         </div>
 
+        <div className="space-y-3 pt-2 border-t">
+          <div className="text-sm font-medium text-foreground">Agent Branding / Contact Details</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-an">Agent Full Name</Label>
+              <Input id="edit-an" value={agentName} onChange={(e) => setAgentName(e.target.value)} placeholder="e.g. Jane Doe" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-ab">Company / Brokerage</Label>
+              <Input id="edit-ab" value={agentBrokerage} onChange={(e) => setAgentBrokerage(e.target.value)} placeholder="e.g. Acme Realty" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-ap">Contact Phone</Label>
+              <Input id="edit-ap" type="tel" value={agentPhone} onChange={(e) => setAgentPhone(e.target.value)} placeholder="(555) 555-1234" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-ae">Contact Email</Label>
+              <Input id="edit-ae" type="email" value={agentEmail} onChange={(e) => setAgentEmail(e.target.value)} placeholder="agent@brokerage.com" />
+            </div>
+          </div>
+        </div>
+
+
         <div className="space-y-1.5">
           <Label htmlFor="edit-listing-notes">Notes</Label>
           <Textarea
