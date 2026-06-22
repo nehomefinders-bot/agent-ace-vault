@@ -98,6 +98,15 @@ export function ShareListingModal({
     onOpenChange(false);
   }
 
+  async function handleCopy() {
+    try {
+      await copyEmailContentToClipboard(listing, mls?.url);
+      toast.success("Email text copied! Paste directly into Gmail or Outlook.");
+    } catch {
+      toast.error("Couldn't copy to clipboard — please copy manually from the preview.");
+    }
+  }
+
   const navItems: Array<{ label: string; page: number | null; icon: typeof LayoutGrid }> =
     pages
       ? [
