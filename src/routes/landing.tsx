@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   Check,
   BookOpen,
@@ -145,6 +145,22 @@ function Landing() {
     const t = setTimeout(() => setShowTeaser(false), 4000);
     return () => clearTimeout(t);
   }, [showTeaser]);
+
+  const videoIframeRef = useRef<HTMLIFrameElement | null>(null);
+  const closeVideo = () => {
+    const f = videoIframeRef.current;
+    if (f) {
+      try {
+        f.contentWindow?.postMessage(
+          '{"event":"command","func":"stopVideo","args":""}',
+          "*",
+        );
+      } catch {}
+      f.src = "about:blank";
+    }
+    setIsVideoOpen(false);
+  };
+
 
   const supportEmail = "livingandlearningwithjackie@gmail.com";
   const copySupportEmail = async () => {
@@ -328,7 +344,7 @@ function Landing() {
       {isVideoOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md"
-          onClick={() => setIsVideoOpen(false)}
+          onClick={closeVideo}
           role="presentation"
         >
           <div
@@ -340,19 +356,21 @@ function Landing() {
           >
             <button
               type="button"
-              onClick={() => setIsVideoOpen(false)}
+              onClick={closeVideo}
               className="absolute -top-3 -right-3 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-slate-950/90 text-white/70 shadow-lg transition hover:bg-slate-900 hover:text-white"
               aria-label="Close video"
             >
               <X className="h-5 w-5" />
             </button>
             <iframe
+              ref={videoIframeRef}
               className="h-full w-full"
-              src="https://www.youtube.com/embed/g-FDTVZ-InI?autoplay=1&rel=0"
+              src="https://www.youtube.com/embed/g-FDTVZ-InI?autoplay=1&rel=0&enablejsapi=1"
               title="Agent Business Tracker live demo"
               allow="autoplay; fullscreen; picture-in-picture"
               allowFullScreen
             />
+
           </div>
         </div>
       )}
