@@ -85,6 +85,22 @@ function validateAgentBranding(fields: {
   if (result.success) return null;
   return result.error.issues[0]?.message ?? "Invalid agent branding details";
 }
+function agentPhoneError(v: string): string | null {
+  const t = v.trim();
+  if (!t) return null;
+  if (t.length > 30) return "Phone must be under 30 characters";
+  if (!/^[+()\-\s.\d]{7,30}$/.test(t))
+    return "Use digits with + - ( ) . or spaces (7–30 chars)";
+  return null;
+}
+function agentEmailError(v: string): string | null {
+  const t = v.trim();
+  if (!t) return null;
+  if (t.length > 255) return "Email must be under 255 characters";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)) return "Enter a valid email address";
+  return null;
+}
+
 
 const LISTING_IMPORT_COLUMNS: ImportColumn[] = [
   { key: "address", label: "Address", required: true, sample: "123 Main St" },
@@ -1415,11 +1431,33 @@ function NewListingDialog({
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ap">Contact Phone</Label>
-              <Input id="ap" type="tel" value={agentPhone} onChange={(e) => setAgentPhone(e.target.value)} placeholder="(555) 555-1234" />
+              <Input
+                id="ap"
+                type="tel"
+                value={agentPhone}
+                onChange={(e) => setAgentPhone(e.target.value)}
+                placeholder="(555) 555-1234"
+                aria-invalid={!!agentPhoneError(agentPhone)}
+                className={agentPhoneError(agentPhone) ? "border-destructive focus-visible:ring-destructive" : ""}
+              />
+              {agentPhoneError(agentPhone) && (
+                <p className="text-xs text-destructive">{agentPhoneError(agentPhone)}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ae">Contact Email</Label>
-              <Input id="ae" type="email" value={agentEmail} onChange={(e) => setAgentEmail(e.target.value)} placeholder="agent@brokerage.com" />
+              <Input
+                id="ae"
+                type="email"
+                value={agentEmail}
+                onChange={(e) => setAgentEmail(e.target.value)}
+                placeholder="agent@brokerage.com"
+                aria-invalid={!!agentEmailError(agentEmail)}
+                className={agentEmailError(agentEmail) ? "border-destructive focus-visible:ring-destructive" : ""}
+              />
+              {agentEmailError(agentEmail) && (
+                <p className="text-xs text-destructive">{agentEmailError(agentEmail)}</p>
+              )}
             </div>
           </div>
         </div>
@@ -1990,11 +2028,33 @@ function EditListingDialog({
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="edit-ap">Contact Phone</Label>
-              <Input id="edit-ap" type="tel" value={agentPhone} onChange={(e) => setAgentPhone(e.target.value)} placeholder="(555) 555-1234" />
+              <Input
+                id="edit-ap"
+                type="tel"
+                value={agentPhone}
+                onChange={(e) => setAgentPhone(e.target.value)}
+                placeholder="(555) 555-1234"
+                aria-invalid={!!agentPhoneError(agentPhone)}
+                className={agentPhoneError(agentPhone) ? "border-destructive focus-visible:ring-destructive" : ""}
+              />
+              {agentPhoneError(agentPhone) && (
+                <p className="text-xs text-destructive">{agentPhoneError(agentPhone)}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="edit-ae">Contact Email</Label>
-              <Input id="edit-ae" type="email" value={agentEmail} onChange={(e) => setAgentEmail(e.target.value)} placeholder="agent@brokerage.com" />
+              <Input
+                id="edit-ae"
+                type="email"
+                value={agentEmail}
+                onChange={(e) => setAgentEmail(e.target.value)}
+                placeholder="agent@brokerage.com"
+                aria-invalid={!!agentEmailError(agentEmail)}
+                className={agentEmailError(agentEmail) ? "border-destructive focus-visible:ring-destructive" : ""}
+              />
+              {agentEmailError(agentEmail) && (
+                <p className="text-xs text-destructive">{agentEmailError(agentEmail)}</p>
+              )}
             </div>
           </div>
         </div>
