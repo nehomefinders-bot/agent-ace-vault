@@ -429,7 +429,7 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
   const today = new Date().toISOString().slice(0, 10);
   const histRows = [
     [
-      shortMls(l.id),
+      shortMls(l.id, l.mls_number),
       today,
       `Listed - ${l.status || "Active"}`,
       "0",
@@ -439,11 +439,11 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
   ];
   if (l.closing_date) {
     histRows.push([
-      shortMls(l.id),
+      shortMls(l.id, l.mls_number),
       l.closing_date,
       "Sold",
-      "—",
-      "—",
+      NA,
+      NA,
       l.list_price != null ? formatMoney(Number(l.list_price)) : NA,
     ]);
   }
