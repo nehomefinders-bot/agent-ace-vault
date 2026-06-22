@@ -383,7 +383,7 @@ function Listings() {
                 listing={l}
                 selected={selected.has(l.id)}
                 onToggleSelect={() => toggleOne(l.id)}
-                onStatusChange={(s) => updateStatus(l.id, s)}
+                onStatusChange={(s, d) => updateStatus(l.id, s, d)}
                 onRemove={() => remove(l)}
                 onEdit={() => setEditing(l)}
                 onOpen={() => setViewing(l)}
