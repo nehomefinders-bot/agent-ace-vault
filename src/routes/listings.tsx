@@ -50,6 +50,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { format as formatDate } from "date-fns";
 import { BulkStatusBar } from "@/components/bulk-status-bar";
 import { toast } from "sonner";
 import { ImportButton, type ImportColumn } from "@/components/import-button";
@@ -253,13 +257,17 @@ function Listings() {
     load();
   }
 
-  async function updateStatus(id: string, status: string) {
+  async function updateStatus(id: string, status: string, closingDate?: string | null) {
     const prev = rows;
-    setRows((cur) => cur.map((r) => (r.id === id ? { ...r, status } : r)));
-    const { error } = await supabase.from("listings").update({ status }).eq("id", id);
+    const patch: { status: string; closing_date?: string | null } = { status };
+    if (closingDate !== undefined) patch.closing_date = closingDate;
+    setRows((cur) => cur.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+    const { error } = await supabase.from("listings").update(patch).eq("id", id);
     if (error) {
       setRows(prev);
       toast.error(error.message);
+    } else if (closingDate) {
+      toast.success("Closing date saved");
     }
   }
 
@@ -375,7 +383,7 @@ function Listings() {
                 listing={l}
                 selected={selected.has(l.id)}
                 onToggleSelect={() => toggleOne(l.id)}
-                onStatusChange={(s) => updateStatus(l.id, s)}
+                onStatusChange={(s, d) => updateStatus(l.id, s, d)}
                 onRemove={() => remove(l)}
                 onEdit={() => setEditing(l)}
                 onOpen={() => setViewing(l)}
@@ -459,7 +467,7 @@ function ListingCard({
   listing: Listing;
   selected: boolean;
   onToggleSelect: () => void;
-  onStatusChange: (s: string) => void;
+  onStatusChange: (s: string, closingDate?: string | null) => void;
   onRemove: () => void;
   onEdit: () => void;
   onOpen: () => void;
@@ -472,6 +480,24 @@ function ListingCard({
   const [idx, setIdx] = useState(0);
   const cover = imageUrls[idx];
   const hasMulti = images.length > 1;
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const closingDateObj = l.closing_date ? new Date(l.closing_date + "T00:00:00") : undefined;
+
+  const handleStatusChange = (s: string) => {
+    if (s === "Sold") {
+      onStatusChange(s);
+      setDatePickerOpen(true);
+    } else {
+      onStatusChange(s, null);
+    }
+  };
+
+  const handleDatePick = (d: Date | undefined) => {
+    if (!d) return;
+    const iso = formatDate(d, "yyyy-MM-dd");
+    onStatusChange("Sold", iso);
+    setDatePickerOpen(false);
+  };
 
   const next = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -512,8 +538,8 @@ function ListingCard({
             className="absolute inset-0 w-full h-full object-cover"
           />
         )}
-        <div className="absolute top-3 left-3" onClick={(e) => e.stopPropagation()}>
-          <Select value={l.status} onValueChange={onStatusChange}>
+        <div className="absolute top-3 left-3 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+          <Select value={l.status} onValueChange={handleStatusChange}>
             <SelectTrigger
               className={`h-7 px-2.5 text-xs font-medium border-0 rounded-full shadow-sm ${
                 l.status === "Active"
@@ -533,6 +559,28 @@ function ListingCard({
               ))}
             </SelectContent>
           </Select>
+          <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+            <PopoverTrigger asChild>
+              <span className="sr-only" aria-hidden />
+            </PopoverTrigger>
+            <PopoverContent
+              align="start"
+              sideOffset={6}
+              className="w-auto p-0 z-50"
+              onOpenAutoFocus={(e) => e.preventDefault()}
+            >
+              <div className="px-3 pt-3 pb-1 text-xs font-medium text-foreground">
+                Select closing date
+              </div>
+              <Calendar
+                mode="single"
+                selected={closingDateObj}
+                onSelect={handleDatePick}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
 
         {hasMulti && (
@@ -601,6 +649,11 @@ function ListingCard({
             {l.client_name && <span>Client: {l.client_name}</span>}
             {l.deal_side && <span>Side: {formatDealSide(l.deal_side)}</span>}
             {l.close_date && <span>Close: {l.close_date}</span>}
+          </div>
+        )}
+        {l.status === "Sold" && l.closing_date && (
+          <div className="mt-1 text-xs font-medium text-success">
+            Closed: {formatDate(new Date(l.closing_date + "T00:00:00"), "MM/dd/yyyy")}
           </div>
         )}
         <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
