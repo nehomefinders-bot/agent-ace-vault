@@ -132,7 +132,12 @@ async function loadImage(
   }
 }
 
-function shortMls(id?: string) {
+function shortMls(id?: string, mlsNumber?: string | null) {
+  const m = (mlsNumber ?? "").trim();
+  if (m) return m;
+  if (!id) return NA;
+  return id.replace(/-/g, "").slice(0, 8).toUpperCase();
+}
   if (!id) return NA;
   return id.replace(/-/g, "").slice(0, 8).toUpperCase();
 }
