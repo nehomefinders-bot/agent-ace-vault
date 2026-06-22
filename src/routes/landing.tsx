@@ -271,17 +271,19 @@ function Landing() {
               <button
                 type="button"
                 onClick={() => setIsVideoOpen(true)}
-                className="w-full rounded-lg border border-white/80 bg-white/92 px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_16px_34px_-16px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-white hover:shadow-[0_18px_40px_-16px_rgba(255,255,255,0.22)] sm:w-auto sm:px-7"
+                className="group relative w-full overflow-visible rounded-lg border border-white/80 bg-white/92 px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_16px_34px_-16px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-white sm:w-auto sm:px-7"
               >
-                See live demo
+                <span aria-hidden className="pointer-events-none absolute inset-0 -z-10 rounded-lg ring-2 ring-white/60 animate-ping opacity-60" />
+                <span aria-hidden className="pointer-events-none absolute -inset-1 -z-10 rounded-xl bg-white/30 blur-xl animate-pulse" />
+                <span className="inline-flex items-center justify-center gap-2">
+                  <Play className="h-4 w-4 fill-slate-950" /> See live demo
+                </span>
               </button>
             </div>
-
-
-
           </div>
         </div>
       </section>
+
 
       {isVideoOpen && (
         <div
