@@ -483,6 +483,17 @@ function ListingCard({
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const closingDateObj = l.closing_date ? new Date(l.closing_date + "T00:00:00") : undefined;
 
+  const displayClosingDate = () => {
+    const dateToUse = l.closing_date || l.close_date;
+    if (!dateToUse) return "Pending";
+    try {
+      const dateStr = dateToUse.includes("T") ? dateToUse : `${dateToUse}T00:00:00`;
+      return formatDate(new Date(dateStr), "MM/dd/yyyy");
+    } catch (e) {
+      return "Pending";
+    }
+  };
+
   const handleStatusChange = (s: string) => {
     if (s === "Sold") {
       onStatusChange(s);
