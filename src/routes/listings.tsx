@@ -1169,6 +1169,30 @@ function NewListingDialog({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
+            <Label htmlFor="mlsn">MLS Number</Label>
+            <Input
+              id="mlsn"
+              value={mlsNumber}
+              onChange={(e) => setMlsNumber(e.target.value)}
+              placeholder="Leave blank for N/A"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="public-remarks">Public Remarks / Description</Label>
+          <Textarea
+            id="public-remarks"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            placeholder="Write a detailed marketing description for this property. This appears in the REMARKS section of the auto-generated MLS sheet."
+          />
+        </div>
+
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
             <Label htmlFor="lp">List Price *</Label>
             <Input
               id="lp"
