@@ -1585,6 +1585,12 @@ function EditListingDialog({
   const [sellerPhone, setSellerPhone] = useState(listing.seller_phone ?? "");
   const [sellerNewAddress, setSellerNewAddress] = useState(listing.seller_new_address ?? "");
   const [notes, setNotes] = useState(listing.notes ?? "");
+  const [mlsNumber, setMlsNumber] = useState(listing.mls_number ?? "");
+  const [description, setDescription] = useState(listing.description ?? "");
+  const [agentName, setAgentName] = useState(listing.agent_name ?? "");
+  const [agentBrokerage, setAgentBrokerage] = useState(listing.agent_brokerage ?? "");
+  const [agentPhone, setAgentPhone] = useState(listing.agent_phone ?? "");
+  const [agentEmail, setAgentEmail] = useState(listing.agent_email ?? "");
   const [imagePaths, setImagePaths] = useState<string[]>(listing.image_paths ?? []);
   const [removedPaths, setRemovedPaths] = useState<string[]>([]);
   const [images, setImages] = useState<PendingImage[]>([]);
