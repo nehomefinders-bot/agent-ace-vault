@@ -711,16 +711,16 @@ function ListingCard({
             {l.notes}
           </p>
         )}
-        {(l.client_name || l.deal_side || l.close_date) && (
+        {(l.client_name || l.deal_side || (l.close_date && l.status !== "Sold")) && (
           <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
             {l.client_name && <span>Client: {l.client_name}</span>}
             {l.deal_side && <span>Side: {formatDealSide(l.deal_side)}</span>}
-            {l.close_date && <span>Close: {l.close_date}</span>}
+            {l.close_date && l.status !== "Sold" && <span>Close: {l.close_date}</span>}
           </div>
         )}
-        {l.status === "Sold" && l.closing_date && (
+        {l.status === "Sold" && (
           <div className="mt-1 text-xs font-medium text-success">
-            Closed: {formatDate(new Date(l.closing_date + "T00:00:00"), "MM/dd/yyyy")}
+            Closed: {displayClosingDate()}
           </div>
         )}
         <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
