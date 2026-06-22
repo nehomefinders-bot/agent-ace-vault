@@ -163,7 +163,7 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
   doc.setTextColor(255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
-  const leftHead = `MLS# ${shortMls(l.id)}   |   ${(l.status || "Active").toUpperCase()}   |   ${l.property_type || "Residential"}`;
+  const leftHead = `MLS# ${shortMls(l.id, l.mls_number)}   |   ${(l.status || "Active").toUpperCase()}   |   ${l.property_type || "Residential"}`;
   doc.text(leftHead, M + 8, y + 18);
   const priceTxt =
     l.list_price != null ? formatMoney(Number(l.list_price)) : "Price on request";
