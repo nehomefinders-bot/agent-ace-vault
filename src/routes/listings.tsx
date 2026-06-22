@@ -173,7 +173,7 @@ function Listings() {
     const { data, error } = await supabase
       .from("listings")
       .select(
-        "id,address,client_name,deal_side,close_date,gross_commission,agent_split_pct,brokerage_split_pct,referral_pct,referral_to,list_price,status,beds,baths,sqft,image_paths,seller_name,seller_phone,seller_email,seller_new_address,notes,property_type,year_built,lot_size,parking_spaces,closing_date",
+        "id,address,client_name,deal_side,close_date,gross_commission,agent_split_pct,brokerage_split_pct,referral_pct,referral_to,list_price,status,beds,baths,sqft,image_paths,seller_name,seller_phone,seller_email,seller_new_address,notes,property_type,year_built,lot_size,parking_spaces,closing_date,description,mls_number,agent_name,agent_brokerage,agent_phone,agent_email",
       )
       .order("created_at", { ascending: false });
     if (error) {
