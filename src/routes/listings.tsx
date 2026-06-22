@@ -651,6 +651,11 @@ function ListingCard({
             {l.close_date && <span>Close: {l.close_date}</span>}
           </div>
         )}
+        {l.status === "Sold" && l.closing_date && (
+          <div className="mt-1 text-xs font-medium text-success">
+            Closed: {formatDate(new Date(l.closing_date + "T00:00:00"), "MM/dd/yyyy")}
+          </div>
+        )}
         <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
           {l.beds != null && (
             <span className="inline-flex items-center gap-1.5">
