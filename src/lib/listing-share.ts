@@ -10,6 +10,8 @@ export interface ShareableListing {
   baths: number | null;
   sqft: number | null;
   notes: string | null;
+  description?: string | null;
+  mls_number?: string | null;
   property_type?: string | null;
   year_built?: number | null;
   lot_size?: string | null;
@@ -18,6 +20,10 @@ export interface ShareableListing {
   status?: string | null;
   client_name?: string | null;
   image_urls?: string[];
+  agent_name?: string | null;
+  agent_brokerage?: string | null;
+  agent_phone?: string | null;
+  agent_email?: string | null;
 }
 
 const MLS_KEYWORDS = ["mls", "listing sheet", "feature sheet", "property sheet"];
