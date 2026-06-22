@@ -1066,6 +1066,13 @@ function NewListingDialog({
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (!address.trim()) return toast.error("Address is required");
+    const brandErr = validateAgentBranding({
+      agent_name: agentName,
+      agent_brokerage: agentBrokerage,
+      agent_phone: agentPhone,
+      agent_email: agentEmail,
+    });
+    if (brandErr) return toast.error(brandErr);
     setSaving(true);
 
     const uploaded: string[] = [];
