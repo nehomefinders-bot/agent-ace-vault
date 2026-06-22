@@ -467,7 +467,7 @@ function ListingCard({
   listing: Listing;
   selected: boolean;
   onToggleSelect: () => void;
-  onStatusChange: (s: string) => void;
+  onStatusChange: (s: string, closingDate?: string | null) => void;
   onRemove: () => void;
   onEdit: () => void;
   onOpen: () => void;
@@ -480,6 +480,24 @@ function ListingCard({
   const [idx, setIdx] = useState(0);
   const cover = imageUrls[idx];
   const hasMulti = images.length > 1;
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const closingDateObj = l.closing_date ? new Date(l.closing_date + "T00:00:00") : undefined;
+
+  const handleStatusChange = (s: string) => {
+    if (s === "Sold") {
+      onStatusChange(s);
+      setDatePickerOpen(true);
+    } else {
+      onStatusChange(s, null);
+    }
+  };
+
+  const handleDatePick = (d: Date | undefined) => {
+    if (!d) return;
+    const iso = formatDate(d, "yyyy-MM-dd");
+    onStatusChange("Sold", iso);
+    setDatePickerOpen(false);
+  };
 
   const next = (e: React.MouseEvent) => {
     e.stopPropagation();
