@@ -54,6 +54,15 @@ export function ShareListingModal({
       setPdfUrl(null);
       setPages(null);
       setCurrentPage(1);
+      // Friendly validation for agent branding before generating the PDF.
+      const phoneOk = !listing.agent_phone || /^[+()\-\s.\d]{7,30}$/.test(listing.agent_phone.trim());
+      const emailOk = !listing.agent_email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(listing.agent_email.trim());
+      if (!phoneOk) {
+        toast.error("Agent phone number looks invalid — fix it in Edit Listing before sharing.");
+      }
+      if (!emailOk) {
+        toast.error("Agent email looks invalid — fix it in Edit Listing before sharing.");
+      }
       const found = listing.id ? await findListingMlsDocument(listing.id) : null;
       if (cancelled) return;
       if (found) {
