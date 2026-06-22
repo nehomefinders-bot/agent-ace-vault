@@ -101,6 +101,12 @@ interface Listing {
   lot_size: string | null;
   parking_spaces: number | null;
   closing_date: string | null;
+  description: string | null;
+  mls_number: string | null;
+  agent_name: string | null;
+  agent_brokerage: string | null;
+  agent_phone: string | null;
+  agent_email: string | null;
   image_urls?: string[];
 }
 
