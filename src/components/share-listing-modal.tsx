@@ -17,6 +17,7 @@ import {
   LayoutGrid,
   Images,
   History,
+  Copy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -26,6 +27,7 @@ import {
   buildShareBody,
   buildShareSubject,
   downloadListingPdf,
+  copyEmailContentToClipboard,
   type ShareableListing,
   type MlsAttachment,
   type PdfPageMap,
@@ -94,6 +96,15 @@ export function ShareListingModal({
   function handleSend() {
     shareListingViaEmail(listing, mls?.url);
     onOpenChange(false);
+  }
+
+  async function handleCopy() {
+    try {
+      await copyEmailContentToClipboard(listing, mls?.url);
+      toast.success("Email text copied! Paste directly into Gmail or Outlook.");
+    } catch {
+      toast.error("Couldn't copy to clipboard — please copy manually from the preview.");
+    }
   }
 
   const navItems: Array<{ label: string; page: number | null; icon: typeof LayoutGrid }> =
@@ -202,12 +213,15 @@ export function ShareListingModal({
           </aside>
         </div>
 
-        <DialogFooter className="px-5 py-3 border-t border-border">
+        <DialogFooter className="px-5 py-3 border-t border-border gap-2 sm:gap-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
+          <Button variant="outline" onClick={handleCopy} disabled={loading}>
+            <Copy className="h-4 w-4 mr-1.5" /> Copy Email Content
+          </Button>
           <Button onClick={handleSend} disabled={loading}>
-            <Mail className="h-4 w-4 mr-1.5" /> Open Email
+            <Mail className="h-4 w-4 mr-1.5" /> Open Email Client
           </Button>
         </DialogFooter>
       </DialogContent>

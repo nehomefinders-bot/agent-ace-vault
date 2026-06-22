@@ -98,11 +98,67 @@ export function buildShareBody(l: ShareableListing, attachmentUrl?: string) {
   );
 }
 
+const MAILTO_MAX_LEN = 1900;
+const TRUNCATION_NOTE =
+  "\n\n...[Full specs attached in the generated MLS PDF layout below]";
+
+export function buildSafeEmailPayload(l: ShareableListing, attachmentUrl?: string) {
+  const subject = buildShareSubject(l);
+  let body = buildShareBody(l, attachmentUrl);
+  if (subject.length + body.length > MAILTO_MAX_LEN) {
+    const allowed = Math.max(0, MAILTO_MAX_LEN - subject.length - TRUNCATION_NOTE.length);
+    body = body.slice(0, allowed).trimEnd() + TRUNCATION_NOTE;
+  }
+  return { subject, body };
+}
+
+export function buildMailtoHref(l: ShareableListing, attachmentUrl?: string) {
+  const { subject, body } = buildSafeEmailPayload(l, attachmentUrl);
+  return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+export function buildGmailComposeHref(l: ShareableListing, attachmentUrl?: string) {
+  const { subject, body } = buildSafeEmailPayload(l, attachmentUrl);
+  return `https://mail.google.com/mail/?view=cm&fs=1&to=&su=${encodeURIComponent(
+    subject,
+  )}&body=${encodeURIComponent(body)}`;
+}
+
 export function shareListingViaEmail(l: ShareableListing, attachmentUrl?: string) {
-  const href = `mailto:?subject=${encodeURIComponent(
-    buildShareSubject(l),
-  )}&body=${encodeURIComponent(buildShareBody(l, attachmentUrl))}`;
-  window.location.href = href;
+  const mailto = buildMailtoHref(l, attachmentUrl);
+  // Try desktop client first; if nothing handles the protocol within a short
+  // window (tab still focused), fall back to Gmail web compose.
+  const start = Date.now();
+  let fellBack = false;
+  const fallback = () => {
+    if (fellBack) return;
+    if (document.hidden) return; // a handler took over
+    if (Date.now() - start < 400) return;
+    fellBack = true;
+    window.open(buildGmailComposeHref(l, attachmentUrl), "_blank", "noopener");
+  };
+  window.location.href = mailto;
+  window.setTimeout(fallback, 1200);
+}
+
+export async function copyEmailContentToClipboard(
+  l: ShareableListing,
+  attachmentUrl?: string,
+) {
+  const { subject, body } = buildSafeEmailPayload(l, attachmentUrl);
+  const text = `Subject: ${subject}\n\n${body}`;
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand("copy");
+  document.body.removeChild(ta);
 }
 
 async function loadImage(
