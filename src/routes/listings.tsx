@@ -101,6 +101,12 @@ interface Listing {
   lot_size: string | null;
   parking_spaces: number | null;
   closing_date: string | null;
+  description: string | null;
+  mls_number: string | null;
+  agent_name: string | null;
+  agent_brokerage: string | null;
+  agent_phone: string | null;
+  agent_email: string | null;
   image_urls?: string[];
 }
 
@@ -167,7 +173,7 @@ function Listings() {
     const { data, error } = await supabase
       .from("listings")
       .select(
-        "id,address,client_name,deal_side,close_date,gross_commission,agent_split_pct,brokerage_split_pct,referral_pct,referral_to,list_price,status,beds,baths,sqft,image_paths,seller_name,seller_phone,seller_email,seller_new_address,notes,property_type,year_built,lot_size,parking_spaces,closing_date",
+        "id,address,client_name,deal_side,close_date,gross_commission,agent_split_pct,brokerage_split_pct,referral_pct,referral_to,list_price,status,beds,baths,sqft,image_paths,seller_name,seller_phone,seller_email,seller_new_address,notes,property_type,year_built,lot_size,parking_spaces,closing_date,description,mls_number,agent_name,agent_brokerage,agent_phone,agent_email",
       )
       .order("created_at", { ascending: false });
     if (error) {
@@ -967,6 +973,12 @@ function NewListingDialog({
   const [lotSize, setLotSize] = useState("");
   const [parkingSpaces, setParkingSpaces] = useState("");
   const [closingDate, setClosingDate] = useState("");
+  const [mlsNumber, setMlsNumber] = useState("");
+  const [description, setDescription] = useState("");
+  const [agentName, setAgentName] = useState("");
+  const [agentBrokerage, setAgentBrokerage] = useState("");
+  const [agentPhone, setAgentPhone] = useState("");
+  const [agentEmail, setAgentEmail] = useState("");
   const [sellerName, setSellerName] = useState("");
   const [sellerEmail, setSellerEmail] = useState("");
   const [sellerPhone, setSellerPhone] = useState("");
@@ -1051,6 +1063,12 @@ function NewListingDialog({
           lot_size: lotSize.trim() || null,
           parking_spaces: parkingSpaces ? parseInt(parkingSpaces) : null,
           closing_date: status === "Sold" && closingDate ? closingDate : null,
+          mls_number: mlsNumber.trim() || null,
+          description: description.trim() || null,
+          agent_name: agentName.trim() || null,
+          agent_brokerage: agentBrokerage.trim() || null,
+          agent_phone: agentPhone.trim() || null,
+          agent_email: agentEmail.trim() || null,
           image_paths: uploaded,
           seller_name: sellerName.trim() || null,
           seller_email: sellerEmail.trim() || null,
@@ -1132,7 +1150,7 @@ function NewListingDialog({
   }
 
   return (
-    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <DialogContent className="max-w-2xl w-[95vw] max-h-[92vh] overflow-y-auto p-4 sm:p-6">
       <DialogHeader>
         <DialogTitle>New Listing</DialogTitle>
       </DialogHeader>
@@ -1148,6 +1166,30 @@ function NewListingDialog({
             placeholder="Enter property address here"
           />
         </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="mlsn">MLS Number</Label>
+            <Input
+              id="mlsn"
+              value={mlsNumber}
+              onChange={(e) => setMlsNumber(e.target.value)}
+              placeholder="Leave blank for N/A"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="public-remarks">Public Remarks / Description</Label>
+          <Textarea
+            id="public-remarks"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            placeholder="Write a detailed marketing description for this property. This appears in the REMARKS section of the auto-generated MLS sheet."
+          />
+        </div>
+
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
@@ -1320,6 +1362,29 @@ function NewListingDialog({
             </div>
           </div>
         </div>
+
+        <div className="space-y-3 pt-2 border-t">
+          <div className="text-sm font-medium text-foreground">Agent Branding / Contact Details</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="an">Agent Full Name</Label>
+              <Input id="an" value={agentName} onChange={(e) => setAgentName(e.target.value)} placeholder="e.g. Jane Doe" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ab">Company / Brokerage</Label>
+              <Input id="ab" value={agentBrokerage} onChange={(e) => setAgentBrokerage(e.target.value)} placeholder="e.g. Acme Realty" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ap">Contact Phone</Label>
+              <Input id="ap" type="tel" value={agentPhone} onChange={(e) => setAgentPhone(e.target.value)} placeholder="(555) 555-1234" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ae">Contact Email</Label>
+              <Input id="ae" type="email" value={agentEmail} onChange={(e) => setAgentEmail(e.target.value)} placeholder="agent@brokerage.com" />
+            </div>
+          </div>
+        </div>
+
 
         <div className="space-y-1.5">
           <Label htmlFor="listing-notes">Notes</Label>
@@ -1520,6 +1585,12 @@ function EditListingDialog({
   const [sellerPhone, setSellerPhone] = useState(listing.seller_phone ?? "");
   const [sellerNewAddress, setSellerNewAddress] = useState(listing.seller_new_address ?? "");
   const [notes, setNotes] = useState(listing.notes ?? "");
+  const [mlsNumber, setMlsNumber] = useState(listing.mls_number ?? "");
+  const [description, setDescription] = useState(listing.description ?? "");
+  const [agentName, setAgentName] = useState(listing.agent_name ?? "");
+  const [agentBrokerage, setAgentBrokerage] = useState(listing.agent_brokerage ?? "");
+  const [agentPhone, setAgentPhone] = useState(listing.agent_phone ?? "");
+  const [agentEmail, setAgentEmail] = useState(listing.agent_email ?? "");
   const [imagePaths, setImagePaths] = useState<string[]>(listing.image_paths ?? []);
   const [removedPaths, setRemovedPaths] = useState<string[]>([]);
   const [images, setImages] = useState<PendingImage[]>([]);
@@ -1609,6 +1680,12 @@ function EditListingDialog({
           lot_size: lotSize.trim() || null,
           parking_spaces: parkingSpaces ? parseInt(parkingSpaces) : null,
           closing_date: status === "Sold" && closingDate ? closingDate : null,
+          mls_number: mlsNumber.trim() || null,
+          description: description.trim() || null,
+          agent_name: agentName.trim() || null,
+          agent_brokerage: agentBrokerage.trim() || null,
+          agent_phone: agentPhone.trim() || null,
+          agent_email: agentEmail.trim() || null,
           image_paths: nextImagePaths,
           seller_name: sellerName.trim() || null,
           seller_email: sellerEmail.trim() || null,
@@ -1642,7 +1719,7 @@ function EditListingDialog({
   }
 
   return (
-    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <DialogContent className="max-w-2xl w-[95vw] max-h-[92vh] overflow-y-auto p-4 sm:p-6">
       <DialogHeader>
         <DialogTitle>Edit Listing</DialogTitle>
       </DialogHeader>
@@ -1658,6 +1735,30 @@ function EditListingDialog({
             placeholder="Enter property address here"
           />
         </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-mlsn">MLS Number</Label>
+            <Input
+              id="edit-mlsn"
+              value={mlsNumber}
+              onChange={(e) => setMlsNumber(e.target.value)}
+              placeholder="Leave blank for N/A"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="edit-public-remarks">Public Remarks / Description</Label>
+          <Textarea
+            id="edit-public-remarks"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            placeholder="Write a detailed marketing description for this property. This appears in the REMARKS section of the auto-generated MLS sheet."
+          />
+        </div>
+
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
@@ -1829,6 +1930,29 @@ function EditListingDialog({
             </div>
           </div>
         </div>
+
+        <div className="space-y-3 pt-2 border-t">
+          <div className="text-sm font-medium text-foreground">Agent Branding / Contact Details</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-an">Agent Full Name</Label>
+              <Input id="edit-an" value={agentName} onChange={(e) => setAgentName(e.target.value)} placeholder="e.g. Jane Doe" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-ab">Company / Brokerage</Label>
+              <Input id="edit-ab" value={agentBrokerage} onChange={(e) => setAgentBrokerage(e.target.value)} placeholder="e.g. Acme Realty" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-ap">Contact Phone</Label>
+              <Input id="edit-ap" type="tel" value={agentPhone} onChange={(e) => setAgentPhone(e.target.value)} placeholder="(555) 555-1234" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-ae">Contact Email</Label>
+              <Input id="edit-ae" type="email" value={agentEmail} onChange={(e) => setAgentEmail(e.target.value)} placeholder="agent@brokerage.com" />
+            </div>
+          </div>
+        </div>
+
 
         <div className="space-y-1.5">
           <Label htmlFor="edit-listing-notes">Notes</Label>

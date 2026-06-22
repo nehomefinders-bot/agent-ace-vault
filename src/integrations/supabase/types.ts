@@ -536,6 +536,10 @@ export type Database = {
       listings: {
         Row: {
           address: string
+          agent_brokerage: string | null
+          agent_email: string | null
+          agent_name: string | null
+          agent_phone: string | null
           agent_split_pct: number
           baths: number | null
           beds: number | null
@@ -546,11 +550,13 @@ export type Database = {
           created_at: string
           deal_id: string | null
           deal_side: string | null
+          description: string | null
           gross_commission: number
           id: string
           image_paths: string[]
           list_price: number
           lot_size: string | null
+          mls_number: string | null
           notes: string | null
           parking_spaces: number | null
           property_type: string | null
@@ -568,6 +574,10 @@ export type Database = {
         }
         Insert: {
           address: string
+          agent_brokerage?: string | null
+          agent_email?: string | null
+          agent_name?: string | null
+          agent_phone?: string | null
           agent_split_pct?: number
           baths?: number | null
           beds?: number | null
@@ -578,11 +588,13 @@ export type Database = {
           created_at?: string
           deal_id?: string | null
           deal_side?: string | null
+          description?: string | null
           gross_commission?: number
           id?: string
           image_paths?: string[]
           list_price?: number
           lot_size?: string | null
+          mls_number?: string | null
           notes?: string | null
           parking_spaces?: number | null
           property_type?: string | null
@@ -600,6 +612,10 @@ export type Database = {
         }
         Update: {
           address?: string
+          agent_brokerage?: string | null
+          agent_email?: string | null
+          agent_name?: string | null
+          agent_phone?: string | null
           agent_split_pct?: number
           baths?: number | null
           beds?: number | null
@@ -610,11 +626,13 @@ export type Database = {
           created_at?: string
           deal_id?: string | null
           deal_side?: string | null
+          description?: string | null
           gross_commission?: number
           id?: string
           image_paths?: string[]
           list_price?: number
           lot_size?: string | null
+          mls_number?: string | null
           notes?: string | null
           parking_spaces?: number | null
           property_type?: string | null

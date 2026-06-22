@@ -10,6 +10,8 @@ export interface ShareableListing {
   baths: number | null;
   sqft: number | null;
   notes: string | null;
+  description?: string | null;
+  mls_number?: string | null;
   property_type?: string | null;
   year_built?: number | null;
   lot_size?: string | null;
@@ -18,6 +20,10 @@ export interface ShareableListing {
   status?: string | null;
   client_name?: string | null;
   image_urls?: string[];
+  agent_name?: string | null;
+  agent_brokerage?: string | null;
+  agent_phone?: string | null;
+  agent_email?: string | null;
 }
 
 const MLS_KEYWORDS = ["mls", "listing sheet", "feature sheet", "property sheet"];
@@ -126,7 +132,9 @@ async function loadImage(
   }
 }
 
-function shortMls(id?: string) {
+function shortMls(id?: string, mlsNumber?: string | null) {
+  const m = (mlsNumber ?? "").trim();
+  if (m) return m;
   if (!id) return NA;
   return id.replace(/-/g, "").slice(0, 8).toUpperCase();
 }
@@ -155,7 +163,7 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
   doc.setTextColor(255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
-  const leftHead = `MLS# ${shortMls(l.id)}   |   ${(l.status || "Active").toUpperCase()}   |   ${l.property_type || "Residential"}`;
+  const leftHead = `MLS# ${shortMls(l.id, l.mls_number)}   |   ${(l.status || "Active").toUpperCase()}   |   ${l.property_type || "Residential"}`;
   doc.text(leftHead, M + 8, y + 18);
   const priceTxt =
     l.list_price != null ? formatMoney(Number(l.list_price)) : "Price on request";
@@ -241,7 +249,8 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
   const remarkPad = 8;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9.5);
-  const remarksText = l.notes || NA;
+  const descRaw = (l.description ?? "").trim();
+  const remarksText = descRaw || NA;
   const remarksLines = doc.splitTextToSize(`Remarks: ${remarksText}`, cw - remarkPad * 2);
   const remarksH = Math.max(34, remarksLines.length * 12 + remarkPad * 2);
   doc.setFillColor(...BAND_BG);
@@ -420,7 +429,7 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
   const today = new Date().toISOString().slice(0, 10);
   const histRows = [
     [
-      shortMls(l.id),
+      shortMls(l.id, l.mls_number),
       today,
       `Listed - ${l.status || "Active"}`,
       "0",
@@ -430,11 +439,11 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
   ];
   if (l.closing_date) {
     histRows.push([
-      shortMls(l.id),
+      shortMls(l.id, l.mls_number),
       l.closing_date,
       "Sold",
-      "—",
-      "—",
+      NA,
+      NA,
       l.list_price != null ? formatMoney(Number(l.list_price)) : NA,
     ]);
   }
@@ -456,8 +465,15 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
 
   // ===== GALLERY PAGE (2x2) =====
   const urls = (l.image_urls ?? []).filter(Boolean);
+  const agentParts: string[] = [];
+  if (l.agent_name?.trim()) agentParts.push(`Presented By: ${l.agent_name.trim()}`);
+  if (l.agent_brokerage?.trim()) agentParts.push(l.agent_brokerage.trim());
+  if (l.agent_phone?.trim()) agentParts.push(`Phone: ${l.agent_phone.trim()}`);
+  if (l.agent_email?.trim()) agentParts.push(`Email: ${l.agent_email.trim()}`);
+  const hasAgent = agentParts.length > 0;
+
   let galleryPage: number | null = null;
-  if (urls.length > 1) {
+  if (urls.length > 1 || hasAgent) {
     doc.addPage();
     galleryPage = doc.getNumberOfPages();
     let gy = M;
@@ -470,9 +486,11 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
     doc.setTextColor(0);
     gy += 30;
 
+    const footerH = hasAgent ? 36 : 0;
+    const gridBottom = H - M - footerH - (hasAgent ? 10 : 0);
     const gap = 10;
     const cellGW = (cw - gap) / 2;
-    const cellGH = (H - gy - M - gap) / 2;
+    const cellGH = (gridBottom - gy - gap) / 2;
     for (let i = 0; i < Math.min(4, urls.length); i++) {
       const col = i % 2;
       const row = Math.floor(i / 2);
@@ -501,6 +519,21 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(8.5);
       doc.text(`Photo ${i + 1}`, cx + 6, cy + 11);
+    }
+
+    if (hasAgent) {
+      const fy = H - M - footerH;
+      doc.setFillColor(...HEAD_BG);
+      doc.rect(M, fy, cw, footerH, "F");
+      doc.setTextColor(255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      const line = agentParts.join("  |  ");
+      const wrapped = doc.splitTextToSize(line, cw - 16);
+      doc.text(wrapped, M + cw / 2, fy + (footerH / 2) - ((wrapped.length - 1) * 6) + 3, {
+        align: "center",
+      });
+      doc.setTextColor(0);
     }
   }
 
