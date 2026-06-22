@@ -76,7 +76,7 @@ export function buildShareSubject(l: ShareableListing) {
   return `Property Details: ${l.address || "this property"}`;
 }
 
-export function buildShareBody(l: ShareableListing, attachmentUrl?: string) {
+export function buildShareBody(l: ShareableListing, _attachmentUrl?: string) {
   const address = l.address || "this property";
   const price = l.list_price != null ? formatMoney(Number(l.list_price)) : NA;
   const extras: string[] = [];
@@ -84,6 +84,9 @@ export function buildShareBody(l: ShareableListing, attachmentUrl?: string) {
   if (l.year_built != null) extras.push(`- Year Built: ${l.year_built}`);
   if (l.lot_size) extras.push(`- Lot Size: ${l.lot_size}`);
   if (l.parking_spaces != null) extras.push(`- Parking: ${l.parking_spaces}`);
+  const signoff = l.agent_name?.trim()
+    ? `Best regards,\n${l.agent_name.trim()}${l.agent_brokerage ? `\n${l.agent_brokerage}` : ""}`
+    : `Best regards,\nYour agent`;
   return (
     `Hi,\n\n` +
     `Here are the details for the property at ${address}:\n\n` +
@@ -91,10 +94,9 @@ export function buildShareBody(l: ShareableListing, attachmentUrl?: string) {
     `- Specs: ${specsLine(l)}\n` +
     (extras.length ? extras.join("\n") + "\n" : "") +
     `- Notes: ${l.notes || NA}\n\n` +
-    (attachmentUrl
-      ? `Full MLS sheet: ${attachmentUrl}\n\n`
-      : `A property feature sheet is attached for your review.\n\n`) +
-    `Let me know if you would like to schedule a tour!`
+    `The full MLS feature sheet is attached to this email.\n\n` +
+    `Let me know if you'd like to schedule a tour!\n\n` +
+    signoff
   );
 }
 
@@ -637,4 +639,21 @@ export async function buildListingPdfPreview(
   const pages = (doc as unknown as { __pageMap: PdfPageMap }).__pageMap;
   return { url: doc.output("datauristring"), pages };
 }
+
+/** Build the listing PDF and return base64 (no data: prefix) for email attachments. */
+export async function listingPdfBase64(l: ShareableListing): Promise<string> {
+  const doc = await buildListingPdfDoc(l);
+  const dataUri = doc.output("datauristring");
+  const idx = dataUri.indexOf(",");
+  return idx >= 0 ? dataUri.slice(idx + 1) : dataUri;
+}
+
+export function safeListingFilename(l: ShareableListing) {
+  const safe = (l.address || "listing")
+    .replace(/[^a-z0-9]+/gi, "-")
+    .toLowerCase()
+    .slice(0, 60);
+  return `${safe || "listing"}.pdf`;
+}
+
 
