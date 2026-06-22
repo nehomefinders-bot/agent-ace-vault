@@ -138,9 +138,6 @@ function shortMls(id?: string, mlsNumber?: string | null) {
   if (!id) return NA;
   return id.replace(/-/g, "").slice(0, 8).toUpperCase();
 }
-  if (!id) return NA;
-  return id.replace(/-/g, "").slice(0, 8).toUpperCase();
-}
 
 /** Build a high-fidelity MLS-style property feature sheet. */
 export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
