@@ -85,6 +85,22 @@ function validateAgentBranding(fields: {
   if (result.success) return null;
   return result.error.issues[0]?.message ?? "Invalid agent branding details";
 }
+function agentPhoneError(v: string): string | null {
+  const t = v.trim();
+  if (!t) return null;
+  if (t.length > 30) return "Phone must be under 30 characters";
+  if (!/^[+()\-\s.\d]{7,30}$/.test(t))
+    return "Use digits with + - ( ) . or spaces (7–30 chars)";
+  return null;
+}
+function agentEmailError(v: string): string | null {
+  const t = v.trim();
+  if (!t) return null;
+  if (t.length > 255) return "Email must be under 255 characters";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)) return "Enter a valid email address";
+  return null;
+}
+
 
 const LISTING_IMPORT_COLUMNS: ImportColumn[] = [
   { key: "address", label: "Address", required: true, sample: "123 Main St" },
