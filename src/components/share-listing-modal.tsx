@@ -213,12 +213,15 @@ export function ShareListingModal({
           </aside>
         </div>
 
-        <DialogFooter className="px-5 py-3 border-t border-border">
+        <DialogFooter className="px-5 py-3 border-t border-border gap-2 sm:gap-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
+          <Button variant="outline" onClick={handleCopy} disabled={loading}>
+            <Copy className="h-4 w-4 mr-1.5" /> Copy Email Content
+          </Button>
           <Button onClick={handleSend} disabled={loading}>
-            <Mail className="h-4 w-4 mr-1.5" /> Open Email
+            <Mail className="h-4 w-4 mr-1.5" /> Open Email Client
           </Button>
         </DialogFooter>
       </DialogContent>
