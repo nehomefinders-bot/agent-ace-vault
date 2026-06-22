@@ -146,6 +146,22 @@ function Landing() {
     return () => clearTimeout(t);
   }, [showTeaser]);
 
+  const videoIframeRef = useRef<HTMLIFrameElement | null>(null);
+  const closeVideo = () => {
+    const f = videoIframeRef.current;
+    if (f) {
+      try {
+        f.contentWindow?.postMessage(
+          '{"event":"command","func":"stopVideo","args":""}',
+          "*",
+        );
+      } catch {}
+      f.src = "about:blank";
+    }
+    setIsVideoOpen(false);
+  };
+
+
   const supportEmail = "livingandlearningwithjackie@gmail.com";
   const copySupportEmail = async () => {
     try {
