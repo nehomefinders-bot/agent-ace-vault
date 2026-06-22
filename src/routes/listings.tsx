@@ -483,6 +483,17 @@ function ListingCard({
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const closingDateObj = l.closing_date ? new Date(l.closing_date + "T00:00:00") : undefined;
 
+  const displayClosingDate = () => {
+    const dateToUse = l.closing_date || l.close_date;
+    if (!dateToUse) return "Pending";
+    try {
+      const dateStr = dateToUse.includes("T") ? dateToUse : `${dateToUse}T00:00:00`;
+      return formatDate(new Date(dateStr), "MM/dd/yyyy");
+    } catch (e) {
+      return "Pending";
+    }
+  };
+
   const handleStatusChange = (s: string) => {
     if (s === "Sold") {
       onStatusChange(s);
@@ -539,37 +550,66 @@ function ListingCard({
           />
         )}
         <div className="absolute top-3 left-3 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-          <Select value={l.status} onValueChange={handleStatusChange}>
-            <SelectTrigger
-              className={`h-7 px-2.5 text-xs font-medium border-0 rounded-full shadow-sm ${
-                l.status === "Active"
-                  ? "bg-success/90 text-white"
-                  : l.status === "Pending"
-                    ? "bg-warning/90 text-white"
-                    : "bg-black/60 text-white"
-              }`}
-            >
-              <SelectValue>{l.status}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {STATUS_OPTIONS.map((s) => (
-                <SelectItem key={s} value={s}>
-                  {s}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
           <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
             <PopoverTrigger asChild>
-              <span className="sr-only" aria-hidden />
+              <div className="relative z-30">
+                <Select value={l.status} onValueChange={handleStatusChange}>
+                  <SelectTrigger
+                    onClick={(e) => {
+                      if (l.status === "Sold") {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDatePickerOpen(true);
+                      }
+                    }}
+                    className={`h-7 px-2.5 text-xs font-medium border-0 rounded-full shadow-sm pointer-events-auto cursor-pointer ${
+                      l.status === "Active"
+                        ? "bg-success/90 text-white"
+                        : l.status === "Pending"
+                          ? "bg-warning/90 text-white"
+                          : "bg-black/60 text-white"
+                    }`}
+                  >
+                    <SelectValue>{l.status}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="z-[60]">
+                    {STATUS_OPTIONS.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </PopoverTrigger>
             <PopoverContent
               align="start"
               sideOffset={6}
-              className="w-auto p-0 z-50"
+              className="w-auto p-0 z-[100] pointer-events-auto bg-popover border shadow-md rounded-lg"
               onOpenAutoFocus={(e) => e.preventDefault()}
             >
-              <div className="px-3 pt-3 pb-1 text-xs font-medium text-foreground">
+              <div className="px-3 pt-3 pb-1 flex items-center justify-between gap-4 border-b">
+                <span className="text-xs font-semibold text-foreground">Status Option</span>
+                <Select
+                  value={l.status}
+                  onValueChange={(newStatus) => {
+                    handleStatusChange(newStatus);
+                    setDatePickerOpen(false);
+                  }}
+                >
+                  <SelectTrigger className="h-6 px-2 text-[11px] font-medium border rounded bg-background w-24">
+                    <SelectValue>{l.status}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="z-[110]">
+                    {STATUS_OPTIONS.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="px-3 pt-2 pb-1 text-xs font-medium text-foreground">
                 Select closing date
               </div>
               <Calendar
@@ -584,7 +624,7 @@ function ListingCard({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="text-destructive hover:text-destructive"
+                  className="text-destructive hover:text-destructive text-xs h-8"
                   onClick={(e) => {
                     e.stopPropagation();
                     setDatePickerOpen(false);
@@ -597,6 +637,7 @@ function ListingCard({
                   type="button"
                   variant="outline"
                   size="sm"
+                  className="text-xs h-8"
                   onClick={(e) => {
                     e.stopPropagation();
                     setDatePickerOpen(false);
@@ -670,16 +711,16 @@ function ListingCard({
             {l.notes}
           </p>
         )}
-        {(l.client_name || l.deal_side || l.close_date) && (
+        {(l.client_name || l.deal_side || (l.close_date && l.status !== "Sold")) && (
           <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
             {l.client_name && <span>Client: {l.client_name}</span>}
             {l.deal_side && <span>Side: {formatDealSide(l.deal_side)}</span>}
-            {l.close_date && <span>Close: {l.close_date}</span>}
+            {l.close_date && l.status !== "Sold" && <span>Close: {l.close_date}</span>}
           </div>
         )}
-        {l.status === "Sold" && l.closing_date && (
+        {l.status === "Sold" && (
           <div className="mt-1 text-xs font-medium text-success">
-            Closed: {formatDate(new Date(l.closing_date + "T00:00:00"), "MM/dd/yyyy")}
+            Closed: {displayClosingDate()}
           </div>
         )}
         <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
