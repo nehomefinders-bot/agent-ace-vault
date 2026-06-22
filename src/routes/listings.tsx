@@ -53,6 +53,38 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { BulkStatusBar } from "@/components/bulk-status-bar";
 import { toast } from "sonner";
 import { ImportButton, type ImportColumn } from "@/components/import-button";
+import { z } from "zod";
+
+const agentBrandingSchema = z.object({
+  agent_name: z.string().trim().max(100, "Agent name must be under 100 characters").optional(),
+  agent_brokerage: z.string().trim().max(120, "Brokerage must be under 120 characters").optional(),
+  agent_phone: z
+    .string()
+    .trim()
+    .max(30, "Phone must be under 30 characters")
+    .refine(
+      (v) => !v || /^[+()\-\s.\d]{7,30}$/.test(v),
+      "Enter a valid phone number (digits, spaces, +, -, (), . only)",
+    )
+    .optional(),
+  agent_email: z
+    .string()
+    .trim()
+    .max(255, "Email must be under 255 characters")
+    .refine((v) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), "Enter a valid email address")
+    .optional(),
+});
+
+function validateAgentBranding(fields: {
+  agent_name: string;
+  agent_brokerage: string;
+  agent_phone: string;
+  agent_email: string;
+}): string | null {
+  const result = agentBrandingSchema.safeParse(fields);
+  if (result.success) return null;
+  return result.error.issues[0]?.message ?? "Invalid agent branding details";
+}
 
 const LISTING_IMPORT_COLUMNS: ImportColumn[] = [
   { key: "address", label: "Address", required: true, sample: "123 Main St" },
@@ -1034,6 +1066,13 @@ function NewListingDialog({
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (!address.trim()) return toast.error("Address is required");
+    const brandErr = validateAgentBranding({
+      agent_name: agentName,
+      agent_brokerage: agentBrokerage,
+      agent_phone: agentPhone,
+      agent_email: agentEmail,
+    });
+    if (brandErr) return toast.error(brandErr);
     setSaving(true);
 
     const uploaded: string[] = [];
@@ -1651,6 +1690,13 @@ function EditListingDialog({
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (!address.trim()) return toast.error("Address is required");
+    const brandErr = validateAgentBranding({
+      agent_name: agentName,
+      agent_brokerage: agentBrokerage,
+      agent_phone: agentPhone,
+      agent_email: agentEmail,
+    });
+    if (brandErr) return toast.error(brandErr);
     setSaving(true);
 
     const uploaded: string[] = [];
