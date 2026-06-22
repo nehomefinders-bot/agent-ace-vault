@@ -1431,11 +1431,33 @@ function NewListingDialog({
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ap">Contact Phone</Label>
-              <Input id="ap" type="tel" value={agentPhone} onChange={(e) => setAgentPhone(e.target.value)} placeholder="(555) 555-1234" />
+              <Input
+                id="ap"
+                type="tel"
+                value={agentPhone}
+                onChange={(e) => setAgentPhone(e.target.value)}
+                placeholder="(555) 555-1234"
+                aria-invalid={!!agentPhoneError(agentPhone)}
+                className={agentPhoneError(agentPhone) ? "border-destructive focus-visible:ring-destructive" : ""}
+              />
+              {agentPhoneError(agentPhone) && (
+                <p className="text-xs text-destructive">{agentPhoneError(agentPhone)}</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ae">Contact Email</Label>
-              <Input id="ae" type="email" value={agentEmail} onChange={(e) => setAgentEmail(e.target.value)} placeholder="agent@brokerage.com" />
+              <Input
+                id="ae"
+                type="email"
+                value={agentEmail}
+                onChange={(e) => setAgentEmail(e.target.value)}
+                placeholder="agent@brokerage.com"
+                aria-invalid={!!agentEmailError(agentEmail)}
+                className={agentEmailError(agentEmail) ? "border-destructive focus-visible:ring-destructive" : ""}
+              />
+              {agentEmailError(agentEmail) && (
+                <p className="text-xs text-destructive">{agentEmailError(agentEmail)}</p>
+              )}
             </div>
           </div>
         </div>
