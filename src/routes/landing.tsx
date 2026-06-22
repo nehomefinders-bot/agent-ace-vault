@@ -137,7 +137,15 @@ function Landing() {
   const nav = useNavigate();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [showTeaser, setShowTeaser] = useState(true);
   const [isContactOpen, setIsContactOpen] = useState(false);
+
+  useEffect(() => {
+    if (!showTeaser) return;
+    const t = setTimeout(() => setShowTeaser(false), 4000);
+    return () => clearTimeout(t);
+  }, [showTeaser]);
+
   const supportEmail = "livingandlearningwithjackie@gmail.com";
   const copySupportEmail = async () => {
     try {
