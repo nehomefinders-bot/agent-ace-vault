@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 import {
   Dialog,
   DialogContent,
@@ -8,9 +9,11 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Loader2,
-  Mail,
+  Send,
   FileText,
   ExternalLink,
   Download,
@@ -23,15 +26,17 @@ import { cn } from "@/lib/utils";
 import {
   findListingMlsDocument,
   buildListingPdfPreview,
-  shareListingViaEmail,
   buildShareBody,
   buildShareSubject,
   downloadListingPdf,
   copyEmailContentToClipboard,
+  listingPdfBase64,
+  safeListingFilename,
   type ShareableListing,
   type MlsAttachment,
   type PdfPageMap,
 } from "@/lib/listing-share";
+import { sendListingEmail } from "@/lib/email-share.functions";
 
 export function ShareListingModal({
   listing,
@@ -47,6 +52,9 @@ export function ShareListingModal({
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [pages, setPages] = useState<PdfPageMap | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [recipient, setRecipient] = useState("");
+  const [sending, setSending] = useState(false);
+  const send = useServerFn(sendListingEmail);
 
   useEffect(() => {
     if (!open) return;
@@ -57,15 +65,11 @@ export function ShareListingModal({
       setPdfUrl(null);
       setPages(null);
       setCurrentPage(1);
-      // Friendly validation for agent branding before generating the PDF.
+      setRecipient("");
       const phoneOk = !listing.agent_phone || /^[+()\-\s.\d]{7,30}$/.test(listing.agent_phone.trim());
       const emailOk = !listing.agent_email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(listing.agent_email.trim());
-      if (!phoneOk) {
-        toast.error("Agent phone number looks invalid — fix it in Edit Listing before sharing.");
-      }
-      if (!emailOk) {
-        toast.error("Agent email looks invalid — fix it in Edit Listing before sharing.");
-      }
+      if (!phoneOk) toast.error("Agent phone number looks invalid — fix it in Edit Listing before sharing.");
+      if (!emailOk) toast.error("Agent email looks invalid — fix it in Edit Listing before sharing.");
       const found = listing.id ? await findListingMlsDocument(listing.id) : null;
       if (cancelled) return;
       if (found) {
@@ -91,11 +95,43 @@ export function ShareListingModal({
   }, [baseUrl, currentPage, mls]);
 
   const subject = buildShareSubject(listing);
-  const body = buildShareBody(listing, mls?.url);
+  const body = buildShareBody(listing);
 
-  function handleSend() {
-    shareListingViaEmail(listing, mls?.url);
-    onOpenChange(false);
+  async function handleSend() {
+    const to = recipient.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+      toast.error("Enter a valid recipient email address.");
+      return;
+    }
+    setSending(true);
+    try {
+      let pdfBase64 = "";
+      let listingDocumentPath: string | null = null;
+      const filename = mls?.name || safeListingFilename(listing);
+      if (mls?.path) {
+        // Server downloads from the listing-documents bucket directly.
+        listingDocumentPath = mls.path;
+      } else {
+        pdfBase64 = await listingPdfBase64(listing);
+      }
+      await send({
+        data: {
+          to,
+          subject,
+          body,
+          pdfBase64: pdfBase64 || "x", // server replaces when path is provided
+          pdfFilename: filename,
+          listingDocumentPath,
+        },
+      });
+      toast.success(`Email sent to ${to} with the MLS sheet attached.`);
+      onOpenChange(false);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to send email.";
+      toast.error(msg);
+    } finally {
+      setSending(false);
+    }
   }
 
   async function handleCopy() {
@@ -179,6 +215,23 @@ export function ShareListingModal({
             )}
           </div>
           <aside className="border-t md:border-t-0 md:border-l border-border p-4 overflow-y-auto space-y-3 bg-background">
+            <div className="space-y-1.5">
+              <Label htmlFor="share-to" className="text-xs font-medium text-muted-foreground">
+                Recipient email
+              </Label>
+              <Input
+                id="share-to"
+                type="email"
+                placeholder="buyer@example.com"
+                value={recipient}
+                onChange={(e) => setRecipient(e.target.value)}
+                disabled={sending}
+                className="h-9 text-sm"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Sent from your name via our platform. Replies go to your inbox.
+              </p>
+            </div>
             <div>
               <div className="text-xs font-medium text-muted-foreground">Subject</div>
               <div className="text-sm font-medium mt-0.5 break-words">{subject}</div>
@@ -214,14 +267,19 @@ export function ShareListingModal({
         </div>
 
         <DialogFooter className="px-5 py-3 border-t border-border gap-2 sm:gap-2">
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={sending}>
             Cancel
           </Button>
-          <Button variant="outline" onClick={handleCopy} disabled={loading}>
+          <Button variant="outline" onClick={handleCopy} disabled={loading || sending}>
             <Copy className="h-4 w-4 mr-1.5" /> Copy Email Content
           </Button>
-          <Button onClick={handleSend} disabled={loading}>
-            <Mail className="h-4 w-4 mr-1.5" /> Open Email Client
+          <Button onClick={handleSend} disabled={loading || sending || !recipient.trim()}>
+            {sending ? (
+              <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4 mr-1.5" />
+            )}
+            {sending ? "Sending…" : "Send Email"}
           </Button>
         </DialogFooter>
       </DialogContent>
