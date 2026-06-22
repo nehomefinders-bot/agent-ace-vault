@@ -538,8 +538,8 @@ function ListingCard({
             className="absolute inset-0 w-full h-full object-cover"
           />
         )}
-        <div className="absolute top-3 left-3" onClick={(e) => e.stopPropagation()}>
-          <Select value={l.status} onValueChange={onStatusChange}>
+        <div className="absolute top-3 left-3 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+          <Select value={l.status} onValueChange={handleStatusChange}>
             <SelectTrigger
               className={`h-7 px-2.5 text-xs font-medium border-0 rounded-full shadow-sm ${
                 l.status === "Active"
@@ -559,6 +559,28 @@ function ListingCard({
               ))}
             </SelectContent>
           </Select>
+          <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+            <PopoverTrigger asChild>
+              <span className="sr-only" aria-hidden />
+            </PopoverTrigger>
+            <PopoverContent
+              align="start"
+              sideOffset={6}
+              className="w-auto p-0 z-50"
+              onOpenAutoFocus={(e) => e.preventDefault()}
+            >
+              <div className="px-3 pt-3 pb-1 text-xs font-medium text-foreground">
+                Select closing date
+              </div>
+              <Calendar
+                mode="single"
+                selected={closingDateObj}
+                onSelect={handleDatePick}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
 
         {hasMulti && (
