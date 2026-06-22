@@ -249,7 +249,8 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
   const remarkPad = 8;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9.5);
-  const remarksText = l.notes || NA;
+  const descRaw = (l.description ?? "").trim();
+  const remarksText = descRaw || NA;
   const remarksLines = doc.splitTextToSize(`Remarks: ${remarksText}`, cw - remarkPad * 2);
   const remarksH = Math.max(34, remarksLines.length * 12 + remarkPad * 2);
   doc.setFillColor(...BAND_BG);
