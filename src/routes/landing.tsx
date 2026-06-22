@@ -17,6 +17,7 @@ import {
   Loader2,
   Copy,
   Mail,
+  Play,
 } from "lucide-react";
 import {
   Dialog,
@@ -136,7 +137,15 @@ function Landing() {
   const nav = useNavigate();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [showTeaser, setShowTeaser] = useState(true);
   const [isContactOpen, setIsContactOpen] = useState(false);
+
+  useEffect(() => {
+    if (!showTeaser) return;
+    const t = setTimeout(() => setShowTeaser(false), 4000);
+    return () => clearTimeout(t);
+  }, [showTeaser]);
+
   const supportEmail = "livingandlearningwithjackie@gmail.com";
   const copySupportEmail = async () => {
     try {
@@ -262,17 +271,59 @@ function Landing() {
               <button
                 type="button"
                 onClick={() => setIsVideoOpen(true)}
-                className="w-full rounded-lg border border-white/80 bg-white/92 px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_16px_34px_-16px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-white hover:shadow-[0_18px_40px_-16px_rgba(255,255,255,0.22)] sm:w-auto sm:px-7"
+                className="group relative w-full overflow-visible rounded-lg border border-white/80 bg-white/92 px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_16px_34px_-16px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-white sm:w-auto sm:px-7"
               >
-                See live demo
+                <span aria-hidden className="pointer-events-none absolute inset-0 -z-10 rounded-lg ring-2 ring-white/60 animate-ping opacity-60" />
+                <span aria-hidden className="pointer-events-none absolute -inset-1 -z-10 rounded-xl bg-white/30 blur-xl animate-pulse" />
+                <span className="inline-flex items-center justify-center gap-2">
+                  <Play className="h-4 w-4 fill-slate-950" /> See live demo
+                </span>
               </button>
             </div>
-
-
-
           </div>
         </div>
       </section>
+
+      {showTeaser && (
+        <div className="fixed bottom-6 right-6 z-40 w-72 animate-in slide-in-from-right-8 fade-in duration-500">
+          <button
+            type="button"
+            onClick={() => {
+              setShowTeaser(false);
+              setIsVideoOpen(true);
+            }}
+            className="group relative block w-full overflow-hidden rounded-xl border border-white/15 bg-slate-950/90 text-left shadow-2xl ring-1 ring-[#d4af37]/30 backdrop-blur-md transition hover:ring-[#d4af37]/70"
+          >
+            <span
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowTeaser(false);
+              }}
+              className="absolute top-1.5 right-1.5 z-10 inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white/80 hover:bg-black hover:text-white"
+              aria-label="Dismiss teaser"
+            >
+              <X className="h-3.5 w-3.5" />
+            </span>
+            <div className="relative aspect-video w-full bg-black">
+              <iframe
+                className="pointer-events-none absolute inset-0 h-full w-full"
+                src="https://www.youtube.com/embed/g-FDTVZ-InI?autoplay=1&mute=1&loop=1&playlist=g-FDTVZ-InI&controls=0&showinfo=0&modestbranding=1"
+                title="Demo preview"
+                allow="autoplay"
+              />
+              <span className="pointer-events-none absolute inset-0 grid place-items-center bg-black/30">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#d4af37] text-slate-950 shadow-lg">
+                  <Play className="h-5 w-5 fill-slate-950" />
+                </span>
+              </span>
+            </div>
+            <div className="px-3 py-2.5 text-sm font-medium text-white">
+              See Live Demo — click here to watch
+            </div>
+          </button>
+        </div>
+      )}
+
 
       {isVideoOpen && (
         <div
