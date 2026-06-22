@@ -640,3 +640,20 @@ export async function buildListingPdfPreview(
   return { url: doc.output("datauristring"), pages };
 }
 
+/** Build the listing PDF and return base64 (no data: prefix) for email attachments. */
+export async function listingPdfBase64(l: ShareableListing): Promise<string> {
+  const doc = await buildListingPdfDoc(l);
+  const dataUri = doc.output("datauristring");
+  const idx = dataUri.indexOf(",");
+  return idx >= 0 ? dataUri.slice(idx + 1) : dataUri;
+}
+
+export function safeListingFilename(l: ShareableListing) {
+  const safe = (l.address || "listing")
+    .replace(/[^a-z0-9]+/gi, "-")
+    .toLowerCase()
+    .slice(0, 60);
+  return `${safe || "listing"}.pdf`;
+}
+
+
