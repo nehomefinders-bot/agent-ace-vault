@@ -465,8 +465,15 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
 
   // ===== GALLERY PAGE (2x2) =====
   const urls = (l.image_urls ?? []).filter(Boolean);
+  const agentParts: string[] = [];
+  if (l.agent_name?.trim()) agentParts.push(`Presented By: ${l.agent_name.trim()}`);
+  if (l.agent_brokerage?.trim()) agentParts.push(l.agent_brokerage.trim());
+  if (l.agent_phone?.trim()) agentParts.push(`Phone: ${l.agent_phone.trim()}`);
+  if (l.agent_email?.trim()) agentParts.push(`Email: ${l.agent_email.trim()}`);
+  const hasAgent = agentParts.length > 0;
+
   let galleryPage: number | null = null;
-  if (urls.length > 1) {
+  if (urls.length > 1 || hasAgent) {
     doc.addPage();
     galleryPage = doc.getNumberOfPages();
     let gy = M;
@@ -479,9 +486,11 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
     doc.setTextColor(0);
     gy += 30;
 
+    const footerH = hasAgent ? 36 : 0;
+    const gridBottom = H - M - footerH - (hasAgent ? 10 : 0);
     const gap = 10;
     const cellGW = (cw - gap) / 2;
-    const cellGH = (H - gy - M - gap) / 2;
+    const cellGH = (gridBottom - gy - gap) / 2;
     for (let i = 0; i < Math.min(4, urls.length); i++) {
       const col = i % 2;
       const row = Math.floor(i / 2);
@@ -510,6 +519,21 @@ export async function buildListingPdfDoc(l: ShareableListing): Promise<jsPDF> {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(8.5);
       doc.text(`Photo ${i + 1}`, cx + 6, cy + 11);
+    }
+
+    if (hasAgent) {
+      const fy = H - M - footerH;
+      doc.setFillColor(...HEAD_BG);
+      doc.rect(M, fy, cw, footerH, "F");
+      doc.setTextColor(255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      const line = agentParts.join("  |  ");
+      const wrapped = doc.splitTextToSize(line, cw - 16);
+      doc.text(wrapped, M + cw / 2, fy + (footerH / 2) - ((wrapped.length - 1) * 6) + 3, {
+        align: "center",
+      });
+      doc.setTextColor(0);
     }
   }
 
