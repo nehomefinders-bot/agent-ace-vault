@@ -579,6 +579,32 @@ function ListingCard({
                 initialFocus
                 className={cn("p-3 pointer-events-auto")}
               />
+              <div className="flex items-center justify-between gap-2 px-3 pb-3 pt-1 border-t">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDatePickerOpen(false);
+                    onStatusChange("Sold", null);
+                  }}
+                >
+                  Clear date
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDatePickerOpen(false);
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
             </PopoverContent>
           </Popover>
         </div>
