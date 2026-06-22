@@ -539,37 +539,66 @@ function ListingCard({
           />
         )}
         <div className="absolute top-3 left-3 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-          <Select value={l.status} onValueChange={handleStatusChange}>
-            <SelectTrigger
-              className={`h-7 px-2.5 text-xs font-medium border-0 rounded-full shadow-sm ${
-                l.status === "Active"
-                  ? "bg-success/90 text-white"
-                  : l.status === "Pending"
-                    ? "bg-warning/90 text-white"
-                    : "bg-black/60 text-white"
-              }`}
-            >
-              <SelectValue>{l.status}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {STATUS_OPTIONS.map((s) => (
-                <SelectItem key={s} value={s}>
-                  {s}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
           <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
             <PopoverTrigger asChild>
-              <span className="sr-only" aria-hidden />
+              <div className="relative z-30">
+                <Select value={l.status} onValueChange={handleStatusChange}>
+                  <SelectTrigger
+                    onClick={(e) => {
+                      if (l.status === "Sold") {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDatePickerOpen(true);
+                      }
+                    }}
+                    className={`h-7 px-2.5 text-xs font-medium border-0 rounded-full shadow-sm pointer-events-auto cursor-pointer ${
+                      l.status === "Active"
+                        ? "bg-success/90 text-white"
+                        : l.status === "Pending"
+                          ? "bg-warning/90 text-white"
+                          : "bg-black/60 text-white"
+                    }`}
+                  >
+                    <SelectValue>{l.status}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="z-[60]">
+                    {STATUS_OPTIONS.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </PopoverTrigger>
             <PopoverContent
               align="start"
               sideOffset={6}
-              className="w-auto p-0 z-50"
+              className="w-auto p-0 z-[100] pointer-events-auto bg-popover border shadow-md rounded-lg"
               onOpenAutoFocus={(e) => e.preventDefault()}
             >
-              <div className="px-3 pt-3 pb-1 text-xs font-medium text-foreground">
+              <div className="px-3 pt-3 pb-1 flex items-center justify-between gap-4 border-b">
+                <span className="text-xs font-semibold text-foreground">Status Option</span>
+                <Select
+                  value={l.status}
+                  onValueChange={(newStatus) => {
+                    handleStatusChange(newStatus);
+                    setDatePickerOpen(false);
+                  }}
+                >
+                  <SelectTrigger className="h-6 px-2 text-[11px] font-medium border rounded bg-background w-24">
+                    <SelectValue>{l.status}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="z-[110]">
+                    {STATUS_OPTIONS.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="px-3 pt-2 pb-1 text-xs font-medium text-foreground">
                 Select closing date
               </div>
               <Calendar
@@ -584,7 +613,7 @@ function ListingCard({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="text-destructive hover:text-destructive"
+                  className="text-destructive hover:text-destructive text-xs h-8"
                   onClick={(e) => {
                     e.stopPropagation();
                     setDatePickerOpen(false);
@@ -597,6 +626,7 @@ function ListingCard({
                   type="button"
                   variant="outline"
                   size="sm"
+                  className="text-xs h-8"
                   onClick={(e) => {
                     e.stopPropagation();
                     setDatePickerOpen(false);
