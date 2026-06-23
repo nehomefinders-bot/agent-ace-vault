@@ -51,6 +51,7 @@ export function ShareListingModal({
   const [pages, setPages] = useState<PdfPageMap | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [shortUrl, setShortUrl] = useState<string | null>(null);
+  const [recipient, setRecipient] = useState("");
 
   useEffect(() => {
     if (!open) return;
@@ -62,6 +63,7 @@ export function ShareListingModal({
       setPages(null);
       setCurrentPage(1);
       setShortUrl(null);
+      setRecipient("");
       const phoneOk = !listing.agent_phone || /^[+()\-\s.\d]{7,30}$/.test(listing.agent_phone.trim());
       const emailOk = !listing.agent_email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(listing.agent_email.trim());
       if (!phoneOk) toast.error("Agent phone number looks invalid — fix it in Edit Listing before sharing.");
