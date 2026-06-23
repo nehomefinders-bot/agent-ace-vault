@@ -76,28 +76,55 @@ export function buildShareSubject(l: ShareableListing) {
   return `Property Details: ${l.address || "this property"}`;
 }
 
-export function buildShareBody(l: ShareableListing, _attachmentUrl?: string) {
+export function buildShareBody(l: ShareableListing, attachmentUrl?: string) {
   const address = l.address || "this property";
   const price = l.list_price != null ? formatMoney(Number(l.list_price)) : NA;
-  const extras: string[] = [];
-  if (l.property_type) extras.push(`- Type: ${l.property_type}`);
-  if (l.year_built != null) extras.push(`- Year Built: ${l.year_built}`);
-  if (l.lot_size) extras.push(`- Lot Size: ${l.lot_size}`);
-  if (l.parking_spaces != null) extras.push(`- Parking: ${l.parking_spaces}`);
+  const specs = specsLine(l);
+  const notes = (l.notes && l.notes.trim()) || NA;
   const signoff = l.agent_name?.trim()
     ? `Best regards,\n${l.agent_name.trim()}${l.agent_brokerage ? `\n${l.agent_brokerage}` : ""}`
     : `Best regards,\nYour agent`;
-  return (
-    `Hi,\n\n` +
-    `Here are the details for the property at ${address}:\n\n` +
-    `- Price: ${price}\n` +
-    `- Specs: ${specsLine(l)}\n` +
-    (extras.length ? extras.join("\n") + "\n" : "") +
-    `- Notes: ${l.notes || NA}\n\n` +
-    `The full MLS feature sheet is attached to this email.\n\n` +
-    `Let me know if you'd like to schedule a tour!\n\n` +
-    signoff
+
+  const lines: string[] = [
+    "Hi,",
+    "",
+    `Here are the details for the property at ${address}.`,
+    "",
+    `Price: ${price}`,
+    `Specs: ${specs}`,
+    `Notes: ${notes}`,
+  ];
+  if (attachmentUrl) {
+    lines.push("", `Find Your Listing Sheet here: ${attachmentUrl}`);
+  }
+  lines.push(
+    "",
+    "Let me know if you would like to schedule a tour!",
+    "",
+    signoff,
   );
+  return lines.join("\n");
+}
+
+/**
+ * Shorten a long Supabase storage URL through a free public shortener so the
+ * resulting mailto: payload stays well below browser character limits.
+ * Falls back to the original URL on any failure (network, CORS, rate limit).
+ */
+export async function shortenUrl(url: string): Promise<string> {
+  if (!url) return url;
+  try {
+    const res = await fetch(
+      `https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`,
+      { method: "GET" },
+    );
+    if (!res.ok) return url;
+    const txt = (await res.text()).trim();
+    if (/^https?:\/\/(tinyurl\.com|tiny\.cc)\//i.test(txt)) return txt;
+    return url;
+  } catch {
+    return url;
+  }
 }
 
 const MAILTO_MAX_LEN = 1900;
@@ -128,13 +155,11 @@ export function buildGmailComposeHref(l: ShareableListing, attachmentUrl?: strin
 
 export function shareListingViaEmail(l: ShareableListing, attachmentUrl?: string) {
   const mailto = buildMailtoHref(l, attachmentUrl);
-  // Try desktop client first; if nothing handles the protocol within a short
-  // window (tab still focused), fall back to Gmail web compose.
   const start = Date.now();
   let fellBack = false;
   const fallback = () => {
     if (fellBack) return;
-    if (document.hidden) return; // a handler took over
+    if (document.hidden) return;
     if (Date.now() - start < 400) return;
     fellBack = true;
     window.open(buildGmailComposeHref(l, attachmentUrl), "_blank", "noopener");
@@ -142,6 +167,7 @@ export function shareListingViaEmail(l: ShareableListing, attachmentUrl?: string
   window.location.href = mailto;
   window.setTimeout(fallback, 1200);
 }
+
 
 export async function copyEmailContentToClipboard(
   l: ShareableListing,
