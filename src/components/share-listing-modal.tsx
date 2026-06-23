@@ -8,6 +8,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Loader2,
   Mail,
@@ -18,6 +19,7 @@ import {
   Images,
   History,
   Copy,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
