@@ -8,6 +8,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Loader2,
   Mail,
@@ -18,6 +19,7 @@ import {
   Images,
   History,
   Copy,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -49,6 +51,7 @@ export function ShareListingModal({
   const [pages, setPages] = useState<PdfPageMap | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [shortUrl, setShortUrl] = useState<string | null>(null);
+  const [recipient, setRecipient] = useState("");
 
   useEffect(() => {
     if (!open) return;
@@ -60,6 +63,7 @@ export function ShareListingModal({
       setPages(null);
       setCurrentPage(1);
       setShortUrl(null);
+      setRecipient("");
       const phoneOk = !listing.agent_phone || /^[+()\-\s.\d]{7,30}$/.test(listing.agent_phone.trim());
       const emailOk = !listing.agent_email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(listing.agent_email.trim());
       if (!phoneOk) toast.error("Agent phone number looks invalid — fix it in Edit Listing before sharing.");
@@ -97,7 +101,7 @@ export function ShareListingModal({
   const body = buildShareBody(listing, linkForEmail);
 
   function handleOpenEmail() {
-    shareListingViaEmail(listing, linkForEmail);
+    shareListingViaEmail(listing, linkForEmail, recipient);
   }
 
   async function handleCopy() {
@@ -180,43 +184,104 @@ export function ShareListingModal({
               />
             )}
           </div>
-          <aside className="border-t md:border-t-0 md:border-l border-border p-4 overflow-y-auto space-y-3 bg-background">
-            <div>
-              <div className="text-xs font-medium text-muted-foreground">Subject</div>
-              <div className="text-sm font-medium mt-0.5 break-words">{subject}</div>
+          <aside className="border-t md:border-t-0 md:border-l border-border p-4 overflow-y-auto space-y-4 bg-muted/10 w-full md:w-[340px] flex flex-col">
+            <div className="space-y-1">
+              <h4 className="text-sm font-semibold tracking-tight text-foreground">Email Composition</h4>
+              <p className="text-xs text-muted-foreground">Preview your email & shortened sheet link.</p>
             </div>
-            <div>
-              <div className="text-xs font-medium text-muted-foreground">Body</div>
-              <pre className="text-xs whitespace-pre-wrap break-words mt-0.5 p-2 rounded-md bg-muted/50 border border-border max-h-72 overflow-y-auto">
-                {body}
-              </pre>
-            </div>
-            {mls && shortUrl && (
-              <div className="text-[11px] text-muted-foreground">
-                Short link: <span className="font-mono break-all">{shortUrl}</span>
+
+            {/* Email Composer Window Mockup */}
+            <div className="rounded-lg border border-border bg-card shadow-sm text-card-foreground flex flex-col overflow-hidden text-xs">
+              {/* Header metadata */}
+              <div className="border-b border-border bg-muted/40 p-2.5 space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground w-12 font-medium">From:</span>
+                  <span className="text-foreground truncate select-none">
+                    {listing.agent_name ? `${listing.agent_name} <${listing.agent_email || "you@tracker.com"}>` : "You"}
+                  </span>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground w-12 font-medium">To:</span>
+                  <Input
+                    type="email"
+                    placeholder="recipient@email.com (optional)"
+                    value={recipient}
+                    onChange={(e) => setRecipient(e.target.value)}
+                    className="h-7 text-xs py-0.5 px-2 bg-background border-muted flex-1"
+                  />
+                </div>
+
+                <div className="flex items-start gap-2">
+                  <span className="text-muted-foreground w-12 font-medium pt-0.5">Subject:</span>
+                  <span className="text-foreground font-medium flex-1 line-clamp-2 leading-relaxed">
+                    {subject}
+                  </span>
+                </div>
               </div>
-            )}
-            {mls && (
-              <a
-                href={mls.url}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
-              >
-                <ExternalLink className="h-3.5 w-3.5" /> Open MLS document
-              </a>
-            )}
-            {!mls && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => downloadListingPdf(listing)}
-              >
-                <Download className="h-3.5 w-3.5 mr-1.5" /> Download PDF
-              </Button>
-            )}
+
+              {/* Document attachment/shortened URL section */}
+              <div className="border-b border-border bg-muted/20 p-2.5 flex flex-col gap-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-muted-foreground font-medium">Feature Sheet Link:</span>
+                  {mls && shortUrl && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5 text-muted-foreground hover:text-foreground"
+                      onClick={() => {
+                        navigator.clipboard.writeText(shortUrl);
+                        toast.success("Short link copied!");
+                      }}
+                      title="Copy Short Link"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
+
+                {mls ? (
+                  shortUrl ? (
+                    <div className="bg-background border border-border rounded p-1.5 font-mono text-[10px] break-all flex items-center justify-between text-primary">
+                      <span>{shortUrl}</span>
+                      <a href={mls.url} target="_blank" rel="noreferrer" title="Open original long link" className="inline-flex">
+                        <ExternalLink className="h-3 w-3 text-muted-foreground hover:text-primary ml-1" />
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="text-[10px] text-muted-foreground italic flex items-center gap-1.5">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      Generating shortened secure URL...
+                    </div>
+                  )
+                ) : (
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] text-muted-foreground block italic leading-normal">
+                      Auto-generated feature sheet PDF.
+                    </span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full h-7 text-[11px] px-2"
+                      onClick={() => downloadListingPdf(listing)}
+                    >
+                      <Download className="h-3 w-3 mr-1" /> Download PDF
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Body */}
+              <div className="p-2.5 bg-background">
+                <div className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-1">Email Body Preview</div>
+                <div className="max-h-[220px] overflow-y-auto pr-1 select-text">
+                  <pre className="whitespace-pre-wrap break-words font-sans text-xs text-foreground/90 leading-relaxed bg-muted/30 p-2 rounded border border-border/60">
+                    {body}
+                  </pre>
+                </div>
+              </div>
+            </div>
           </aside>
         </div>
 

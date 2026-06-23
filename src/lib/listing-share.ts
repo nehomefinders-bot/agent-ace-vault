@@ -141,20 +141,22 @@ export function buildSafeEmailPayload(l: ShareableListing, attachmentUrl?: strin
   return { subject, body };
 }
 
-export function buildMailtoHref(l: ShareableListing, attachmentUrl?: string) {
+export function buildMailtoHref(l: ShareableListing, attachmentUrl?: string, recipient = "") {
   const { subject, body } = buildSafeEmailPayload(l, attachmentUrl);
-  return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const to = recipient ? encodeURIComponent(recipient) : "";
+  return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-export function buildGmailComposeHref(l: ShareableListing, attachmentUrl?: string) {
+export function buildGmailComposeHref(l: ShareableListing, attachmentUrl?: string, recipient = "") {
   const { subject, body } = buildSafeEmailPayload(l, attachmentUrl);
-  return `https://mail.google.com/mail/?view=cm&fs=1&to=&su=${encodeURIComponent(
+  const to = recipient ? encodeURIComponent(recipient) : "";
+  return `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${encodeURIComponent(
     subject,
   )}&body=${encodeURIComponent(body)}`;
 }
 
-export function shareListingViaEmail(l: ShareableListing, attachmentUrl?: string) {
-  const mailto = buildMailtoHref(l, attachmentUrl);
+export function shareListingViaEmail(l: ShareableListing, attachmentUrl?: string, recipient = "") {
+  const mailto = buildMailtoHref(l, attachmentUrl, recipient);
   const start = Date.now();
   let fellBack = false;
   const fallback = () => {
@@ -162,7 +164,7 @@ export function shareListingViaEmail(l: ShareableListing, attachmentUrl?: string
     if (document.hidden) return;
     if (Date.now() - start < 400) return;
     fellBack = true;
-    window.open(buildGmailComposeHref(l, attachmentUrl), "_blank", "noopener");
+    window.open(buildGmailComposeHref(l, attachmentUrl, recipient), "_blank", "noopener");
   };
   window.location.href = mailto;
   window.setTimeout(fallback, 1200);
