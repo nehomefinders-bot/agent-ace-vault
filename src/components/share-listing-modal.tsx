@@ -101,7 +101,7 @@ export function ShareListingModal({
   const body = buildShareBody(listing, linkForEmail);
 
   function handleOpenEmail() {
-    shareListingViaEmail(listing, linkForEmail);
+    shareListingViaEmail(listing, linkForEmail, recipient);
   }
 
   async function handleCopy() {
