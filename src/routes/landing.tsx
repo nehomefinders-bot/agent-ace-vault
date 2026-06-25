@@ -139,30 +139,24 @@ function Landing() {
   const nav = useNavigate();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const [showTeaser, setShowTeaser] = useState(true);
+  const [videoMountReady, setVideoMountReady] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
 
+  // Defer mounting the video chunk until the browser is idle so the
+  // landing hero, copy, and signup CTAs paint and become interactive first.
   useEffect(() => {
-    if (!showTeaser) return;
-    const t = setTimeout(() => setShowTeaser(false), 8000);
-    return () => clearTimeout(t);
-  }, [showTeaser]);
-
-  const videoIframeRef = useRef<HTMLIFrameElement | null>(null);
-  const closeVideo = () => {
-    const f = videoIframeRef.current;
-    if (f) {
-      try {
-        f.contentWindow?.postMessage(
-          '{"event":"command","func":"stopVideo","args":""}',
-          "*",
-        );
-      } catch {}
-      f.src = "about:blank";
-    }
-    setIsVideoOpen(false);
-  };
-
+    if (typeof window === "undefined") return;
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+    };
+    const schedule = w.requestIdleCallback
+      ? (cb: () => void) => w.requestIdleCallback!(cb, { timeout: 2000 })
+      : (cb: () => void) => window.setTimeout(cb, 1200);
+    const id = schedule(() => setVideoMountReady(true));
+    return () => {
+      if (typeof id === "number") window.clearTimeout(id);
+    };
+  }, []);
 
   const supportEmail = "livingandlearningwithjackie@gmail.com";
   const copySupportEmail = async () => {
@@ -186,18 +180,7 @@ function Landing() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!isVideoOpen) return;
 
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsVideoOpen(false);
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isVideoOpen]);
 
   const handleNewsletterSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
