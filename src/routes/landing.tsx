@@ -142,7 +142,7 @@ function Landing() {
 
   useEffect(() => {
     if (!showTeaser) return;
-    const t = setTimeout(() => setShowTeaser(false), 4000);
+    const t = setTimeout(() => setShowTeaser(false), 8000);
     return () => clearTimeout(t);
   }, [showTeaser]);
 
