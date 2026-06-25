@@ -1,5 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { lazy, Suspense, useEffect, useState, type FormEvent } from "react";
+
+const LandingVideo = lazy(() => import("@/components/landing-video"));
 import {
   Check,
   BookOpen,
@@ -12,7 +14,7 @@ import {
   DollarSign,
   Wallet,
   PieChart,
-  X,
+  
   Star,
   Loader2,
   Copy,
@@ -137,30 +139,24 @@ function Landing() {
   const nav = useNavigate();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const [showTeaser, setShowTeaser] = useState(true);
+  const [videoMountReady, setVideoMountReady] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
 
+  // Defer mounting the video chunk until the browser is idle so the
+  // landing hero, copy, and signup CTAs paint and become interactive first.
   useEffect(() => {
-    if (!showTeaser) return;
-    const t = setTimeout(() => setShowTeaser(false), 8000);
-    return () => clearTimeout(t);
-  }, [showTeaser]);
-
-  const videoIframeRef = useRef<HTMLIFrameElement | null>(null);
-  const closeVideo = () => {
-    const f = videoIframeRef.current;
-    if (f) {
-      try {
-        f.contentWindow?.postMessage(
-          '{"event":"command","func":"stopVideo","args":""}',
-          "*",
-        );
-      } catch {}
-      f.src = "about:blank";
-    }
-    setIsVideoOpen(false);
-  };
-
+    if (typeof window === "undefined") return;
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+    };
+    const schedule = w.requestIdleCallback
+      ? (cb: () => void) => w.requestIdleCallback!(cb, { timeout: 2000 })
+      : (cb: () => void) => window.setTimeout(cb, 1200);
+    const id = schedule(() => setVideoMountReady(true));
+    return () => {
+      if (typeof id === "number") window.clearTimeout(id);
+    };
+  }, []);
 
   const supportEmail = "livingandlearningwithjackie@gmail.com";
   const copySupportEmail = async () => {
@@ -184,18 +180,7 @@ function Landing() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!isVideoOpen) return;
 
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsVideoOpen(false);
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isVideoOpen]);
 
   const handleNewsletterSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -300,80 +285,12 @@ function Landing() {
         </div>
       </section>
 
-      {showTeaser && (
-        <div className="fixed bottom-6 right-6 z-40 w-72 animate-in slide-in-from-right-8 fade-in duration-500">
-          <button
-            type="button"
-            onClick={() => {
-              setShowTeaser(false);
-              setIsVideoOpen(true);
-            }}
-            className="group relative block w-full overflow-hidden rounded-xl border border-white/15 bg-slate-950/90 text-left shadow-2xl ring-1 ring-[#d4af37]/30 backdrop-blur-md transition hover:ring-[#d4af37]/70"
-          >
-            <span
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowTeaser(false);
-              }}
-              className="absolute top-1.5 right-1.5 z-10 inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white/80 hover:bg-black hover:text-white"
-              aria-label="Dismiss teaser"
-            >
-              <X className="h-3.5 w-3.5" />
-            </span>
-            <div className="relative aspect-video w-full bg-black">
-              <iframe
-                className="pointer-events-none absolute inset-0 h-full w-full"
-                src="https://www.youtube.com/embed/g-FDTVZ-InI?autoplay=1&mute=1&loop=1&playlist=g-FDTVZ-InI&controls=0&showinfo=0&modestbranding=1"
-                title="Demo preview"
-                allow="autoplay"
-              />
-              <span className="pointer-events-none absolute inset-0 grid place-items-center bg-black/30">
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#d4af37] text-slate-950 shadow-lg">
-                  <Play className="h-5 w-5 fill-slate-950" />
-                </span>
-              </span>
-            </div>
-            <div className="px-3 py-2.5 text-sm font-medium text-white">
-              See Live Demo — click here to watch
-            </div>
-          </button>
-        </div>
+      {videoMountReady && (
+        <Suspense fallback={null}>
+          <LandingVideo open={isVideoOpen} onOpenChange={setIsVideoOpen} />
+        </Suspense>
       )}
 
-
-      {isVideoOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-md"
-          onClick={closeVideo}
-          role="presentation"
-        >
-          <div
-            className="relative aspect-video w-full max-w-4xl overflow-hidden rounded-xl border border-white/10 bg-black shadow-2xl"
-            onClick={(event) => event.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Live demo video"
-          >
-            <button
-              type="button"
-              onClick={closeVideo}
-              className="absolute -top-3 -right-3 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-slate-950/90 text-white/70 shadow-lg transition hover:bg-slate-900 hover:text-white"
-              aria-label="Close video"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <iframe
-              ref={videoIframeRef}
-              className="h-full w-full"
-              src="https://www.youtube.com/embed/g-FDTVZ-InI?autoplay=1&rel=0&enablejsapi=1"
-              title="Agent Business Tracker live demo"
-              allow="autoplay; fullscreen; picture-in-picture"
-              allowFullScreen
-            />
-
-          </div>
-        </div>
-      )}
 
       <section className="relative overflow-hidden border-y border-[#d4af37]/20 bg-[#050b22]">
         <div
