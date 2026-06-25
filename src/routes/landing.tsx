@@ -14,7 +14,7 @@ import {
   DollarSign,
   Wallet,
   PieChart,
-  X,
+  
   Star,
   Loader2,
   Copy,
