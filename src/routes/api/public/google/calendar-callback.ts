@@ -53,12 +53,23 @@ export const Route = createFileRoute("/api/public/google/calendar-callback")({
               },
               { onConflict: "user_id" },
             );
-          if (error) throw new Error(error.message);
+          if (error) {
+            console.error("[google-calendar-callback] token upsert failed", error);
+            return failRedirect("token_persist_failed");
+          }
 
           return Response.redirect(`${appBase}/calendar?google=connected`, 302);
         } catch (err) {
-          const msg = err instanceof Error ? err.message : "unknown";
-          return failRedirect(msg.slice(0, 120));
+          // Log raw details server-side only. Never forward internal error
+          // strings to the browser URL — they leak to history, analytics,
+          // server logs, and referrer headers.
+          console.error("[google-calendar-callback] flow failed", err);
+          const message = err instanceof Error ? err.message : "";
+          let reason = "oauth_failed";
+          if (/state/i.test(message)) reason = "invalid_state";
+          else if (/token/i.test(message)) reason = "token_exchange_failed";
+          else if (/email/i.test(message)) reason = "userinfo_failed";
+          return failRedirect(reason);
         }
       },
     },
