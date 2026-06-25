@@ -1446,7 +1446,7 @@ function haversineMiles(lat1: number, lon1: number, lat2: number, lon2: number):
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
-import { getGoogleMapsKey } from "@/lib/maps.functions";
+import { getGoogleMapsKey, reverseGeocodeCoordinates } from "@/lib/maps.functions";
 
 const GOOGLE_MAPS_SCRIPT_ID = "google-maps-places-script";
 let googleMapsPlacesPromise: Promise<GoogleMapsApi> | null = null;
@@ -1468,36 +1468,12 @@ async function fetchGoogleMapsKey(): Promise<string> {
 }
 
 async function reverseGeocode(lat: number, lon: number): Promise<AddressSuggestion | null> {
-  const apiKey = await fetchGoogleMapsKey();
-
-  const url = new URL("https://maps.googleapis.com/maps/api/geocode/json");
-  url.searchParams.set("latlng", `${lat},${lon}`);
-  url.searchParams.set("key", apiKey);
-
-  const response = await fetch(url.toString());
-  if (!response.ok) throw new Error("Could not reverse geocode current location");
-
-  const data = (await response.json()) as {
-    status: string;
-    error_message?: string;
-    results?: Array<{ place_id: string; formatted_address: string }>;
-  };
-
-  if (data.status !== "OK" || !data.results || data.results.length === 0) {
-    if (data.status && data.status !== "ZERO_RESULTS") {
-      throw new Error(data.error_message || `Google Geocoding error: ${data.status}`);
-    }
-    return null;
-  }
-
-  const top = data.results[0];
-  return {
-    id: top.place_id,
-    label: top.formatted_address,
-    lat,
-    lon,
-  };
+  // Geocoding is proxied through a server function so the Google Maps API
+  // key is never sent to the browser for this endpoint.
+  const { result } = await reverseGeocodeCoordinates({ data: { lat, lon } });
+  return result;
 }
+
 
 function newSessionToken(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
