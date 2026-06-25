@@ -1,5 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { lazy, Suspense, useEffect, useState, type FormEvent } from "react";
+
+const LandingVideo = lazy(() => import("@/components/landing-video"));
 import {
   Check,
   BookOpen,
