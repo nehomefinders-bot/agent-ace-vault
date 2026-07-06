@@ -24,6 +24,7 @@ import {
   User,
   Shield,
   FileText,
+  Building2,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -68,7 +69,10 @@ const sections = [
       { to: "/terms-and-conditions", label: "Terms of Service", icon: FileText },
     ],
   },
-] as const;
+] as { label: string; items: { to: string; label: string; icon: typeof LayoutDashboard }[] }[];
+
+const MLS_ALLOWED_EMAIL = "nehomefinders@gmail.com";
+const MLS_ITEM = { to: "/mls-listings", label: "MLS Listings", icon: Building2 } as const;
 
 export function AppSidebar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
@@ -182,6 +186,16 @@ export function AppSidebar() {
   const tone = toneClasses[statusTone];
   const showPlanLine = !!user && (status !== null || isActive || profileActive);
 
+  const isMlsUser = user?.email?.trim().toLowerCase() === MLS_ALLOWED_EMAIL;
+  const visibleSections = sections.map((section) => {
+    if (!isMlsUser || section.label !== "More") return section;
+    const items = [...section.items];
+    const dealsIdx = items.findIndex((i) => i.to === "/deals");
+    const insertAt = dealsIdx >= 0 ? dealsIdx + 1 : items.length;
+    items.splice(insertAt, 0, MLS_ITEM);
+    return { ...section, items };
+  });
+
 
 
 
@@ -205,7 +219,7 @@ export function AppSidebar() {
       </div>
 
       <nav className="flex-1 min-h-0 px-2.5 space-y-4 overflow-y-auto overscroll-contain">
-        {sections.map((section) => (
+        {visibleSections.map((section) => (
           <div key={section.label}>
             <div className="mb-1.5 px-2.5 text-xs font-medium uppercase tracking-[0.14em] text-sidebar-foreground/70">
               {section.label}

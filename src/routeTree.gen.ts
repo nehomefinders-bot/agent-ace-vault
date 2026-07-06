@@ -24,6 +24,7 @@ import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PipelineRouteImport } from './routes/pipeline'
+import { Route as MlsListingsRouteImport } from './routes/mls-listings'
 import { Route as MileageRouteImport } from './routes/mileage'
 import { Route as MediaStorageRouteImport } from './routes/media-storage'
 import { Route as ListingsRouteImport } from './routes/listings'
@@ -127,6 +128,11 @@ const PricingRoute = PricingRouteImport.update({
 const PipelineRoute = PipelineRouteImport.update({
   id: '/pipeline',
   path: '/pipeline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MlsListingsRoute = MlsListingsRouteImport.update({
+  id: '/mls-listings',
+  path: '/mls-listings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MileageRoute = MileageRouteImport.update({
@@ -297,6 +303,7 @@ export interface FileRoutesByFullPath {
   '/listings': typeof ListingsRoute
   '/media-storage': typeof MediaStorageRoute
   '/mileage': typeof MileageRoute
+  '/mls-listings': typeof MlsListingsRoute
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -342,6 +349,7 @@ export interface FileRoutesByTo {
   '/listings': typeof ListingsRoute
   '/media-storage': typeof MediaStorageRoute
   '/mileage': typeof MileageRoute
+  '/mls-listings': typeof MlsListingsRoute
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -389,6 +397,7 @@ export interface FileRoutesById {
   '/listings': typeof ListingsRoute
   '/media-storage': typeof MediaStorageRoute
   '/mileage': typeof MileageRoute
+  '/mls-listings': typeof MlsListingsRoute
   '/pipeline': typeof PipelineRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -437,6 +446,7 @@ export interface FileRouteTypes {
     | '/listings'
     | '/media-storage'
     | '/mileage'
+    | '/mls-listings'
     | '/pipeline'
     | '/pricing'
     | '/privacy'
@@ -482,6 +492,7 @@ export interface FileRouteTypes {
     | '/listings'
     | '/media-storage'
     | '/mileage'
+    | '/mls-listings'
     | '/pipeline'
     | '/pricing'
     | '/privacy'
@@ -528,6 +539,7 @@ export interface FileRouteTypes {
     | '/listings'
     | '/media-storage'
     | '/mileage'
+    | '/mls-listings'
     | '/pipeline'
     | '/pricing'
     | '/privacy'
@@ -575,6 +587,7 @@ export interface RootRouteChildren {
   ListingsRoute: typeof ListingsRoute
   MediaStorageRoute: typeof MediaStorageRoute
   MileageRoute: typeof MileageRoute
+  MlsListingsRoute: typeof MlsListingsRoute
   PipelineRoute: typeof PipelineRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -701,6 +714,13 @@ declare module '@tanstack/react-router' {
       path: '/pipeline'
       fullPath: '/pipeline'
       preLoaderRoute: typeof PipelineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mls-listings': {
+      id: '/mls-listings'
+      path: '/mls-listings'
+      fullPath: '/mls-listings'
+      preLoaderRoute: typeof MlsListingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mileage': {
@@ -950,6 +970,7 @@ const rootRouteChildren: RootRouteChildren = {
   ListingsRoute: ListingsRoute,
   MediaStorageRoute: MediaStorageRoute,
   MileageRoute: MileageRoute,
+  MlsListingsRoute: MlsListingsRoute,
   PipelineRoute: PipelineRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
@@ -973,12 +994,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
