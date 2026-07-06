@@ -79,8 +79,46 @@ interface Deal {
   referral_to: string | null;
   status: string;
   close_date: string | null;
+  created_at: string | null;
+  updated_at: string | null;
   client_name: string | null;
   notes: string | null;
+}
+
+const statusOrder: Record<string, number> = {
+  New: 1,
+  Active: 1,
+  "New Lead": 1,
+  "New Listing": 1,
+  "In Funnel": 1,
+  "On MLS": 1,
+  "In Conversation": 1,
+  Commitment: 1,
+  "Clear to Close": 1,
+  "Under Agreement": 2,
+  "Buy/Seller Contract Signed": 2,
+  Sold: 3,
+  new_lead: 1,
+  new_listing: 1,
+  in_funnel: 1,
+  on_mls: 1,
+  in_conversation: 1,
+  commitment: 1,
+  clear_to_close: 1,
+  under_agreement: 2,
+  contract_signed: 2,
+  sold: 3,
+};
+
+function statusWeight(status: string | null | undefined) {
+  if (!status) return 1;
+  const normalized = normalizeStage(status);
+  return statusOrder[status] ?? statusOrder[stageLabel(normalized)] ?? statusOrder[normalized] ?? 1;
+}
+
+function recentDealTime(deal: Pick<Deal, "updated_at" | "created_at" | "close_date">) {
+  const value = deal.updated_at || deal.created_at || deal.close_date;
+  return value ? new Date(value).getTime() : 0;
 }
 
 type DealFormValues = {
@@ -201,7 +239,8 @@ function DealsPage() {
 
   const updateStatus = async (id: string, status: string) => {
     const prev = deals;
-    setDeals((cur) => cur.map((d) => (d.id === id ? { ...d, status } : d)));
+    const updatedAt = new Date().toISOString();
+    setDeals((cur) => cur.map((d) => (d.id === id ? { ...d, status, updated_at: updatedAt } : d)));
     const { error } = await supabase.from("deals").update({ status }).eq("id", id);
     if (error) setDeals(prev);
   };
@@ -219,11 +258,19 @@ function DealsPage() {
   const toggleAll = () =>
     setSelected((cur) => (cur.size === deals.length ? new Set() : new Set(deals.map((d) => d.id))));
 
+  const sortedDeals = [...deals].sort((a, b) => {
+    const weightA = statusWeight(a.status);
+    const weightB = statusWeight(b.status);
+    if (weightA !== weightB) return weightA - weightB;
+    return recentDealTime(b) - recentDealTime(a);
+  });
+
   const bulkUpdateStatus = async (status: string) => {
     const ids = Array.from(selected);
     if (!ids.length) return;
     const prev = deals;
-    setDeals((cur) => cur.map((d) => (selected.has(d.id) ? { ...d, status } : d)));
+    const updatedAt = new Date().toISOString();
+    setDeals((cur) => cur.map((d) => (selected.has(d.id) ? { ...d, status, updated_at: updatedAt } : d)));
     const { error } = await supabase.from("deals").update({ status }).in("id", ids);
     if (error) {
       setDeals(prev);
@@ -467,7 +514,7 @@ function DealsPage() {
       <div className="bg-card border border-border rounded-2xl shadow-card overflow-hidden">
         {loading ? (
           <div className="p-8 text-sm text-muted-foreground text-center">Loading…</div>
-        ) : deals.length === 0 ? (
+        ) : sortedDeals.length === 0 ? (
           <div className="p-12 text-center">
             <HomeIcon className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
             <div className="text-sm text-muted-foreground">
@@ -477,7 +524,7 @@ function DealsPage() {
         ) : (
           <>
             <div className="divide-y divide-border md:hidden">
-              {deals.map((d) => {
+              {sortedDeals.map((d) => {
                 const take = calcAgentTake(d);
                 const isSel = selected.has(d.id);
                 const normalizedStage = normalizeStage(d.status);
@@ -609,7 +656,7 @@ function DealsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {deals.map((d) => {
+                  {sortedDeals.map((d) => {
                     const take = calcAgentTake(d);
                     const isSel = selected.has(d.id);
                     return (
