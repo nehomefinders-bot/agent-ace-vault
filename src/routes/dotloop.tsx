@@ -4,7 +4,7 @@ import { ExternalLink, Loader2, Workflow, ShieldCheck, ArrowLeft, LayoutDashboar
 import { useAuth } from "@/hooks/use-auth";
 
 const ALLOWED_EMAIL = "nehomefinders@gmail.com";
-const DOTLOOP_URL = "https://www.dotloop.com/login/";
+const DOTLOOP_URL = "https://www.dotloop.com/";
 
 export const Route = createFileRoute("/dotloop")({
   head: () => ({
@@ -70,7 +70,7 @@ function DotloopPage() {
               <div className="mt-1 text-sm text-muted-foreground">
                 Opens{" "}
                 <span className="font-mono text-xs text-foreground/80">
-                  dotloop.com/login
+                  dotloop.com
                 </span>{" "}
                 in a new, secure tab.
               </div>
