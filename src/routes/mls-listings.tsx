@@ -122,10 +122,19 @@ function MlsListingsPage() {
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Note: MLS PIN blocks embedded iframe access for security. The new-tab
-        launch is the supported way to work in the portal alongside your
-        dashboard.
+        Note: MLS PIN blocks embedded iframe access at the network layer via
+        X-Frame-Options. If the in-app overlay can't load the portal, use the
+        "Open in new tab" fallback from the overlay's top bar.
       </p>
     </div>
+    <ExternalWorkspaceOverlay
+      open={overlayOpen}
+      onClose={() => setOverlayOpen(false)}
+      url={MLS_URL}
+      title="MLS PIN Workspace"
+      hostLabel="mlspin.com"
+      fallbackMode="new-tab"
+    />
+    </>
   );
 }
