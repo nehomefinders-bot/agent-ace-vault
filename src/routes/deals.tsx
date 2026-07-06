@@ -116,8 +116,13 @@ function statusWeight(status: string | null | undefined) {
   return statusOrder[status] ?? statusOrder[stageLabel(normalized)] ?? statusOrder[normalized] ?? 1;
 }
 
-function recentDealTime(deal: Pick<Deal, "updated_at" | "created_at" | "close_date">) {
-  const value = deal.updated_at || deal.created_at || deal.close_date;
+function recentDealTime(
+  deal: Pick<Deal, "updated_at" | "created_at" | "close_date" | "status">,
+) {
+  const isSold = normalizeStage(deal.status) === "sold";
+  const value = isSold
+    ? deal.close_date || deal.updated_at || deal.created_at
+    : deal.updated_at || deal.created_at || deal.close_date;
   return value ? new Date(value).getTime() : 0;
 }
 
