@@ -25,6 +25,7 @@ import {
   Shield,
   FileText,
   Building2,
+  Workflow,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -73,6 +74,7 @@ const sections = [
 
 const MLS_ALLOWED_EMAIL = "nehomefinders@gmail.com";
 const MLS_ITEM = { to: "/mls-listings", label: "MLS Listings", icon: Building2 } as const;
+const DOTLOOP_ITEM = { to: "/dotloop", label: "Dotloop Workspace", icon: Workflow } as const;
 
 export function AppSidebar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
@@ -192,7 +194,7 @@ export function AppSidebar() {
     const items = [...section.items];
     const dealsIdx = items.findIndex((i) => i.to === "/deals");
     const insertAt = dealsIdx >= 0 ? dealsIdx + 1 : items.length;
-    items.splice(insertAt, 0, MLS_ITEM);
+    items.splice(insertAt, 0, MLS_ITEM, DOTLOOP_ITEM);
     return { ...section, items };
   });
 

@@ -32,6 +32,7 @@ import { Route as LandingRouteImport } from './routes/landing'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ExpensesRouteImport } from './routes/expenses'
+import { Route as DotloopRouteImport } from './routes/dotloop'
 import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as DealsRouteImport } from './routes/deals'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -170,6 +171,11 @@ const ExpensesRoute = ExpensesRouteImport.update({
   path: '/expenses',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotloopRoute = DotloopRouteImport.update({
+  id: '/dotloop',
+  path: '/dotloop',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DocumentsRoute = DocumentsRouteImport.update({
   id: '/documents',
   path: '/documents',
@@ -296,6 +302,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/deals': typeof DealsRoute
   '/documents': typeof DocumentsRoute
+  '/dotloop': typeof DotloopRoute
   '/expenses': typeof ExpensesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
@@ -342,6 +349,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/deals': typeof DealsRoute
   '/documents': typeof DocumentsRoute
+  '/dotloop': typeof DotloopRoute
   '/expenses': typeof ExpensesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
@@ -390,6 +398,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/deals': typeof DealsRoute
   '/documents': typeof DocumentsRoute
+  '/dotloop': typeof DotloopRoute
   '/expenses': typeof ExpensesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
@@ -439,6 +448,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/deals'
     | '/documents'
+    | '/dotloop'
     | '/expenses'
     | '/forgot-password'
     | '/help'
@@ -485,6 +495,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/deals'
     | '/documents'
+    | '/dotloop'
     | '/expenses'
     | '/forgot-password'
     | '/help'
@@ -532,6 +543,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/deals'
     | '/documents'
+    | '/dotloop'
     | '/expenses'
     | '/forgot-password'
     | '/help'
@@ -580,6 +592,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DealsRoute: typeof DealsRoute
   DocumentsRoute: typeof DocumentsRoute
+  DotloopRoute: typeof DotloopRoute
   ExpensesRoute: typeof ExpensesRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
@@ -770,6 +783,13 @@ declare module '@tanstack/react-router' {
       path: '/expenses'
       fullPath: '/expenses'
       preLoaderRoute: typeof ExpensesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dotloop': {
+      id: '/dotloop'
+      path: '/dotloop'
+      fullPath: '/dotloop'
+      preLoaderRoute: typeof DotloopRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/documents': {
@@ -963,6 +983,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DealsRoute: DealsRoute,
   DocumentsRoute: DocumentsRoute,
+  DotloopRoute: DotloopRoute,
   ExpensesRoute: ExpensesRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,
