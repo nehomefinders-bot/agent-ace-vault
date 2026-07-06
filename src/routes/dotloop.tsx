@@ -42,6 +42,7 @@ function DotloopPage() {
   const launch = () => setOverlayOpen(true);
 
   return (
+    <>
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 lg:px-8 lg:py-12">
       <header className="flex flex-col gap-2">
         <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
