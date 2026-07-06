@@ -1,8 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ExternalLink, Loader2, Building2, ShieldCheck, Search, Home } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { ExternalWorkspaceOverlay } from "@/components/external-workspace-overlay";
 
 const ALLOWED_EMAIL = "nehomefinders@gmail.com";
 const MLS_URL = "https://www.mlspin.com";
@@ -20,7 +19,6 @@ export const Route = createFileRoute("/mls-listings")({
 function MlsListingsPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [overlayOpen, setOverlayOpen] = useState(false);
 
   const allowed =
     !!user?.email && user.email.trim().toLowerCase() === ALLOWED_EMAIL;
@@ -39,10 +37,11 @@ function MlsListingsPage() {
     );
   }
 
-  const launch = () => setOverlayOpen(true);
+  const launch = () => {
+    window.open(MLS_URL, "_blank", "noopener,noreferrer");
+  };
 
   return (
-    <>
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 lg:px-8 lg:py-12">
       <header className="flex flex-col gap-2">
         <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
@@ -54,26 +53,26 @@ function MlsListingsPage() {
         </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
           Launch the MLS PIN broker portal in a secure new tab. Your Agent
-          Business Tracker stays active and untouched in this window.
+          Business Tracker stays open and active in this tab.
         </p>
       </header>
 
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm lg:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <Building2 className="h-6 w-6" />
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <Building2 className="h-7 w-7" />
             </div>
             <div>
-              <div className="text-base font-semibold text-foreground">
-                Launch MLS PIN Workspace
+              <div className="text-lg font-semibold text-foreground">
+                MLS PIN
               </div>
               <div className="mt-1 text-sm text-muted-foreground">
                 Opens{" "}
                 <span className="font-mono text-xs text-foreground/80">
                   mlspin.com
                 </span>{" "}
-                in a new tab with a secure, isolated session.
+                in a new, secure tab.
               </div>
             </div>
           </div>
@@ -83,7 +82,7 @@ function MlsListingsPage() {
             className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             <ExternalLink className="h-4 w-4" />
-            Launch MLS PIN
+            Launch MLS PIN Workspace
           </button>
         </div>
       </div>
@@ -120,21 +119,6 @@ function MlsListingsPage() {
           </div>
         ))}
       </div>
-
-      <p className="text-xs text-muted-foreground">
-        Note: MLS PIN blocks embedded iframe access at the network layer via
-        X-Frame-Options. If the in-app overlay can't load the portal, use the
-        "Open in new tab" fallback from the overlay's top bar.
-      </p>
     </div>
-    <ExternalWorkspaceOverlay
-      open={overlayOpen}
-      onClose={() => setOverlayOpen(false)}
-      url={MLS_URL}
-      title="MLS PIN Workspace"
-      hostLabel="mlspin.com"
-      fallbackMode="new-tab"
-    />
-    </>
   );
 }
