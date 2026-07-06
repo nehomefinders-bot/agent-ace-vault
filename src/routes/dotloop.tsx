@@ -1,11 +1,11 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ExternalLink, Loader2, Workflow, ShieldCheck, ArrowLeft, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { ExternalWorkspaceOverlay } from "@/components/external-workspace-overlay";
 
 const ALLOWED_EMAIL = "nehomefinders@gmail.com";
 const DOTLOOP_URL = "https://www.dotloop.com/login/";
-const RETURN_KEY = "dotloop:return_to";
 
 export const Route = createFileRoute("/dotloop")({
   head: () => ({
@@ -20,6 +20,7 @@ export const Route = createFileRoute("/dotloop")({
 function DotloopPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [overlayOpen, setOverlayOpen] = useState(false);
 
   const allowed =
     !!user?.email && user.email.trim().toLowerCase() === ALLOWED_EMAIL;
@@ -38,14 +39,7 @@ function DotloopPage() {
     );
   }
 
-  const launch = () => {
-    try {
-      window.sessionStorage.setItem(RETURN_KEY, "/dashboard");
-    } catch {
-      // ignore storage errors
-    }
-    window.location.href = DOTLOOP_URL;
-  };
+  const launch = () => setOverlayOpen(true);
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 lg:px-8 lg:py-12">
