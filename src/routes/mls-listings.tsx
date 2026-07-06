@@ -20,6 +20,7 @@ export const Route = createFileRoute("/mls-listings")({
 function MlsListingsPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [overlayOpen, setOverlayOpen] = useState(false);
 
   const allowed =
     !!user?.email && user.email.trim().toLowerCase() === ALLOWED_EMAIL;
@@ -38,9 +39,7 @@ function MlsListingsPage() {
     );
   }
 
-  const launch = () => {
-    window.open(MLS_URL, "_blank", "noopener,noreferrer");
-  };
+  const launch = () => setOverlayOpen(true);
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 lg:px-8 lg:py-12">
