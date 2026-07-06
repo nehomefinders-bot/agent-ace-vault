@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ExternalLink, Loader2, Building2, ShieldCheck, Search, Home } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { ExternalWorkspaceOverlay } from "@/components/external-workspace-overlay";
 
 const ALLOWED_EMAIL = "nehomefinders@gmail.com";
 const MLS_URL = "https://www.mlspin.com";
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/mls-listings")({
 function MlsListingsPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [overlayOpen, setOverlayOpen] = useState(false);
 
   const allowed =
     !!user?.email && user.email.trim().toLowerCase() === ALLOWED_EMAIL;
@@ -37,11 +39,10 @@ function MlsListingsPage() {
     );
   }
 
-  const launch = () => {
-    window.open(MLS_URL, "_blank", "noopener,noreferrer");
-  };
+  const launch = () => setOverlayOpen(true);
 
   return (
+    <>
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 lg:px-8 lg:py-12">
       <header className="flex flex-col gap-2">
         <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
@@ -121,10 +122,19 @@ function MlsListingsPage() {
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Note: MLS PIN blocks embedded iframe access for security. The new-tab
-        launch is the supported way to work in the portal alongside your
-        dashboard.
+        Note: MLS PIN blocks embedded iframe access at the network layer via
+        X-Frame-Options. If the in-app overlay can't load the portal, use the
+        "Open in new tab" fallback from the overlay's top bar.
       </p>
     </div>
+    <ExternalWorkspaceOverlay
+      open={overlayOpen}
+      onClose={() => setOverlayOpen(false)}
+      url={MLS_URL}
+      title="MLS PIN Workspace"
+      hostLabel="mlspin.com"
+      fallbackMode="new-tab"
+    />
+    </>
   );
 }

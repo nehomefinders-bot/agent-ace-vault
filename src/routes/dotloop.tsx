@@ -1,11 +1,11 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ExternalLink, Loader2, Workflow, ShieldCheck, ArrowLeft, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { ExternalWorkspaceOverlay } from "@/components/external-workspace-overlay";
 
 const ALLOWED_EMAIL = "nehomefinders@gmail.com";
 const DOTLOOP_URL = "https://www.dotloop.com/login/";
-const RETURN_KEY = "dotloop:return_to";
 
 export const Route = createFileRoute("/dotloop")({
   head: () => ({
@@ -20,6 +20,7 @@ export const Route = createFileRoute("/dotloop")({
 function DotloopPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [overlayOpen, setOverlayOpen] = useState(false);
 
   const allowed =
     !!user?.email && user.email.trim().toLowerCase() === ALLOWED_EMAIL;
@@ -38,16 +39,10 @@ function DotloopPage() {
     );
   }
 
-  const launch = () => {
-    try {
-      window.sessionStorage.setItem(RETURN_KEY, "/dashboard");
-    } catch {
-      // ignore storage errors
-    }
-    window.location.href = DOTLOOP_URL;
-  };
+  const launch = () => setOverlayOpen(true);
 
   return (
+    <>
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 lg:px-8 lg:py-12">
       <header className="flex flex-col gap-2">
         <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
@@ -120,10 +115,20 @@ function DotloopPage() {
       <div className="flex items-start gap-2 text-xs text-muted-foreground">
         <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" />
         <span>
-          Dotloop blocks embedded iframe access. Same-tab redirect is the
-          supported flow — your dashboard session persists on return.
+          Dotloop enforces X-Frame-Options and cannot be embedded. The overlay
+          detects the block and offers a same-tab handoff — your dashboard is
+          one click away from the overlay's top bar.
         </span>
       </div>
     </div>
+    <ExternalWorkspaceOverlay
+      open={overlayOpen}
+      onClose={() => setOverlayOpen(false)}
+      url={DOTLOOP_URL}
+      title="Dotloop Workspace"
+      hostLabel="dotloop.com"
+      fallbackMode="same-tab"
+    />
+    </>
   );
 }
