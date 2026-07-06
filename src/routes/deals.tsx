@@ -239,7 +239,8 @@ function DealsPage() {
 
   const updateStatus = async (id: string, status: string) => {
     const prev = deals;
-    setDeals((cur) => cur.map((d) => (d.id === id ? { ...d, status } : d)));
+    const updatedAt = new Date().toISOString();
+    setDeals((cur) => cur.map((d) => (d.id === id ? { ...d, status, updated_at: updatedAt } : d)));
     const { error } = await supabase.from("deals").update({ status }).eq("id", id);
     if (error) setDeals(prev);
   };
@@ -268,7 +269,8 @@ function DealsPage() {
     const ids = Array.from(selected);
     if (!ids.length) return;
     const prev = deals;
-    setDeals((cur) => cur.map((d) => (selected.has(d.id) ? { ...d, status } : d)));
+    const updatedAt = new Date().toISOString();
+    setDeals((cur) => cur.map((d) => (selected.has(d.id) ? { ...d, status, updated_at: updatedAt } : d)));
     const { error } = await supabase.from("deals").update({ status }).in("id", ids);
     if (error) {
       setDeals(prev);
