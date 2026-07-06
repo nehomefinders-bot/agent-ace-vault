@@ -31,6 +31,8 @@ export const STAGES: { key: Stage; label: string; tone: StageTone }[] = [
 
 // Map legacy DB values to current stages so existing rows still display.
 const LEGACY_MAP: Record<string, Stage> = {
+  new: "new_lead",
+  active: "new_listing",
   pending: "new_lead",
   lead: "new_lead",
   funnel: "in_funnel",
@@ -45,8 +47,12 @@ const LEGACY_MAP: Record<string, Stage> = {
 
 export function normalizeStage(status: string | null | undefined): Stage {
   if (!status) return "new_lead";
-  if (STAGES.some((s) => s.key === status)) return status as Stage;
-  return LEGACY_MAP[status] ?? "new_lead";
+  const value = status.trim();
+  if (STAGES.some((s) => s.key === value)) return value as Stage;
+  const normalized = value.toLowerCase();
+  const labelMatch = STAGES.find((s) => s.label.toLowerCase() === normalized);
+  if (labelMatch) return labelMatch.key;
+  return LEGACY_MAP[normalized] ?? "new_lead";
 }
 
 export function stageLabel(status: string | null | undefined): string {
