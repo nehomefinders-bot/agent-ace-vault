@@ -117,7 +117,22 @@ function Dashboard() {
 
   const activeDeals = deals.filter((d) => normalizeStage(d.status) !== "sold").length;
   const pipelineValue = deals.filter((d) => normalizeStage(d.status) !== "sold").reduce((s, d) => s + Number(d.sale_price), 0);
-  const recentDeals = deals.slice(0, 6);
+  const stagePriority = (status: string | null | undefined) => {
+    const key = normalizeStage(status);
+    if (key === "sold") return 999;
+    if (key === "canceled") return 998;
+    const idx = STAGES.findIndex((s) => s.key === key);
+    return idx === -1 ? 500 : idx;
+  };
+  const sortedDeals = [...deals].sort((a, b) => {
+    const pa = stagePriority(a.status);
+    const pb = stagePriority(b.status);
+    if (pa !== pb) return pa - pb;
+    const da = a.close_date ? new Date(a.close_date).getTime() : 0;
+    const db = b.close_date ? new Date(b.close_date).getTime() : 0;
+    return db - da;
+  });
+  const recentDeals = sortedDeals.slice(0, 6);
 
   const now = new Date();
   const currentYear = now.getFullYear();
