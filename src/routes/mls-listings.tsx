@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ExternalLink, Loader2, Building2, ShieldCheck, Search, Home } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { ExternalWorkspaceOverlay } from "@/components/external-workspace-overlay";
 
 const ALLOWED_EMAIL = "nehomefinders@gmail.com";
 const MLS_URL = "https://www.mlspin.com";
