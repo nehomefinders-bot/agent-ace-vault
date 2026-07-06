@@ -194,7 +194,7 @@ export function AppSidebar() {
     const items = [...section.items];
     const dealsIdx = items.findIndex((i) => i.to === "/deals");
     const insertAt = dealsIdx >= 0 ? dealsIdx + 1 : items.length;
-    items.splice(insertAt, 0, MLS_ITEM);
+    items.splice(insertAt, 0, MLS_ITEM, DOTLOOP_ITEM);
     return { ...section, items };
   });
 
