@@ -4,7 +4,7 @@ import { ExternalLink, Loader2, Workflow, ShieldCheck, ArrowLeft, LayoutDashboar
 import { useAuth } from "@/hooks/use-auth";
 
 const ALLOWED_EMAIL = "nehomefinders@gmail.com";
-const DOTLOOP_URL = "https://www.dotloop.com/login/";
+const DOTLOOP_URL = "https://www.dotloop.com/";
 
 export const Route = createFileRoute("/dotloop")({
   head: () => ({
