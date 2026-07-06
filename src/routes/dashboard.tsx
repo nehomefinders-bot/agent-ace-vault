@@ -9,6 +9,7 @@ import { parseCommissionNotes } from "@/lib/commission-notes";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { stageLabel, normalizeStage } from "@/lib/pipeline-stages";
 
 export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
@@ -27,6 +28,8 @@ interface DashDeal {
   sale_price: number;
   status: string;
   close_date: string | null;
+  created_at: string | null;
+  updated_at: string | null;
   gross_commission: number | null;
   agent_split_pct: number | null;
   notes: string | null;
@@ -41,14 +44,48 @@ interface DashExpense {
   receipt_path: string | null;
 }
 
-import { stageLabel, normalizeStage, STAGES } from "@/lib/pipeline-stages";
-
 const statusTone: Record<string, "success" | "warning" | "danger" | "muted"> = {
   Paid: "success",
   Pending: "warning",
   Overdue: "danger",
   Draft: "muted",
 };
+
+const statusOrder: Record<string, number> = {
+  New: 1,
+  Active: 1,
+  "New Lead": 1,
+  "New Listing": 1,
+  "In Funnel": 1,
+  "On MLS": 1,
+  "In Conversation": 1,
+  Commitment: 1,
+  "Clear to Close": 1,
+  "Under Agreement": 2,
+  "Buy/Seller Contract Signed": 2,
+  Sold: 3,
+  new_lead: 1,
+  new_listing: 1,
+  in_funnel: 1,
+  on_mls: 1,
+  in_conversation: 1,
+  commitment: 1,
+  clear_to_close: 1,
+  under_agreement: 2,
+  contract_signed: 2,
+  sold: 3,
+};
+
+function statusWeight(status: string | null | undefined) {
+  if (!status) return 1;
+  const normalized = normalizeStage(status);
+  return statusOrder[status] ?? statusOrder[stageLabel(normalized)] ?? statusOrder[normalized] ?? 1;
+}
+
+function recentDealTime(deal: Pick<DashDeal, "updated_at" | "created_at" | "close_date">) {
+  const value = deal.updated_at || deal.created_at || deal.close_date;
+  return value ? new Date(value).getTime() : 0;
+}
 
 function stagePillClasses(status: string) {
   const k = normalizeStage(status);
@@ -100,7 +137,7 @@ function Dashboard() {
     if (!user) { setDeals([]); setExpenses([]); return; }
     (async () => {
       const [d, e] = await Promise.all([
-        supabase.from("deals").select("id,address,client_name,sale_price,status,close_date,gross_commission,agent_split_pct,notes").order("created_at", { ascending: false }),
+        supabase.from("deals").select("id,address,client_name,sale_price,status,close_date,created_at,updated_at,gross_commission,agent_split_pct,notes").order("created_at", { ascending: false }),
         supabase.from("expenses").select("id,vendor,category,amount,date,receipt_path").order("date", { ascending: false }).limit(5),
       ]);
       setDeals((d.data ?? []) as DashDeal[]);
@@ -117,20 +154,11 @@ function Dashboard() {
 
   const activeDeals = deals.filter((d) => normalizeStage(d.status) !== "sold").length;
   const pipelineValue = deals.filter((d) => normalizeStage(d.status) !== "sold").reduce((s, d) => s + Number(d.sale_price), 0);
-  const stagePriority = (status: string | null | undefined) => {
-    const key = normalizeStage(status);
-    if (key === "sold") return 999;
-    if (key === "canceled") return 998;
-    const idx = STAGES.findIndex((s) => s.key === key);
-    return idx === -1 ? 500 : idx;
-  };
   const sortedDeals = [...deals].sort((a, b) => {
-    const pa = stagePriority(a.status);
-    const pb = stagePriority(b.status);
-    if (pa !== pb) return pa - pb;
-    const da = a.close_date ? new Date(a.close_date).getTime() : 0;
-    const db = b.close_date ? new Date(b.close_date).getTime() : 0;
-    return db - da;
+    const weightA = statusWeight(a.status);
+    const weightB = statusWeight(b.status);
+    if (weightA !== weightB) return weightA - weightB;
+    return recentDealTime(b) - recentDealTime(a);
   });
   const recentDeals = sortedDeals.slice(0, 6);
 
