@@ -25,6 +25,7 @@ import {
   Shield,
   FileText,
   Building2,
+  Workflow,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
