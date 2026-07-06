@@ -384,6 +384,64 @@ function Mileage() {
         }}
       />
 
+      {(() => {
+        const currentYear = new Date().getFullYear();
+        const yearTrips = trips.filter((t) => {
+          const d = t.date ? new Date(t.date) : null;
+          return d && d.getFullYear() === currentYear;
+        });
+        const yearMiles = yearTrips.reduce((s, t) => s + Number(t.miles), 0);
+        const cumulative = (startingOdometer ?? 0) + yearMiles;
+        return (
+          <div className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-2xl p-6 shadow-card mb-6">
+            <div className="flex flex-wrap items-start justify-between gap-6">
+              <div>
+                <div className="text-xs uppercase tracking-wider opacity-80 mb-2">
+                  Total mileage for {currentYear}
+                </div>
+                <div className="text-4xl font-bold tabular-nums font-display">
+                  {cumulative.toLocaleString(undefined, { maximumFractionDigits: 1 })} mi
+                </div>
+                <div className="text-xs opacity-80 mt-2">
+                  {yearMiles.toLocaleString(undefined, { maximumFractionDigits: 1 })} mi logged
+                  {startingOdometer != null
+                    ? ` + ${startingOdometer.toLocaleString()} starting`
+                    : ""}
+                </div>
+              </div>
+              <div className="min-w-[240px]">
+                <Label
+                  htmlFor="starting-odometer"
+                  className="text-xs uppercase tracking-wider opacity-80"
+                >
+                  Starting Odometer (January 1st)
+                </Label>
+                <div className="mt-2 flex gap-2">
+                  <Input
+                    id="starting-odometer"
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    step="0.1"
+                    placeholder="e.g. 45000"
+                    value={odometerInput}
+                    onChange={(e) => setOdometerInput(e.target.value)}
+                    className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60"
+                  />
+                  <Button
+                    onClick={saveStartingOdometer}
+                    disabled={savingOdometer}
+                    variant="secondary"
+                  >
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
         <div className="bg-card border border-border rounded-2xl p-5 shadow-card">
           <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
@@ -410,6 +468,7 @@ function Mileage() {
           </div>
         </div>
       </div>
+
 
       <div className="flex gap-1 mb-5 border-b border-border">
         <ModeTab
