@@ -115,10 +115,20 @@ function DotloopPage() {
       <div className="flex items-start gap-2 text-xs text-muted-foreground">
         <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" />
         <span>
-          Dotloop blocks embedded iframe access. Same-tab redirect is the
-          supported flow — your dashboard session persists on return.
+          Dotloop enforces X-Frame-Options and cannot be embedded. The overlay
+          detects the block and offers a same-tab handoff — your dashboard is
+          one click away from the overlay's top bar.
         </span>
       </div>
     </div>
+    <ExternalWorkspaceOverlay
+      open={overlayOpen}
+      onClose={() => setOverlayOpen(false)}
+      url={DOTLOOP_URL}
+      title="Dotloop Workspace"
+      hostLabel="dotloop.com"
+      fallbackMode="same-tab"
+    />
+    </>
   );
 }
