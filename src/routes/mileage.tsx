@@ -203,6 +203,9 @@ function Mileage() {
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<Mode>("live");
   const [editing, setEditing] = useState<Trip | null>(null);
+  const [startingOdometer, setStartingOdometer] = useState<number | null>(null);
+  const [odometerInput, setOdometerInput] = useState<string>("");
+  const [savingOdometer, setSavingOdometer] = useState(false);
 
   const reload = async () => {
     if (!user) {
@@ -211,17 +214,43 @@ function Mileage() {
       return;
     }
     setLoading(true);
-    const { data } = await supabase
-      .from("mileage_trips")
-      .select("*")
-      .order("date", { ascending: false });
-    setTrips((data ?? []) as Trip[]);
+    const [{ data: tripRows }, { data: profileRow }] = await Promise.all([
+      supabase.from("mileage_trips").select("*").order("date", { ascending: false }),
+      supabase.from("profiles").select("starting_odometer").eq("id", user.id).maybeSingle(),
+    ]);
+    setTrips((tripRows ?? []) as Trip[]);
+    const val = profileRow?.starting_odometer;
+    const num = val == null ? null : Number(val);
+    setStartingOdometer(Number.isFinite(num as number) ? (num as number) : null);
+    setOdometerInput(num != null && Number.isFinite(num) ? String(num) : "");
     setLoading(false);
   };
 
   useEffect(() => {
     reload(); /* eslint-disable-next-line */
   }, [user]);
+
+  const saveStartingOdometer = async () => {
+    if (!user) return;
+    const parsed = odometerInput.trim() === "" ? null : Number(odometerInput);
+    if (parsed !== null && (!Number.isFinite(parsed) || parsed < 0)) {
+      toast.error("Enter a valid odometer reading");
+      return;
+    }
+    setSavingOdometer(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ starting_odometer: parsed })
+      .eq("id", user.id);
+    setSavingOdometer(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setStartingOdometer(parsed);
+    toast.success("Starting odometer saved");
+  };
+
 
   const [filters, setFilters, resetFilters] = useTableFilters();
   const filteredTrips = applyTableFilters(trips, filters, {
