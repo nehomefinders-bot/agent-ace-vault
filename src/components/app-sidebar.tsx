@@ -219,7 +219,7 @@ export function AppSidebar() {
       </div>
 
       <nav className="flex-1 min-h-0 px-2.5 space-y-4 overflow-y-auto overscroll-contain">
-        {sections.map((section) => (
+        {visibleSections.map((section) => (
           <div key={section.label}>
             <div className="mb-1.5 px-2.5 text-xs font-medium uppercase tracking-[0.14em] text-sidebar-foreground/70">
               {section.label}
