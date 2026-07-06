@@ -69,7 +69,10 @@ const sections = [
       { to: "/terms-and-conditions", label: "Terms of Service", icon: FileText },
     ],
   },
-] as const;
+] as { label: string; items: { to: string; label: string; icon: typeof LayoutDashboard }[] }[];
+
+const MLS_ALLOWED_EMAIL = "nehomefinders@gmail.com";
+const MLS_ITEM = { to: "/mls-listings", label: "MLS Listings", icon: Building2 } as const;
 
 export function AppSidebar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
