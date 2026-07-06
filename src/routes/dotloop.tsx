@@ -70,7 +70,7 @@ function DotloopPage() {
               <div className="mt-1 text-sm text-muted-foreground">
                 Opens{" "}
                 <span className="font-mono text-xs text-foreground/80">
-                  dotloop.com/login
+                  dotloop.com
                 </span>{" "}
                 in a new, secure tab.
               </div>
