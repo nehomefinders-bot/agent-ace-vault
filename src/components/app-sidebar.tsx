@@ -74,6 +74,7 @@ const sections = [
 
 const MLS_ALLOWED_EMAIL = "nehomefinders@gmail.com";
 const MLS_ITEM = { to: "/mls-listings", label: "MLS Listings", icon: Building2 } as const;
+const DOTLOOP_ITEM = { to: "/dotloop", label: "Dotloop Workspace", icon: Workflow } as const;
 
 export function AppSidebar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
