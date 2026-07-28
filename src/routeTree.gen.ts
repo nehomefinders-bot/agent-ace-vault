@@ -51,6 +51,7 @@ import { Route as BooksReportsRouteImport } from './routes/books.reports'
 import { Route as BooksOwnerLoanRouteImport } from './routes/books.owner-loan'
 import { Route as BooksCategoriesRouteImport } from './routes/books.categories'
 import { Route as BooksAccountsRouteImport } from './routes/books.accounts'
+import { Route as ApiPublicProvisionGiftRouteImport } from './routes/api/public/provision-gift'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicPaymentsApplyTaxCodesRouteImport } from './routes/api/public/payments/apply-tax-codes'
 import { Route as ApiPublicGoogleCalendarCallbackRouteImport } from './routes/api/public/google/calendar-callback'
@@ -266,6 +267,11 @@ const BooksAccountsRoute = BooksAccountsRouteImport.update({
   path: '/accounts',
   getParentRoute: () => BooksRoute,
 } as any)
+const ApiPublicProvisionGiftRoute = ApiPublicProvisionGiftRouteImport.update({
+  id: '/api/public/provision-gift',
+  path: '/api/public/provision-gift',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -333,6 +339,7 @@ export interface FileRoutesByFullPath {
   '/books/taxes': typeof BooksTaxesRoute
   '/books/transactions': typeof BooksTransactionsRoute
   '/books/': typeof BooksIndexRoute
+  '/api/public/provision-gift': typeof ApiPublicProvisionGiftRoute
   '/api/public/ghl/webhook': typeof ApiPublicGhlWebhookRoute
   '/api/public/google/calendar-callback': typeof ApiPublicGoogleCalendarCallbackRoute
   '/api/public/payments/apply-tax-codes': typeof ApiPublicPaymentsApplyTaxCodesRoute
@@ -380,6 +387,7 @@ export interface FileRoutesByTo {
   '/books/taxes': typeof BooksTaxesRoute
   '/books/transactions': typeof BooksTransactionsRoute
   '/books': typeof BooksIndexRoute
+  '/api/public/provision-gift': typeof ApiPublicProvisionGiftRoute
   '/api/public/ghl/webhook': typeof ApiPublicGhlWebhookRoute
   '/api/public/google/calendar-callback': typeof ApiPublicGoogleCalendarCallbackRoute
   '/api/public/payments/apply-tax-codes': typeof ApiPublicPaymentsApplyTaxCodesRoute
@@ -429,6 +437,7 @@ export interface FileRoutesById {
   '/books/taxes': typeof BooksTaxesRoute
   '/books/transactions': typeof BooksTransactionsRoute
   '/books/': typeof BooksIndexRoute
+  '/api/public/provision-gift': typeof ApiPublicProvisionGiftRoute
   '/api/public/ghl/webhook': typeof ApiPublicGhlWebhookRoute
   '/api/public/google/calendar-callback': typeof ApiPublicGoogleCalendarCallbackRoute
   '/api/public/payments/apply-tax-codes': typeof ApiPublicPaymentsApplyTaxCodesRoute
@@ -479,6 +488,7 @@ export interface FileRouteTypes {
     | '/books/taxes'
     | '/books/transactions'
     | '/books/'
+    | '/api/public/provision-gift'
     | '/api/public/ghl/webhook'
     | '/api/public/google/calendar-callback'
     | '/api/public/payments/apply-tax-codes'
@@ -526,6 +536,7 @@ export interface FileRouteTypes {
     | '/books/taxes'
     | '/books/transactions'
     | '/books'
+    | '/api/public/provision-gift'
     | '/api/public/ghl/webhook'
     | '/api/public/google/calendar-callback'
     | '/api/public/payments/apply-tax-codes'
@@ -574,6 +585,7 @@ export interface FileRouteTypes {
     | '/books/taxes'
     | '/books/transactions'
     | '/books/'
+    | '/api/public/provision-gift'
     | '/api/public/ghl/webhook'
     | '/api/public/google/calendar-callback'
     | '/api/public/payments/apply-tax-codes'
@@ -616,6 +628,7 @@ export interface RootRouteChildren {
   TermsAndConditionsRoute: typeof TermsAndConditionsRoute
   TestRoute: typeof TestRoute
   ThankyouRoute: typeof ThankyouRoute
+  ApiPublicProvisionGiftRoute: typeof ApiPublicProvisionGiftRoute
   ApiPublicGhlWebhookRoute: typeof ApiPublicGhlWebhookRoute
   ApiPublicGoogleCalendarCallbackRoute: typeof ApiPublicGoogleCalendarCallbackRoute
   ApiPublicPaymentsApplyTaxCodesRoute: typeof ApiPublicPaymentsApplyTaxCodesRoute
@@ -918,6 +931,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BooksAccountsRouteImport
       parentRoute: typeof BooksRoute
     }
+    '/api/public/provision-gift': {
+      id: '/api/public/provision-gift'
+      path: '/api/public/provision-gift'
+      fullPath: '/api/public/provision-gift'
+      preLoaderRoute: typeof ApiPublicProvisionGiftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -1007,6 +1027,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsAndConditionsRoute: TermsAndConditionsRoute,
   TestRoute: TestRoute,
   ThankyouRoute: ThankyouRoute,
+  ApiPublicProvisionGiftRoute: ApiPublicProvisionGiftRoute,
   ApiPublicGhlWebhookRoute: ApiPublicGhlWebhookRoute,
   ApiPublicGoogleCalendarCallbackRoute: ApiPublicGoogleCalendarCallbackRoute,
   ApiPublicPaymentsApplyTaxCodesRoute: ApiPublicPaymentsApplyTaxCodesRoute,
