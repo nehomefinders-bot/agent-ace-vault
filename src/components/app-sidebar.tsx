@@ -137,7 +137,7 @@ export function AppSidebar() {
   let statusTone: StatusTone = "slate";
   let statusLabel = "No plan";
   let statusDetail: string | null = null;
-  const profileActive = profilePlan === "active";
+  const profileActive = profilePlan === "active" || profilePlan === "gifted";
 
   if (user) {
     if (status === "trialing") {

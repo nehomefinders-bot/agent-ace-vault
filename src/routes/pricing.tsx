@@ -34,7 +34,7 @@ function PricingPage() {
         .select("plan")
         .eq("id", user.id)
         .maybeSingle();
-      if (!cancelled) setProfileActive(data?.plan === "active");
+      if (!cancelled) setProfileActive(data?.plan === "active" || data?.plan === "gifted");
     })();
     return () => { cancelled = true; };
   }, [user]);
