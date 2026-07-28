@@ -86,7 +86,7 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const hasAccess = isActive || profilePlan === "active";
+  const hasAccess = isActive || profilePlan === "active" || profilePlan === "gifted";
   if (!hasAccess) return <FoundersPaywallCard />;
 
   return <>{children}</>;
