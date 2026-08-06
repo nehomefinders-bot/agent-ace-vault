@@ -137,11 +137,22 @@ function AiAssistantPage() {
         res.userMessage as MessageRow,
         res.assistantMessage as MessageRow,
       ]);
+      if (res.error) toast.error(res.error);
       void refreshSessions();
     } catch (err) {
       console.error(err);
-      toast.error(err instanceof Error ? err.message : "The assistant is unavailable right now.");
-      setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
+      const detail = err instanceof Error ? err.message : "The assistant is unavailable right now.";
+      toast.error(detail);
+      setMessages((prev) => [
+        ...prev.filter((m) => m.id !== optimistic.id),
+        { ...optimistic, id: `usr-${Date.now()}` },
+        {
+          id: `err-${Date.now()}`,
+          role: "model",
+          content: `Error: ${detail}`,
+          created_at: new Date().toISOString(),
+        },
+      ]);
     } finally {
       setLoading(false);
       inputRef.current?.focus();
