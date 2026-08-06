@@ -43,6 +43,7 @@ import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AiAssistantRouteImport } from './routes/ai-assistant'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BooksIndexRouteImport } from './routes/books.index'
 import { Route as BooksTransactionsRouteImport } from './routes/books.transactions'
@@ -226,6 +227,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiAssistantRoute = AiAssistantRouteImport.update({
+  id: '/ai-assistant',
+  path: '/ai-assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -292,6 +298,7 @@ const ApiPublicGhlWebhookRoute = ApiPublicGhlWebhookRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-assistant': typeof AiAssistantRoute
   '/auth': typeof AuthRoute
   '/billing': typeof BillingRoute
   '/books': typeof BooksRouteWithChildren
@@ -340,6 +347,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-assistant': typeof AiAssistantRoute
   '/auth': typeof AuthRoute
   '/billing': typeof BillingRoute
   '/calendar': typeof CalendarRoute
@@ -388,6 +396,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-assistant': typeof AiAssistantRoute
   '/auth': typeof AuthRoute
   '/billing': typeof BillingRoute
   '/books': typeof BooksRouteWithChildren
@@ -438,6 +447,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ai-assistant'
     | '/auth'
     | '/billing'
     | '/books'
@@ -486,6 +496,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ai-assistant'
     | '/auth'
     | '/billing'
     | '/calendar'
@@ -533,6 +544,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/ai-assistant'
     | '/auth'
     | '/billing'
     | '/books'
@@ -582,6 +594,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiAssistantRoute: typeof AiAssistantRoute
   AuthRoute: typeof AuthRoute
   BillingRoute: typeof BillingRoute
   BooksRoute: typeof BooksRouteWithChildren
@@ -862,6 +875,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai-assistant': {
+      id: '/ai-assistant'
+      path: '/ai-assistant'
+      fullPath: '/ai-assistant'
+      preLoaderRoute: typeof AiAssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -973,6 +993,7 @@ const BooksRouteWithChildren = BooksRoute._addFileChildren(BooksRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiAssistantRoute: AiAssistantRoute,
   AuthRoute: AuthRoute,
   BillingRoute: BillingRoute,
   BooksRoute: BooksRouteWithChildren,
