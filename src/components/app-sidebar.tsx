@@ -26,6 +26,7 @@ import {
   FileText,
   Building2,
   Workflow,
+  Bot,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -43,6 +44,7 @@ const sections = [
       { to: "/calendar", label: "Calendar", icon: CalendarDays },
       { to: "/commissions", label: "Commissions", icon: Receipt },
       { to: "/tasks", label: "Tasks", icon: ListTodo },
+      { to: "/ai-assistant", label: "AI Assistant", icon: Bot },
     ],
   },
   {
