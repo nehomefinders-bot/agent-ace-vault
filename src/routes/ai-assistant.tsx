@@ -5,6 +5,9 @@ import ReactMarkdown from "react-markdown";
 import { Bot, Loader2, MessageSquarePlus, Send, Trash2, User as UserIcon, PanelLeft } from "lucide-react";
 import { toast } from "sonner";
 import { PageShell } from "@/components/page-shell";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
