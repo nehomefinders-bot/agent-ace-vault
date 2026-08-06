@@ -5,6 +5,9 @@ import ReactMarkdown from "react-markdown";
 import { Bot, Loader2, MessageSquarePlus, Send, Trash2, User as UserIcon, PanelLeft } from "lucide-react";
 import { toast } from "sonner";
 import { PageShell } from "@/components/page-shell";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -45,6 +48,8 @@ const SUGGESTIONS = [
 ];
 
 function AiAssistantPage() {
+  const { user, loading: authLoading } = useAuth();
+
   const send = useServerFn(sendAssistantMessage);
   const loadSessions = useServerFn(listChatSessions);
   const loadMessages = useServerFn(getChatMessages);
@@ -60,6 +65,10 @@ function AiAssistantPage() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const refreshSessions = useCallback(async () => {
+    // Never call the protected server fn before a Supabase session exists —
+    // the auth middleware throws a raw 401 Response ("Error: [object Response]").
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) return;
     try {
       const rows = (await loadSessions({})) as SessionRow[];
       setSessions(rows);
@@ -69,8 +78,10 @@ function AiAssistantPage() {
   }, [loadSessions]);
 
   useEffect(() => {
+    if (authLoading || !user) return;
     void refreshSessions();
-  }, [refreshSessions]);
+  }, [authLoading, user, refreshSessions]);
+
 
   useEffect(() => {
     feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: "smooth" });
