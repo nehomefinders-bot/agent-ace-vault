@@ -60,6 +60,10 @@ function AiAssistantPage() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const refreshSessions = useCallback(async () => {
+    // Never call the protected server fn before a Supabase session exists —
+    // the auth middleware throws a raw 401 Response ("Error: [object Response]").
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) return;
     try {
       const rows = (await loadSessions({})) as SessionRow[];
       setSessions(rows);
@@ -69,8 +73,10 @@ function AiAssistantPage() {
   }, [loadSessions]);
 
   useEffect(() => {
+    if (authLoading || !user) return;
     void refreshSessions();
-  }, [refreshSessions]);
+  }, [authLoading, user, refreshSessions]);
+
 
   useEffect(() => {
     feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: "smooth" });
