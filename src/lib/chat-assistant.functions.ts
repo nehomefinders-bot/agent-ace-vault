@@ -93,7 +93,7 @@ export const sendAssistantMessage = createServerFn({ method: "POST" })
       .single();
     if (userErr) throw new Error(userErr.message);
 
-    const reply = await callGemini(history);
+    const { reply, error: geminiError } = await callGemini(history);
 
     const { data: modelRow, error: modelErr } = await supabase
       .from("chat_messages")
@@ -107,5 +107,5 @@ export const sendAssistantMessage = createServerFn({ method: "POST" })
       .update({ updated_at: new Date().toISOString() })
       .eq("id", sessionId);
 
-    return { sessionId, userMessage: userRow, assistantMessage: modelRow, reply };
+    return { sessionId, userMessage: userRow, assistantMessage: modelRow, reply, error: geminiError };
   });
