@@ -1,68 +1,111 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import {
+  callGemini,
+  deriveTitle,
+  validateRename,
+  validateSendInput,
+  validateSessionId,
+  type ChatTurn,
+} from "./chat-assistant.server";
 
-const SYSTEM_INSTRUCTION =
-  "You are a helpful AI assistant integrated inside the Agent Business Tracker app. Answer questions concisely, accurately, and professionally.";
-
-const MAX_MESSAGE_LEN = 4000;
-const MAX_HISTORY = 30;
-
-type ChatTurn = { role: "user" | "assistant"; content: string };
-
-function validate(input: unknown): { messages: ChatTurn[] } {
-  if (!input || typeof input !== "object" || Array.isArray(input)) {
-    throw new Error("Invalid payload");
-  }
-  const raw = (input as { messages?: unknown }).messages;
-  if (!Array.isArray(raw) || raw.length === 0) {
-    throw new Error("Messages are required");
-  }
-  const messages = raw.slice(-MAX_HISTORY).map((m) => {
-    if (!m || typeof m !== "object") throw new Error("Invalid message");
-    const { role, content } = m as { role?: unknown; content?: unknown };
-    if (role !== "user" && role !== "assistant") throw new Error("Invalid role");
-    if (typeof content !== "string" || !content.trim()) throw new Error("Empty message");
-    return { role, content: content.slice(0, MAX_MESSAGE_LEN) } as ChatTurn;
+export const listChatSessions = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("chat_sessions")
+      .select("id, title, created_at, updated_at")
+      .order("updated_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
   });
-  if (messages[messages.length - 1]!.role !== "user") {
-    throw new Error("Conversation must end with a user message");
-  }
-  return { messages };
-}
+
+export const getChatMessages = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(validateSessionId)
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("chat_messages")
+      .select("id, role, content, created_at")
+      .eq("session_id", data.sessionId)
+      .order("created_at", { ascending: true });
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+export const deleteChatSession = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(validateSessionId)
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("chat_sessions")
+      .delete()
+      .eq("id", data.sessionId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const renameChatSession = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(validateRename)
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("chat_sessions")
+      .update({ title: data.title })
+      .eq("id", data.sessionId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
 
 export const sendAssistantMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(validate)
-  .handler(async ({ data }) => {
-    const apiKey = process.env["GEMINI_API_KEY"];
-    if (!apiKey) throw new Error("AI assistant is not configured.");
+  .inputValidator(validateSendInput)
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    let sessionId = data.sessionId;
 
-    const resp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
-          contents: data.messages.map((m) => ({
-            role: m.role === "assistant" ? "model" : "user",
-            parts: [{ text: m.content }],
-          })),
-        }),
-      },
-    );
-
-    if (!resp.ok) {
-      const detail = await resp.text();
-      console.error("[sendAssistantMessage] Gemini error", resp.status, detail);
-      throw new Error(`Assistant request failed (${resp.status})`);
+    if (!sessionId) {
+      const { data: created, error } = await supabase
+        .from("chat_sessions")
+        .insert({ user_id: userId, title: deriveTitle(data.message) })
+        .select("id")
+        .single();
+      if (error) throw new Error(error.message);
+      sessionId = created.id;
     }
 
-    const json = (await resp.json()) as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-    };
-    const reply =
-      json?.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("\n").trim() ?? "";
+    const { data: prior, error: priorErr } = await supabase
+      .from("chat_messages")
+      .select("role, content")
+      .eq("session_id", sessionId)
+      .order("created_at", { ascending: true });
+    if (priorErr) throw new Error(priorErr.message);
 
-    return { reply: reply || "I couldn't generate a response. Please try again." };
+    const history: ChatTurn[] = [
+      ...((prior ?? []) as ChatTurn[]),
+      { role: "user", content: data.message },
+    ];
+
+    const { data: userRow, error: userErr } = await supabase
+      .from("chat_messages")
+      .insert({ session_id: sessionId, user_id: userId, role: "user", content: data.message })
+      .select("id, role, content, created_at")
+      .single();
+    if (userErr) throw new Error(userErr.message);
+
+    const reply = await callGemini(history);
+
+    const { data: modelRow, error: modelErr } = await supabase
+      .from("chat_messages")
+      .insert({ session_id: sessionId, user_id: userId, role: "model", content: reply })
+      .select("id, role, content, created_at")
+      .single();
+    if (modelErr) throw new Error(modelErr.message);
+
+    await supabase
+      .from("chat_sessions")
+      .update({ updated_at: new Date().toISOString() })
+      .eq("id", sessionId);
+
+    return { sessionId, userMessage: userRow, assistantMessage: modelRow, reply };
   });
