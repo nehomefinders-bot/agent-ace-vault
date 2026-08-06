@@ -39,35 +39,51 @@ export function deriveTitle(message: string): string {
   return clean.length > 60 ? `${clean.slice(0, 57)}…` : clean || "New chat";
 }
 
-export async function callGemini(history: ChatTurn[]): Promise<string> {
-  const apiKey = process.env["GEMINI_API_KEY"];
-  if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.");
+export type GeminiResult = { reply: string; error: string | null };
 
-  const resp = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
-        contents: history.slice(-MAX_HISTORY).map((m) => ({
-          role: m.role,
-          parts: [{ text: m.content }],
-        })),
-      }),
-    },
-  );
+export async function callGemini(history: ChatTurn[]): Promise<GeminiResult> {
+  try {
+    const apiKey = process.env["GEMINI_API_KEY"];
+    if (!apiKey) {
+      return {
+        reply: "Error: Gemini API key is missing from the backend secrets.",
+        error: "Gemini API key is missing from the backend secrets.",
+      };
+    }
 
-  if (!resp.ok) {
-    const detail = await resp.text();
-    console.error("[chat-assistant] Gemini error", resp.status, detail);
-    throw new Error(`Assistant request failed (${resp.status})`);
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
+          contents: history.slice(-MAX_HISTORY).map((m) => ({
+            role: m.role,
+            parts: [{ text: m.content }],
+          })),
+        }),
+      },
+    );
+
+    if (!resp.ok) {
+      const detail = await resp.text();
+      console.error("[chat-assistant] Gemini error", resp.status, detail);
+      return {
+        reply: `Error: Gemini API call failed (${resp.status}).`,
+        error: "Gemini API call failed.",
+      };
+    }
+
+    const json = (await resp.json()) as {
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+    };
+    const reply =
+      json?.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("\n").trim() ?? "";
+    return { reply: reply || "No reply generated.", error: null };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("[chat-assistant] unexpected error", message);
+    return { reply: `Error: ${message}`, error: message };
   }
-
-  const json = (await resp.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-  };
-  const reply =
-    json?.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("\n").trim() ?? "";
-  return reply || "I couldn't generate a response. Please try again.";
 }
