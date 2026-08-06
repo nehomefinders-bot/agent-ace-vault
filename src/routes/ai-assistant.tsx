@@ -48,6 +48,8 @@ const SUGGESTIONS = [
 ];
 
 function AiAssistantPage() {
+  const { user, loading: authLoading } = useAuth();
+
   const send = useServerFn(sendAssistantMessage);
   const loadSessions = useServerFn(listChatSessions);
   const loadMessages = useServerFn(getChatMessages);
