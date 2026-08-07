@@ -747,6 +747,8 @@ function Landing() {
                 <div className="rounded-[1.5rem] bg-slate-950/95 p-0.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
                   <form
                     onSubmit={handleNewsletterSubmit}
+                    data-lpignore="true"
+                    suppressHydrationWarning
                     className="rounded-[1.5rem] border border-white/10 bg-white/5 p-4 shadow-[0_18px_45px_-32px_rgba(0,0,0,0.45)] backdrop-blur-md"
                   >
                     <div className="mb-3">
@@ -761,6 +763,8 @@ function Landing() {
                       <input
                         type="email"
                         value={newsletterEmail}
+                        data-lpignore="true"
+                        suppressHydrationWarning
                         onChange={(event) => setNewsletterEmail(event.target.value)}
                         placeholder="Enter your email"
                         className="min-w-0 flex-1 rounded-lg border border-white/12 bg-slate-950/70 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-[#d4af37] focus:ring-2 focus:ring-[#d4af37]/25"
