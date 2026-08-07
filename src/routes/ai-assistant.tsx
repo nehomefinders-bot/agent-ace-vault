@@ -20,16 +20,16 @@ import {
 export const Route = createFileRoute("/ai-assistant")({
   head: () => ({
     meta: [
-      { title: "AI Assistant - Agent Business Tracker" },
+      { title: "Chat with Jackie - Agent Business Tracker" },
       {
         name: "description",
         content:
-          "Chat with the built-in AI assistant about your real estate business, deals, and workflow, with saved conversation history.",
+          "Chat with Jackie, the built-in AI assistant, about your real estate business, deals, and workflow, with saved conversation history.",
       },
-      { property: "og:title", content: "AI Assistant - Agent Business Tracker" },
+      { property: "og:title", content: "Chat with Jackie - Agent Business Tracker" },
       {
         property: "og:description",
-        content: "A ChatGPT-style assistant with saved chat history inside your tracker.",
+        content: "A ChatGPT-style assistant named Jackie with saved chat history inside your tracker.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -200,10 +200,10 @@ function AiAssistantPage() {
 
   return (
     <PageShell
-      title="AI Assistant"
+      title="Chat with Jackie"
       subtitle="Ask questions, draft messages, and pick up past conversations — history is saved to your account."
     >
-      <div className="flex h-[calc(100dvh-14rem)] min-h-[26rem] overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
+      <div className="mb-24 flex h-[calc(100dvh-18rem)] min-h-[26rem] overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm sm:mb-28">
         <aside className="hidden w-64 shrink-0 border-r border-border/70 bg-muted/30 md:block">
           {historyPanel}
         </aside>
