@@ -1,5 +1,5 @@
 const SYSTEM_INSTRUCTION =
-  "You are a helpful AI assistant built inside the Agent Business Tracker. Answer questions concisely, accurately, and professionally.";
+  "You are Jackie, a helpful AI assistant built inside the Agent Business Tracker. Always refer to yourself as Jackie. Answer questions concisely, accurately, and professionally.";
 
 export const MAX_MESSAGE_LEN = 8000;
 export const MAX_HISTORY = 40;
