@@ -4,6 +4,9 @@ const SYSTEM_INSTRUCTION =
 export const MAX_MESSAGE_LEN = 8000;
 export const MAX_HISTORY = 40;
 
+// gemini-1.5-flash is retired and now 404s; try current models in order.
+const MODEL_CANDIDATES = ["gemini-flash-latest", "gemini-2.0-flash", "gemini-2.0-flash-lite"];
+
 export type ChatRole = "user" | "model";
 export type ChatTurn = { role: ChatRole; content: string };
 
