@@ -8,12 +8,12 @@ export function JackieFab() {
     <Link
       to="/ai-assistant"
       aria-label="Chat with Jackie"
-      className="fixed bottom-[5.25rem] right-4 z-50 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#EAB308] px-4 py-3 text-sm font-semibold text-[#0F172A] shadow-lg backdrop-blur-xl transition hover:bg-[#FACC15] hover:shadow-xl hover:brightness-105 md:bottom-24 md:right-6"
+      className="fixed bottom-[5.25rem] right-4 z-50 inline-flex min-h-11 min-w-11 items-center gap-2 rounded-full bg-[#EAB308] px-3 py-2.5 text-sm font-semibold text-[#0F172A] shadow-lg backdrop-blur-xl transition hover:bg-[#FACC15] hover:shadow-xl hover:brightness-105 sm:px-4 sm:py-3 md:bottom-24 md:right-6"
     >
-      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#0F172A]/10 text-[#0F172A]">
+      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0F172A]/10 text-[#0F172A]">
         <Bot className="h-4 w-4" />
       </span>
-      <span>Chat with Jackie</span>
+      <span className="hidden sm:inline">Chat with Jackie</span>
     </Link>
   );
 }
