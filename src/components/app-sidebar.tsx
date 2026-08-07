@@ -44,7 +44,7 @@ const sections = [
       { to: "/calendar", label: "Calendar", icon: CalendarDays },
       { to: "/commissions", label: "Commissions", icon: Receipt },
       { to: "/tasks", label: "Tasks", icon: ListTodo },
-      { to: "/ai-assistant", label: "AI Assistant", icon: Bot },
+      { to: "/ai-assistant", label: "Chat with Jackie", icon: Bot },
     ],
   },
   {
