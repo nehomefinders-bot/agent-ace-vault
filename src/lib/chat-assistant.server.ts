@@ -51,29 +51,44 @@ export async function callGemini(history: ChatTurn[]): Promise<GeminiResult> {
       };
     }
 
-    const resp = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": apiKey,
-        },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
-          contents: history.slice(-MAX_HISTORY).map((m) => ({
-            role: m.role,
-            parts: [{ text: m.content }],
-          })),
-        }),
-      },
-    );
+    const body = JSON.stringify({
+      system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
+      contents: history.slice(-MAX_HISTORY).map((m) => ({
+        role: m.role,
+        parts: [{ text: m.content }],
+      })),
+    });
 
-    if (!resp.ok) {
-      const detail = await resp.text();
-      console.error("[chat-assistant] Gemini error", resp.status, detail);
+    let resp: Response | null = null;
+    let lastStatus = 0;
+    let lastDetail = "";
+
+    for (const model of MODEL_CANDIDATES) {
+      const attempt = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": apiKey,
+          },
+          body,
+        },
+      );
+      if (attempt.ok) {
+        resp = attempt;
+        break;
+      }
+      lastStatus = attempt.status;
+      lastDetail = await attempt.text();
+      console.error("[chat-assistant] Gemini error", model, attempt.status, lastDetail);
+      // Only fall through on model/endpoint or capacity problems.
+      if (attempt.status !== 404 && attempt.status !== 429 && attempt.status < 500) break;
+    }
+
+    if (!resp) {
       return {
-        reply: `Error: Gemini API call failed (${resp.status}).`,
+        reply: `Error: Gemini API call failed (${lastStatus}).`,
         error: "Gemini API call failed.",
       };
     }
