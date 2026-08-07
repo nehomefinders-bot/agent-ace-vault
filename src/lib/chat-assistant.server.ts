@@ -68,7 +68,7 @@ export async function callGemini(history: ChatTurn[]): Promise<GeminiResult> {
     }
 
     const body = JSON.stringify({
-      system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
+      system_instruction: { parts: [{ text: buildSystemPrompt() }] },
       contents: history.slice(-MAX_HISTORY).map((m) => ({
         role: m.role,
         parts: [{ text: m.content }],
