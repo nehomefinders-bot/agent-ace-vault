@@ -1,7 +1,9 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Bot } from "lucide-react";
 
 export function JackieFab() {
+  const path = useRouterState({ select: (r) => r.location.pathname });
+  if (path === "/ai-assistant") return null;
   return (
     <Link
       to="/ai-assistant"
