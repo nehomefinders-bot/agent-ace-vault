@@ -1,8 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Bot, Loader2, MessageSquarePlus, Send, Trash2, User as UserIcon, PanelLeft } from "lucide-react";
+import {
+  Bot,
+  ChevronDown,
+  ChevronRight,
+  Folder,
+  FolderPlus,
+  Loader2,
+  MessageSquarePlus,
+  MoreVertical,
+  Pencil,
+  Send,
+  Trash2,
+  User as UserIcon,
+  PanelLeft,
+} from "lucide-react";
 import { toast } from "sonner";
 import { PageShell } from "@/components/page-shell";
 import { useAuth } from "@/hooks/use-auth";
@@ -11,11 +25,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  createChatFolder,
+  deleteChatFolder,
   deleteChatSession,
   getChatMessages,
+  listChatFolders,
   listChatSessions,
+  moveChatSession,
+  renameChatFolder,
+  renameChatSession,
   sendAssistantMessage,
 } from "@/lib/chat-assistant.functions";
+
 
 export const Route = createFileRoute("/ai-assistant")({
   head: () => ({
