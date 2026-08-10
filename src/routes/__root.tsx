@@ -110,7 +110,7 @@ function RootComponent() {
     path === "/reset-password" ||
     (isLegalPath && !user);
     
-  const showSupportFab = !bare;
+  const showSupportFab = !bare && path === "/dashboard";
   return (
     <>
       <ThemeBridge />
@@ -130,12 +130,8 @@ function RootComponent() {
           </main>
         </div>
       )}
-      {showSupportFab ? (
-        <>
-          <JackieFab />
-          <SupportFab />
-        </>
-      ) : null}
+      <JackieFab />
+      {showSupportFab ? <SupportFab /> : null}
     </>
   );
 }
