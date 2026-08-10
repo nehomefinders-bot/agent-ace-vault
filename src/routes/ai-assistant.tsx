@@ -70,7 +70,14 @@ export const Route = createFileRoute("/ai-assistant")({
   component: AiAssistantPage,
 });
 
-type SessionRow = { id: string; title: string; created_at: string; updated_at: string };
+type SessionRow = {
+  id: string;
+  title: string;
+  folder_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+type FolderRow = { id: string; name: string; created_at: string };
 type MessageRow = { id: string; role: string; content: string; created_at: string };
 
 const SUGGESTIONS = [
@@ -84,10 +91,18 @@ function AiAssistantPage() {
 
   const send = useServerFn(sendAssistantMessage);
   const loadSessions = useServerFn(listChatSessions);
+  const loadFolders = useServerFn(listChatFolders);
   const loadMessages = useServerFn(getChatMessages);
   const removeSession = useServerFn(deleteChatSession);
+  const renameSession = useServerFn(renameChatSession);
+  const moveSession = useServerFn(moveChatSession);
+  const addFolder = useServerFn(createChatFolder);
+  const renameFolder = useServerFn(renameChatFolder);
+  const removeFolder = useServerFn(deleteChatFolder);
 
   const [sessions, setSessions] = useState<SessionRow[]>([]);
+  const [folders, setFolders] = useState<FolderRow[]>([]);
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageRow[]>([]);
   const [input, setInput] = useState("");
@@ -102,12 +117,17 @@ function AiAssistantPage() {
     const { data } = await supabase.auth.getSession();
     if (!data.session) return;
     try {
-      const rows = (await loadSessions({})) as SessionRow[];
+      const [rows, folderRows] = await Promise.all([
+        loadSessions({}) as Promise<SessionRow[]>,
+        loadFolders({}) as Promise<FolderRow[]>,
+      ]);
       setSessions(rows);
+      setFolders(folderRows);
     } catch (err) {
       console.error(err);
     }
-  }, [loadSessions]);
+  }, [loadSessions, loadFolders]);
+
 
   useEffect(() => {
     if (authLoading || !user) return;
