@@ -2,7 +2,6 @@ import { Outlet, Link, createRootRoute, HeadContent, Scripts, useRouterState } f
 import { useEffect } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { PaywallGate } from "@/components/paywall-gate";
-import { SupportFab } from "@/components/support-fab";
 import { JackieFab } from "@/components/jackie-fab";
 import { applyTheme, createThemeSync, getStoredTheme, getThemeBootstrapScript } from "@/lib/theme";
 import { installServerFnAuth } from "@/integrations/supabase/server-fn-auth";
@@ -109,8 +108,7 @@ function RootComponent() {
     path === "/forgot-password" ||
     path === "/reset-password" ||
     (isLegalPath && !user);
-    
-  const showSupportFab = !bare && path === "/dashboard";
+
   return (
     <>
       <ThemeBridge />
@@ -131,7 +129,6 @@ function RootComponent() {
         </div>
       )}
       <JackieFab />
-      {showSupportFab ? <SupportFab /> : null}
     </>
   );
 }
