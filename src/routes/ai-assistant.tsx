@@ -169,6 +169,69 @@ function AiAssistantPage() {
     }
   }
 
+  async function handleRenameChat(s: SessionRow) {
+    const next = window.prompt("Rename chat", s.title)?.trim();
+    if (!next || next === s.title) return;
+    try {
+      await renameSession({ data: { sessionId: s.id, title: next } });
+      setSessions((prev) => prev.map((x) => (x.id === s.id ? { ...x, title: next } : x)));
+    } catch (err) {
+      console.error(err);
+      toast.error("Couldn't rename that conversation.");
+    }
+  }
+
+  async function handleMove(sessionId: string, folderId: string | null) {
+    try {
+      await moveSession({ data: { sessionId, folderId } });
+      setSessions((prev) =>
+        prev.map((x) => (x.id === sessionId ? { ...x, folder_id: folderId } : x)),
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error("Couldn't move that conversation.");
+    }
+  }
+
+  async function handleNewFolder(sessionId?: string) {
+    const name = window.prompt("Folder name")?.trim();
+    if (!name) return;
+    try {
+      const folder = (await addFolder({ data: { name } })) as FolderRow;
+      setFolders((prev) => [...prev, folder]);
+      if (sessionId) await handleMove(sessionId, folder.id);
+    } catch (err) {
+      console.error(err);
+      toast.error("Couldn't create that folder.");
+    }
+  }
+
+  async function handleRenameFolder(f: FolderRow) {
+    const next = window.prompt("Rename folder", f.name)?.trim();
+    if (!next || next === f.name) return;
+    try {
+      await renameFolder({ data: { folderId: f.id, name: next } });
+      setFolders((prev) => prev.map((x) => (x.id === f.id ? { ...x, name: next } : x)));
+    } catch (err) {
+      console.error(err);
+      toast.error("Couldn't rename that folder.");
+    }
+  }
+
+  async function handleDeleteFolder(f: FolderRow) {
+    if (!window.confirm(`Delete "${f.name}"? Its chats move to Uncategorized.`)) return;
+    try {
+      await removeFolder({ data: { folderId: f.id } });
+      setFolders((prev) => prev.filter((x) => x.id !== f.id));
+      setSessions((prev) =>
+        prev.map((s) => (s.folder_id === f.id ? { ...s, folder_id: null } : s)),
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error("Couldn't delete that folder.");
+    }
+  }
+
   async function submit(text: string) {
     const trimmed = text.trim();
     if (!trimmed || loading) return;
