@@ -274,44 +274,168 @@ function AiAssistantPage() {
     }
   }
 
+  const uncategorized = useMemo(() => sessions.filter((s) => !s.folder_id), [sessions]);
+
+  function renderSession(s: SessionRow) {
+    return (
+      <div
+        key={s.id}
+        className={`group flex items-center gap-1 rounded-lg px-2 ${
+          activeId === s.id ? "bg-muted" : "hover:bg-muted/60"
+        }`}
+      >
+        <button
+          type="button"
+          onClick={() => void openSession(s.id)}
+          className="min-w-0 flex-1 truncate py-2 text-left text-sm"
+          title={s.title}
+        >
+          {s.title}
+        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={`Options for ${s.title}`}
+              className="text-muted-foreground hover:text-foreground shrink-0 rounded p-1.5 opacity-100 transition md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100"
+            >
+              <MoreVertical className="h-3.5 w-3.5" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <Folder className="mr-2 h-3.5 w-3.5" /> Move to folder
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="max-h-64 overflow-y-auto">
+                {folders.map((f) => (
+                  <DropdownMenuItem key={f.id} onSelect={() => void handleMove(s.id, f.id)}>
+                    <Folder className="mr-2 h-3.5 w-3.5" /> {f.name}
+                  </DropdownMenuItem>
+                ))}
+                {s.folder_id && (
+                  <DropdownMenuItem onSelect={() => void handleMove(s.id, null)}>
+                    Remove from folder
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => void handleNewFolder(s.id)}>
+                  <FolderPlus className="mr-2 h-3.5 w-3.5" /> New folder…
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+            <DropdownMenuItem onSelect={() => void handleRenameChat(s)}>
+              <Pencil className="mr-2 h-3.5 w-3.5" /> Rename chat
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-destructive focus:text-destructive"
+              onSelect={() => void handleDelete(s.id)}
+            >
+              <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete chat
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    );
+  }
+
   const historyPanel = (
-    <div className="flex h-full min-h-0 flex-col gap-3 p-3">
+    <div className="flex h-full min-h-0 flex-col gap-2 p-3">
       <Button onClick={newChat} className="w-full justify-start gap-2" variant="secondary">
         <MessageSquarePlus className="h-4 w-4" /> New chat
       </Button>
-      <div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
-        {sessions.length === 0 ? (
+      <Button
+        onClick={() => void handleNewFolder()}
+        className="w-full justify-start gap-2"
+        variant="outline"
+        size="sm"
+      >
+        <FolderPlus className="h-4 w-4" /> New folder
+      </Button>
+
+      <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pt-1">
+        {sessions.length === 0 && folders.length === 0 ? (
           <p className="text-muted-foreground px-2 py-4 text-xs">No saved conversations yet.</p>
         ) : (
-          sessions.map((s) => (
-            <div
-              key={s.id}
-              className={`group flex items-center gap-1 rounded-lg px-2 ${
-                activeId === s.id ? "bg-muted" : "hover:bg-muted/60"
-              }`}
-            >
-              <button
-                type="button"
-                onClick={() => void openSession(s.id)}
-                className="flex-1 truncate py-2 text-left text-sm"
-                title={s.title}
-              >
-                {s.title}
-              </button>
-              <button
-                type="button"
-                onClick={() => void handleDelete(s.id)}
-                aria-label={`Delete ${s.title}`}
-                className="text-muted-foreground hover:text-destructive shrink-0 rounded p-1.5 opacity-0 transition group-hover:opacity-100 focus:opacity-100"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
+          <>
+            {folders.map((f) => {
+              const items = sessions.filter((s) => s.folder_id === f.id);
+              const isOpen = !collapsed[f.id];
+              return (
+                <div key={f.id}>
+                  <div className="group flex items-center gap-1 rounded-lg px-1.5 hover:bg-muted/50">
+                    <button
+                      type="button"
+                      onClick={() => setCollapsed((p) => ({ ...p, [f.id]: isOpen }))}
+                      className="flex min-w-0 flex-1 items-center gap-1.5 py-1.5 text-left"
+                      aria-expanded={isOpen}
+                    >
+                      {isOpen ? (
+                        <ChevronDown className="h-3.5 w-3.5 shrink-0" />
+                      ) : (
+                        <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+                      )}
+                      <Folder className="h-3.5 w-3.5 shrink-0 text-primary" />
+                      <span className="truncate text-xs font-semibold uppercase tracking-wide">
+                        {f.name}
+                      </span>
+                      <span className="text-muted-foreground ml-auto shrink-0 text-[10px]">
+                        {items.length}
+                      </span>
+                    </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          aria-label={`Options for folder ${f.name}`}
+                          className="text-muted-foreground hover:text-foreground shrink-0 rounded p-1 opacity-100 md:opacity-0 md:group-hover:opacity-100"
+                        >
+                          <MoreVertical className="h-3.5 w-3.5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel className="text-xs">{f.name}</DropdownMenuLabel>
+                        <DropdownMenuItem onSelect={() => void handleRenameFolder(f)}>
+                          <Pencil className="mr-2 h-3.5 w-3.5" /> Rename folder
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onSelect={() => void handleDeleteFolder(f)}
+                        >
+                          <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete folder
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  {isOpen && (
+                    <div className="mt-0.5 space-y-0.5 border-l border-border/70 pl-2">
+                      {items.length === 0 ? (
+                        <p className="text-muted-foreground px-2 py-1.5 text-[11px]">Empty folder</p>
+                      ) : (
+                        items.map(renderSession)
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            <div>
+              <p className="text-muted-foreground px-2 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide">
+                Uncategorized
+              </p>
+              {uncategorized.length === 0 ? (
+                <p className="text-muted-foreground px-2 py-1.5 text-[11px]">No loose chats.</p>
+              ) : (
+                <div className="space-y-0.5">{uncategorized.map(renderSession)}</div>
+              )}
             </div>
-          ))
+          </>
         )}
       </div>
     </div>
   );
+
 
   return (
     <PageShell
