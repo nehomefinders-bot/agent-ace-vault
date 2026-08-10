@@ -1,8 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Bot, Loader2, MessageSquarePlus, Send, Trash2, User as UserIcon, PanelLeft } from "lucide-react";
+import {
+  Bot,
+  ChevronDown,
+  ChevronRight,
+  Folder,
+  FolderPlus,
+  Loader2,
+  MessageSquarePlus,
+  MoreVertical,
+  Pencil,
+  Send,
+  Trash2,
+  User as UserIcon,
+  PanelLeft,
+} from "lucide-react";
 import { toast } from "sonner";
 import { PageShell } from "@/components/page-shell";
 import { useAuth } from "@/hooks/use-auth";
@@ -11,11 +25,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  createChatFolder,
+  deleteChatFolder,
   deleteChatSession,
   getChatMessages,
+  listChatFolders,
   listChatSessions,
+  moveChatSession,
+  renameChatFolder,
+  renameChatSession,
   sendAssistantMessage,
 } from "@/lib/chat-assistant.functions";
+
 
 export const Route = createFileRoute("/ai-assistant")({
   head: () => ({
@@ -38,7 +70,14 @@ export const Route = createFileRoute("/ai-assistant")({
   component: AiAssistantPage,
 });
 
-type SessionRow = { id: string; title: string; created_at: string; updated_at: string };
+type SessionRow = {
+  id: string;
+  title: string;
+  folder_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+type FolderRow = { id: string; name: string; created_at: string };
 type MessageRow = { id: string; role: string; content: string; created_at: string };
 
 const SUGGESTIONS = [
@@ -52,10 +91,18 @@ function AiAssistantPage() {
 
   const send = useServerFn(sendAssistantMessage);
   const loadSessions = useServerFn(listChatSessions);
+  const loadFolders = useServerFn(listChatFolders);
   const loadMessages = useServerFn(getChatMessages);
   const removeSession = useServerFn(deleteChatSession);
+  const renameSession = useServerFn(renameChatSession);
+  const moveSession = useServerFn(moveChatSession);
+  const addFolder = useServerFn(createChatFolder);
+  const renameFolder = useServerFn(renameChatFolder);
+  const removeFolder = useServerFn(deleteChatFolder);
 
   const [sessions, setSessions] = useState<SessionRow[]>([]);
+  const [folders, setFolders] = useState<FolderRow[]>([]);
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageRow[]>([]);
   const [input, setInput] = useState("");
@@ -70,12 +117,17 @@ function AiAssistantPage() {
     const { data } = await supabase.auth.getSession();
     if (!data.session) return;
     try {
-      const rows = (await loadSessions({})) as SessionRow[];
+      const [rows, folderRows] = await Promise.all([
+        loadSessions({}) as Promise<SessionRow[]>,
+        loadFolders({}) as Promise<FolderRow[]>,
+      ]);
       setSessions(rows);
+      setFolders(folderRows);
     } catch (err) {
       console.error(err);
     }
-  }, [loadSessions]);
+  }, [loadSessions, loadFolders]);
+
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -114,6 +166,69 @@ function AiAssistantPage() {
     } catch (err) {
       console.error(err);
       toast.error("Couldn't delete that conversation.");
+    }
+  }
+
+  async function handleRenameChat(s: SessionRow) {
+    const next = window.prompt("Rename chat", s.title)?.trim();
+    if (!next || next === s.title) return;
+    try {
+      await renameSession({ data: { sessionId: s.id, title: next } });
+      setSessions((prev) => prev.map((x) => (x.id === s.id ? { ...x, title: next } : x)));
+    } catch (err) {
+      console.error(err);
+      toast.error("Couldn't rename that conversation.");
+    }
+  }
+
+  async function handleMove(sessionId: string, folderId: string | null) {
+    try {
+      await moveSession({ data: { sessionId, folderId } });
+      setSessions((prev) =>
+        prev.map((x) => (x.id === sessionId ? { ...x, folder_id: folderId } : x)),
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error("Couldn't move that conversation.");
+    }
+  }
+
+  async function handleNewFolder(sessionId?: string) {
+    const name = window.prompt("Folder name")?.trim();
+    if (!name) return;
+    try {
+      const folder = (await addFolder({ data: { name } })) as FolderRow;
+      setFolders((prev) => [...prev, folder]);
+      if (sessionId) await handleMove(sessionId, folder.id);
+    } catch (err) {
+      console.error(err);
+      toast.error("Couldn't create that folder.");
+    }
+  }
+
+  async function handleRenameFolder(f: FolderRow) {
+    const next = window.prompt("Rename folder", f.name)?.trim();
+    if (!next || next === f.name) return;
+    try {
+      await renameFolder({ data: { folderId: f.id, name: next } });
+      setFolders((prev) => prev.map((x) => (x.id === f.id ? { ...x, name: next } : x)));
+    } catch (err) {
+      console.error(err);
+      toast.error("Couldn't rename that folder.");
+    }
+  }
+
+  async function handleDeleteFolder(f: FolderRow) {
+    if (!window.confirm(`Delete "${f.name}"? Its chats move to Uncategorized.`)) return;
+    try {
+      await removeFolder({ data: { folderId: f.id } });
+      setFolders((prev) => prev.filter((x) => x.id !== f.id));
+      setSessions((prev) =>
+        prev.map((s) => (s.folder_id === f.id ? { ...s, folder_id: null } : s)),
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error("Couldn't delete that folder.");
     }
   }
 
@@ -159,44 +274,168 @@ function AiAssistantPage() {
     }
   }
 
+  const uncategorized = useMemo(() => sessions.filter((s) => !s.folder_id), [sessions]);
+
+  function renderSession(s: SessionRow) {
+    return (
+      <div
+        key={s.id}
+        className={`group flex items-center gap-1 rounded-lg px-2 ${
+          activeId === s.id ? "bg-muted" : "hover:bg-muted/60"
+        }`}
+      >
+        <button
+          type="button"
+          onClick={() => void openSession(s.id)}
+          className="min-w-0 flex-1 truncate py-2 text-left text-sm"
+          title={s.title}
+        >
+          {s.title}
+        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={`Options for ${s.title}`}
+              className="text-muted-foreground hover:text-foreground shrink-0 rounded p-1.5 opacity-100 transition md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100"
+            >
+              <MoreVertical className="h-3.5 w-3.5" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <Folder className="mr-2 h-3.5 w-3.5" /> Move to folder
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="max-h-64 overflow-y-auto">
+                {folders.map((f) => (
+                  <DropdownMenuItem key={f.id} onSelect={() => void handleMove(s.id, f.id)}>
+                    <Folder className="mr-2 h-3.5 w-3.5" /> {f.name}
+                  </DropdownMenuItem>
+                ))}
+                {s.folder_id && (
+                  <DropdownMenuItem onSelect={() => void handleMove(s.id, null)}>
+                    Remove from folder
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => void handleNewFolder(s.id)}>
+                  <FolderPlus className="mr-2 h-3.5 w-3.5" /> New folder…
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+            <DropdownMenuItem onSelect={() => void handleRenameChat(s)}>
+              <Pencil className="mr-2 h-3.5 w-3.5" /> Rename chat
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-destructive focus:text-destructive"
+              onSelect={() => void handleDelete(s.id)}
+            >
+              <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete chat
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    );
+  }
+
   const historyPanel = (
-    <div className="flex h-full min-h-0 flex-col gap-3 p-3">
+    <div className="flex h-full min-h-0 flex-col gap-2 p-3">
       <Button onClick={newChat} className="w-full justify-start gap-2" variant="secondary">
         <MessageSquarePlus className="h-4 w-4" /> New chat
       </Button>
-      <div className="min-h-0 flex-1 space-y-1 overflow-y-auto">
-        {sessions.length === 0 ? (
+      <Button
+        onClick={() => void handleNewFolder()}
+        className="w-full justify-start gap-2"
+        variant="outline"
+        size="sm"
+      >
+        <FolderPlus className="h-4 w-4" /> New folder
+      </Button>
+
+      <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pt-1">
+        {sessions.length === 0 && folders.length === 0 ? (
           <p className="text-muted-foreground px-2 py-4 text-xs">No saved conversations yet.</p>
         ) : (
-          sessions.map((s) => (
-            <div
-              key={s.id}
-              className={`group flex items-center gap-1 rounded-lg px-2 ${
-                activeId === s.id ? "bg-muted" : "hover:bg-muted/60"
-              }`}
-            >
-              <button
-                type="button"
-                onClick={() => void openSession(s.id)}
-                className="flex-1 truncate py-2 text-left text-sm"
-                title={s.title}
-              >
-                {s.title}
-              </button>
-              <button
-                type="button"
-                onClick={() => void handleDelete(s.id)}
-                aria-label={`Delete ${s.title}`}
-                className="text-muted-foreground hover:text-destructive shrink-0 rounded p-1.5 opacity-0 transition group-hover:opacity-100 focus:opacity-100"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
+          <>
+            {folders.map((f) => {
+              const items = sessions.filter((s) => s.folder_id === f.id);
+              const isOpen = !collapsed[f.id];
+              return (
+                <div key={f.id}>
+                  <div className="group flex items-center gap-1 rounded-lg px-1.5 hover:bg-muted/50">
+                    <button
+                      type="button"
+                      onClick={() => setCollapsed((p) => ({ ...p, [f.id]: isOpen }))}
+                      className="flex min-w-0 flex-1 items-center gap-1.5 py-1.5 text-left"
+                      aria-expanded={isOpen}
+                    >
+                      {isOpen ? (
+                        <ChevronDown className="h-3.5 w-3.5 shrink-0" />
+                      ) : (
+                        <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+                      )}
+                      <Folder className="h-3.5 w-3.5 shrink-0 text-primary" />
+                      <span className="truncate text-xs font-semibold uppercase tracking-wide">
+                        {f.name}
+                      </span>
+                      <span className="text-muted-foreground ml-auto shrink-0 text-[10px]">
+                        {items.length}
+                      </span>
+                    </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          aria-label={`Options for folder ${f.name}`}
+                          className="text-muted-foreground hover:text-foreground shrink-0 rounded p-1 opacity-100 md:opacity-0 md:group-hover:opacity-100"
+                        >
+                          <MoreVertical className="h-3.5 w-3.5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel className="text-xs">{f.name}</DropdownMenuLabel>
+                        <DropdownMenuItem onSelect={() => void handleRenameFolder(f)}>
+                          <Pencil className="mr-2 h-3.5 w-3.5" /> Rename folder
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onSelect={() => void handleDeleteFolder(f)}
+                        >
+                          <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete folder
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  {isOpen && (
+                    <div className="mt-0.5 space-y-0.5 border-l border-border/70 pl-2">
+                      {items.length === 0 ? (
+                        <p className="text-muted-foreground px-2 py-1.5 text-[11px]">Empty folder</p>
+                      ) : (
+                        items.map(renderSession)
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            <div>
+              <p className="text-muted-foreground px-2 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide">
+                Uncategorized
+              </p>
+              {uncategorized.length === 0 ? (
+                <p className="text-muted-foreground px-2 py-1.5 text-[11px]">No loose chats.</p>
+              ) : (
+                <div className="space-y-0.5">{uncategorized.map(renderSession)}</div>
+              )}
             </div>
-          ))
+          </>
         )}
       </div>
     </div>
   );
+
 
   return (
     <PageShell

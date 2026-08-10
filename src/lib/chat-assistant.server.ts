@@ -50,6 +50,31 @@ export function validateRename(input: unknown): { sessionId: string; title: stri
   return { sessionId, title: title.trim().slice(0, 120) };
 }
 
+export function validateFolderName(input: unknown): { name: string } {
+  if (!input || typeof input !== "object" || Array.isArray(input)) throw new Error("Invalid payload");
+  const { name } = input as { name?: unknown };
+  if (typeof name !== "string" || !name.trim()) throw new Error("Folder name is required");
+  return { name: name.trim().slice(0, 80) };
+}
+
+export function validateFolderId(input: unknown): { folderId: string } {
+  if (!input || typeof input !== "object" || Array.isArray(input)) throw new Error("Invalid payload");
+  const { folderId } = input as { folderId?: unknown };
+  if (typeof folderId !== "string" || !folderId) throw new Error("Folder id is required");
+  return { folderId };
+}
+
+export function validateFolderRename(input: unknown): { folderId: string; name: string } {
+  return { ...validateFolderId(input), ...validateFolderName(input) };
+}
+
+export function validateMoveSession(input: unknown): { sessionId: string; folderId: string | null } {
+  const { sessionId } = validateSessionId(input);
+  const { folderId } = input as { folderId?: unknown };
+  if (folderId != null && typeof folderId !== "string") throw new Error("Invalid folder");
+  return { sessionId, folderId: (folderId as string | undefined) ?? null };
+}
+
 export function deriveTitle(message: string): string {
   const clean = message.replace(/\s+/g, " ").trim();
   return clean.length > 60 ? `${clean.slice(0, 57)}…` : clean || "New chat";
