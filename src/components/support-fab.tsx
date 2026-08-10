@@ -28,7 +28,7 @@ export function SupportFab() {
     <button
       type="button"
       aria-label="Open support"
-      className="fixed bottom-4 right-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/30 bg-card/95 px-4 py-3 text-sm font-medium text-foreground shadow-[0_12px_30px_-12px_rgba(0,0,0,0.55)] backdrop-blur-xl transition hover:border-primary/45 hover:bg-card md:bottom-6 md:right-6"
+      className="fixed bottom-4 left-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/30 bg-card/95 px-4 py-3 text-sm font-medium text-foreground shadow-[0_12px_30px_-12px_rgba(0,0,0,0.55)] backdrop-blur-xl transition hover:border-primary/45 hover:bg-card md:bottom-6 md:left-6"
     >
       <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/12 text-primary">
         <LifeBuoy className="h-4 w-4" />
@@ -63,7 +63,7 @@ export function SupportFab() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent
-        align="end"
+        align="start"
         side="top"
         sideOffset={12}
         className="w-[22rem] rounded-[1.5rem] border-border/80 bg-popover/98 p-5 shadow-[0_20px_45px_-20px_rgba(0,0,0,0.65)] backdrop-blur-xl"
