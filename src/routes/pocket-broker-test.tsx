@@ -12,7 +12,7 @@ export const Route = createFileRoute("/pocket-broker-test")({
       },
       { property: "og:title", content: "Pocket Broker - Agent Business Tracker" },
       {
-        property: "Employee "og:description",
+        property: "og:description",
         content: "Pocket Broker interface embedded inside Agent Business Tracker.",
       },
       { property: "og:type", content: "website" },
