@@ -5,28 +5,28 @@ import { PageShell } from "@/components/page-shell";
 export const Route = createFileRoute("/pocket-broker-test")({
   head: () => ({
     meta: [
-      { title: "Pocket Broker Test - Agent Business Tracker" },
+      { title: "Pocket Broker - Agent Business Tracker" },
       {
         name: "description",
-        content: "Internal iframe test for the Pocket Broker interface.",
+        content: "Pocket Broker interface embedded inside Agent Business Tracker.",
       },
-      { property: "og:title", content: "Pocket Broker Test - Agent Business Tracker" },
+      { property: "og:title", content: "Pocket Broker - Agent Business Tracker" },
       {
-        property: "og:description",
-        content: "Internal iframe test for the Pocket Broker interface.",
+        property: "Employee "og:description",
+        content: "Pocket Broker interface embedded inside Agent Business Tracker.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: PocketBrokerTestPage,
+  component: PocketBrokerPage,
 });
 
-function PocketBrokerTestPage() {
+function PocketBrokerPage() {
   return (
     <PageShell
-      title="Pocket Broker Test"
-      subtitle="Iframe integration test for app.endlessprospects.org"
+      title="Pocket Broker"
+      subtitle="app.endlessprospects.org"
       fullHeight
       actions={
         <a
@@ -44,13 +44,13 @@ function PocketBrokerTestPage() {
         <div className="flex shrink-0 items-center gap-2 rounded-xl bg-muted/50 px-4 py-3 sm:rounded-2xl">
           <Globe className="h-4 w-4 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
-            Testing: <span className="font-mono text-foreground">https://app.endlessprospects.org/</span>
+            <span className="font-mono text-foreground">https://app.endlessprospects.org/</span>
           </p>
         </div>
         <div className="relative mt-1 flex min-h-0 flex-1 rounded-xl sm:rounded-2xl">
           <iframe
             src="https://app.endlessprospects.org/"
-            title="Pocket Broker Test"
+            title="Pocket Broker"
             allow="clipboard-write; microphone; camera"
             className="h-full w-full min-h-[750px] rounded-lg border-0 bg-white shadow-sm"
           />

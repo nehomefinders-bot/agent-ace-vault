@@ -26,7 +26,7 @@ import {
   FileText,
   Building2,
   Workflow,
-  TestTube,
+  Briefcase,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -56,7 +56,7 @@ const sections = [
       { to: "/expenses", label: "Expenses", icon: Wallet },
       { to: "/documents", label: "Documents", icon: FolderOpen },
       { to: "/media-storage", label: "Media Storage", icon: Image },
-      { to: "/pocket-broker-test", label: "Pocket Broker Test", icon: TestTube },
+      { to: "/pocket-broker-test", label: "Pocket Broker", icon: Briefcase },
     ],
   },
   {
