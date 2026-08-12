@@ -7,18 +7,24 @@ export function PageShell({
   subtitle,
   actions,
   children,
+  fullHeight = false,
 }: {
   title: string;
   subtitle?: string;
   actions?: ReactNode;
   children: ReactNode;
+  fullHeight?: boolean;
 }) {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const showHomeButton = path !== "/";
 
   return (
-    <div className="mx-auto w-full max-w-[1400px] min-w-0 overflow-x-hidden px-3 py-4 sm:px-6 sm:py-6 lg:p-8">
-      <header className="mb-5 min-w-0 rounded-2xl border border-border/70 bg-card px-4 py-4 shadow-sm sm:mb-8 sm:rounded-3xl sm:px-6 sm:py-5">
+    <div
+      className={`mx-auto w-full max-w-[1400px] min-w-0 px-3 py-4 sm:px-6 sm:py-6 lg:p-8 ${
+        fullHeight ? "flex h-full min-h-0 flex-1 flex-col" : "overflow-x-hidden"
+      }`}
+    >
+      <header className="mb-5 min-w-0 shrink-0 rounded-2xl border border-border/70 bg-card px-4 py-4 shadow-sm sm:mb-8 sm:rounded-3xl sm:px-6 sm:py-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
           <div className="min-w-0">
             <h1 className="break-words text-2xl font-bold sm:text-3xl">{title}</h1>
@@ -40,7 +46,9 @@ export function PageShell({
           </div>
         </div>
       </header>
-      {children}
+      <div className={fullHeight ? "flex min-h-0 flex-1 flex-col" : undefined}>
+        {children}
+      </div>
     </div>
   );
 }
