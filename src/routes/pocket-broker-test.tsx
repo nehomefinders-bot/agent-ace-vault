@@ -27,6 +27,7 @@ function PocketBrokerTestPage() {
     <PageShell
       title="Pocket Broker Test"
       subtitle="Iframe integration test for app.endlessprospects.org"
+      fullHeight
       actions={
         <a
           href="https://app.endlessprospects.org/"
@@ -39,21 +40,21 @@ function PocketBrokerTestPage() {
         </a>
       }
     >
-      <div className="rounded-2xl border border-border/70 bg-card p-1 shadow-sm sm:rounded-3xl">
-        <div className="flex items-center gap-2 rounded-xl bg-muted/50 px-4 py-3 sm:rounded-2xl">
+      <div className="flex flex-1 flex-col rounded-2xl border border-border/70 bg-card p-1 shadow-sm sm:rounded-3xl">
+        <div className="flex shrink-0 items-center gap-2 rounded-xl bg-muted/50 px-4 py-3 sm:rounded-2xl">
           <Globe className="h-4 w-4 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
             Testing: <span className="font-mono text-foreground">https://app.endlessprospects.org/</span>
           </p>
         </div>
-        <iframe
-          src="https://app.endlessprospects.org/"
-          title="Pocket Broker Test"
-          width="100%"
-          height="calc(100vh - 100px)"
-          allow="clipboard-write; microphone; camera"
-          className="mt-1 block w-full rounded-xl border-0 bg-white sm:rounded-2xl"
-        />
+        <div className="relative mt-1 flex min-h-0 flex-1 rounded-xl sm:rounded-2xl">
+          <iframe
+            src="https://app.endlessprospects.org/"
+            title="Pocket Broker Test"
+            allow="clipboard-write; microphone; camera"
+            className="h-full w-full min-h-[750px] rounded-lg border-0 bg-white shadow-sm"
+          />
+        </div>
       </div>
     </PageShell>
   );
