@@ -129,6 +129,7 @@ function RootComponent() {
           </main>
         </div>
       )}
+      <PocketBrokerFab />
       <JackieFab />
     </>
   );
