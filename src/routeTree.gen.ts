@@ -23,6 +23,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PocketBrokerTestRouteImport } from './routes/pocket-broker-test'
 import { Route as PipelineRouteImport } from './routes/pipeline'
 import { Route as MlsListingsRouteImport } from './routes/mls-listings'
 import { Route as MileageRouteImport } from './routes/mileage'
@@ -125,6 +126,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PocketBrokerTestRoute = PocketBrokerTestRouteImport.update({
+  id: '/pocket-broker-test',
+  path: '/pocket-broker-test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PipelineRoute = PipelineRouteImport.update({
@@ -319,6 +325,7 @@ export interface FileRoutesByFullPath {
   '/mileage': typeof MileageRoute
   '/mls-listings': typeof MlsListingsRoute
   '/pipeline': typeof PipelineRoute
+  '/pocket-broker-test': typeof PocketBrokerTestRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -367,6 +374,7 @@ export interface FileRoutesByTo {
   '/mileage': typeof MileageRoute
   '/mls-listings': typeof MlsListingsRoute
   '/pipeline': typeof PipelineRoute
+  '/pocket-broker-test': typeof PocketBrokerTestRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -417,6 +425,7 @@ export interface FileRoutesById {
   '/mileage': typeof MileageRoute
   '/mls-listings': typeof MlsListingsRoute
   '/pipeline': typeof PipelineRoute
+  '/pocket-broker-test': typeof PocketBrokerTestRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -468,6 +477,7 @@ export interface FileRouteTypes {
     | '/mileage'
     | '/mls-listings'
     | '/pipeline'
+    | '/pocket-broker-test'
     | '/pricing'
     | '/privacy'
     | '/privacy-policy'
@@ -516,6 +526,7 @@ export interface FileRouteTypes {
     | '/mileage'
     | '/mls-listings'
     | '/pipeline'
+    | '/pocket-broker-test'
     | '/pricing'
     | '/privacy'
     | '/privacy-policy'
@@ -565,6 +576,7 @@ export interface FileRouteTypes {
     | '/mileage'
     | '/mls-listings'
     | '/pipeline'
+    | '/pocket-broker-test'
     | '/pricing'
     | '/privacy'
     | '/privacy-policy'
@@ -615,6 +627,7 @@ export interface RootRouteChildren {
   MileageRoute: typeof MileageRoute
   MlsListingsRoute: typeof MlsListingsRoute
   PipelineRoute: typeof PipelineRoute
+  PocketBrokerTestRoute: typeof PocketBrokerTestRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
@@ -733,6 +746,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pocket-broker-test': {
+      id: '/pocket-broker-test'
+      path: '/pocket-broker-test'
+      fullPath: '/pocket-broker-test'
+      preLoaderRoute: typeof PocketBrokerTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pipeline': {
@@ -1014,6 +1034,7 @@ const rootRouteChildren: RootRouteChildren = {
   MileageRoute: MileageRoute,
   MlsListingsRoute: MlsListingsRoute,
   PipelineRoute: PipelineRoute,
+  PocketBrokerTestRoute: PocketBrokerTestRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
@@ -1036,3 +1057,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
