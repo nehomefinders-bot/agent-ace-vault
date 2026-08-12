@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { PaywallGate } from "@/components/paywall-gate";
 import { JackieFab } from "@/components/jackie-fab";
+import { PocketBrokerFab } from "@/components/pocket-broker-fab";
 import { applyTheme, createThemeSync, getStoredTheme, getThemeBootstrapScript } from "@/lib/theme";
 import { installServerFnAuth } from "@/integrations/supabase/server-fn-auth";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -128,6 +129,7 @@ function RootComponent() {
           </main>
         </div>
       )}
+      <PocketBrokerFab />
       <JackieFab />
     </>
   );
