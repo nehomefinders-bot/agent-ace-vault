@@ -23,13 +23,14 @@ type Reason = (typeof REASONS)[number];
 export function RefundRequestModal({
   open,
   onOpenChange,
-  email,
+  defaultEmail,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  email: string;
+  defaultEmail: string;
 }) {
   const submit = useServerFn(submitRefundRequest);
+  const [email, setEmail] = useState(defaultEmail);
   const [reason, setReason] = useState<Reason>("Accidental Purchase");
   const [details, setDetails] = useState("");
   const [busy, setBusy] = useState(false);
@@ -38,8 +39,9 @@ export function RefundRequestModal({
     e.preventDefault();
     setBusy(true);
     try {
-      await submit({ data: { reason, details: details.trim() } });
+      await submit({ data: { email: email.trim(), reason, details: details.trim() } });
       toast.success("Your refund request has been submitted. Our team will review it shortly.");
+      setEmail(defaultEmail);
       setDetails("");
       setReason("Accidental Purchase");
       onOpenChange(false);
