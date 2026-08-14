@@ -26,6 +26,7 @@ import {
   FileText,
   Building2,
   Workflow,
+  Briefcase,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -38,6 +39,7 @@ const sections = [
     label: "Business",
     items: [
       { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/pocket-broker-test", label: "Pocket Broker", icon: Briefcase },
       { to: "/mileage", label: "Mileage Tracker", icon: Car },
       { to: "/clients", label: "Contacts", icon: Users },
       { to: "/calendar", label: "Calendar", icon: CalendarDays },
@@ -229,13 +231,16 @@ export function AppSidebar() {
             <div className="space-y-0.5">
               {section.items.map(({ to, label, icon: Icon }) => {
                 const active = path === to || path.startsWith(to + "/");
+                const isPocketBroker = to === "/pocket-broker-test";
                 return (
                   <Link
                     key={to}
                     to={to}
                     className={`group flex min-h-11 items-center gap-2.5 rounded-lg px-2.5 py-3 text-base transition-colors lg:py-2 ${
                       active
-                        ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
+                        ? isPocketBroker
+                          ? "bg-[#d99a26] text-black font-medium"
+                          : "bg-sidebar-primary text-sidebar-primary-foreground font-medium"
                         : "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                     }`}
                   >
