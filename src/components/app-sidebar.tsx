@@ -207,7 +207,6 @@ export function AppSidebar() {
 
   const sidebarContent = (
     <div className="flex h-full min-h-0 flex-col">
-      <RefundRequestModal open={refundOpen} onOpenChange={setRefundOpen} email={user?.email ?? ""} />
       <div className="px-5 pt-6 pb-6 flex items-center justify-between shrink-0">
         <BrandLockup
           logoClassName="h-9 w-9 border border-sidebar-border bg-black ring-0"
@@ -315,6 +314,8 @@ export function AppSidebar() {
 
   return (
     <>
+      <RefundRequestModal open={refundOpen} onOpenChange={setRefundOpen} email={user?.email ?? ""} />
+
       {/* Mobile top bar with hamburger */}
       <div className="lg:hidden sticky top-0 z-30 flex h-16 w-full items-center gap-3 border-b border-sidebar-border bg-sidebar px-4 text-sidebar-foreground">
         <button
