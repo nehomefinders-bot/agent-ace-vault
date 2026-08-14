@@ -282,6 +282,12 @@ export function AppSidebar() {
               {user.email}
             </div>
             <button
+              onClick={() => setRefundOpen(true)}
+              className="mb-2 text-xs font-medium text-sidebar-foreground/60 underline underline-offset-2 hover:text-sidebar-foreground"
+            >
+              Request Refund
+            </button>
+            <button
               onClick={async () => {
                 await signOut();
                 nav({ to: "/landing" });
@@ -291,6 +297,7 @@ export function AppSidebar() {
               <LogOut className="h-3.5 w-3.5" /> Sign out
             </button>
           </div>
+
         ) : (
           <Link
             to="/auth"
