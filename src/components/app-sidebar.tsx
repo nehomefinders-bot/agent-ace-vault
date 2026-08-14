@@ -33,6 +33,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { PLANS } from "@/lib/stripe";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandLockup } from "@/components/brand-lockup";
+import { RefundRequestModal } from "@/components/refund-request-modal";
 
 const sections = [
   {
@@ -85,6 +86,7 @@ export function AppSidebar() {
   const { subscription, isActive, refetch } = useSubscription();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profilePlan, setProfilePlan] = useState<string | null>(null);
+  const [refundOpen, setRefundOpen] = useState(false);
 
   // Force a clean re-fetch of subscription + profile state whenever the user
   // arrives on the dashboard (e.g. coming from /thankyou → "Enter the Dashboard").
@@ -282,6 +284,12 @@ export function AppSidebar() {
               {user.email}
             </div>
             <button
+              onClick={() => setRefundOpen(true)}
+              className="mb-2 text-xs font-medium text-sidebar-foreground/60 underline underline-offset-2 hover:text-sidebar-foreground"
+            >
+              Request Refund
+            </button>
+            <button
               onClick={async () => {
                 await signOut();
                 nav({ to: "/landing" });
@@ -291,6 +299,7 @@ export function AppSidebar() {
               <LogOut className="h-3.5 w-3.5" /> Sign out
             </button>
           </div>
+
         ) : (
           <Link
             to="/auth"
@@ -305,6 +314,8 @@ export function AppSidebar() {
 
   return (
     <>
+      <RefundRequestModal open={refundOpen} onOpenChange={setRefundOpen} email={user?.email ?? ""} />
+
       {/* Mobile top bar with hamburger */}
       <div className="lg:hidden sticky top-0 z-30 flex h-16 w-full items-center gap-3 border-b border-sidebar-border bg-sidebar px-4 text-sidebar-foreground">
         <button

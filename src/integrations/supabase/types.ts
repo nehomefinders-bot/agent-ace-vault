@@ -887,6 +887,36 @@ export type Database = {
           },
         ]
       }
+      refund_requests: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          status: string
+          user_email: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          status?: string
+          user_email: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          status?: string
+          user_email?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       signature_coordinates: {
         Row: {
           created_at: string
