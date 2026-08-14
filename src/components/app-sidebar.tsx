@@ -33,6 +33,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { PLANS } from "@/lib/stripe";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandLockup } from "@/components/brand-lockup";
+import { RefundRequestModal } from "@/components/refund-request-modal";
 
 const sections = [
   {
@@ -85,6 +86,7 @@ export function AppSidebar() {
   const { subscription, isActive, refetch } = useSubscription();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profilePlan, setProfilePlan] = useState<string | null>(null);
+  const [refundOpen, setRefundOpen] = useState(false);
 
   // Force a clean re-fetch of subscription + profile state whenever the user
   // arrives on the dashboard (e.g. coming from /thankyou → "Enter the Dashboard").
@@ -205,6 +207,7 @@ export function AppSidebar() {
 
   const sidebarContent = (
     <div className="flex h-full min-h-0 flex-col">
+      <RefundRequestModal open={refundOpen} onOpenChange={setRefundOpen} email={user?.email ?? ""} />
       <div className="px-5 pt-6 pb-6 flex items-center justify-between shrink-0">
         <BrandLockup
           logoClassName="h-9 w-9 border border-sidebar-border bg-black ring-0"
