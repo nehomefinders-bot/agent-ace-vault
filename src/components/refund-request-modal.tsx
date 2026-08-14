@@ -64,11 +64,17 @@ export function RefundRequestModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium">Your email</label>
+            <label className="mb-1 block text-sm font-medium" htmlFor="refund-email">
+              Your email
+            </label>
             <input
+              id="refund-email"
+              type="email"
+              required
               value={email}
-              readOnly
-              className="w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm text-muted-foreground"
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your contact email"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
             />
           </div>
 
