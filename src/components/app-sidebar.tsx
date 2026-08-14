@@ -314,7 +314,7 @@ export function AppSidebar() {
 
   return (
     <>
-      <RefundRequestModal open={refundOpen} onOpenChange={setRefundOpen} email={user?.email ?? ""} />
+      <RefundRequestModal open={refundOpen} onOpenChange={setRefundOpen} defaultEmail={user?.email ?? ""} />
 
       {/* Mobile top bar with hamburger */}
       <div className="lg:hidden sticky top-0 z-30 flex h-16 w-full items-center gap-3 border-b border-sidebar-border bg-sidebar px-4 text-sidebar-foreground">

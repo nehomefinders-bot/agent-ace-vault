@@ -25,14 +25,15 @@ export const submitRefundRequest = createServerFn({ method: "POST" })
   .inputValidator((d) =>
     z
       .object({
+        email: z.string().trim().email("Please enter a valid email address."),
         reason: z.enum(REASONS),
         details: z.string().trim().max(2000).optional().default(""),
       })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { supabase, userId, claims } = context;
-    const userEmail = (claims as { email?: string } | null)?.email ?? "";
+    const { supabase, userId } = context;
+    const userEmail = data.email;
 
     const { data: row, error } = await supabase
       .from("refund_requests")
