@@ -14,12 +14,10 @@ import {
   DollarSign,
   Wallet,
   PieChart,
-  
   Star,
   Loader2,
   Copy,
   Mail,
-  Play,
 } from "lucide-react";
 import {
   Dialog,
