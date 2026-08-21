@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ExternalLink, Globe } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 
 export const Route = createFileRoute("/pocket-broker-test")({
@@ -26,7 +26,6 @@ function PocketBrokerPage() {
   return (
     <PageShell
       title="Pocket Broker"
-      subtitle="app.endlessprospects.org"
       fullHeight
       actions={
         <a
@@ -40,21 +39,13 @@ function PocketBrokerPage() {
         </a>
       }
     >
-      <div className="flex flex-1 flex-col rounded-2xl border border-border/70 bg-card p-1 shadow-sm sm:rounded-3xl">
-        <div className="flex shrink-0 items-center gap-2 rounded-xl bg-muted/50 px-4 py-3 sm:rounded-2xl">
-          <Globe className="h-4 w-4 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">
-            <span className="font-mono text-foreground">https://app.endlessprospects.org/</span>
-          </p>
-        </div>
-        <div className="relative mt-1 flex min-h-0 flex-1 rounded-xl sm:rounded-2xl">
-          <iframe
-            src="https://app.endlessprospects.org/"
-            title="Pocket Broker"
-            allow="clipboard-write; microphone; camera"
-            className="h-full w-full min-h-[750px] rounded-lg border-0 bg-white shadow-sm"
-          />
-        </div>
+      <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm sm:rounded-3xl">
+        <iframe
+          src="https://app.endlessprospects.org/"
+          title="Pocket Broker"
+          allow="clipboard-write; microphone; camera"
+          className="h-full w-full min-h-[750px] rounded-lg border-0 bg-white"
+        />
       </div>
     </PageShell>
   );
