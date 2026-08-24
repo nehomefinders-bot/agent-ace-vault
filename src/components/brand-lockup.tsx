@@ -1,4 +1,5 @@
-import endlessProspectsLogo from "@/assets/endless-prospects-logo.png";
+import logoLight from "@/assets/abt-logo-light.png.asset.json";
+import logoDark from "@/assets/abt-logo-dark.png.asset.json";
 import { cn } from "@/lib/utils";
 
 export const BRAND_TITLE = "Agent Business Tracker";
@@ -11,6 +12,7 @@ type BrandLockupProps = {
   titleClassName?: string;
   taglineClassName?: string;
   showTagline?: boolean;
+  variant?: "auto" | "light" | "dark";
 };
 
 export function BrandLockup({
@@ -20,17 +22,29 @@ export function BrandLockup({
   titleClassName,
   taglineClassName,
   showTagline = true,
+  variant = "auto",
 }: BrandLockupProps) {
+  const imgBase = cn(
+    "h-12 w-12 shrink-0 rounded-xl object-contain ring-1 ring-border",
+    logoClassName,
+  );
+  const alt = `${BRAND_TITLE} ${BRAND_TAGLINE}`;
+
   return (
     <div className={cn("flex min-w-0 items-center gap-3", className)}>
-      <img
-        src={endlessProspectsLogo}
-        alt={`${BRAND_TITLE} ${BRAND_TAGLINE}`}
-        className={cn(
-          "h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-border",
-          logoClassName,
-        )}
-      />
+      {variant === "auto" ? (
+        <>
+          <img src={logoLight.url} alt={alt} className={cn(imgBase, "dark:hidden")} />
+          <img src={logoDark.url} alt="" aria-hidden className={cn(imgBase, "hidden dark:block")} />
+        </>
+      ) : (
+        <img
+          src={variant === "dark" ? logoDark.url : logoLight.url}
+          alt={alt}
+          className={imgBase}
+        />
+      )}
+
       <div className={cn("min-w-0", textClassName)}>
         <div
           className={cn(

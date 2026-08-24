@@ -205,6 +205,7 @@ function Landing() {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <Link to="/landing" className="flex min-w-0 items-center gap-2 sm:gap-2.5">
             <BrandLockup
+              variant="dark"
               logoClassName="h-9 w-9 ring-white/20 sm:h-10 sm:w-10"
               titleClassName="text-base text-white sm:text-lg"
               taglineClassName="hidden text-xs text-[#d4af37] sm:block"
@@ -681,6 +682,7 @@ function Landing() {
             <div className="flex flex-col items-start gap-5">
               <Link to="/landing" className="inline-flex shrink-0">
                 <BrandLockup
+                  variant="dark"
                   logoClassName="h-16 w-16 rounded-2xl border border-white/10 bg-black ring-0 shadow-[0_20px_50px_-28px_rgba(0,0,0,0.8)] sm:h-20 sm:w-20"
                   titleClassName="text-xl text-white sm:text-2xl"
                   taglineClassName="text-sm text-amber-400"
