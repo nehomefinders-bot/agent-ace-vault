@@ -123,7 +123,7 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
       <div className="w-full max-w-md">
         <Link to="/landing" className="flex items-center gap-2.5 mb-8 justify-center">
           <BrandLockup
-            logoClassName="h-16 w-16 rounded-2xl"
+            logoClassName="h-24 w-auto"
             titleClassName="text-2xl"
             taglineClassName="text-sm tracking-wider"
           />

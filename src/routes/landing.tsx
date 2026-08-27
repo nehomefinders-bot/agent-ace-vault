@@ -207,7 +207,7 @@ function Landing() {
             <BrandLockup
               variant="dark"
               badge
-              logoClassName="h-9 w-9 sm:h-10 sm:w-10"
+              logoClassName="h-12 w-auto sm:h-14"
               titleClassName="text-base sm:text-lg"
               taglineClassName="hidden text-xs sm:block"
               textClassName="max-w-[13rem] sm:max-w-none"
@@ -684,7 +684,7 @@ function Landing() {
               <Link to="/landing" className="inline-flex shrink-0">
                 <BrandLockup
                   variant="dark"
-                  logoClassName="h-16 w-16 rounded-2xl border border-white/10 bg-black ring-0 shadow-[0_20px_50px_-28px_rgba(0,0,0,0.8)] sm:h-20 sm:w-20"
+                  logoClassName="h-20 w-auto sm:h-24"
                   titleClassName="text-xl text-white sm:text-2xl"
                   taglineClassName="text-sm text-amber-400"
                   textClassName="max-w-none"

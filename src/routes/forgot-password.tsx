@@ -36,7 +36,7 @@ function ForgotPage() {
     <div className="min-h-dvh w-full flex items-center justify-center px-4 bg-background">
       <div className="w-full max-w-md">
         <Link to="/landing" className="mb-8 flex items-center justify-center">
-          <BrandLockup logoClassName="h-14 w-14 rounded-2xl" titleClassName="text-xl" taglineClassName="text-sm" />
+          <BrandLockup logoClassName="h-24 w-auto" titleClassName="text-xl" taglineClassName="text-sm" />
         </Link>
 
         <div className="bg-card border border-border rounded-2xl p-8 shadow-card">
