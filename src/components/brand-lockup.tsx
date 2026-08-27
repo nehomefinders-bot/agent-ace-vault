@@ -30,44 +30,20 @@ export function BrandLockup({
 
   return (
     <div className={cn("flex min-w-0 items-center gap-3", className)}>
-      {badge ? (
-        <div
-          className={cn(
-            "shrink-0 rounded-full bg-white p-1.5 shadow-md flex items-center justify-center",
-            logoClassName,
-          )}
-        >
-          <img
-            src={logo.url}
-            alt={alt}
-            className="h-full w-full object-contain"
-          />
-        </div>
-      ) : (
-        <img
-          src={logo.url}
-          alt={alt}
-          className={cn(
-            "h-12 w-12 shrink-0 rounded-xl object-contain",
-            logoClassName,
-          )}
-        />
-      )}
+      <img
+        src={logo.url}
+        alt={alt}
+        className={cn(
+          "aspect-square h-12 w-auto shrink-0 object-contain",
+          logoClassName,
+        )}
+      />
 
-      <div className={cn("min-w-0", textClassName)}>
-        <div
-          className={cn(
-            "whitespace-nowrap font-display text-lg font-bold leading-none",
-            isDark || badge ? "text-white" : "text-[#0c2340] dark:text-white",
-            titleClassName,
-          )}
-        >
-          {BRAND_TITLE}
-        </div>
-        {showTagline ? (
+      {showTagline ? (
+        <div className={cn("min-w-0", textClassName)}>
           <div
             className={cn(
-              "mt-1.5 text-xs font-medium tracking-[0.08em]",
+              "whitespace-nowrap text-xs font-medium tracking-[0.08em]",
               isDark || badge
                 ? "text-[#D99A26]"
                 : "text-amber-600 dark:text-amber-400",
@@ -76,8 +52,8 @@ export function BrandLockup({
           >
             {BRAND_TAGLINE}
           </div>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }
