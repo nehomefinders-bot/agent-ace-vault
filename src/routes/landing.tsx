@@ -206,9 +206,10 @@ function Landing() {
           <Link to="/landing" className="flex min-w-0 items-center gap-2 sm:gap-2.5">
             <BrandLockup
               variant="dark"
-              logoClassName="h-9 w-9 ring-white/20 sm:h-10 sm:w-10"
-              titleClassName="text-base text-white sm:text-lg"
-              taglineClassName="hidden text-xs text-[#d4af37] sm:block"
+              badge
+              logoClassName="h-9 w-9 sm:h-10 sm:w-10"
+              titleClassName="text-base sm:text-lg"
+              taglineClassName="hidden text-xs sm:block"
               textClassName="max-w-[13rem] sm:max-w-none"
             />
           </Link>

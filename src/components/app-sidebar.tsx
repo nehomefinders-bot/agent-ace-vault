@@ -210,9 +210,10 @@ export function AppSidebar() {
       <div className="px-5 pt-6 pb-6 flex items-center justify-between shrink-0">
         <BrandLockup
           variant="dark"
-          logoClassName="h-9 w-9 border border-sidebar-border bg-black ring-0"
-          titleClassName="truncate text-base text-white"
-          taglineClassName="text-xs text-amber-400"
+          badge
+          logoClassName="h-9 w-9"
+          titleClassName="truncate text-base"
+          taglineClassName="text-xs"
           textClassName="max-w-[min(12rem,calc(100vw-8rem))]"
         />
         <button
@@ -333,9 +334,10 @@ export function AppSidebar() {
         </button>
         <BrandLockup
           variant="dark"
-          logoClassName="h-8 w-8 rounded-lg border border-sidebar-border bg-black ring-0"
-          titleClassName="truncate text-base text-white"
-          taglineClassName="text-[9px] text-amber-400"
+          badge
+          logoClassName="h-8 w-8"
+          titleClassName="truncate text-base"
+          taglineClassName="text-[9px]"
           textClassName="max-w-[min(10rem,calc(100vw-9rem))]"
         />
         <Link
