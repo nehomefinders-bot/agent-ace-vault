@@ -211,6 +211,7 @@ export function AppSidebar() {
         <BrandLockup
           variant="dark"
           badge
+          showTagline={false}
           logoClassName="h-auto w-36"
           titleClassName="truncate text-base"
           taglineClassName="text-xs"
