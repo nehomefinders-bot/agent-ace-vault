@@ -53,7 +53,7 @@ export function FoundersPaywallCard() {
           </div>
         </div>
 
-        <h1 className="mt-2 font-display text-3xl font-bold text-white">Founders' Program</h1>
+        <h1 className="mt-2 font-display text-3xl font-bold text-white">Full Access</h1>
         <p className="mt-2 text-sm text-white/70">
           All features unlocked. Lock in $10/month for life.
         </p>
@@ -64,7 +64,7 @@ export function FoundersPaywallCard() {
         </div>
 
         <p className="mt-5 text-sm leading-relaxed text-white/70">
-          The Founders Program entry window is open for{" "}
+          The early-access entry window is open for{" "}
           <span className="font-semibold text-white">6 months only</span>. Members who join today lock in the{" "}
           <span className="font-semibold text-white">$10/month</span> price for life and avoid the future standard base plan rate of{" "}
           <span className="font-semibold text-white">$19.99/month</span>.

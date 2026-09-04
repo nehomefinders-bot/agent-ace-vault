@@ -555,7 +555,7 @@ function SettingsPage() {
         ) : (
           <Section icon={<Palette className="h-4 w-4" />} title="Appearance" desc="Dark mode unlocks with an active subscription.">
             <p className="text-xs text-muted-foreground">
-              Subscribe to the Founders' Program to customize your theme.
+              Subscribe to customize your theme.
             </p>
           </Section>
         )}

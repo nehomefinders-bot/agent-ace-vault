@@ -241,8 +241,13 @@ export function AuthPage({ initialMode = "signin" }: { initialMode?: "signin" | 
               className="w-full bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium inline-flex items-center justify-center gap-2 disabled:opacity-60"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {mode === "signin" ? "Sign in" : "Create account"}
+              {mode === "signin" ? "Sign in" : "Start 14-Day Free Trial"}
             </button>
+            {mode === "signup" && (
+              <p className="text-center text-xs text-muted-foreground">
+                No credit card required upfront.
+              </p>
+            )}
           </form>
 
           <div className="mt-6 text-center text-sm text-muted-foreground space-y-2">

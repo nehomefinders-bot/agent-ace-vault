@@ -36,7 +36,7 @@ export interface Plan {
 export const PLANS: Plan[] = [
   {
     id: "beta_tester",
-    name: "Founders' Program",
+    name: "14-Day Free Trial",
     tagline: "All features unlocked. Lock in $10/month for life.",
     monthly: { priceId: "beta_monthly", amount: 10 },
     yearly: { priceId: "beta_monthly", amount: 10 },
@@ -44,7 +44,7 @@ export const PLANS: Plan[] = [
       "Every feature unlocked — no tiers, no upsells",
       "Just $10/month, locked in for life",
       "Help shape the product roadmap",
-      "Direct line to the founders",
+      "Direct line to the team",
       "Priority bug-fix turnaround",
     ],
   },
