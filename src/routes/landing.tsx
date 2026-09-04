@@ -443,22 +443,25 @@ function Landing() {
               <h2 className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">
                 Ready to track your Real Estate Business?
               </h2>
-              <button
-                type="button"
-                onClick={handleFounderAccessClick}
-                disabled={isFounderCheckoutLoading}
-                className="inline-flex items-center justify-center rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_28px_-14px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f] disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {isFounderCheckoutLoading ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Opening Stripe...
-                  </span>
-                ) : (
-                  "Start 14-Day Free Trial"
-                )}
-              </button>
-              <p className="mt-3 text-sm text-white/60">No credit card required upfront.</p>
+              <div className="flex flex-col items-center gap-2 sm:items-end">
+                <button
+                  type="button"
+                  onClick={handleFounderAccessClick}
+                  disabled={isFounderCheckoutLoading}
+                  className="inline-flex items-center justify-center rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_28px_-14px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f] disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isFounderCheckoutLoading ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Opening Stripe...
+                    </span>
+                  ) : (
+                    "Start 14-Day Free Trial"
+                  )}
+                </button>
+                <p className="text-sm font-medium text-[#0B1424]/70">No credit card required upfront.</p>
+              </div>
+
             </div>
           </div>
         </div>
