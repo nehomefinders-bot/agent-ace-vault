@@ -392,7 +392,7 @@ function Landing() {
                     { l: "Features", v: "All Pro" },
                     { l: "Updates", v: "Priority" },
                     { l: "Support", v: "Priority" },
-                    { l: "Lock-in", v: "For life" },
+                    { l: "Intro rate", v: "6 Months" },
                   ].map((k) => (
                     <div
                       key={k.l}
