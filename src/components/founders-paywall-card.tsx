@@ -9,7 +9,7 @@ const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/3cI9ASaDK6bu9XT8Gj9AA04";
 
 const FEATURES = [
   "Every feature unlocked — no tiers, no upsells",
-  "Just $10/month, locked in for life",
+  "Introductory rate: $19.99/mo for first 6 months",
   "Help shape the product roadmap",
   "Direct line to the founders",
   "Priority bug-fix turnaround",
@@ -87,7 +87,7 @@ export function FoundersPaywallCard() {
             onClick={handleSubscribe}
             className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#d4af37] px-5 py-4 text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition hover:bg-[#c89e2f]"
           >
-            Subscribe — $10/month
+            Start 14-Day Free Trial
           </button>
         )}
 
