@@ -57,13 +57,13 @@ export const Route = createFileRoute("/landing")({
 
 const tiers = [
   {
-    name: "Founders' Program",
+    name: "Full Access",
     price: 10,
-    blurb: "Every feature unlocked. Locked in at $10/month for life.",
+    blurb: "Start with 14 days free. Then just $10/month, locked in for life.",
     features: [
       "All features unlocked from day one",
       "Just $10/month — locked in for life",
-      "Direct line to the founders",
+      "Direct line to the team",
       "Priority bug-fix turnaround",
       "Help shape the product roadmap",
     ],
@@ -270,6 +270,7 @@ function Landing() {
                 Start 14-Day Free Trial <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
+            <p className="mt-3 text-sm text-white/60">No credit card required upfront.</p>
           </div>
         </div>
       </section>
@@ -303,7 +304,7 @@ function Landing() {
                 </span>
               </h2>
               <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/80">
-                The Founders Program entry window is open for{" "}
+                The early-access entry window is open for{" "}
                 <span className="font-semibold text-[#f0cf6a]">6 months only</span>. Members who join today lock in the{" "}
                 <span className="font-semibold text-[#f0cf6a]">$10/month</span> price for life and avoid the future standard base plan rate of{" "}
                 <span className="font-semibold text-white">$19.99/month</span>.
@@ -312,7 +313,7 @@ function Landing() {
               <ul className="mt-6 space-y-2.5 text-base text-white/80">
                 {[
                   "All Pro & Team features unlocked from day one",
-                  "Direct line to the founders - shape the roadmap",
+                  "Direct line to the team - shape the roadmap",
                   "Priority bug-fix turnaround & early access drops",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
@@ -341,6 +342,7 @@ function Landing() {
                   )}
                 </button>
               </div>
+              <p className="mt-3 text-sm text-white/60">No credit card required upfront.</p>
             </div>
           </Reveal>
 
@@ -358,7 +360,7 @@ function Landing() {
                     <span className="h-2.5 w-2.5 rounded-full bg-green-400/80" />
                   </div>
                   <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">
-                    Founder Dashboard
+                    Agent Dashboard
                   </div>
                 </div>
                 <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/60 p-5">
@@ -387,7 +389,7 @@ function Landing() {
                   {[
                     { l: "Features", v: "All Pro" },
                     { l: "Updates", v: "Priority" },
-                    { l: "Support", v: "Founders" },
+                    { l: "Support", v: "Priority" },
                     { l: "Lock-in", v: "For life" },
                   ].map((k) => (
                     <div
@@ -454,6 +456,7 @@ function Landing() {
                   "Start 14-Day Free Trial"
                 )}
               </button>
+              <p className="mt-3 text-sm text-white/60">No credit card required upfront.</p>
             </div>
           </div>
         </div>
@@ -638,6 +641,7 @@ function Landing() {
                         tier.cta
                       )}
                     </button>
+                    <p className="-mt-4 mb-6 text-center text-sm text-slate-500">No credit card required upfront.</p>
                     <ul className="space-y-2.5">
                       {tier.features.map((f) => (
                         <li key={f} className="flex items-start gap-2 text-base text-slate-700">
@@ -676,6 +680,7 @@ function Landing() {
               >
                 Start 14-Day Free Trial
               </Link>
+              <p className="mt-3 text-sm text-slate-400">No credit card required upfront.</p>
             </div>
           </div>
 
