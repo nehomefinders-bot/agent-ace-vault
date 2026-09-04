@@ -622,12 +622,14 @@ function Landing() {
                       <span>{tier.name}</span>
                     </div>
                     <div className="mt-1 mb-5 text-base text-slate-600">{tier.blurb}</div>
-                    <div className="mb-6 flex items-baseline gap-1">
+                    <div className="mb-1 flex items-baseline gap-1">
                       <div className="font-display text-5xl font-bold tabular-nums text-[#8f6b12]">
-                        ${tier.price}
+                        $19.99
                       </div>
-                      <div className="text-base text-slate-500">/month</div>
+                      <div className="text-base text-slate-500">/month for 6 months</div>
                     </div>
+                    <div className="mb-6 text-sm text-slate-500">(Then $27.99/month thereafter)</div>
+
                   </div>
                   <div>
                     <button
