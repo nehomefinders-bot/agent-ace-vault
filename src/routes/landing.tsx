@@ -95,7 +95,7 @@ const features = [
   {
     icon: ShieldCheck,
     title: "Simple pricing",
-    body: "Lock in $10/month for life. Cancel anytime from your billing page.",
+    body: "$19.99/month for your first 6 months. Cancel anytime from your billing page.",
     glow: "from-white via-[#e8f5ee] to-[#4d7c5f]",
   },
 ];
