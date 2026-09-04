@@ -67,7 +67,7 @@ const tiers = [
       "Priority bug-fix turnaround",
       "Help shape the product roadmap",
     ],
-    cta: "Claim Founders Access",
+    cta: "Start 14-Day Free Trial",
     featured: true,
     badge: "Best Value",
   },
@@ -233,7 +233,7 @@ function Landing() {
                   Opening Stripe...
                 </span>
               ) : (
-                "Claim Founders Access"
+                "Start 14-Day Free Trial"
               )}
             </button>
           </div>
@@ -267,7 +267,7 @@ function Landing() {
                 to="/signup"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-[#c89e2f] hover:shadow-[0_18px_50px_-8px_rgba(212,175,55,0.7)] sm:w-auto sm:px-7"
               >
-                Claim Founders Access <ArrowRight className="h-4 w-4" />
+                Start 14-Day Free Trial <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
@@ -336,7 +336,7 @@ function Landing() {
                     </>
                   ) : (
                     <>
-                      Claim Founders Access <ArrowRight className="h-4 w-4" />
+                      Start 14-Day Free Trial <ArrowRight className="h-4 w-4" />
                     </>
                   )}
                 </button>
@@ -451,7 +451,7 @@ function Landing() {
                     Opening Stripe...
                   </span>
                 ) : (
-                  "Join the Founders' Program"
+                  "Start 14-Day Free Trial"
                 )}
               </button>
             </div>
@@ -674,7 +674,7 @@ function Landing() {
                 to="/signup"
                 className="mt-8 inline-flex items-center justify-center rounded-full bg-[#d4af37] px-6 py-3 text-sm font-semibold text-slate-950 shadow-[0_14px_36px_-16px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f]"
               >
-                Claim Founders Access
+                Start 14-Day Free Trial
               </Link>
             </div>
           </div>
