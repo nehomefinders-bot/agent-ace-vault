@@ -86,8 +86,16 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const hasAccess = isActive || profilePlan === "active" || profilePlan === "gifted";
-  if (!hasAccess) return <FoundersPaywallCard />;
+  const subscribed = isActive || profilePlan === "active" || profilePlan === "gifted";
+
+  // 14-day free trial measured from account creation.
+  const createdAt = user.created_at ? new Date(user.created_at).getTime() : null;
+  const trialEndsAt = createdAt ? createdAt + TRIAL_DAYS * 24 * 60 * 60 * 1000 : null;
+  const trialActive = !!trialEndsAt && Date.now() < trialEndsAt;
+
+  if (subscribed || trialActive) return <>{children}</>;
+
+  return <TrialExpiredModal />;
 
   return <>{children}</>;
 }
