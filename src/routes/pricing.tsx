@@ -14,7 +14,7 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Pricing - Agent Business Tracker" },
-      { name: "description", content: "One simple plan — $10/month, every feature unlocked. Cancel anytime." },
+      { name: "description", content: "Start free for 14 days, then $19.99/month for 6 months. Cancel anytime." },
     ],
   }),
 });
@@ -116,7 +116,7 @@ function PricingPage() {
                 : "inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#0b2545] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#134074] shadow-md cursor-pointer"
             }
           >
-            {isSubscribed ? "Already Subscribed" : subscription ? "Resubscribe" : "Subscribe — $10/month"}
+            {isSubscribed ? "Already Subscribed" : subscription ? "Resubscribe" : "Start 14-Day Free Trial"}
           </button>
 
           <ul className="mt-6 space-y-2.5">
