@@ -370,13 +370,14 @@ function Landing() {
                   </div>
                   <div className="mt-2 flex items-baseline gap-2">
                     <span className="font-display text-5xl font-bold tabular-nums text-white">
-                      $10
+                      $19.99
                     </span>
-                    <span className="text-sm text-white/55">/month — locked in for life</span>
+                    <span className="text-sm text-white/55">/month for 6 months</span>
                   </div>
                   <div className="mt-2 text-xs text-white/45">
-                    Every feature unlocked. Cancel anytime.
+                    then $27.99/mo. Cancel anytime.
                   </div>
+
 
                   <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
                     <div className="h-full w-[24%] rounded-full bg-gradient-to-r from-[#d4af37] to-[#fff0a8]" />
