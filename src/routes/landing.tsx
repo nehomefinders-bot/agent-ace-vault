@@ -58,11 +58,10 @@ export const Route = createFileRoute("/landing")({
 const tiers = [
   {
     name: "Full Access",
-    price: 10,
-    blurb: "Start with 14 days free. Then just $10/month, locked in for life.",
+    blurb: "Start with 14 days free. Then just $19.99/month for 6 months.",
     features: [
       "All features unlocked from day one",
-      "Just $10/month — locked in for life",
+      "Introductory rate: $19.99/mo for first 6 months",
       "Direct line to the team",
       "Priority bug-fix turnaround",
       "Help shape the product roadmap",
@@ -72,6 +71,7 @@ const tiers = [
     badge: "Best Value",
   },
 ];
+
 
 const features = [
   {
