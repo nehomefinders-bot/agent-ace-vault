@@ -94,7 +94,7 @@ const features = [
   },
   {
     icon: ShieldCheck,
-    title: "Founder pricing",
+    title: "Simple pricing",
     body: "Lock in $10/month for life. Cancel anytime from your billing page.",
     glow: "from-white via-[#e8f5ee] to-[#4d7c5f]",
   },
@@ -365,7 +365,7 @@ function Landing() {
                 </div>
                 <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/60 p-5">
                   <div className="text-xs uppercase tracking-wider text-white/55">
-                    Your Founder Rate
+                    Your Rate After Trial
                   </div>
                   <div className="mt-2 flex items-baseline gap-2">
                     <span className="font-display text-5xl font-bold tabular-nums text-white">
