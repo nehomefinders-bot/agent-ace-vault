@@ -298,17 +298,18 @@ function Landing() {
                 <Sparkles className="h-3.5 w-3.5" /> Limited Seats Available
               </div>
               <h2 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl">
-                Get in early.{" "}
+                Start your 14-day free trial.{" "}
                 <span className="bg-gradient-to-r from-[#fff0a8] via-[#e4be47] to-[#b88918] bg-clip-text text-transparent">
-                  Lock in founder pricing.
+                  Lock in introductory pricing.
                 </span>
               </h2>
               <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/80">
-                The early-access entry window is open for{" "}
-                <span className="font-semibold text-[#f0cf6a]">6 months only</span>. Members who join today lock in the{" "}
-                <span className="font-semibold text-[#f0cf6a]">$10/month</span> price for life and avoid the future standard base plan rate of{" "}
-                <span className="font-semibold text-white">$19.99/month</span>.
+                Start with full access for 14 days free—no credit card required. After your trial,
+                enjoy our special introductory rate of just{" "}
+                <span className="font-semibold text-[#f0cf6a]">$19.99/month</span> for your first 6
+                months (standard rate $27.99/month thereafter).
               </p>
+
 
               <ul className="mt-6 space-y-2.5 text-base text-white/80">
                 {[
