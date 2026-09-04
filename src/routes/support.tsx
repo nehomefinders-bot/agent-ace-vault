@@ -11,9 +11,9 @@ export const Route = createFileRoute("/support")({
 function SupportPage() {
   const { subscription } = useSubscription();
   const isBeta = subscription?.price_id === "beta_monthly";
-  const feedbackSubject = encodeURIComponent("Founders' Program Feedback");
+  const feedbackSubject = encodeURIComponent("Agent Business Tracker Feedback");
   const feedbackBody = encodeURIComponent(
-    `Hi team,\n\nHere's my feedback from the Founders' Program:\n\nWhat worked well:\n- \n\nWhat didn't / bugs:\n- \n\nFeature requests:\n- \n\nThanks!`
+    `Hi team,\n\nHere's my feedback:\n\nWhat worked well:\n- \n\nWhat didn't / bugs:\n- \n\nFeature requests:\n- \n\nThanks!`
   );
 
 
@@ -93,11 +93,11 @@ function SupportPage() {
             <MessageSquareHeart className="h-5 w-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="font-display font-bold text-xl">Founders' Program feedback</h2>
+            <h2 className="font-display font-bold text-xl">Product feedback</h2>
             <p className="text-sm text-muted-foreground mt-1">
               {isBeta
-                ? "Thanks for being part of the Founders' Program. Send bugs, ideas, or anything that felt off and help shape the product."
-                : "Are you on the Founders' Program plan? Send us bugs, ideas, or anything that felt off and help shape the product."}
+                ? "Thanks for being part of Agent Business Tracker. Send bugs, ideas, or anything that felt off and help shape the product."
+                : "Send us bugs, ideas, or anything that felt off and help shape the product."}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <a
@@ -110,7 +110,7 @@ function SupportPage() {
                 to="/pricing"
                 className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium hover:bg-muted"
               >
-                {isBeta ? "Switch to a regular plan" : "View Founders' Program plan"}
+                {isBeta ? "Switch to a regular plan" : "View plans"}
               </Link>
             </div>
           </div>

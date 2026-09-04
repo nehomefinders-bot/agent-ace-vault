@@ -111,7 +111,7 @@ function BillingPage() {
             <CreditCard className="h-5 w-5 text-muted-foreground" />
           </div>
           <h3 className="font-display text-lg font-bold">No active subscription</h3>
-          <p className="text-sm text-muted-foreground mb-5 mt-1">Founders' Program — $10/month, every feature unlocked. Cancel anytime.</p>
+          <p className="text-sm text-muted-foreground mb-5 mt-1">Full access — $10/month, every feature unlocked. Cancel anytime.</p>
           <Link to="/pricing" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">
             View plans
           </Link>
@@ -138,7 +138,7 @@ function BillingPage() {
               <div className="mb-5 bg-primary/10 border border-primary/30 text-primary rounded-lg px-3 py-2.5 text-sm flex items-start gap-2">
                 <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" />
                 <div>
-                  <strong>Founders' Program active</strong> — every feature unlocked at $10/month, locked in for life.
+                  <strong>Subscription active</strong> — every feature unlocked at $10/month, locked in for life.
                 </div>
               </div>
             )}

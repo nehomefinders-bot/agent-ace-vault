@@ -146,7 +146,7 @@ function ThankYouPage() {
             </div>
             <h1 className="font-display text-2xl font-bold text-white">Success! Account Activated</h1>
             <p className="mt-3 text-sm text-white/70">
-              Your Founders' Program access is live. Welcome to Endless Prospects — every feature is
+              Your full access is live. Welcome to Endless Prospects — every feature is
               unlocked and ready to go.
             </p>
             <button

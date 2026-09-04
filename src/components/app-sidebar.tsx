@@ -130,7 +130,7 @@ export function AppSidebar() {
           p.monthly.priceId === subscription.price_id || p.yearly.priceId === subscription.price_id,
       )
     : null;
-  const planName = currentPlan?.name ?? "Founders Program";
+  const planName = currentPlan?.name ?? "14-Day Free Trial";
   const status = subscription?.status ?? null;
   const cancelAtEnd = subscription?.cancel_at_period_end ?? false;
   const periodEndLabel = subscription?.current_period_end

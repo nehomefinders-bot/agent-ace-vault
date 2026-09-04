@@ -75,7 +75,7 @@ function PricingPage() {
         <div className="mx-auto mb-6 max-w-md rounded-2xl border border-success/30 bg-success/10 px-5 py-4 text-sm text-success flex items-start gap-3">
           <Check className="h-5 w-5 mt-0.5 shrink-0" />
           <div>
-            <div className="font-semibold text-foreground">You're already subscribed to the Founders Program.</div>
+            <div className="font-semibold text-foreground">You're already subscribed.</div>
             <div className="mt-1 text-muted-foreground">Thank you for being an early partner!</div>
           </div>
         </div>
@@ -97,7 +97,7 @@ function PricingPage() {
           </div>
 
           <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
-            The Founders Program entry window is open for{" "}
+            The early-access entry window is open for{" "}
             <span className="font-semibold text-foreground">6 months only</span>. Members who join today lock in the{" "}
             <span className="font-semibold text-foreground">$10/month</span> price for life and avoid the future standard base plan rate of{" "}
             <span className="font-semibold text-foreground">$19.99/month</span>.
