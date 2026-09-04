@@ -14,7 +14,7 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Pricing - Agent Business Tracker" },
-      { name: "description", content: "One simple plan — $10/month, every feature unlocked. Cancel anytime." },
+      { name: "description", content: "Start free for 14 days, then $19.99/month for 6 months. Cancel anytime." },
     ],
   }),
 });
@@ -91,17 +91,19 @@ function PricingPage() {
           <div className="font-display text-2xl font-bold text-foreground">{plan.name}</div>
           <div className="mt-1 mb-6 text-sm text-muted-foreground">{plan.tagline}</div>
 
-          <div className="mb-4 flex items-baseline gap-1">
-            <span className="font-display text-5xl font-bold tabular-nums text-foreground">$10</span>
-            <span className="text-sm text-muted-foreground">/month</span>
+          <div className="mb-1 flex items-baseline gap-1">
+            <span className="font-display text-5xl font-bold tabular-nums text-foreground">$19.99</span>
+            <span className="text-sm text-muted-foreground">/month for 6 months</span>
           </div>
+          <div className="mb-4 text-sm text-muted-foreground">(Then $27.99/month thereafter)</div>
 
           <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
-            The early-access entry window is open for{" "}
-            <span className="font-semibold text-foreground">6 months only</span>. Members who join today lock in the{" "}
-            <span className="font-semibold text-foreground">$10/month</span> price for life and avoid the future standard base plan rate of{" "}
-            <span className="font-semibold text-foreground">$19.99/month</span>.
+            Start with full access for 14 days free—no credit card required. After your trial, enjoy
+            our special introductory rate of just{" "}
+            <span className="font-semibold text-foreground">$19.99/month</span> for your first 6
+            months (standard rate $27.99/month thereafter).
           </p>
+
 
           <button
             type="button"
@@ -114,7 +116,7 @@ function PricingPage() {
                 : "inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#0b2545] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#134074] shadow-md cursor-pointer"
             }
           >
-            {isSubscribed ? "Already Subscribed" : subscription ? "Resubscribe" : "Subscribe — $10/month"}
+            {isSubscribed ? "Already Subscribed" : subscription ? "Resubscribe" : "Start 14-Day Free Trial"}
           </button>
 
           <ul className="mt-6 space-y-2.5">

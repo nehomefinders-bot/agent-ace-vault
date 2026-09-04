@@ -58,11 +58,10 @@ export const Route = createFileRoute("/landing")({
 const tiers = [
   {
     name: "Full Access",
-    price: 10,
-    blurb: "Start with 14 days free. Then just $10/month, locked in for life.",
+    blurb: "Start with 14 days free. Then just $19.99/month for 6 months.",
     features: [
       "All features unlocked from day one",
-      "Just $10/month — locked in for life",
+      "Introductory rate: $19.99/mo for first 6 months",
       "Direct line to the team",
       "Priority bug-fix turnaround",
       "Help shape the product roadmap",
@@ -72,6 +71,7 @@ const tiers = [
     badge: "Best Value",
   },
 ];
+
 
 const features = [
   {
@@ -95,7 +95,7 @@ const features = [
   {
     icon: ShieldCheck,
     title: "Simple pricing",
-    body: "Lock in $10/month for life. Cancel anytime from your billing page.",
+    body: "$19.99/month for your first 6 months. Cancel anytime from your billing page.",
     glow: "from-white via-[#e8f5ee] to-[#4d7c5f]",
   },
 ];
@@ -298,17 +298,18 @@ function Landing() {
                 <Sparkles className="h-3.5 w-3.5" /> Limited Seats Available
               </div>
               <h2 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl">
-                Get in early.{" "}
+                Start your 14-day free trial.{" "}
                 <span className="bg-gradient-to-r from-[#fff0a8] via-[#e4be47] to-[#b88918] bg-clip-text text-transparent">
-                  Lock in founder pricing.
+                  Lock in introductory pricing.
                 </span>
               </h2>
               <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/80">
-                The early-access entry window is open for{" "}
-                <span className="font-semibold text-[#f0cf6a]">6 months only</span>. Members who join today lock in the{" "}
-                <span className="font-semibold text-[#f0cf6a]">$10/month</span> price for life and avoid the future standard base plan rate of{" "}
-                <span className="font-semibold text-white">$19.99/month</span>.
+                Start with full access for 14 days free—no credit card required. After your trial,
+                enjoy our special introductory rate of just{" "}
+                <span className="font-semibold text-[#f0cf6a]">$19.99/month</span> for your first 6
+                months (standard rate $27.99/month thereafter).
               </p>
+
 
               <ul className="mt-6 space-y-2.5 text-base text-white/80">
                 {[
@@ -369,13 +370,14 @@ function Landing() {
                   </div>
                   <div className="mt-2 flex items-baseline gap-2">
                     <span className="font-display text-5xl font-bold tabular-nums text-white">
-                      $10
+                      $19.99
                     </span>
-                    <span className="text-sm text-white/55">/month — locked in for life</span>
+                    <span className="text-sm text-white/55">/month for 6 months</span>
                   </div>
                   <div className="mt-2 text-xs text-white/45">
-                    Every feature unlocked. Cancel anytime.
+                    then $27.99/mo. Cancel anytime.
                   </div>
+
 
                   <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
                     <div className="h-full w-[24%] rounded-full bg-gradient-to-r from-[#d4af37] to-[#fff0a8]" />
@@ -390,7 +392,7 @@ function Landing() {
                     { l: "Features", v: "All Pro" },
                     { l: "Updates", v: "Priority" },
                     { l: "Support", v: "Priority" },
-                    { l: "Lock-in", v: "For life" },
+                    { l: "Intro rate", v: "6 Months" },
                   ].map((k) => (
                     <div
                       key={k.l}
@@ -441,22 +443,25 @@ function Landing() {
               <h2 className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">
                 Ready to track your Real Estate Business?
               </h2>
-              <button
-                type="button"
-                onClick={handleFounderAccessClick}
-                disabled={isFounderCheckoutLoading}
-                className="inline-flex items-center justify-center rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_28px_-14px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f] disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {isFounderCheckoutLoading ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Opening Stripe...
-                  </span>
-                ) : (
-                  "Start 14-Day Free Trial"
-                )}
-              </button>
-              <p className="mt-3 text-sm text-white/60">No credit card required upfront.</p>
+              <div className="flex flex-col items-center gap-2 sm:items-end">
+                <button
+                  type="button"
+                  onClick={handleFounderAccessClick}
+                  disabled={isFounderCheckoutLoading}
+                  className="inline-flex items-center justify-center rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_28px_-14px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f] disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isFounderCheckoutLoading ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Opening Stripe...
+                    </span>
+                  ) : (
+                    "Start 14-Day Free Trial"
+                  )}
+                </button>
+                <p className="text-sm font-medium text-[#0B1424]/70">No credit card required upfront.</p>
+              </div>
+
             </div>
           </div>
         </div>
@@ -617,12 +622,14 @@ function Landing() {
                       <span>{tier.name}</span>
                     </div>
                     <div className="mt-1 mb-5 text-base text-slate-600">{tier.blurb}</div>
-                    <div className="mb-6 flex items-baseline gap-1">
+                    <div className="mb-1 flex items-baseline gap-1">
                       <div className="font-display text-5xl font-bold tabular-nums text-[#8f6b12]">
-                        ${tier.price}
+                        $19.99
                       </div>
-                      <div className="text-base text-slate-500">/month</div>
+                      <div className="text-base text-slate-500">/month for 6 months</div>
                     </div>
+                    <div className="mb-6 text-sm text-slate-500">(Then $27.99/month thereafter)</div>
+
                   </div>
                   <div>
                     <button
