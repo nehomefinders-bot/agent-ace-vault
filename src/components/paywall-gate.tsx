@@ -4,7 +4,9 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useSubscription } from "@/hooks/use-subscription";
-import { FoundersPaywallCard } from "@/components/founders-paywall-card";
+import { TrialExpiredModal } from "@/components/trial-expired-modal";
+
+const TRIAL_DAYS = 14;
 
 // Routes accessible without an active subscription.
 const PUBLIC_PATHS = [
