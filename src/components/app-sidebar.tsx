@@ -142,6 +142,9 @@ export function AppSidebar() {
   let statusLabel = "No plan";
   let statusDetail: string | null = null;
   const profileActive = profilePlan === "active" || profilePlan === "gifted";
+  const createdAt = user?.created_at ? new Date(user.created_at).getTime() : null;
+  const trialEndsAt = createdAt ? createdAt + 14 * 24 * 60 * 60 * 1000 : null;
+  const trialActive = !!trialEndsAt && Date.now() < trialEndsAt && !status && !profileActive;
 
   if (user) {
     if (status === "trialing") {
@@ -180,6 +183,10 @@ export function AppSidebar() {
     } else if (isActive || profileActive) {
       statusTone = "emerald";
       statusLabel = "Active";
+    } else if (trialActive) {
+      statusTone = "emerald";
+      statusLabel = "Trial";
+      statusDetail = trialEndsAt ? `Ends ${new Date(trialEndsAt).toLocaleDateString()}` : null;
     }
   }
 
@@ -190,7 +197,7 @@ export function AppSidebar() {
     slate: { dot: "bg-slate-500", text: "text-sidebar-foreground/70" },
   };
   const tone = toneClasses[statusTone];
-  const showPlanLine = !!user && (status !== null || isActive || profileActive);
+  const showPlanLine = !!user && (status !== null || isActive || profileActive || trialActive);
 
   const isMlsUser = user?.email?.trim().toLowerCase() === MLS_ALLOWED_EMAIL;
   const visibleSections = sections.map((section) => {
