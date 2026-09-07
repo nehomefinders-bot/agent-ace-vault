@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { ExternalLink } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 
@@ -23,6 +24,10 @@ export const Route = createFileRoute("/pocket-broker-test")({
 });
 
 function PocketBrokerPage() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <PageShell
       title="Pocket Broker"
