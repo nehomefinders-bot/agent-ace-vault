@@ -88,15 +88,12 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // TEMPORARY TEST OVERRIDE — restore the commented lines to revert.
-  // const subscribed = isActive || profilePlan === "active" || profilePlan === "gifted";
-  const subscribed = false;
+  const subscribed = isActive || profilePlan === "active" || profilePlan === "gifted";
 
   // 14-day free trial measured from account creation.
-  // const createdAt = user.created_at ? new Date(user.created_at).getTime() : null;
-  // const trialEndsAt = createdAt ? createdAt + TRIAL_DAYS * 24 * 60 * 60 * 1000 : null;
-  // const trialActive = !!trialEndsAt && Date.now() < trialEndsAt;
-  const trialActive = false;
+  const createdAt = user.created_at ? new Date(user.created_at).getTime() : null;
+  const trialEndsAt = createdAt ? createdAt + TRIAL_DAYS * 24 * 60 * 60 * 1000 : null;
+  const trialActive = !!trialEndsAt && Date.now() < trialEndsAt;
 
   if (subscribed || trialActive) return <>{children}</>;
 
