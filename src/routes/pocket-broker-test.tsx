@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { ExternalLink } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 
