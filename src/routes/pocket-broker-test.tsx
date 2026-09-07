@@ -44,12 +44,12 @@ function PocketBrokerPage() {
         </a>
       }
     >
-      <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm sm:rounded-3xl">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm sm:rounded-3xl">
         <iframe
           src="https://app.endlessprospects.org/"
           title="Pocket Broker"
           allow="clipboard-write; microphone; camera"
-          className="h-full w-full min-h-[750px] rounded-lg border-0 bg-white"
+          className="h-[calc(100dvh-14rem)] min-h-[480px] w-full flex-1 rounded-lg border-0 bg-white lg:h-full"
         />
       </div>
     </PageShell>
