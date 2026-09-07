@@ -24,6 +24,10 @@ export const Route = createFileRoute("/pocket-broker-test")({
 });
 
 function PocketBrokerPage() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <PageShell
       title="Pocket Broker"
