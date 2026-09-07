@@ -88,7 +88,10 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const subscribed = isActive || profilePlan === "active" || profilePlan === "gifted";
+  // Owner account always has permanent access.
+  const isOwner = (user.email ?? "").toLowerCase() === OWNER_EMAIL;
+
+  const subscribed = isOwner || isActive || profilePlan === "active" || profilePlan === "gifted";
 
   // 14-day free trial measured from account creation.
   const createdAt = user.created_at ? new Date(user.created_at).getTime() : null;
