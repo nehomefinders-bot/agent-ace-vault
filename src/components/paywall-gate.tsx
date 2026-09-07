@@ -7,6 +7,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { TrialExpiredModal } from "@/components/trial-expired-modal";
 
 const TRIAL_DAYS = 14;
+const OWNER_EMAIL = "nehomefinders@gmail.com";
 
 // Routes accessible without an active subscription.
 const PUBLIC_PATHS = [
@@ -88,7 +89,10 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const subscribed = isActive || profilePlan === "active" || profilePlan === "gifted";
+  // Owner account always has permanent access.
+  const isOwner = (user.email ?? "").toLowerCase() === OWNER_EMAIL;
+
+  const subscribed = isOwner || isActive || profilePlan === "active" || profilePlan === "gifted";
 
   // 14-day free trial measured from account creation.
   const createdAt = user.created_at ? new Date(user.created_at).getTime() : null;
