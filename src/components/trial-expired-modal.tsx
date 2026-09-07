@@ -37,7 +37,9 @@ export function TrialExpiredModal() {
           today.
         </p>
         <a
-          href="#"
+          href="https://buy.stripe.com/dRm8wOcLSgQ8b1X2hV9AA05?prefilled_promo_code=FOUNDERS19"
+          target="_blank"
+          rel="noopener noreferrer"
           className="mt-7 inline-flex w-full items-center justify-center rounded-lg bg-[#d4af37] px-6 py-3 text-base font-bold text-slate-950 shadow-[0_16px_40px_-16px_rgba(212,175,55,0.8)] transition-colors hover:bg-[#c89e2f]"
         >
           Subscribe to Continue

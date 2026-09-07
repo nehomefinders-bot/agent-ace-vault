@@ -98,6 +98,4 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
   if (subscribed || trialActive) return <>{children}</>;
 
   return <TrialExpiredModal />;
-
-  return <>{children}</>;
 }
