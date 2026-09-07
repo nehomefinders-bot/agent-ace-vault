@@ -135,9 +135,19 @@ function AiAssistantPage() {
   }, [authLoading, user, refreshSessions]);
 
 
+  // Always land at the top of the page on first load.
   useEffect(() => {
-    feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, loading]);
+    window.scrollTo(0, 0);
+  }, []);
+
+  // Only scroll the chat feed itself, and only when a message is added/removed.
+  const messageCount = messages.length;
+  useEffect(() => {
+    if (messageCount === 0) return;
+    const feed = feedRef.current;
+    if (!feed) return;
+    feed.scrollTop = feed.scrollHeight;
+  }, [messageCount]);
 
   async function openSession(id: string) {
     setActiveId(id);
