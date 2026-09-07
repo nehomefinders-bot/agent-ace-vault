@@ -219,7 +219,7 @@ export function AppSidebar() {
           variant="dark"
           badge
           showTagline={false}
-          logoClassName="h-auto w-36"
+          logoClassName="h-16 w-auto"
           titleClassName="truncate text-base"
           taglineClassName="text-xs"
           textClassName="max-w-[min(12rem,calc(100vw-8rem))]"
@@ -344,7 +344,7 @@ export function AppSidebar() {
           variant="dark"
           badge
           showTagline={false}
-          logoClassName="h-auto w-28"
+          logoClassName="h-11 w-auto"
           titleClassName="truncate text-base"
           taglineClassName="text-[9px]"
           textClassName="max-w-[min(10rem,calc(100vw-9rem))]"
