@@ -7,6 +7,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { TrialExpiredModal } from "@/components/trial-expired-modal";
 
 const TRIAL_DAYS = 14;
+const OWNER_EMAIL = "nehomefinders@gmail.com";
 
 // Routes accessible without an active subscription.
 const PUBLIC_PATHS = [
