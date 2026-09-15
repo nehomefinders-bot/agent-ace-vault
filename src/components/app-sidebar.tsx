@@ -76,6 +76,8 @@ const sections = [
 ] as { label: string; items: { to: string; label: string; icon: typeof LayoutDashboard }[] }[];
 
 const MLS_ALLOWED_EMAIL = "nehomefinders@gmail.com";
+const ADMIN_EMAIL = "qa.tester@endlessprospects.org";
+const ADMIN_ITEM = { to: "/admin", label: "Admin Portal", icon: Shield } as const;
 const MLS_ITEM = { to: "/mls-listings", label: "MLS Listings", icon: Building2 } as const;
 const DOTLOOP_ITEM = { to: "/dotloop", label: "Dotloop Workspace", icon: Workflow } as const;
 
@@ -200,12 +202,18 @@ export function AppSidebar() {
   const showPlanLine = !!user && (status !== null || isActive || profileActive || trialActive);
 
   const isMlsUser = user?.email?.trim().toLowerCase() === MLS_ALLOWED_EMAIL;
+  const isAdminUser = user?.email?.trim().toLowerCase() === ADMIN_EMAIL;
   const visibleSections = sections.map((section) => {
-    if (!isMlsUser || section.label !== "More") return section;
-    const items = [...section.items];
-    const dealsIdx = items.findIndex((i) => i.to === "/deals");
-    const insertAt = dealsIdx >= 0 ? dealsIdx + 1 : items.length;
-    items.splice(insertAt, 0, MLS_ITEM, DOTLOOP_ITEM);
+    let items = section.items;
+    if (isMlsUser && section.label === "More") {
+      items = [...items];
+      const dealsIdx = items.findIndex((i) => i.to === "/deals");
+      const insertAt = dealsIdx >= 0 ? dealsIdx + 1 : items.length;
+      items.splice(insertAt, 0, MLS_ITEM, DOTLOOP_ITEM);
+    }
+    if (isAdminUser && section.label === "Your Account Information") {
+      items = [...items, ADMIN_ITEM];
+    }
     return { ...section, items };
   });
 
