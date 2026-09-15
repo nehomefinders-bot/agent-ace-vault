@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ShieldCheck, Users, CreditCard, Search, Loader2 } from "lucide-react";
+import { Users, CreditCard, Search, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { getAdminUsers, type AdminUserRow } from "@/lib/admin.functions";
 import { PageShell } from "@/components/page-shell";

@@ -76,6 +76,8 @@ const sections = [
 ] as { label: string; items: { to: string; label: string; icon: typeof LayoutDashboard }[] }[];
 
 const MLS_ALLOWED_EMAIL = "nehomefinders@gmail.com";
+const ADMIN_EMAIL = "qa.tester@endlessprospects.org";
+const ADMIN_ITEM = { to: "/admin", label: "Admin Portal", icon: Shield } as const;
 const MLS_ITEM = { to: "/mls-listings", label: "MLS Listings", icon: Building2 } as const;
 const DOTLOOP_ITEM = { to: "/dotloop", label: "Dotloop Workspace", icon: Workflow } as const;
 
