@@ -202,12 +202,18 @@ export function AppSidebar() {
   const showPlanLine = !!user && (status !== null || isActive || profileActive || trialActive);
 
   const isMlsUser = user?.email?.trim().toLowerCase() === MLS_ALLOWED_EMAIL;
+  const isAdminUser = user?.email?.trim().toLowerCase() === ADMIN_EMAIL;
   const visibleSections = sections.map((section) => {
-    if (!isMlsUser || section.label !== "More") return section;
-    const items = [...section.items];
-    const dealsIdx = items.findIndex((i) => i.to === "/deals");
-    const insertAt = dealsIdx >= 0 ? dealsIdx + 1 : items.length;
-    items.splice(insertAt, 0, MLS_ITEM, DOTLOOP_ITEM);
+    let items = section.items;
+    if (isMlsUser && section.label === "More") {
+      items = [...items];
+      const dealsIdx = items.findIndex((i) => i.to === "/deals");
+      const insertAt = dealsIdx >= 0 ? dealsIdx + 1 : items.length;
+      items.splice(insertAt, 0, MLS_ITEM, DOTLOOP_ITEM);
+    }
+    if (isAdminUser && section.label === "Your Account Information") {
+      items = [...items, ADMIN_ITEM];
+    }
     return { ...section, items };
   });
 
