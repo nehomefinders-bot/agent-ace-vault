@@ -89,19 +89,8 @@ function AdminPage() {
   }
 
   return (
-    <PageShell>
-      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
-        <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#d99a26]/15 text-[#d99a26]">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Admin Portal</h1>
-            <p className="text-sm text-muted-foreground">
-              Sign-ups, trial windows and subscription status.
-            </p>
-          </div>
-        </div>
+    <PageShell title="Admin Portal" subtitle="Sign-ups, trial windows and subscription status.">
+      <div className="mx-auto w-full max-w-6xl">
 
         <div className="mb-6 grid gap-4 sm:grid-cols-2">
           <div className="rounded-xl border border-border bg-card p-5">
