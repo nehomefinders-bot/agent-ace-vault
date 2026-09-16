@@ -6,11 +6,10 @@ import { useAuth } from "@/hooks/use-auth";
 
 const POCKET_BROKER_BASE_URL = "https://app.endlessprospects.org/";
 
-function buildPocketBrokerUrl(userEmail?: string | null, userId?: string | null): string {
+function buildPocketBrokerUrl(userEmail?: string | null): string {
   const params = new URLSearchParams({ source: "abt" });
-  if (userEmail) params.set("user_email", userEmail);
-  if (userId) params.set("user_id", userId);
-  return `${POCKET_BROKER_BASE_URL}?${params.toString()}`;
+  if (userEmail) params.set("email", userEmail);
+  return `https://app.endlessprospects.org/?${params.toString()}`;
 }
 
 export const Route = createFileRoute("/pocket-broker-test")({
