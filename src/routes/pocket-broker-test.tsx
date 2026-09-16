@@ -2,6 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { ExternalLink } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
+import { useAuth } from "@/hooks/use-auth";
+
+const POCKET_BROKER_BASE_URL = "https://app.endlessprospects.org/";
+
+function buildPocketBrokerUrl(userEmail?: string | null, userId?: string | null): string {
+  const params = new URLSearchParams({ source: "abt" });
+  if (userEmail) params.set("user_email", userEmail);
+  if (userId) params.set("user_id", userId);
+  return `${POCKET_BROKER_BASE_URL}?${params.toString()}`;
+}
 
 export const Route = createFileRoute("/pocket-broker-test")({
   head: () => ({
@@ -24,6 +34,9 @@ export const Route = createFileRoute("/pocket-broker-test")({
 });
 
 function PocketBrokerPage() {
+  const { user } = useAuth();
+  const brokerUrl = buildPocketBrokerUrl(user?.email, user?.id);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -34,7 +47,7 @@ function PocketBrokerPage() {
       fullHeight
       actions={
         <a
-          href="https://app.endlessprospects.org/"
+          href={brokerUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-muted"
@@ -46,7 +59,7 @@ function PocketBrokerPage() {
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm sm:rounded-3xl">
         <iframe
-          src="https://app.endlessprospects.org/"
+          src={brokerUrl}
           title="Pocket Broker"
           allow="clipboard-write; microphone; camera"
           className="h-[calc(100dvh-14rem)] min-h-[480px] w-full flex-1 rounded-lg border-0 bg-white lg:h-full"
