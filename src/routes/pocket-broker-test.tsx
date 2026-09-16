@@ -34,7 +34,7 @@ export const Route = createFileRoute("/pocket-broker-test")({
 
 function PocketBrokerPage() {
   const { user } = useAuth();
-  const brokerUrl = buildPocketBrokerUrl(user?.email, user?.id);
+  const brokerUrl = buildPocketBrokerUrl(user?.email);
 
   useEffect(() => {
     window.scrollTo(0, 0);
