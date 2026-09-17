@@ -486,9 +486,9 @@ function Landing() {
           className="pointer-events-none absolute -bottom-32 -left-24 h-96 w-96 rounded-full bg-secondary/20 blur-[130px]"
           aria-hidden
         />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 py-20 sm:px-6 sm:py-24 md:grid-cols-[0.92fr_1.08fr] lg:gap-20">
-          <Reveal direction="left">
-            <div>
+        <div className="relative mx-auto max-w-7xl px-5 py-20 sm:px-6 sm:py-24">
+          <Reveal>
+            <div className="mx-auto max-w-3xl text-center">
               <div className="inline-flex items-center gap-2 rounded-full border border-spotlight-gold bg-spotlight-gold/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-spotlight-gold-soft shadow-[0_0_24px_-5px_var(--color-spotlight-gold)]">
                 <Sparkles className="h-3.5 w-3.5 text-spotlight-gold" />
                 Included Free With Your Membership
@@ -499,118 +499,142 @@ function Landing() {
                   One Simple Subscription.
                 </span>
               </h2>
-              <p className="mt-4 max-w-xl text-lg leading-relaxed text-spotlight-copy">
+              <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-spotlight-copy">
                 Stop paying for standalone AI coaching tools. Agent Business Tracker comes with
                 complete, unlocked access to Pocket Broker&trade; — your 24/7 AI mentor and call
                 script simulator.
               </p>
+            </div>
+          </Reveal>
 
-              <div className="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {[
-                  {
-                    icon: PhoneCall,
-                    title: "Role Playing & Call Scripts",
-                    body: "Practice closing deals and handling pushback safely.",
-                  },
-                  {
-                    icon: MessageSquareText,
-                    title: "Live AI Client Practice",
-                    body: "Simulate tough conversations with a live AI client.",
-                  },
-                  {
-                    icon: ShieldCheck,
-                    title: "A Safe Place to Rehearse",
-                    body: "Master your delivery before you ever pick up the phone.",
-                  },
-                  {
-                    icon: Sparkles,
-                    title: "Close With Confidence",
-                    body: "Build sharper responses for objections, negotiations, and follow-up calls.",
-                  },
-                ].map((f) => (
+          {/* Devices — side by side, never overlapping */}
+          <Reveal delay={120}>
+            <div className="mt-14 grid grid-cols-1 items-center gap-12 sm:mt-16 lg:grid-cols-12 lg:gap-16">
+              {/* Laptop mockup — left column */}
+              <div className="lg:col-span-7">
+                <div className="relative isolate mx-auto w-full max-w-2xl">
                   <div
-                    key={f.title}
-                    className="rounded-2xl border border-spotlight-gold/20 bg-spotlight-elevated/75 p-4 shadow-card backdrop-blur-sm transition-colors duration-200 hover:border-spotlight-gold/60"
-                  >
-                    <div className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-lg bg-spotlight-gold shadow-card">
-                      <f.icon className="h-4.5 w-4.5 text-spotlight" strokeWidth={2.4} />
+                    className="pointer-events-none absolute -inset-12 -z-10 rounded-full bg-[radial-gradient(closest-side,oklch(72%_0.13_75/0.12),transparent_72%)] blur-2xl"
+                    aria-hidden
+                  />
+                  <div className="relative">
+                    <div className="relative overflow-hidden rounded-[0.7rem] border border-spotlight-highlight/10 bg-spotlight-chassis p-1.5 shadow-spotlight-device sm:rounded-[0.9rem] sm:p-2">
+                      <div className="absolute left-1/2 top-0.5 z-10 h-1.5 w-1.5 -translate-x-1/2 rounded-full border border-spotlight-highlight/10 bg-spotlight-camera shadow-inner" aria-hidden />
+                      <div className="overflow-hidden rounded-[0.4rem] bg-spotlight-frame sm:rounded-[0.55rem]">
+                        <img
+                          src={pocketBrokerInterface.url}
+                          alt="Pocket Broker AI mentor interface showing chat, practice, and role playing tools"
+                          className="block h-auto w-full object-contain"
+                        />
+                      </div>
                     </div>
-                    <div className="font-display text-base font-bold text-foreground">{f.title}</div>
-                    <div className="mt-1 text-sm leading-relaxed text-spotlight-copy">{f.body}</div>
+                    <div className="relative mx-auto h-2.5 w-[104%] -translate-x-[2%] rounded-b-[45%] bg-spotlight-base shadow-spotlight-base sm:h-3.5" aria-hidden>
+                      <div className="absolute left-1/2 top-0 h-1 w-16 -translate-x-1/2 rounded-b-md bg-spotlight-indent sm:w-24" />
+                    </div>
                   </div>
-                ))}
+                  <div className="mt-6 text-center text-[11px] font-semibold uppercase tracking-[0.3em] text-spotlight-copy/70">
+                    Complete Desktop Dashboard
+                  </div>
+                </div>
               </div>
 
+              {/* Phone mockup — right column */}
+              <div className="lg:col-span-5">
+                <div className="relative isolate mx-auto w-full max-w-[250px] sm:max-w-[280px]">
+                  <div
+                    className="pointer-events-none absolute -inset-10 -z-10 rounded-full bg-[radial-gradient(closest-side,oklch(72%_0.13_75/0.12),transparent_72%)] blur-2xl"
+                    aria-hidden
+                  />
+                  <div className="relative rounded-[2.2rem] border border-spotlight-highlight/10 bg-spotlight-chassis p-1.5 shadow-spotlight-phone sm:rounded-[2.4rem] sm:p-2">
+                    <div className="relative flex aspect-[9/19] flex-col overflow-hidden rounded-[1.8rem] bg-spotlight-phone font-ui sm:rounded-[2rem]">
+                      <div className="absolute left-1/2 top-1.5 z-20 h-2.5 w-10 -translate-x-1/2 rounded-full bg-spotlight-camera shadow-inner sm:h-3 sm:w-14" aria-hidden />
+
+                      <div className="flex items-center gap-1.5 border-b border-spotlight-highlight/10 bg-spotlight-phone-header px-2.5 pb-2 pt-5 sm:gap-2 sm:px-3.5 sm:pb-2.5 sm:pt-6">
+                        <div className="relative shrink-0">
+                          <img src={jackieAvatar.url} alt="" className="h-5 w-5 rounded-full object-cover ring-1 ring-spotlight-gold/40 sm:h-7 sm:w-7" />
+                          <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full border-2 border-spotlight-phone-header bg-spotlight-online sm:h-2.5 sm:w-2.5" />
+                        </div>
+                        <div className="min-w-0 text-[8px] font-semibold leading-tight text-spotlight-highlight sm:text-[10px]">
+                          Jackie · Practice Mode
+                          <span className="mt-0.5 block text-[6.5px] font-medium text-spotlight-online sm:text-[8px]">Online now</span>
+                        </div>
+                      </div>
+
+                      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden bg-spotlight-phone px-2.5 py-2.5 sm:gap-2.5 sm:px-3.5 sm:py-3">
+                        <div className="ml-auto max-w-[90%] rounded-2xl rounded-tr-sm bg-spotlight-user-bubble p-2 text-[7.5px] leading-snug text-spotlight-highlight sm:p-2.5 sm:text-[9px]">
+                          The seller says my 6% commission is too high. What do I say?
+                        </div>
+                        <div className="max-w-[94%] rounded-2xl rounded-tl-sm border border-spotlight-gold/30 bg-gradient-to-br from-spotlight-ai-bubble to-spotlight-elevated p-2 text-[7.5px] leading-snug text-spotlight-highlight sm:p-3 sm:text-[9px]">
+                          <span className="mb-1 block font-bold text-spotlight-gold-soft">Jackie</span>
+                          Let&apos;s isolate the objection. Say this: &apos;I understand completely. Is it the percentage itself that concerns you, or the total net amount you want to walk away with at closing?&apos;
+                        </div>
+                      </div>
+
+                      <div className="m-2.5 mt-0 flex h-7 shrink-0 items-center gap-1.5 rounded-full border border-spotlight-highlight/10 bg-spotlight-input px-2 text-[7.5px] text-spotlight-copy sm:m-3.5 sm:mt-0 sm:h-9 sm:px-2.5 sm:text-[8px]">
+                        <Mic className="h-2.5 w-2.5 shrink-0 text-spotlight-copy sm:h-3 sm:w-3" />
+                        <span className="truncate">Your response…</span>
+                        <span className="ml-auto flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-spotlight-gold sm:h-5 sm:w-5">
+                          <Send className="h-2 w-2 text-spotlight sm:h-2.5 sm:w-2.5" />
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-6 text-center text-[11px] font-semibold uppercase tracking-[0.3em] text-spotlight-copy/70">
+                    Live Roleplay Simulator
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal delay={120}>
+            <div className="mx-auto mt-16 grid max-w-5xl grid-cols-1 gap-4 sm:mt-20 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                {
+                  icon: PhoneCall,
+                  title: "Role Playing & Call Scripts",
+                  body: "Practice closing deals and handling pushback safely.",
+                },
+                {
+                  icon: MessageSquareText,
+                  title: "Live AI Client Practice",
+                  body: "Simulate tough conversations with a live AI client.",
+                },
+                {
+                  icon: ShieldCheck,
+                  title: "A Safe Place to Rehearse",
+                  body: "Master your delivery before you ever pick up the phone.",
+                },
+                {
+                  icon: Sparkles,
+                  title: "Close With Confidence",
+                  body: "Build sharper responses for objections, negotiations, and follow-up calls.",
+                },
+              ].map((f) => (
+                <div
+                  key={f.title}
+                  className="rounded-2xl border border-spotlight-gold/20 bg-spotlight-elevated/75 p-4 shadow-card backdrop-blur-sm transition-colors duration-200 hover:border-spotlight-gold/60"
+                >
+                  <div className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-lg bg-spotlight-gold shadow-card">
+                    <f.icon className="h-4.5 w-4.5 text-spotlight" strokeWidth={2.4} />
+                  </div>
+                  <div className="font-display text-base font-bold text-foreground">{f.title}</div>
+                  <div className="mt-1 text-sm leading-relaxed text-spotlight-copy">{f.body}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-12 text-center sm:mt-14">
               <button
                 type="button"
                 onClick={scrollToPricing}
-                className="group relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-spotlight-gold px-7 py-3.5 text-base font-bold text-spotlight shadow-elevated transition-all hover:-translate-y-0.5 hover:bg-spotlight-gold-soft"
+                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-spotlight-gold px-7 py-3.5 text-base font-bold text-spotlight shadow-elevated transition-all hover:-translate-y-0.5 hover:bg-spotlight-gold-soft"
               >
                 <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                 Start 14-Day Free Trial — Includes Pocket Broker
                 <ArrowRight className="h-4 w-4" />
               </button>
               <p className="mt-3 text-sm text-spotlight-copy">No credit card required upfront.</p>
-            </div>
-          </Reveal>
-
-          <Reveal direction="right" delay={150}>
-            <div className="relative isolate mx-auto w-full max-w-2xl pb-24 pr-5 sm:pb-28 sm:pr-10 lg:pb-32 lg:pr-14">
-              <div
-                className="pointer-events-none absolute -inset-8 -z-10 bg-gradient-to-tr from-spotlight-gold/10 via-spotlight-glow/10 to-transparent blur-3xl"
-                aria-hidden
-              />
-
-              <div className="relative">
-                <div className="relative overflow-hidden rounded-[0.7rem] border border-spotlight-highlight/10 bg-spotlight-chassis p-1.5 shadow-spotlight-device sm:rounded-[0.9rem] sm:p-2">
-                  <div className="absolute left-1/2 top-0.5 z-10 h-1.5 w-1.5 -translate-x-1/2 rounded-full border border-spotlight-highlight/10 bg-spotlight-camera shadow-inner" aria-hidden />
-                  <div className="overflow-hidden rounded-[0.4rem] bg-spotlight-frame sm:rounded-[0.55rem]">
-                    <img
-                      src={pocketBrokerInterface.url}
-                      alt="Pocket Broker AI mentor interface showing chat, practice, and role playing tools"
-                      className="block h-auto w-full object-contain"
-                    />
-                  </div>
-                </div>
-                <div className="relative mx-auto h-2.5 w-[104%] -translate-x-[2%] rounded-b-[45%] bg-spotlight-base shadow-spotlight-base sm:h-3.5" aria-hidden>
-                  <div className="absolute left-1/2 top-0 h-1 w-16 -translate-x-1/2 rounded-b-md bg-spotlight-indent sm:w-24" />
-                </div>
-              </div>
-
-              <div className="absolute bottom-0 right-0 w-[36%] max-w-52 rounded-[1.6rem] border border-spotlight-gold/20 bg-spotlight-chassis p-1 shadow-spotlight-phone sm:w-[34%] sm:rounded-[2rem] sm:p-1.5">
-                <div className="relative flex aspect-[9/18.5] min-h-0 flex-col overflow-hidden rounded-[1.3rem] bg-spotlight-phone font-ui sm:rounded-[1.65rem]">
-                  <div className="absolute left-1/2 top-1.5 z-20 h-2.5 w-10 -translate-x-1/2 rounded-full bg-spotlight-camera shadow-inner sm:h-3 sm:w-14" aria-hidden />
-
-                  <div className="flex items-center gap-1.5 border-b border-spotlight-highlight/10 bg-spotlight-phone-header px-2 pb-2 pt-5 sm:gap-2 sm:px-3 sm:pb-2.5 sm:pt-6">
-                    <div className="relative shrink-0">
-                      <img src={jackieAvatar.url} alt="" className="h-5 w-5 rounded-full object-cover ring-1 ring-spotlight-gold/40 sm:h-7 sm:w-7" />
-                      <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full border-2 border-spotlight-phone-header bg-spotlight-online sm:h-2.5 sm:w-2.5" />
-                    </div>
-                    <div className="min-w-0 text-[7px] font-semibold leading-tight text-spotlight-highlight sm:text-[9px] lg:text-[10px]">
-                      Jackie · Roleplay Practice
-                      <span className="mt-0.5 block text-[6px] font-medium text-spotlight-online sm:text-[8px]">Online now</span>
-                    </div>
-                  </div>
-
-                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden bg-spotlight-phone px-2 py-2 sm:gap-2.5 sm:px-3 sm:py-3">
-                    <div className="ml-auto max-w-[90%] rounded-2xl rounded-tr-sm bg-spotlight-user-bubble p-2 text-[7px] leading-snug text-spotlight-highlight sm:p-2.5 sm:text-[9px] lg:text-[10px]">
-                      The seller says my 6% commission is too high. What do I say?
-                    </div>
-                    <div className="max-w-[94%] rounded-2xl rounded-tl-sm border border-spotlight-gold/30 bg-gradient-to-br from-spotlight-ai-bubble to-spotlight-elevated p-2 text-[7px] leading-snug text-spotlight-highlight sm:p-3 sm:text-[9px] lg:text-[10px]">
-                      <span className="mb-1 block font-bold text-spotlight-gold-soft">Jackie</span>
-                      Let&apos;s isolate the objection. Say this: &apos;I understand completely. Is it the percentage itself that concerns you, or the total net amount you want to walk away with at closing?&apos;
-                    </div>
-                  </div>
-
-                  <div className="m-2 mt-0 flex h-7 shrink-0 items-center gap-1.5 rounded-full border border-spotlight-highlight/10 bg-spotlight-input px-2 text-[7px] text-spotlight-copy sm:m-3 sm:mt-0 sm:h-9 sm:px-2.5 sm:text-[8px]">
-                    <Mic className="h-2.5 w-2.5 shrink-0 text-spotlight-copy sm:h-3 sm:w-3" />
-                    <span className="truncate">Your response…</span>
-                    <span className="ml-auto flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-spotlight-gold sm:h-5 sm:w-5">
-                      <Send className="h-2 w-2 text-spotlight sm:h-2.5 sm:w-2.5" />
-                    </span>
-                  </div>
-                </div>
-              </div>
             </div>
           </Reveal>
         </div>
