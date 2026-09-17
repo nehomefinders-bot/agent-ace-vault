@@ -18,7 +18,11 @@ import {
   Loader2,
   Copy,
   Mail,
+  MessageSquareText,
+  PhoneCall,
+  PiggyBank,
 } from "lucide-react";
+import jackieAvatar from "@/assets/jackie-avatar.jpg.asset.json";
 import {
   Dialog,
   DialogContent,
@@ -781,6 +785,11 @@ function Landing() {
                       <div className="text-base text-slate-500">/month for 6 months</div>
                     </div>
                     <div className="mb-6 text-sm text-slate-500">(Then $27.99/month thereafter)</div>
+                    <div className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-[#1E4D49]/25 bg-[#4E9A94]/15 px-3 py-1.5 text-xs font-semibold text-[#1E4D49]">
+                      <Sparkles className="h-3.5 w-3.5 text-[#C9973A]" />
+                      Includes Pocket Broker Standalone Access ($0 extra)
+                    </div>
+
 
                   </div>
                   <div>
