@@ -625,15 +625,14 @@ function Landing() {
             </div>
 
             <div className="mt-12 text-center sm:mt-14">
-              <button
-                type="button"
-                onClick={scrollToPricing}
-                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-spotlight-gold px-7 py-3.5 text-base font-bold text-spotlight shadow-elevated transition-all hover:-translate-y-0.5 hover:bg-spotlight-gold-soft"
+              <Link
+                to="/signup"
+                className="group relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-spotlight-gold px-7 py-3.5 text-base font-bold text-spotlight shadow-elevated transition-all hover:-translate-y-0.5 hover:bg-spotlight-gold-soft"
               >
                 <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                 Start 14-Day Free Trial — Includes Pocket Broker
                 <ArrowRight className="h-4 w-4" />
-              </button>
+              </Link>
               <p className="mt-3 text-sm text-spotlight-copy">No credit card required upfront.</p>
             </div>
           </Reveal>
