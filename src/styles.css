@@ -56,6 +56,7 @@
   --color-spotlight: var(--spotlight);
   --color-spotlight-elevated: var(--spotlight-elevated);
   --color-spotlight-frame: var(--spotlight-frame);
+  --color-spotlight-screen: var(--spotlight-screen);
   --color-spotlight-gold: var(--spotlight-gold);
   --color-spotlight-gold-soft: var(--spotlight-gold-soft);
   --color-spotlight-copy: var(--spotlight-copy);
@@ -133,6 +134,7 @@
   --spotlight: oklch(17% 0.045 260);
   --spotlight-elevated: oklch(23% 0.05 258);
   --spotlight-frame: oklch(10% 0.025 258);
+  --spotlight-screen: #fbf9f5;
   --spotlight-gold: oklch(72% 0.13 75);
   --spotlight-gold-soft: oklch(88% 0.08 78);
   --spotlight-copy: oklch(86% 0.018 255);
