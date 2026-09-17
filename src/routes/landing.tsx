@@ -204,9 +204,8 @@ function Landing() {
   };
   const isFounderCheckoutLoading = false;
 
-  const scrollToPricing = () => {
-    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+
+
 
 
   return (
