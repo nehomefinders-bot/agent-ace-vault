@@ -198,6 +198,10 @@ function Landing() {
   };
   const isFounderCheckoutLoading = false;
 
+  const scrollToPricing = () => {
+    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
 
   return (
     <div className="dark min-h-dvh w-full overflow-x-hidden bg-slate-950 text-white">
@@ -464,6 +468,154 @@ function Landing() {
 
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden bg-[#1E4D49] text-white">
+        <div
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,#1E4D49_0%,#2A4643_55%,#1E4D49_100%)]"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute -top-28 -right-24 h-96 w-96 rounded-full bg-[#C9973A]/20 blur-[130px]"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute -bottom-32 -left-24 h-96 w-96 rounded-full bg-[#4E9A94]/25 blur-[130px]"
+          aria-hidden
+        />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.05fr_1fr] sm:py-24">
+          <Reveal direction="left">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#C9973A] bg-[#C9973A]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-[#f2d9a4] shadow-[0_0_0_1px_rgba(201,151,58,0.35),0_0_24px_-4px_rgba(201,151,58,0.75)]">
+                <Sparkles className="h-3.5 w-3.5 text-[#C9973A]" />
+                Included Free With Your Membership
+              </div>
+              <h2 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl">
+                Two Powerhouse Apps.{" "}
+                <span className="bg-gradient-to-r from-[#f5dfae] via-[#C9973A] to-[#a97e2e] bg-clip-text text-transparent">
+                  One Simple Subscription.
+                </span>
+              </h2>
+              <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/80">
+                Stop paying for standalone AI coaching tools. Agent Business Tracker comes with
+                complete, unlocked access to Pocket Broker&trade; — your 24/7 AI mentor and call
+                script simulator.
+              </p>
+
+              <div className="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {[
+                  {
+                    icon: MessageSquareText,
+                    title: "On-Demand Objection Handling",
+                    body: "Instant, paste-ready scripts for commission pushback, appraisal gaps, price reductions, and low offers.",
+                  },
+                  {
+                    icon: PhoneCall,
+                    title: "Interactive Call & Roleplay Simulator",
+                    body: "Practice live cold calls, FSBO conversions, and tough negotiations with an AI client before talking to real prospects.",
+                  },
+                  {
+                    icon: ShieldCheck,
+                    title: "State-Specific & Fair Housing Compliant",
+                    body: "Tailored scripts and transaction guidance that keep your business compliant and confident.",
+                  },
+                  {
+                    icon: PiggyBank,
+                    title: "Save on Standalone Fees",
+                    body: "Standalone visitors pay a separate monthly subscription at app.endlessprospects.org — as an Agent Business Tracker member, you get full access at $0 extra cost.",
+                  },
+                ].map((f) => (
+                  <div
+                    key={f.title}
+                    className="rounded-2xl border border-white/12 bg-white/[0.06] p-4 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-colors duration-200 hover:border-[#C9973A]/50"
+                  >
+                    <div className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#f5dfae] via-[#C9973A] to-[#a97e2e] shadow-[0_10px_22px_-8px_rgba(201,151,58,0.7)]">
+                      <f.icon className="h-4.5 w-4.5 text-[#1E4D49]" strokeWidth={2.4} />
+                    </div>
+                    <div className="font-display text-base font-bold text-white">{f.title}</div>
+                    <div className="mt-1 text-sm leading-relaxed text-white/70">{f.body}</div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={scrollToPricing}
+                className="group relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#f5dfae_0%,#C9973A_45%,#a97e2e_100%)] px-7 py-3.5 text-base font-bold text-[#12241f] shadow-[0_18px_50px_-12px_rgba(201,151,58,0.75)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-12px_rgba(201,151,58,0.9)]"
+              >
+                <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                Start 14-Day Free Trial — Includes Pocket Broker
+                <ArrowRight className="h-4 w-4" />
+              </button>
+              <p className="mt-3 text-sm text-white/60">No credit card required upfront.</p>
+            </div>
+          </Reveal>
+
+          <Reveal direction="right" delay={150}>
+            <div className="relative">
+              <div
+                className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-to-br from-[#C9973A]/30 via-white/5 to-[#4E9A94]/25 blur-3xl"
+                aria-hidden
+              />
+              <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-[#16302e]/85 p-5 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.7)] backdrop-blur-xl sm:p-6">
+                <div className="flex items-center justify-between">
+                  <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">
+                    Pocket Broker&trade; — Live Mentor
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#4E9A94] opacity-75" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-[#4E9A94]" />
+                    </span>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-[#8fd0ca]">
+                      Online
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-5 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-3.5">
+                  <img
+                    src={jackieAvatar.url}
+                    alt="Jackie Connolly"
+                    className="h-12 w-12 shrink-0 rounded-full border-2 border-[#C9973A]/60 object-cover"
+                  />
+                  <div className="min-w-0">
+                    <div className="truncate font-display text-base font-bold text-white">
+                      Jackie · Pocket Broker AI Mentor
+                    </div>
+                    <div className="text-xs text-white/55">
+                      Real estate coach · Scripts · Roleplay
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex justify-end">
+                  <div className="inline-flex max-w-[85%] items-center gap-2 rounded-2xl rounded-br-md bg-gradient-to-br from-[#C9973A] to-[#a97e2e] px-4 py-2.5 text-sm font-semibold text-[#12241f] shadow-[0_14px_30px_-14px_rgba(201,151,58,0.8)]">
+                    Handle "Your commission is too high"
+                  </div>
+                </div>
+
+                <div className="mt-4 flex justify-start">
+                  <div className="max-w-[92%] rounded-2xl rounded-bl-md border border-[#4E9A94]/30 bg-[#1E4D49]/90 px-4 py-3.5 text-sm leading-relaxed text-white/85 shadow-[0_18px_40px_-22px_rgba(0,0,0,0.65)]">
+                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.18em] text-[#8fd0ca]">
+                      Jackie's Coaching
+                    </span>
+                    Acknowledge their goal first: "I completely respect that you want to maximize
+                    your net proceeds. Let's look at what full-service representation actually puts
+                    in your pocket..."
+                  </div>
+                </div>
+
+                <div className="mt-5 flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.05] px-4 py-2.5">
+                  <span className="text-sm text-white/40">Ask Jackie anything…</span>
+                  <span className="ml-auto inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#C9973A]">
+                    <ArrowRight className="h-3.5 w-3.5 text-[#12241f]" />
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 
