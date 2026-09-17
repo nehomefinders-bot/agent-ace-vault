@@ -20,8 +20,11 @@ import {
   Mail,
   MessageSquareText,
   PhoneCall,
+  Mic,
+  Send,
 } from "lucide-react";
 import pocketBrokerInterface from "@/assets/pocket-broker-interface.png.asset.json";
+import jackieAvatar from "@/assets/jackie-avatar.jpg.asset.json";
 import {
   Dialog,
   DialogContent,
@@ -552,15 +555,16 @@ function Landing() {
           </Reveal>
 
           <Reveal direction="right" delay={150}>
-            <div className="relative mx-auto w-full max-w-2xl pb-28 pl-0 pr-10 sm:pb-32 sm:pr-16 md:pb-28 md:pr-10 lg:pb-32 lg:pr-16">
+            <div className="relative isolate mx-auto w-full max-w-2xl pb-24 pr-5 sm:pb-28 sm:pr-10 lg:pb-32 lg:pr-14">
               <div
-                className="absolute inset-4 -z-10 rounded-[2.5rem] bg-spotlight-gold/20 blur-3xl"
+                className="pointer-events-none absolute -inset-8 -z-10 bg-gradient-to-tr from-spotlight-gold/10 via-spotlight-glow/10 to-transparent blur-3xl"
                 aria-hidden
               />
+
               <div className="relative">
-                <div className="relative rounded-[1rem] border border-spotlight-gold/35 bg-spotlight-frame p-2 shadow-spotlight-device sm:rounded-[1.35rem] sm:p-3">
-                  <div className="absolute left-1/2 top-1 h-1 w-1 -translate-x-1/2 rounded-full bg-spotlight-copy/40 sm:top-1.5" aria-hidden />
-                  <div className="overflow-hidden rounded-[0.55rem] border border-spotlight-gold/15 bg-foreground sm:rounded-[0.85rem]">
+                <div className="relative overflow-hidden rounded-[0.7rem] border border-spotlight-highlight/10 bg-spotlight-chassis p-1.5 shadow-spotlight-device sm:rounded-[0.9rem] sm:p-2">
+                  <div className="absolute left-1/2 top-0.5 z-10 h-1.5 w-1.5 -translate-x-1/2 rounded-full border border-spotlight-highlight/10 bg-spotlight-camera shadow-inner" aria-hidden />
+                  <div className="overflow-hidden rounded-[0.4rem] bg-spotlight-frame sm:rounded-[0.55rem]">
                     <img
                       src={pocketBrokerInterface.url}
                       alt="Pocket Broker AI mentor interface showing chat, practice, and role playing tools"
@@ -568,29 +572,42 @@ function Landing() {
                     />
                   </div>
                 </div>
-                <div className="mx-auto h-2.5 w-[94%] rounded-b-[50%] bg-spotlight-copy/45 shadow-elevated sm:h-3.5" aria-hidden>
-                  <div className="mx-auto h-1 w-16 rounded-b-md bg-spotlight-frame/50 sm:w-24" />
+                <div className="relative mx-auto h-2.5 w-[104%] -translate-x-[2%] rounded-b-[45%] bg-spotlight-base shadow-spotlight-base sm:h-3.5" aria-hidden>
+                  <div className="absolute left-1/2 top-0 h-1 w-16 -translate-x-1/2 rounded-b-md bg-spotlight-indent sm:w-24" />
                 </div>
               </div>
 
-              <div className="absolute bottom-2 right-0 w-[46%] min-w-40 max-w-60 rounded-[1.75rem] border-4 border-spotlight-gold/40 bg-spotlight-frame p-1.5 shadow-spotlight-phone sm:bottom-0 sm:right-1 sm:rounded-[2.1rem] sm:border-[6px] sm:p-2">
-                <div className="mx-auto mb-1.5 h-1 w-12 rounded-full bg-spotlight-copy/35" aria-hidden />
-                <div className="overflow-hidden rounded-[1.25rem] bg-foreground sm:rounded-[1.45rem]">
-                  <div className="bg-spotlight px-2.5 py-2 text-center text-[9px] font-bold text-spotlight-gold-soft sm:text-[10px]">
-                    Jackie · Practice Mode
+              <div className="absolute bottom-0 right-0 w-[36%] max-w-52 rounded-[1.6rem] border border-spotlight-gold/20 bg-spotlight-chassis p-1 shadow-spotlight-phone sm:w-[34%] sm:rounded-[2rem] sm:p-1.5">
+                <div className="relative flex aspect-[9/18.5] min-h-0 flex-col overflow-hidden rounded-[1.3rem] bg-spotlight-phone font-ui sm:rounded-[1.65rem]">
+                  <div className="absolute left-1/2 top-1.5 z-20 h-2.5 w-10 -translate-x-1/2 rounded-full bg-spotlight-camera shadow-inner sm:h-3 sm:w-14" aria-hidden />
+
+                  <div className="flex items-center gap-1.5 border-b border-spotlight-highlight/10 bg-spotlight-phone-header px-2 pb-2 pt-5 sm:gap-2 sm:px-3 sm:pb-2.5 sm:pt-6">
+                    <div className="relative shrink-0">
+                      <img src={jackieAvatar.url} alt="" className="h-5 w-5 rounded-full object-cover ring-1 ring-spotlight-gold/40 sm:h-7 sm:w-7" />
+                      <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full border-2 border-spotlight-phone-header bg-spotlight-online sm:h-2.5 sm:w-2.5" />
+                    </div>
+                    <div className="min-w-0 text-[7px] font-semibold leading-tight text-spotlight-highlight sm:text-[9px] lg:text-[10px]">
+                      Jackie · Roleplay Practice
+                      <span className="mt-0.5 block text-[6px] font-medium text-spotlight-online sm:text-[8px]">Online now</span>
+                    </div>
                   </div>
-                  <div className="space-y-2 bg-muted p-2.5 sm:p-3">
-                    <div className="ml-auto max-w-[92%] rounded-xl rounded-br-sm border border-border bg-background px-2.5 py-2 text-[8px] leading-relaxed text-foreground sm:text-[10px]">
+
+                  <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden bg-spotlight-phone px-2 py-2 sm:gap-2.5 sm:px-3 sm:py-3">
+                    <div className="ml-auto max-w-[90%] rounded-2xl rounded-tr-sm bg-spotlight-user-bubble p-2 text-[7px] leading-snug text-spotlight-highlight sm:p-2.5 sm:text-[9px] lg:text-[10px]">
                       The seller says my 6% commission is too high. What do I say?
                     </div>
-                    <div className="max-w-[94%] rounded-xl rounded-bl-sm bg-spotlight px-2.5 py-2 text-[8px] leading-relaxed text-foreground sm:text-[10px]">
-                      <span className="mb-1 block font-bold text-spotlight-gold">AI Mentor</span>
+                    <div className="max-w-[94%] rounded-2xl rounded-tl-sm border border-spotlight-gold/30 bg-gradient-to-br from-spotlight-ai-bubble to-spotlight-elevated p-2 text-[7px] leading-snug text-spotlight-highlight sm:p-3 sm:text-[9px] lg:text-[10px]">
+                      <span className="mb-1 block font-bold text-spotlight-gold-soft">Jackie</span>
                       Let&apos;s isolate the objection. Say this: &apos;I understand completely. Is it the percentage itself that concerns you, or the total net amount you want to walk away with at closing?&apos;
                     </div>
-                    <div className="flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-1.5 text-[8px] text-muted-foreground sm:text-[9px]">
-                      Your response…
-                      <ArrowRight className="ml-auto h-3 w-3 text-spotlight-gold" />
-                    </div>
+                  </div>
+
+                  <div className="m-2 mt-0 flex h-7 shrink-0 items-center gap-1.5 rounded-full border border-spotlight-highlight/10 bg-spotlight-input px-2 text-[7px] text-spotlight-copy sm:m-3 sm:mt-0 sm:h-9 sm:px-2.5 sm:text-[8px]">
+                    <Mic className="h-2.5 w-2.5 shrink-0 text-spotlight-copy sm:h-3 sm:w-3" />
+                    <span className="truncate">Your response…</span>
+                    <span className="ml-auto flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-spotlight-gold sm:h-5 sm:w-5">
+                      <Send className="h-2 w-2 text-spotlight sm:h-2.5 sm:w-2.5" />
+                    </span>
                   </div>
                 </div>
               </div>

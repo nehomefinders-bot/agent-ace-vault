@@ -7,6 +7,7 @@
 @theme inline {
   --font-display: "Abhaya Libre", serif;
   --font-sans: "Abhaya Libre", serif;
+  --font-ui: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
@@ -58,11 +59,24 @@
   --color-spotlight-gold: var(--spotlight-gold);
   --color-spotlight-gold-soft: var(--spotlight-gold-soft);
   --color-spotlight-copy: var(--spotlight-copy);
+  --color-spotlight-chassis: var(--spotlight-chassis);
+  --color-spotlight-camera: var(--spotlight-camera);
+  --color-spotlight-base: var(--spotlight-base);
+  --color-spotlight-indent: var(--spotlight-indent);
+  --color-spotlight-highlight: var(--spotlight-highlight);
+  --color-spotlight-phone: var(--spotlight-phone);
+  --color-spotlight-phone-header: var(--spotlight-phone-header);
+  --color-spotlight-user-bubble: var(--spotlight-user-bubble);
+  --color-spotlight-ai-bubble: var(--spotlight-ai-bubble);
+  --color-spotlight-input: var(--spotlight-input);
+  --color-spotlight-online: var(--spotlight-online);
+  --color-spotlight-glow: var(--spotlight-glow);
 
   --shadow-card: 0 1px 2px oklch(20% 0.02 260 / 0.04), 0 4px 12px oklch(20% 0.02 260 / 0.04);
   --shadow-elevated: 0 8px 30px oklch(35% 0.08 260 / 0.1);
   --shadow-spotlight-device: 0 42px 85px -28px oklch(5% 0.03 260 / 0.92), 0 18px 42px -26px oklch(72% 0.13 75 / 0.45);
   --shadow-spotlight-phone: 0 34px 70px -18px oklch(4% 0.03 260 / 0.96);
+  --shadow-spotlight-base: 0 12px 22px -12px oklch(3% 0.02 260 / 0.9);
 }
 
 :root {
@@ -122,6 +136,18 @@
   --spotlight-gold: oklch(72% 0.13 75);
   --spotlight-gold-soft: oklch(88% 0.08 78);
   --spotlight-copy: oklch(86% 0.018 255);
+  --spotlight-chassis: oklch(22% 0.015 260);
+  --spotlight-camera: oklch(7% 0.012 260);
+  --spotlight-base: oklch(34% 0.018 255);
+  --spotlight-indent: oklch(18% 0.012 255);
+  --spotlight-highlight: oklch(98% 0.004 255);
+  --spotlight-phone: oklch(15% 0.025 250);
+  --spotlight-phone-header: oklch(12% 0.03 255);
+  --spotlight-user-bubble: oklch(98% 0.004 255 / 0.1);
+  --spotlight-ai-bubble: oklch(20% 0.035 235);
+  --spotlight-input: oklch(24% 0.025 250);
+  --spotlight-online: oklch(72% 0.19 150);
+  --spotlight-glow: oklch(68% 0.12 160);
 }
 
 .dark {
