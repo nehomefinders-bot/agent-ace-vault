@@ -474,33 +474,29 @@ function Landing() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-[#1E4D49] text-white">
+      <section className="relative overflow-hidden bg-spotlight text-foreground">
         <div
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,#1E4D49_0%,#2A4643_55%,#1E4D49_100%)]"
+          className="pointer-events-none absolute -top-28 -right-24 h-96 w-96 rounded-full bg-spotlight-gold/15 blur-[130px]"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute -top-28 -right-24 h-96 w-96 rounded-full bg-[#C9973A]/20 blur-[130px]"
+          className="pointer-events-none absolute -bottom-32 -left-24 h-96 w-96 rounded-full bg-secondary/20 blur-[130px]"
           aria-hidden
         />
-        <div
-          className="pointer-events-none absolute -bottom-32 -left-24 h-96 w-96 rounded-full bg-[#4E9A94]/25 blur-[130px]"
-          aria-hidden
-        />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.05fr_1fr] sm:py-24">
+        <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 py-20 sm:px-6 sm:py-24 md:grid-cols-[0.92fr_1.08fr] lg:gap-20">
           <Reveal direction="left">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#C9973A] bg-[#C9973A]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-[#f2d9a4] shadow-[0_0_0_1px_rgba(201,151,58,0.35),0_0_24px_-4px_rgba(201,151,58,0.75)]">
-                <Sparkles className="h-3.5 w-3.5 text-[#C9973A]" />
+              <div className="inline-flex items-center gap-2 rounded-full border border-spotlight-gold bg-spotlight-gold/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-spotlight-gold-soft shadow-[0_0_24px_-5px_var(--color-spotlight-gold)]">
+                <Sparkles className="h-3.5 w-3.5 text-spotlight-gold" />
                 Included Free With Your Membership
               </div>
-              <h2 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl">
+              <h2 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl">
                 Two Powerhouse Apps.{" "}
-                <span className="bg-gradient-to-r from-[#f5dfae] via-[#C9973A] to-[#a97e2e] bg-clip-text text-transparent">
+                <span className="text-spotlight-gold">
                   One Simple Subscription.
                 </span>
               </h2>
-              <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/80">
+              <p className="mt-4 max-w-xl text-lg leading-relaxed text-spotlight-copy">
                 Stop paying for standalone AI coaching tools. Agent Business Tracker comes with
                 complete, unlocked access to Pocket Broker&trade; — your 24/7 AI mentor and call
                 script simulator.
@@ -531,13 +527,13 @@ function Landing() {
                 ].map((f) => (
                   <div
                     key={f.title}
-                    className="rounded-2xl border border-white/12 bg-white/[0.06] p-4 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-colors duration-200 hover:border-[#C9973A]/50"
+                    className="rounded-2xl border border-spotlight-gold/20 bg-spotlight-elevated/75 p-4 shadow-card backdrop-blur-sm transition-colors duration-200 hover:border-spotlight-gold/60"
                   >
-                    <div className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#f5dfae] via-[#C9973A] to-[#a97e2e] shadow-[0_10px_22px_-8px_rgba(201,151,58,0.7)]">
-                      <f.icon className="h-4.5 w-4.5 text-[#1E4D49]" strokeWidth={2.4} />
+                    <div className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-lg bg-spotlight-gold shadow-card">
+                      <f.icon className="h-4.5 w-4.5 text-spotlight" strokeWidth={2.4} />
                     </div>
-                    <div className="font-display text-base font-bold text-white">{f.title}</div>
-                    <div className="mt-1 text-sm leading-relaxed text-white/70">{f.body}</div>
+                    <div className="font-display text-base font-bold text-foreground">{f.title}</div>
+                    <div className="mt-1 text-sm leading-relaxed text-spotlight-copy">{f.body}</div>
                   </div>
                 ))}
               </div>
@@ -545,26 +541,26 @@ function Landing() {
               <button
                 type="button"
                 onClick={scrollToPricing}
-                className="group relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#f5dfae_0%,#C9973A_45%,#a97e2e_100%)] px-7 py-3.5 text-base font-bold text-[#12241f] shadow-[0_18px_50px_-12px_rgba(201,151,58,0.75)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-12px_rgba(201,151,58,0.9)]"
+                className="group relative mt-8 inline-flex items-center gap-2 overflow-hidden rounded-full bg-spotlight-gold px-7 py-3.5 text-base font-bold text-spotlight shadow-elevated transition-all hover:-translate-y-0.5 hover:bg-spotlight-gold-soft"
               >
                 <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                 Start 14-Day Free Trial — Includes Pocket Broker
                 <ArrowRight className="h-4 w-4" />
               </button>
-              <p className="mt-3 text-sm text-white/60">No credit card required upfront.</p>
+              <p className="mt-3 text-sm text-spotlight-copy">No credit card required upfront.</p>
             </div>
           </Reveal>
 
           <Reveal direction="right" delay={150}>
-            <div className="relative pb-8 lg:pb-12">
+            <div className="relative mx-auto w-full max-w-2xl pb-28 pl-0 pr-10 sm:pb-32 sm:pr-16 md:pb-28 md:pr-10 lg:pb-32 lg:pr-16">
               <div
-                className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-to-br from-[#C9973A]/30 via-white/5 to-[#4E9A94]/25 blur-3xl"
+                className="absolute inset-4 -z-10 rounded-[2.5rem] bg-spotlight-gold/20 blur-3xl"
                 aria-hidden
               />
-              <div className="relative mx-auto max-w-2xl">
-                <div className="relative rounded-[1.1rem] border border-white/25 bg-[#17211f] p-2 shadow-[0_45px_90px_-26px_rgba(0,0,0,0.9),0_24px_50px_-30px_rgba(201,151,58,0.7)] sm:rounded-[1.4rem] sm:p-3">
-                  <div className="absolute left-1/2 top-1 h-1 w-1 -translate-x-1/2 rounded-full bg-white/30 sm:top-1.5" aria-hidden />
-                  <div className="overflow-hidden rounded-[0.7rem] border border-white/10 bg-white sm:rounded-[0.9rem]">
+              <div className="relative">
+                <div className="relative rounded-[1rem] border border-spotlight-gold/35 bg-spotlight-frame p-2 shadow-spotlight-device sm:rounded-[1.35rem] sm:p-3">
+                  <div className="absolute left-1/2 top-1 h-1 w-1 -translate-x-1/2 rounded-full bg-spotlight-copy/40 sm:top-1.5" aria-hidden />
+                  <div className="overflow-hidden rounded-[0.55rem] border border-spotlight-gold/15 bg-foreground sm:rounded-[0.85rem]">
                     <img
                       src={pocketBrokerInterface.url}
                       alt="Pocket Broker AI mentor interface showing chat, practice, and role playing tools"
@@ -572,16 +568,30 @@ function Landing() {
                     />
                   </div>
                 </div>
-                <div className="mx-auto h-2.5 w-[94%] rounded-b-[50%] bg-gradient-to-b from-[#84908d] to-[#303836] shadow-[0_18px_30px_-10px_rgba(0,0,0,0.8)] sm:h-3.5" aria-hidden>
-                  <div className="mx-auto h-1 w-16 rounded-b-md bg-[#abb3b1]/70 sm:w-24" />
+                <div className="mx-auto h-2.5 w-[94%] rounded-b-[50%] bg-spotlight-copy/45 shadow-elevated sm:h-3.5" aria-hidden>
+                  <div className="mx-auto h-1 w-16 rounded-b-md bg-spotlight-frame/50 sm:w-24" />
                 </div>
-                <div className="absolute -right-2 -top-6 hidden items-center gap-2 rounded-full border border-[#C9973A]/70 bg-[#173936]/95 px-3 py-2 text-xs font-bold text-[#f5dfae] shadow-[0_14px_30px_-12px_rgba(0,0,0,0.7)] backdrop-blur sm:flex lg:-right-5">
-                  <span className="h-2 w-2 rounded-full bg-[#65d6a3] shadow-[0_0_12px_rgba(101,214,163,0.9)]" />
-                  Live AI practice
-                </div>
-                <div className="absolute -bottom-3 left-2 hidden items-center gap-2 rounded-full border border-white/15 bg-[#102b29]/95 px-3 py-2 text-xs font-semibold text-white shadow-[0_16px_35px_-14px_rgba(0,0,0,0.8)] backdrop-blur sm:flex lg:-left-4">
-                  <Check className="h-3.5 w-3.5 text-[#C9973A]" strokeWidth={3} />
-                  Roleplay without the pressure
+              </div>
+
+              <div className="absolute bottom-2 right-0 w-[46%] min-w-40 max-w-60 rounded-[1.75rem] border-4 border-spotlight-gold/40 bg-spotlight-frame p-1.5 shadow-spotlight-phone sm:bottom-0 sm:right-1 sm:rounded-[2.1rem] sm:border-[6px] sm:p-2">
+                <div className="mx-auto mb-1.5 h-1 w-12 rounded-full bg-spotlight-copy/35" aria-hidden />
+                <div className="overflow-hidden rounded-[1.25rem] bg-foreground sm:rounded-[1.45rem]">
+                  <div className="bg-spotlight px-2.5 py-2 text-center text-[9px] font-bold text-spotlight-gold-soft sm:text-[10px]">
+                    Jackie · Practice Mode
+                  </div>
+                  <div className="space-y-2 bg-muted p-2.5 sm:p-3">
+                    <div className="ml-auto max-w-[92%] rounded-xl rounded-br-sm border border-border bg-background px-2.5 py-2 text-[8px] leading-relaxed text-foreground sm:text-[10px]">
+                      The seller says my 6% commission is too high. What do I say?
+                    </div>
+                    <div className="max-w-[94%] rounded-xl rounded-bl-sm bg-spotlight px-2.5 py-2 text-[8px] leading-relaxed text-foreground sm:text-[10px]">
+                      <span className="mb-1 block font-bold text-spotlight-gold">AI Mentor</span>
+                      Let&apos;s isolate the objection. Say this: &apos;I understand completely. Is it the percentage itself that concerns you, or the total net amount you want to walk away with at closing?&apos;
+                    </div>
+                    <div className="flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-1.5 text-[8px] text-muted-foreground sm:text-[9px]">
+                      Your response…
+                      <ArrowRight className="ml-auto h-3 w-3 text-spotlight-gold" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
