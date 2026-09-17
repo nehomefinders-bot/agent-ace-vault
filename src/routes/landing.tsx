@@ -810,7 +810,17 @@ function Landing() {
                       )}
                     </button>
                     <p className="-mt-4 mb-6 text-center text-sm text-slate-500">No credit card required upfront.</p>
+                    <div className="mb-3 flex items-start gap-2 rounded-xl border border-[#c59a22]/45 bg-[#fff6dd] px-3 py-2.5 shadow-[0_10px_24px_-16px_rgba(184,137,24,0.6)]">
+                      <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#b88918]" />
+                      <span className="text-base font-semibold leading-snug text-slate-900">
+                        Full Pocket Broker AI Mentor Included{" "}
+                        <span className="font-normal text-slate-600">
+                          (No separate subscription needed)
+                        </span>
+                      </span>
+                    </div>
                     <ul className="space-y-2.5">
+
                       {tier.features.map((f) => (
                         <li key={f} className="flex items-start gap-2 text-base text-slate-700">
                           <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#c59a22]" />
