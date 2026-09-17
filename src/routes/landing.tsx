@@ -20,9 +20,8 @@ import {
   Mail,
   MessageSquareText,
   PhoneCall,
-  PiggyBank,
 } from "lucide-react";
-import jackieAvatar from "@/assets/jackie-avatar.jpg.asset.json";
+import pocketBrokerInterface from "@/assets/pocket-broker-interface.png.asset.json";
 import {
   Dialog,
   DialogContent,
@@ -510,24 +509,24 @@ function Landing() {
               <div className="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {[
                   {
-                    icon: MessageSquareText,
-                    title: "On-Demand Objection Handling",
-                    body: "Instant, paste-ready scripts for commission pushback, appraisal gaps, price reductions, and low offers.",
+                    icon: PhoneCall,
+                    title: "Role Playing & Call Scripts",
+                    body: "Practice closing deals and handling pushback safely.",
                   },
                   {
-                    icon: PhoneCall,
-                    title: "Interactive Call & Roleplay Simulator",
-                    body: "Practice live cold calls, FSBO conversions, and tough negotiations with an AI client before talking to real prospects.",
+                    icon: MessageSquareText,
+                    title: "Live AI Client Practice",
+                    body: "Simulate tough conversations with a live AI client.",
                   },
                   {
                     icon: ShieldCheck,
-                    title: "State-Specific & Fair Housing Compliant",
-                    body: "Tailored scripts and transaction guidance that keep your business compliant and confident.",
+                    title: "A Safe Place to Rehearse",
+                    body: "Master your delivery before you ever pick up the phone.",
                   },
                   {
-                    icon: PiggyBank,
-                    title: "Save on Standalone Fees",
-                    body: "Standalone visitors pay a separate monthly subscription at app.endlessprospects.org — as an Agent Business Tracker member, you get full access at $0 extra cost.",
+                    icon: Sparkles,
+                    title: "Close With Confidence",
+                    body: "Build sharper responses for objections, negotiations, and follow-up calls.",
                   },
                 ].map((f) => (
                   <div
@@ -557,65 +556,32 @@ function Landing() {
           </Reveal>
 
           <Reveal direction="right" delay={150}>
-            <div className="relative">
+            <div className="relative pb-8 lg:pb-12">
               <div
                 className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-to-br from-[#C9973A]/30 via-white/5 to-[#4E9A94]/25 blur-3xl"
                 aria-hidden
               />
-              <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-[#16302e]/85 p-5 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.7)] backdrop-blur-xl sm:p-6">
-                <div className="flex items-center justify-between">
-                  <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">
-                    Pocket Broker&trade; — Live Mentor
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="relative flex h-2 w-2">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#4E9A94] opacity-75" />
-                      <span className="relative inline-flex h-2 w-2 rounded-full bg-[#4E9A94]" />
-                    </span>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-[#8fd0ca]">
-                      Online
-                    </span>
+              <div className="relative mx-auto max-w-2xl">
+                <div className="relative rounded-[1.1rem] border border-white/25 bg-[#17211f] p-2 shadow-[0_45px_90px_-26px_rgba(0,0,0,0.9),0_24px_50px_-30px_rgba(201,151,58,0.7)] sm:rounded-[1.4rem] sm:p-3">
+                  <div className="absolute left-1/2 top-1 h-1 w-1 -translate-x-1/2 rounded-full bg-white/30 sm:top-1.5" aria-hidden />
+                  <div className="overflow-hidden rounded-[0.7rem] border border-white/10 bg-white sm:rounded-[0.9rem]">
+                    <img
+                      src={pocketBrokerInterface.url}
+                      alt="Pocket Broker AI mentor interface showing chat, practice, and role playing tools"
+                      className="block h-auto w-full object-contain"
+                    />
                   </div>
                 </div>
-
-                <div className="mt-5 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-3.5">
-                  <img
-                    src={jackieAvatar.url}
-                    alt="Jackie Connolly"
-                    className="h-12 w-12 shrink-0 rounded-full border-2 border-[#C9973A]/60 object-cover"
-                  />
-                  <div className="min-w-0">
-                    <div className="truncate font-display text-base font-bold text-white">
-                      Jackie · Pocket Broker AI Mentor
-                    </div>
-                    <div className="text-xs text-white/55">
-                      Real estate coach · Scripts · Roleplay
-                    </div>
-                  </div>
+                <div className="mx-auto h-2.5 w-[94%] rounded-b-[50%] bg-gradient-to-b from-[#84908d] to-[#303836] shadow-[0_18px_30px_-10px_rgba(0,0,0,0.8)] sm:h-3.5" aria-hidden>
+                  <div className="mx-auto h-1 w-16 rounded-b-md bg-[#abb3b1]/70 sm:w-24" />
                 </div>
-
-                <div className="mt-4 flex justify-end">
-                  <div className="inline-flex max-w-[85%] items-center gap-2 rounded-2xl rounded-br-md bg-gradient-to-br from-[#C9973A] to-[#a97e2e] px-4 py-2.5 text-sm font-semibold text-[#12241f] shadow-[0_14px_30px_-14px_rgba(201,151,58,0.8)]">
-                    Handle "Your commission is too high"
-                  </div>
+                <div className="absolute -right-2 -top-6 hidden items-center gap-2 rounded-full border border-[#C9973A]/70 bg-[#173936]/95 px-3 py-2 text-xs font-bold text-[#f5dfae] shadow-[0_14px_30px_-12px_rgba(0,0,0,0.7)] backdrop-blur sm:flex lg:-right-5">
+                  <span className="h-2 w-2 rounded-full bg-[#65d6a3] shadow-[0_0_12px_rgba(101,214,163,0.9)]" />
+                  Live AI practice
                 </div>
-
-                <div className="mt-4 flex justify-start">
-                  <div className="max-w-[92%] rounded-2xl rounded-bl-md border border-[#4E9A94]/30 bg-[#1E4D49]/90 px-4 py-3.5 text-sm leading-relaxed text-white/85 shadow-[0_18px_40px_-22px_rgba(0,0,0,0.65)]">
-                    <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.18em] text-[#8fd0ca]">
-                      Jackie's Coaching
-                    </span>
-                    Acknowledge their goal first: "I completely respect that you want to maximize
-                    your net proceeds. Let's look at what full-service representation actually puts
-                    in your pocket..."
-                  </div>
-                </div>
-
-                <div className="mt-5 flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.05] px-4 py-2.5">
-                  <span className="text-sm text-white/40">Ask Jackie anything…</span>
-                  <span className="ml-auto inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#C9973A]">
-                    <ArrowRight className="h-3.5 w-3.5 text-[#12241f]" />
-                  </span>
+                <div className="absolute -bottom-3 left-2 hidden items-center gap-2 rounded-full border border-white/15 bg-[#102b29]/95 px-3 py-2 text-xs font-semibold text-white shadow-[0_16px_35px_-14px_rgba(0,0,0,0.8)] backdrop-blur sm:flex lg:-left-4">
+                  <Check className="h-3.5 w-3.5 text-[#C9973A]" strokeWidth={3} />
+                  Roleplay without the pressure
                 </div>
               </div>
             </div>
