@@ -520,15 +520,15 @@ function Landing() {
                   <div className="relative">
                     <div className="relative overflow-hidden rounded-[0.7rem] border border-spotlight-highlight/10 bg-spotlight-chassis p-1.5 shadow-spotlight-device sm:rounded-[0.9rem] sm:p-2">
                       <div className="absolute left-1/2 top-0.5 z-10 h-1.5 w-1.5 -translate-x-1/2 rounded-full border border-spotlight-highlight/10 bg-spotlight-camera shadow-inner" aria-hidden />
-                      <div className="overflow-hidden rounded-[0.4rem] bg-spotlight-frame sm:rounded-[0.55rem]">
+                      <div className="relative aspect-[16/10] overflow-hidden rounded-[0.4rem] bg-spotlight-frame sm:rounded-[0.55rem]">
                         <img
                           src={pocketBrokerInterface.url}
                           alt="Pocket Broker AI mentor interface showing chat, practice, and role playing tools"
-                          className="block h-auto w-full object-contain"
+                          className="block h-full w-full object-cover object-top"
                         />
                       </div>
                     </div>
-                    <div className="relative mx-auto h-2.5 w-[104%] -translate-x-[2%] rounded-b-[45%] bg-spotlight-base shadow-spotlight-base sm:h-3.5" aria-hidden>
+                    <div className="relative mx-auto h-2.5 w-full rounded-b-[45%] bg-spotlight-base shadow-spotlight-base sm:h-3.5" aria-hidden>
                       <div className="absolute left-1/2 top-0 h-1 w-16 -translate-x-1/2 rounded-b-md bg-spotlight-indent sm:w-24" />
                     </div>
                   </div>
