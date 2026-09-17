@@ -474,7 +474,7 @@ function Landing() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-spotlight text-primary-foreground">
+      <section className="relative overflow-hidden bg-spotlight text-foreground">
         <div
           className="pointer-events-none absolute -top-28 -right-24 h-96 w-96 rounded-full bg-spotlight-gold/15 blur-[130px]"
           aria-hidden
@@ -490,7 +490,7 @@ function Landing() {
                 <Sparkles className="h-3.5 w-3.5 text-spotlight-gold" />
                 Included Free With Your Membership
               </div>
-              <h2 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-primary-foreground sm:text-5xl">
+              <h2 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl">
                 Two Powerhouse Apps.{" "}
                 <span className="text-spotlight-gold">
                   One Simple Subscription.
@@ -532,7 +532,7 @@ function Landing() {
                     <div className="mb-2.5 flex h-9 w-9 items-center justify-center rounded-lg bg-spotlight-gold shadow-card">
                       <f.icon className="h-4.5 w-4.5 text-spotlight" strokeWidth={2.4} />
                     </div>
-                    <div className="font-display text-base font-bold text-primary-foreground">{f.title}</div>
+                    <div className="font-display text-base font-bold text-foreground">{f.title}</div>
                     <div className="mt-1 text-sm leading-relaxed text-spotlight-copy">{f.body}</div>
                   </div>
                 ))}
@@ -560,7 +560,7 @@ function Landing() {
               <div className="relative">
                 <div className="relative rounded-[1rem] border border-spotlight-gold/35 bg-spotlight-frame p-2 shadow-spotlight-device sm:rounded-[1.35rem] sm:p-3">
                   <div className="absolute left-1/2 top-1 h-1 w-1 -translate-x-1/2 rounded-full bg-spotlight-copy/40 sm:top-1.5" aria-hidden />
-                  <div className="overflow-hidden rounded-[0.55rem] border border-spotlight-gold/15 bg-primary-foreground sm:rounded-[0.85rem]">
+                  <div className="overflow-hidden rounded-[0.55rem] border border-spotlight-gold/15 bg-foreground sm:rounded-[0.85rem]">
                     <img
                       src={pocketBrokerInterface.url}
                       alt="Pocket Broker AI mentor interface showing chat, practice, and role playing tools"
@@ -575,7 +575,7 @@ function Landing() {
 
               <div className="absolute bottom-2 right-0 w-[46%] min-w-40 max-w-60 rounded-[1.75rem] border-4 border-spotlight-gold/40 bg-spotlight-frame p-1.5 shadow-spotlight-phone sm:bottom-0 sm:right-1 sm:rounded-[2.1rem] sm:border-[6px] sm:p-2">
                 <div className="mx-auto mb-1.5 h-1 w-12 rounded-full bg-spotlight-copy/35" aria-hidden />
-                <div className="overflow-hidden rounded-[1.25rem] bg-primary-foreground sm:rounded-[1.45rem]">
+                <div className="overflow-hidden rounded-[1.25rem] bg-foreground sm:rounded-[1.45rem]">
                   <div className="bg-spotlight px-2.5 py-2 text-center text-[9px] font-bold text-spotlight-gold-soft sm:text-[10px]">
                     Jackie · Practice Mode
                   </div>
@@ -583,7 +583,7 @@ function Landing() {
                     <div className="ml-auto max-w-[92%] rounded-xl rounded-br-sm border border-border bg-background px-2.5 py-2 text-[8px] leading-relaxed text-foreground sm:text-[10px]">
                       The seller says my 6% commission is too high. What do I say?
                     </div>
-                    <div className="max-w-[94%] rounded-xl rounded-bl-sm bg-spotlight px-2.5 py-2 text-[8px] leading-relaxed text-primary-foreground sm:text-[10px]">
+                    <div className="max-w-[94%] rounded-xl rounded-bl-sm bg-spotlight px-2.5 py-2 text-[8px] leading-relaxed text-foreground sm:text-[10px]">
                       <span className="mb-1 block font-bold text-spotlight-gold">AI Mentor</span>
                       Let&apos;s isolate the objection. Say this: &apos;I understand completely. Is it the percentage itself that concerns you, or the total net amount you want to walk away with at closing?&apos;
                     </div>
