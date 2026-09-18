@@ -1,15 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import jackieAvatar from "@/assets/jackie-avatar.jpg.asset.json";
+import { shouldHideFabs } from "@/lib/fab-visibility";
 
 
 export function JackieFab() {
   const path = useRouterState({ select: (r) => r.location.pathname });
-  const isAuthScreen =
-    path === "/auth" ||
-    path === "/signup" ||
-    path === "/forgot-password" ||
-    path === "/reset-password";
-  if (isAuthScreen || path === "/ai-assistant") return null;
+  if (shouldHideFabs(path, ["/ai-assistant"])) return null;
   return (
     <Link
       to="/ai-assistant"

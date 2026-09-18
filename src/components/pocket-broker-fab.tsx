@@ -1,14 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Briefcase } from "lucide-react";
+import { shouldHideFabs } from "@/lib/fab-visibility";
 
 export function PocketBrokerFab() {
   const path = useRouterState({ select: (r) => r.location.pathname });
-  const isAuthScreen =
-    path === "/auth" ||
-    path === "/signup" ||
-    path === "/forgot-password" ||
-    path === "/reset-password";
-  if (isAuthScreen || path === "/pocket-broker-test") return null;
+  if (shouldHideFabs(path, ["/pocket-broker-test"])) return null;
   return (
     <Link
       to="/pocket-broker-test"
