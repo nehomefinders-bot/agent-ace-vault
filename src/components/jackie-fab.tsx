@@ -9,7 +9,7 @@ export function JackieFab() {
     path === "/signup" ||
     path === "/forgot-password" ||
     path === "/reset-password";
-  if (isAuthScreen || path === "/ai-assistant" || path === "/landing") return null;
+  if (isAuthScreen || path === "/ai-assistant") return null;
   return (
     <Link
       to="/ai-assistant"
