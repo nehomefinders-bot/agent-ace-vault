@@ -3,7 +3,12 @@ import { Briefcase } from "lucide-react";
 
 export function PocketBrokerFab() {
   const path = useRouterState({ select: (r) => r.location.pathname });
-  if (path === "/pocket-broker-test" || path === "/landing") return null;
+  const isAuthScreen =
+    path === "/auth" ||
+    path === "/signup" ||
+    path === "/forgot-password" ||
+    path === "/reset-password";
+  if (isAuthScreen || path === "/pocket-broker-test" || path === "/landing") return null;
   return (
     <Link
       to="/pocket-broker-test"
