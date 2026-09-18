@@ -8,7 +8,7 @@ export function PocketBrokerFab() {
     path === "/signup" ||
     path === "/forgot-password" ||
     path === "/reset-password";
-  if (isAuthScreen || path === "/pocket-broker-test" || path === "/landing") return null;
+  if (isAuthScreen || path === "/pocket-broker-test") return null;
   return (
     <Link
       to="/pocket-broker-test"
