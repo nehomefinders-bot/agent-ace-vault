@@ -4,7 +4,12 @@ import jackieAvatar from "@/assets/jackie-avatar.jpg.asset.json";
 
 export function JackieFab() {
   const path = useRouterState({ select: (r) => r.location.pathname });
-  if (path === "/ai-assistant" || path === "/landing") return null;
+  const isAuthScreen =
+    path === "/auth" ||
+    path === "/signup" ||
+    path === "/forgot-password" ||
+    path === "/reset-password";
+  if (isAuthScreen || path === "/ai-assistant" || path === "/landing") return null;
   return (
     <Link
       to="/ai-assistant"
