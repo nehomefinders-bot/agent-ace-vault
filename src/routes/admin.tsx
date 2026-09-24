@@ -6,6 +6,8 @@ import { getAdminUsers, type AdminUserRow } from "@/lib/admin.functions";
 import { PageShell } from "@/components/page-shell";
 
 const ADMIN_EMAIL = "qa.tester@endlessprospects.org";
+// Lifetime free tier — displayed as "Family Plan" in the admin table.
+const LIFETIME_FREE_EMAILS = ["kimg37111@gmail.com"];
 const TRIAL_DAYS = 14;
 
 function trialInfo(createdAt: string, hasSub: boolean, plan: string | null) {
@@ -76,7 +78,8 @@ function AdminPage() {
       (r) =>
         ["active", "trialing"].includes(r.subscription_status ?? "") ||
         r.plan === "active" ||
-        r.plan === "gifted",
+        r.plan === "gifted" ||
+        LIFETIME_FREE_EMAILS.includes(r.email.toLowerCase()),
     ).length;
   }, [rows]);
 
@@ -151,17 +154,22 @@ function AdminPage() {
                 </tr>
               )}
               {filtered.map((r) => {
+                const isLifetimeFree = LIFETIME_FREE_EMAILS.includes(r.email.toLowerCase());
                 const hasSub = ["active", "trialing"].includes(r.subscription_status ?? "");
-                const trial = trialInfo(r.created_at, hasSub, r.plan);
-                const subLabel = hasSub
-                  ? r.subscription_status === "trialing"
-                    ? "Trialing"
-                    : "Active"
-                  : r.plan === "gifted"
-                    ? "Gifted"
-                    : r.plan === "active"
-                      ? "Active"
-                      : "None";
+                const trial = isLifetimeFree
+                  ? { label: "—", tone: "slate" as const }
+                  : trialInfo(r.created_at, hasSub, r.plan);
+                const subLabel = isLifetimeFree
+                  ? "Family Plan"
+                  : hasSub
+                    ? r.subscription_status === "trialing"
+                      ? "Trialing"
+                      : "Active"
+                    : r.plan === "gifted"
+                      ? "Gifted"
+                      : r.plan === "active"
+                        ? "Active"
+                        : "None";
                 return (
                   <tr key={r.id} className="border-b border-border/60 last:border-0">
                     <td className="px-4 py-3 font-medium">{r.name}</td>
@@ -185,9 +193,11 @@ function AdminPage() {
                     <td className="px-4 py-3">
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          subLabel === "None"
-                            ? "bg-muted text-muted-foreground"
-                            : "bg-[#d99a26]/15 text-[#d99a26]"
+                          subLabel === "Family Plan"
+                            ? "bg-amber-100 text-amber-800"
+                            : subLabel === "None"
+                              ? "bg-muted text-muted-foreground"
+                              : "bg-[#d99a26]/15 text-[#d99a26]"
                         }`}
                       >
                         {subLabel}
