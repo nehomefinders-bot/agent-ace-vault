@@ -8,6 +8,8 @@ import { TrialExpiredModal } from "@/components/trial-expired-modal";
 
 const TRIAL_DAYS = 14;
 const OWNER_EMAIL = "nehomefinders@gmail.com";
+// Lifetime free access (paywall bypass only — never grants admin access).
+const LIFETIME_FREE_EMAILS = ["kimg37111@gmail.com"];
 
 // Routes accessible without an active subscription.
 const PUBLIC_PATHS = [
@@ -90,9 +92,12 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
   }
 
   // Owner account always has permanent access.
-  const isOwner = (user.email ?? "").toLowerCase() === OWNER_EMAIL;
+  const email = (user.email ?? "").toLowerCase();
+  const isOwner = email === OWNER_EMAIL;
+  // Lifetime free users: full premium access, NO admin privileges.
+  const isLifetimeFree = LIFETIME_FREE_EMAILS.includes(email);
 
-  const subscribed = isOwner || isActive || profilePlan === "active" || profilePlan === "gifted";
+  const subscribed = isOwner || isLifetimeFree || isActive || profilePlan === "active" || profilePlan === "gifted";
 
   // 14-day free trial measured from account creation.
   const createdAt = user.created_at ? new Date(user.created_at).getTime() : null;
