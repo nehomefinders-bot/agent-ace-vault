@@ -1,3 +1,4 @@
+import type { ErrorComponentProps } from "@tanstack/react-router";
 import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -50,7 +51,7 @@ export const Route = createFileRoute("/settings")({
   }),
 });
 
-function SettingsErrorFallback({ error, reset }: { error: Error; reset: () => void }) {
+function SettingsErrorFallback({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
   return (
     <PageShell title="Settings">
