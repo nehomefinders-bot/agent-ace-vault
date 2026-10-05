@@ -52,7 +52,7 @@ export const Route = createFileRoute("/settings")({
 });
 
 function SettingsErrorFallback({ error: rawError, reset }: ErrorComponentProps) {
-  const error = rawError as Error; {
+  const error = rawError as Error;
   const router = useRouter();
   return (
     <PageShell title="Settings">
