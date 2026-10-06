@@ -9,234 +9,59 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ThankyouRouteImport } from './routes/thankyou'
-import { Route as TestRouteImport } from './routes/test'
-import { Route as TermsAndConditionsRouteImport } from './routes/terms-and-conditions'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as TasksRouteImport } from './routes/tasks'
-import { Route as SupportRouteImport } from './routes/support'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as ReceiptsRouteImport } from './routes/receipts'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as PricingRouteImport } from './routes/pricing'
-import { Route as PocketBrokerTestRouteImport } from './routes/pocket-broker-test'
-import { Route as PipelineRouteImport } from './routes/pipeline'
-import { Route as MlsListingsRouteImport } from './routes/mls-listings'
-import { Route as MileageRouteImport } from './routes/mileage'
-import { Route as MediaStorageRouteImport } from './routes/media-storage'
-import { Route as ListingsRouteImport } from './routes/listings'
-import { Route as LandingRouteImport } from './routes/landing'
-import { Route as HelpRouteImport } from './routes/help'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
-import { Route as ExpensesRouteImport } from './routes/expenses'
-import { Route as DotloopRouteImport } from './routes/dotloop'
-import { Route as DocumentsRouteImport } from './routes/documents'
-import { Route as DealsRouteImport } from './routes/deals'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as CommissionsRouteImport } from './routes/commissions'
-import { Route as ClientsRouteImport } from './routes/clients'
-import { Route as CalenderRouteImport } from './routes/calender'
-import { Route as CalendarRouteImport } from './routes/calendar'
-import { Route as BooksRouteImport } from './routes/books'
-import { Route as BillingRouteImport } from './routes/billing'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AiAssistantRouteImport } from './routes/ai-assistant'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AiAssistantRouteImport } from './routes/ai-assistant'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BillingRouteImport } from './routes/billing'
+import { Route as BooksRouteImport } from './routes/books'
+import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as CalenderRouteImport } from './routes/calender'
+import { Route as ClientsRouteImport } from './routes/clients'
+import { Route as CommissionsRouteImport } from './routes/commissions'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as DealsRouteImport } from './routes/deals'
+import { Route as DocumentsRouteImport } from './routes/documents'
+import { Route as DotloopRouteImport } from './routes/dotloop'
+import { Route as ExpensesRouteImport } from './routes/expenses'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as LandingRouteImport } from './routes/landing'
+import { Route as ListingsRouteImport } from './routes/listings'
+import { Route as MediaStorageRouteImport } from './routes/media-storage'
+import { Route as MileageRouteImport } from './routes/mileage'
+import { Route as MlsListingsRouteImport } from './routes/mls-listings'
+import { Route as PipelineRouteImport } from './routes/pipeline'
+import { Route as PocketBrokerTestRouteImport } from './routes/pocket-broker-test'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ReceiptsRouteImport } from './routes/receipts'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SupportRouteImport } from './routes/support'
+import { Route as TasksRouteImport } from './routes/tasks'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as TermsAndConditionsRouteImport } from './routes/terms-and-conditions'
+import { Route as TestRouteImport } from './routes/test'
+import { Route as ThankyouRouteImport } from './routes/thankyou'
 import { Route as BooksIndexRouteImport } from './routes/books.index'
-import { Route as BooksTransactionsRouteImport } from './routes/books.transactions'
-import { Route as BooksTaxesRouteImport } from './routes/books.taxes'
-import { Route as BooksReportsRouteImport } from './routes/books.reports'
-import { Route as BooksOwnerLoanRouteImport } from './routes/books.owner-loan'
-import { Route as BooksCategoriesRouteImport } from './routes/books.categories'
 import { Route as BooksAccountsRouteImport } from './routes/books.accounts'
-import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
-import { Route as ApiPublicPaymentsApplyTaxCodesRouteImport } from './routes/api/public/payments/apply-tax-codes'
-import { Route as ApiPublicGoogleCalendarCallbackRouteImport } from './routes/api/public/google/calendar-callback'
+import { Route as BooksCategoriesRouteImport } from './routes/books.categories'
+import { Route as BooksOwnerLoanRouteImport } from './routes/books.owner-loan'
+import { Route as BooksReportsRouteImport } from './routes/books.reports'
+import { Route as BooksTaxesRouteImport } from './routes/books.taxes'
+import { Route as BooksTransactionsRouteImport } from './routes/books.transactions'
 import { Route as ApiPublicGhlWebhookRouteImport } from './routes/api/public/ghl.webhook'
+import { Route as ApiPublicGoogleCalendarCallbackRouteImport } from './routes/api/public/google/calendar-callback'
+import { Route as ApiPublicPaymentsApplyTaxCodesRouteImport } from './routes/api/public/payments/apply-tax-codes'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
-const ThankyouRoute = ThankyouRouteImport.update({
-  id: '/thankyou',
-  path: '/thankyou',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TestRoute = TestRouteImport.update({
-  id: '/test',
-  path: '/test',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TermsAndConditionsRoute = TermsAndConditionsRouteImport.update({
-  id: '/terms-and-conditions',
-  path: '/terms-and-conditions',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TasksRoute = TasksRouteImport.update({
-  id: '/tasks',
-  path: '/tasks',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SupportRoute = SupportRouteImport.update({
-  id: '/support',
-  path: '/support',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReceiptsRoute = ReceiptsRouteImport.update({
-  id: '/receipts',
-  path: '/receipts',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
-  id: '/privacy-policy',
-  path: '/privacy-policy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PricingRoute = PricingRouteImport.update({
-  id: '/pricing',
-  path: '/pricing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PocketBrokerTestRoute = PocketBrokerTestRouteImport.update({
-  id: '/pocket-broker-test',
-  path: '/pocket-broker-test',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PipelineRoute = PipelineRouteImport.update({
-  id: '/pipeline',
-  path: '/pipeline',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MlsListingsRoute = MlsListingsRouteImport.update({
-  id: '/mls-listings',
-  path: '/mls-listings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MileageRoute = MileageRouteImport.update({
-  id: '/mileage',
-  path: '/mileage',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MediaStorageRoute = MediaStorageRouteImport.update({
-  id: '/media-storage',
-  path: '/media-storage',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ListingsRoute = ListingsRouteImport.update({
-  id: '/listings',
-  path: '/listings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LandingRoute = LandingRouteImport.update({
-  id: '/landing',
-  path: '/landing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HelpRoute = HelpRouteImport.update({
-  id: '/help',
-  path: '/help',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExpensesRoute = ExpensesRouteImport.update({
-  id: '/expenses',
-  path: '/expenses',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DotloopRoute = DotloopRouteImport.update({
-  id: '/dotloop',
-  path: '/dotloop',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DocumentsRoute = DocumentsRouteImport.update({
-  id: '/documents',
-  path: '/documents',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DealsRoute = DealsRouteImport.update({
-  id: '/deals',
-  path: '/deals',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CommissionsRoute = CommissionsRouteImport.update({
-  id: '/commissions',
-  path: '/commissions',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ClientsRoute = ClientsRouteImport.update({
-  id: '/clients',
-  path: '/clients',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CalenderRoute = CalenderRouteImport.update({
-  id: '/calender',
-  path: '/calender',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CalendarRoute = CalendarRouteImport.update({
-  id: '/calendar',
-  path: '/calendar',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BooksRoute = BooksRouteImport.update({
-  id: '/books',
-  path: '/books',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BillingRoute = BillingRouteImport.update({
-  id: '/billing',
-  path: '/billing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AiAssistantRoute = AiAssistantRouteImport.update({
-  id: '/ai-assistant',
-  path: '/ai-assistant',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -244,9 +69,184 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AiAssistantRoute = AiAssistantRouteImport.update({
+  id: '/ai-assistant',
+  path: '/ai-assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BillingRoute = BillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BooksRoute = BooksRouteImport.update({
+  id: '/books',
+  path: '/books',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarRoute = CalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalenderRoute = CalenderRouteImport.update({
+  id: '/calender',
+  path: '/calender',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientsRoute = ClientsRouteImport.update({
+  id: '/clients',
+  path: '/clients',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommissionsRoute = CommissionsRouteImport.update({
+  id: '/commissions',
+  path: '/commissions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DealsRoute = DealsRouteImport.update({
+  id: '/deals',
+  path: '/deals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocumentsRoute = DocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DotloopRoute = DotloopRouteImport.update({
+  id: '/dotloop',
+  path: '/dotloop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExpensesRoute = ExpensesRouteImport.update({
+  id: '/expenses',
+  path: '/expenses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LandingRoute = LandingRouteImport.update({
+  id: '/landing',
+  path: '/landing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListingsRoute = ListingsRouteImport.update({
+  id: '/listings',
+  path: '/listings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MediaStorageRoute = MediaStorageRouteImport.update({
+  id: '/media-storage',
+  path: '/media-storage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MileageRoute = MileageRouteImport.update({
+  id: '/mileage',
+  path: '/mileage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MlsListingsRoute = MlsListingsRouteImport.update({
+  id: '/mls-listings',
+  path: '/mls-listings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PipelineRoute = PipelineRouteImport.update({
+  id: '/pipeline',
+  path: '/pipeline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PocketBrokerTestRoute = PocketBrokerTestRouteImport.update({
+  id: '/pocket-broker-test',
+  path: '/pocket-broker-test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReceiptsRoute = ReceiptsRouteImport.update({
+  id: '/receipts',
+  path: '/receipts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TasksRoute = TasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsAndConditionsRoute = TermsAndConditionsRouteImport.update({
+  id: '/terms-and-conditions',
+  path: '/terms-and-conditions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TestRoute = TestRouteImport.update({
+  id: '/test',
+  path: '/test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ThankyouRoute = ThankyouRouteImport.update({
+  id: '/thankyou',
+  path: '/thankyou',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BooksIndexRoute = BooksIndexRouteImport.update({
@@ -254,24 +254,9 @@ const BooksIndexRoute = BooksIndexRouteImport.update({
   path: '/',
   getParentRoute: () => BooksRoute,
 } as any)
-const BooksTransactionsRoute = BooksTransactionsRouteImport.update({
-  id: '/transactions',
-  path: '/transactions',
-  getParentRoute: () => BooksRoute,
-} as any)
-const BooksTaxesRoute = BooksTaxesRouteImport.update({
-  id: '/taxes',
-  path: '/taxes',
-  getParentRoute: () => BooksRoute,
-} as any)
-const BooksReportsRoute = BooksReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => BooksRoute,
-} as any)
-const BooksOwnerLoanRoute = BooksOwnerLoanRouteImport.update({
-  id: '/owner-loan',
-  path: '/owner-loan',
+const BooksAccountsRoute = BooksAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
   getParentRoute: () => BooksRoute,
 } as any)
 const BooksCategoriesRoute = BooksCategoriesRouteImport.update({
@@ -279,15 +264,35 @@ const BooksCategoriesRoute = BooksCategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => BooksRoute,
 } as any)
-const BooksAccountsRoute = BooksAccountsRouteImport.update({
-  id: '/accounts',
-  path: '/accounts',
+const BooksOwnerLoanRoute = BooksOwnerLoanRouteImport.update({
+  id: '/owner-loan',
+  path: '/owner-loan',
   getParentRoute: () => BooksRoute,
 } as any)
-const ApiPublicPaymentsWebhookRoute =
-  ApiPublicPaymentsWebhookRouteImport.update({
-    id: '/api/public/payments/webhook',
-    path: '/api/public/payments/webhook',
+const BooksReportsRoute = BooksReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => BooksRoute,
+} as any)
+const BooksTaxesRoute = BooksTaxesRouteImport.update({
+  id: '/taxes',
+  path: '/taxes',
+  getParentRoute: () => BooksRoute,
+} as any)
+const BooksTransactionsRoute = BooksTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
+  getParentRoute: () => BooksRoute,
+} as any)
+const ApiPublicGhlWebhookRoute = ApiPublicGhlWebhookRouteImport.update({
+  id: '/api/public/ghl/webhook',
+  path: '/api/public/ghl/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicGoogleCalendarCallbackRoute =
+  ApiPublicGoogleCalendarCallbackRouteImport.update({
+    id: '/api/public/google/calendar-callback',
+    path: '/api/public/google/calendar-callback',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicPaymentsApplyTaxCodesRoute =
@@ -296,17 +301,12 @@ const ApiPublicPaymentsApplyTaxCodesRoute =
     path: '/api/public/payments/apply-tax-codes',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicGoogleCalendarCallbackRoute =
-  ApiPublicGoogleCalendarCallbackRouteImport.update({
-    id: '/api/public/google/calendar-callback',
-    path: '/api/public/google/calendar-callback',
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicGhlWebhookRoute = ApiPublicGhlWebhookRouteImport.update({
-  id: '/api/public/ghl/webhook',
-  path: '/api/public/ghl/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -663,256 +663,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/thankyou': {
-      id: '/thankyou'
-      path: '/thankyou'
-      fullPath: '/thankyou'
-      preLoaderRoute: typeof ThankyouRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/test': {
-      id: '/test'
-      path: '/test'
-      fullPath: '/test'
-      preLoaderRoute: typeof TestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/terms-and-conditions': {
-      id: '/terms-and-conditions'
-      path: '/terms-and-conditions'
-      fullPath: '/terms-and-conditions'
-      preLoaderRoute: typeof TermsAndConditionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tasks': {
-      id: '/tasks'
-      path: '/tasks'
-      fullPath: '/tasks'
-      preLoaderRoute: typeof TasksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/support': {
-      id: '/support'
-      path: '/support'
-      fullPath: '/support'
-      preLoaderRoute: typeof SupportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/receipts': {
-      id: '/receipts'
-      path: '/receipts'
-      fullPath: '/receipts'
-      preLoaderRoute: typeof ReceiptsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy-policy': {
-      id: '/privacy-policy'
-      path: '/privacy-policy'
-      fullPath: '/privacy-policy'
-      preLoaderRoute: typeof PrivacyPolicyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pricing': {
-      id: '/pricing'
-      path: '/pricing'
-      fullPath: '/pricing'
-      preLoaderRoute: typeof PricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pocket-broker-test': {
-      id: '/pocket-broker-test'
-      path: '/pocket-broker-test'
-      fullPath: '/pocket-broker-test'
-      preLoaderRoute: typeof PocketBrokerTestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pipeline': {
-      id: '/pipeline'
-      path: '/pipeline'
-      fullPath: '/pipeline'
-      preLoaderRoute: typeof PipelineRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mls-listings': {
-      id: '/mls-listings'
-      path: '/mls-listings'
-      fullPath: '/mls-listings'
-      preLoaderRoute: typeof MlsListingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mileage': {
-      id: '/mileage'
-      path: '/mileage'
-      fullPath: '/mileage'
-      preLoaderRoute: typeof MileageRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/media-storage': {
-      id: '/media-storage'
-      path: '/media-storage'
-      fullPath: '/media-storage'
-      preLoaderRoute: typeof MediaStorageRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/listings': {
-      id: '/listings'
-      path: '/listings'
-      fullPath: '/listings'
-      preLoaderRoute: typeof ListingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/landing': {
-      id: '/landing'
-      path: '/landing'
-      fullPath: '/landing'
-      preLoaderRoute: typeof LandingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/help': {
-      id: '/help'
-      path: '/help'
-      fullPath: '/help'
-      preLoaderRoute: typeof HelpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/expenses': {
-      id: '/expenses'
-      path: '/expenses'
-      fullPath: '/expenses'
-      preLoaderRoute: typeof ExpensesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dotloop': {
-      id: '/dotloop'
-      path: '/dotloop'
-      fullPath: '/dotloop'
-      preLoaderRoute: typeof DotloopRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/documents': {
-      id: '/documents'
-      path: '/documents'
-      fullPath: '/documents'
-      preLoaderRoute: typeof DocumentsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/deals': {
-      id: '/deals'
-      path: '/deals'
-      fullPath: '/deals'
-      preLoaderRoute: typeof DealsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/commissions': {
-      id: '/commissions'
-      path: '/commissions'
-      fullPath: '/commissions'
-      preLoaderRoute: typeof CommissionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/clients': {
-      id: '/clients'
-      path: '/clients'
-      fullPath: '/clients'
-      preLoaderRoute: typeof ClientsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/calender': {
-      id: '/calender'
-      path: '/calender'
-      fullPath: '/calender'
-      preLoaderRoute: typeof CalenderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/calendar': {
-      id: '/calendar'
-      path: '/calendar'
-      fullPath: '/calendar'
-      preLoaderRoute: typeof CalendarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/books': {
-      id: '/books'
-      path: '/books'
-      fullPath: '/books'
-      preLoaderRoute: typeof BooksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/billing': {
-      id: '/billing'
-      path: '/billing'
-      fullPath: '/billing'
-      preLoaderRoute: typeof BillingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ai-assistant': {
-      id: '/ai-assistant'
-      path: '/ai-assistant'
-      fullPath: '/ai-assistant'
-      preLoaderRoute: typeof AiAssistantRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -922,11 +677,256 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/ai-assistant': {
+      id: '/ai-assistant'
+      path: '/ai-assistant'
+      fullPath: '/ai-assistant'
+      preLoaderRoute: typeof AiAssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/billing': {
+      id: '/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof BillingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/books': {
+      id: '/books'
+      path: '/books'
+      fullPath: '/books'
+      preLoaderRoute: typeof BooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calender': {
+      id: '/calender'
+      path: '/calender'
+      fullPath: '/calender'
+      preLoaderRoute: typeof CalenderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clients': {
+      id: '/clients'
+      path: '/clients'
+      fullPath: '/clients'
+      preLoaderRoute: typeof ClientsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/commissions': {
+      id: '/commissions'
+      path: '/commissions'
+      fullPath: '/commissions'
+      preLoaderRoute: typeof CommissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/deals': {
+      id: '/deals'
+      path: '/deals'
+      fullPath: '/deals'
+      preLoaderRoute: typeof DealsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/documents': {
+      id: '/documents'
+      path: '/documents'
+      fullPath: '/documents'
+      preLoaderRoute: typeof DocumentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dotloop': {
+      id: '/dotloop'
+      path: '/dotloop'
+      fullPath: '/dotloop'
+      preLoaderRoute: typeof DotloopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/expenses': {
+      id: '/expenses'
+      path: '/expenses'
+      fullPath: '/expenses'
+      preLoaderRoute: typeof ExpensesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/landing': {
+      id: '/landing'
+      path: '/landing'
+      fullPath: '/landing'
+      preLoaderRoute: typeof LandingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/listings': {
+      id: '/listings'
+      path: '/listings'
+      fullPath: '/listings'
+      preLoaderRoute: typeof ListingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/media-storage': {
+      id: '/media-storage'
+      path: '/media-storage'
+      fullPath: '/media-storage'
+      preLoaderRoute: typeof MediaStorageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mileage': {
+      id: '/mileage'
+      path: '/mileage'
+      fullPath: '/mileage'
+      preLoaderRoute: typeof MileageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mls-listings': {
+      id: '/mls-listings'
+      path: '/mls-listings'
+      fullPath: '/mls-listings'
+      preLoaderRoute: typeof MlsListingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pipeline': {
+      id: '/pipeline'
+      path: '/pipeline'
+      fullPath: '/pipeline'
+      preLoaderRoute: typeof PipelineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pocket-broker-test': {
+      id: '/pocket-broker-test'
+      path: '/pocket-broker-test'
+      fullPath: '/pocket-broker-test'
+      preLoaderRoute: typeof PocketBrokerTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/receipts': {
+      id: '/receipts'
+      path: '/receipts'
+      fullPath: '/receipts'
+      preLoaderRoute: typeof ReceiptsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tasks': {
+      id: '/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof TasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms-and-conditions': {
+      id: '/terms-and-conditions'
+      path: '/terms-and-conditions'
+      fullPath: '/terms-and-conditions'
+      preLoaderRoute: typeof TermsAndConditionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/test': {
+      id: '/test'
+      path: '/test'
+      fullPath: '/test'
+      preLoaderRoute: typeof TestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/thankyou': {
+      id: '/thankyou'
+      path: '/thankyou'
+      fullPath: '/thankyou'
+      preLoaderRoute: typeof ThankyouRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/books/': {
@@ -936,32 +936,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BooksIndexRouteImport
       parentRoute: typeof BooksRoute
     }
-    '/books/transactions': {
-      id: '/books/transactions'
-      path: '/transactions'
-      fullPath: '/books/transactions'
-      preLoaderRoute: typeof BooksTransactionsRouteImport
-      parentRoute: typeof BooksRoute
-    }
-    '/books/taxes': {
-      id: '/books/taxes'
-      path: '/taxes'
-      fullPath: '/books/taxes'
-      preLoaderRoute: typeof BooksTaxesRouteImport
-      parentRoute: typeof BooksRoute
-    }
-    '/books/reports': {
-      id: '/books/reports'
-      path: '/reports'
-      fullPath: '/books/reports'
-      preLoaderRoute: typeof BooksReportsRouteImport
-      parentRoute: typeof BooksRoute
-    }
-    '/books/owner-loan': {
-      id: '/books/owner-loan'
-      path: '/owner-loan'
-      fullPath: '/books/owner-loan'
-      preLoaderRoute: typeof BooksOwnerLoanRouteImport
+    '/books/accounts': {
+      id: '/books/accounts'
+      path: '/accounts'
+      fullPath: '/books/accounts'
+      preLoaderRoute: typeof BooksAccountsRouteImport
       parentRoute: typeof BooksRoute
     }
     '/books/categories': {
@@ -971,25 +950,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BooksCategoriesRouteImport
       parentRoute: typeof BooksRoute
     }
-    '/books/accounts': {
-      id: '/books/accounts'
-      path: '/accounts'
-      fullPath: '/books/accounts'
-      preLoaderRoute: typeof BooksAccountsRouteImport
+    '/books/owner-loan': {
+      id: '/books/owner-loan'
+      path: '/owner-loan'
+      fullPath: '/books/owner-loan'
+      preLoaderRoute: typeof BooksOwnerLoanRouteImport
       parentRoute: typeof BooksRoute
     }
-    '/api/public/payments/webhook': {
-      id: '/api/public/payments/webhook'
-      path: '/api/public/payments/webhook'
-      fullPath: '/api/public/payments/webhook'
-      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
-      parentRoute: typeof rootRouteImport
+    '/books/reports': {
+      id: '/books/reports'
+      path: '/reports'
+      fullPath: '/books/reports'
+      preLoaderRoute: typeof BooksReportsRouteImport
+      parentRoute: typeof BooksRoute
     }
-    '/api/public/payments/apply-tax-codes': {
-      id: '/api/public/payments/apply-tax-codes'
-      path: '/api/public/payments/apply-tax-codes'
-      fullPath: '/api/public/payments/apply-tax-codes'
-      preLoaderRoute: typeof ApiPublicPaymentsApplyTaxCodesRouteImport
+    '/books/taxes': {
+      id: '/books/taxes'
+      path: '/taxes'
+      fullPath: '/books/taxes'
+      preLoaderRoute: typeof BooksTaxesRouteImport
+      parentRoute: typeof BooksRoute
+    }
+    '/books/transactions': {
+      id: '/books/transactions'
+      path: '/transactions'
+      fullPath: '/books/transactions'
+      preLoaderRoute: typeof BooksTransactionsRouteImport
+      parentRoute: typeof BooksRoute
+    }
+    '/api/public/ghl/webhook': {
+      id: '/api/public/ghl/webhook'
+      path: '/api/public/ghl/webhook'
+      fullPath: '/api/public/ghl/webhook'
+      preLoaderRoute: typeof ApiPublicGhlWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/google/calendar-callback': {
@@ -999,11 +992,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGoogleCalendarCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/ghl/webhook': {
-      id: '/api/public/ghl/webhook'
-      path: '/api/public/ghl/webhook'
-      fullPath: '/api/public/ghl/webhook'
-      preLoaderRoute: typeof ApiPublicGhlWebhookRouteImport
+    '/api/public/payments/apply-tax-codes': {
+      id: '/api/public/payments/apply-tax-codes'
+      path: '/api/public/payments/apply-tax-codes'
+      fullPath: '/api/public/payments/apply-tax-codes'
+      preLoaderRoute: typeof ApiPublicPaymentsApplyTaxCodesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
