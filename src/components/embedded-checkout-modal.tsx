@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js";
 import { X, Loader2 } from "lucide-react";
 import { getStripe, getStripeEnvironment } from "@/lib/stripe";
@@ -17,30 +17,23 @@ export function EmbeddedCheckoutModal({
   returnUrl: string;
 }) {
   const [error, setError] = useState<string | null>(null);
-  const [keyVersion, setKeyVersion] = useState(0);
-
-  // Reset internal Stripe instance whenever priceId changes
-  useEffect(() => {
-    if (open && priceId) {
-      setError(null);
-      setKeyVersion((v) => v + 1);
-    }
-  }, [open, priceId]);
 
   const fetchClientSecret = useCallback(async (): Promise<string> => {
     if (!priceId) throw new Error("No price selected");
     try {
-      const { clientSecret } = await createCheckoutSession({
+      const result = await createCheckoutSession({
         data: { priceId, environment: getStripeEnvironment(), returnUrl },
       });
+      if ("error" in result && result.error) throw new Error(result.error);
+      const clientSecret = (result as { clientSecret?: string }).clientSecret;
+      if (!clientSecret) throw new Error("Stripe did not return a client secret");
       return clientSecret;
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Could not start checkout";
       setError(msg);
       throw e;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [priceId, returnUrl, keyVersion]);
+  }, [priceId, returnUrl]);
 
   if (!open) return null;
 
@@ -61,7 +54,7 @@ export function EmbeddedCheckoutModal({
               <div className="text-xs opacity-90">{error}</div>
             </div>
           ) : priceId ? (
-            <div key={keyVersion} className="min-h-[420px]">
+            <div className="min-h-[420px]">
               <EmbeddedCheckoutProvider stripe={getStripe()} options={{ fetchClientSecret }}>
                 <EmbeddedCheckout />
               </EmbeddedCheckoutProvider>

@@ -2,12 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Check, Sparkles } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
+import { EmbeddedCheckoutModal } from "@/components/embedded-checkout-modal";
 import { PLANS } from "@/lib/stripe";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { supabase } from "@/integrations/supabase/client";
-
-const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/3cI9ASaDK6bu9XT8Gj9AA04";
 
 export const Route = createFileRoute("/pricing")({
   component: PricingPage,
@@ -40,6 +39,7 @@ function PricingPage() {
   }, [user]);
 
   const isSubscribed = isActive || profileActive;
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   const startCheckout = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -47,7 +47,7 @@ function PricingPage() {
       import("sonner").then(({ toast }) => toast.message("You're already a member."));
       return;
     }
-    window.location.href = STRIPE_PAYMENT_LINK;
+    setCheckoutOpen(true);
   }, [isSubscribed]);
 
   useEffect(() => {
@@ -133,6 +133,15 @@ function PricingPage() {
           Cancel anytime from your billing page.
         </p>
       </div>
+
+      {checkoutOpen && (
+        <EmbeddedCheckoutModal
+          priceId="pro_monthly"
+          open={checkoutOpen}
+          onClose={() => setCheckoutOpen(false)}
+          returnUrl={`${window.location.origin}/thankyou?session_id={CHECKOUT_SESSION_ID}`}
+        />
+      )}
     </PageShell>
   );
 }

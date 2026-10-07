@@ -56,7 +56,7 @@ export function TrialExpiredModal() {
       {checkoutOpen && (
         <div className="fixed inset-0 z-[110]">
           <EmbeddedCheckoutModal
-            priceId="monthly"
+            priceId="pro_monthly"
             open={checkoutOpen}
             onClose={() => setCheckoutOpen(false)}
             returnUrl={`${window.location.origin}/thankyou?session_id={CHECKOUT_SESSION_ID}`}
