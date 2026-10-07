@@ -39,7 +39,7 @@ export function TrialExpiredModal() {
         </p>
         <button
           type="button"
-          onClick={() => setCheckoutOpen(true)}
+          onClick={() => openStripeCheckout(user)}
           className="mt-7 inline-flex w-full items-center justify-center rounded-lg bg-[#d4af37] px-6 py-3 text-base font-bold text-slate-950 shadow-[0_16px_40px_-16px_rgba(212,175,55,0.8)] transition-colors hover:bg-[#c89e2f]"
         >
           Subscribe Now — $19.99/month
@@ -52,16 +52,6 @@ export function TrialExpiredModal() {
           Sign out
         </button>
       </div>
-      {checkoutOpen && (
-        <div className="fixed inset-0 z-[110]">
-          <EmbeddedCheckoutModal
-            priceId="pro_monthly"
-            open={checkoutOpen}
-            onClose={() => setCheckoutOpen(false)}
-            returnUrl={`${window.location.origin}/thankyou?session_id={CHECKOUT_SESSION_ID}`}
-          />
-        </div>
-      )}
     </div>
   );
 }

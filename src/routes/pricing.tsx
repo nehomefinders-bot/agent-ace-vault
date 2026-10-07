@@ -132,14 +132,6 @@ function PricingPage() {
         </p>
       </div>
 
-      {checkoutOpen && (
-        <EmbeddedCheckoutModal
-          priceId="pro_monthly"
-          open={checkoutOpen}
-          onClose={() => setCheckoutOpen(false)}
-          returnUrl={`${window.location.origin}/thankyou?session_id={CHECKOUT_SESSION_ID}`}
-        />
-      )}
     </PageShell>
   );
 }
