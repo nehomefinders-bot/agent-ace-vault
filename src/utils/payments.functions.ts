@@ -32,13 +32,10 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     const { userId, supabase, claims } = context;
     const stripe = createStripeClient(data.environment);
 
-    // Look up the price by our human-readable external id.
-    const prices = await stripe.prices.search({
-      query: `metadata['lovable_external_id']:'${data.priceId}'`,
-      limit: 1,
-    });
-    const stripePrice = prices.data[0];
-    if (!stripePrice) throw new Error(`Price not found: ${data.priceId}. Have you created the products yet?`);
+    // Permanent Stripe price for the monthly subscription.
+    const PERMANENT_PRICE_ID = "price_1UNuBAD41bB8a8UgJh63PeIN";
+    const stripePrice = await stripe.prices.retrieve(PERMANENT_PRICE_ID);
+    if (!stripePrice) throw new Error("Subscription price not found in Stripe.");
 
     // Make sure the product has a tax code so managed_payments / tax works.
     if (typeof stripePrice.product === "string") {
@@ -64,7 +61,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     const customerId = existing?.stripe_customer_id as string | undefined;
     const customerEmail = (claims as any)?.email as string | undefined;
 
-    const isBeta = data.priceId === "beta_monthly";
+    const isBeta = true;
 
     const session = await stripe.checkout.sessions.create({
       line_items: [{ price: stripePrice.id, quantity: 1 }],
