@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { supabase } from "@/integrations/supabase/client";
 
-const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/3cI9ASaDK6bu9XT8Gj9AA04";
+import { buildStripeCheckoutUrl } from "@/lib/stripe";
 
 const FEATURES = [
   "Every feature unlocked — no tiers, no upsells",
@@ -41,7 +41,7 @@ export function FoundersPaywallCard() {
       toast.message("You're already a member.");
       return;
     }
-    window.location.href = STRIPE_PAYMENT_LINK;
+    window.location.href = buildStripeCheckoutUrl(user);
   };
 
   return (
