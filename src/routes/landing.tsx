@@ -46,7 +46,7 @@ export const Route = createFileRoute("/landing")({
       {
         name: "description",
         content:
-          "Track commissions, expenses, mileage and owner loans in one place. Tax-ready Schedule C reports built for agents and brokers.",
+          "Track commissions, expenses, mileage and clients in one place. Start a 14-Day Free Trial, then $19.99/month.",
       },
       {
         property: "og:title",
@@ -55,8 +55,10 @@ export const Route = createFileRoute("/landing")({
       {
         property: "og:description",
         content:
-          "All-in-one books, mileage and client tracking for agents. Tax-ready in one click.",
+          "All-in-one books, mileage and client tracking for agents. 14-Day Free Trial, then $19.99/month.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
 });
@@ -64,17 +66,17 @@ export const Route = createFileRoute("/landing")({
 const tiers = [
   {
     name: "Full Access",
-    blurb: "Start with 14 days free. Then just $19.99/month for 6 months.",
+    blurb: "Start with a 14-Day Free Trial, then $19.99/month.",
     features: [
       "All features unlocked from day one",
-      "Introductory rate: $19.99/mo for first 6 months",
+      "One simple membership: $19.99/month",
       "Direct line to the team",
       "Priority bug-fix turnaround",
       "Help shape the product roadmap",
     ],
     cta: "Start 14-Day Free Trial",
     featured: true,
-    badge: "Best Value",
+    badge: "14-Day Free Trial",
   },
 ];
 
@@ -101,7 +103,7 @@ const features = [
   {
     icon: ShieldCheck,
     title: "Simple pricing",
-    body: "$19.99/month for your first 6 months. Cancel anytime from your billing page.",
+    body: "14-Day Free Trial, then $19.99/month. Cancel anytime.",
     glow: "from-white via-[#e8f5ee] to-[#4d7c5f]",
   },
 ];
@@ -279,7 +281,7 @@ function Landing() {
                 Start 14-Day Free Trial <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-            <p className="mt-3 text-sm text-white/60">No credit card required upfront.</p>
+            <p className="mt-3 text-sm text-white/60">14 days free, then $19.99/month.</p>
           </div>
         </div>
       </section>
@@ -304,25 +306,24 @@ function Landing() {
           <Reveal direction="left">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[#f0cf6a]">
-                <Sparkles className="h-3.5 w-3.5" /> Limited Seats Available
+                <Sparkles className="h-3.5 w-3.5" /> 14-Day Free Trial
               </div>
               <h2 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl">
                 Start your 14-day free trial.{" "}
                 <span className="bg-gradient-to-r from-[#fff0a8] via-[#e4be47] to-[#b88918] bg-clip-text text-transparent">
-                  Lock in introductory pricing.
+                  Then $19.99/month.
                 </span>
               </h2>
               <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/80">
-                Start with full access for 14 days free—no credit card required. After your trial,
-                enjoy our special introductory rate of just{" "}
-                <span className="font-semibold text-[#f0cf6a]">$19.99/month</span> for your first 6
-                months (standard rate $27.99/month thereafter).
+                Get full access with a 14-Day Free Trial—no credit card required upfront.
+                After your trial, continue for{" "}
+                <span className="font-semibold text-[#f0cf6a]">$19.99/month</span>. Cancel anytime.
               </p>
 
 
               <ul className="mt-6 space-y-2.5 text-base text-white/80">
                 {[
-                  "All Pro & Team features unlocked from day one",
+                  "Every feature unlocked from day one",
                   "Direct line to the team - shape the roadmap",
                   "Priority bug-fix turnaround & early access drops",
                 ].map((item) => (
@@ -352,7 +353,7 @@ function Landing() {
                   )}
                 </button>
               </div>
-              <p className="mt-3 text-sm text-white/60">No credit card required upfront.</p>
+              <p className="mt-3 text-sm text-white/60">14 days free, then $19.99/month.</p>
             </div>
           </Reveal>
 
@@ -381,7 +382,7 @@ function Landing() {
                     <span className="font-display text-5xl font-bold tabular-nums text-white">
                       $19.99
                     </span>
-                    <span className="text-sm text-white/55">/month for 6 months</span>
+                    <span className="text-sm text-white/55">/month</span>
                   </div>
                   <div className="mt-2 text-xs text-white/45">
                     then $27.99/mo. Cancel anytime.
@@ -398,10 +399,10 @@ function Landing() {
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   {[
-                    { l: "Features", v: "All Pro" },
+                    { l: "Features", v: "All included" },
                     { l: "Updates", v: "Priority" },
                     { l: "Support", v: "Priority" },
-                    { l: "Intro rate", v: "6 Months" },
+                    { l: "Free trial", v: "14 Days" },
                   ].map((k) => (
                     <div
                       key={k.l}
@@ -468,7 +469,7 @@ function Landing() {
                     "Start 14-Day Free Trial"
                   )}
                 </button>
-                <p className="text-sm font-medium text-[#0B1424]/70">No credit card required upfront.</p>
+                <p className="text-sm font-medium text-[#0B1424]/70">14 days free, then $19.99/month.</p>
               </div>
 
             </div>
@@ -632,7 +633,7 @@ function Landing() {
                 Start 14-Day Free Trial — Includes Pocket Broker
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <p className="mt-3 text-sm text-spotlight-copy">No credit card required upfront.</p>
+              <p className="mt-3 text-sm text-spotlight-copy">14 days free, then $19.99/month.</p>
             </div>
           </Reveal>
         </div>
@@ -770,7 +771,7 @@ function Landing() {
               Simple pricing, real value
             </h2>
             <p className="mt-3 text-lg text-slate-600">
-              Less than a single closing gift per month.
+              One membership. Every feature. 14 days free, then $19.99/month.
             </p>
           </div>
 
@@ -797,9 +798,9 @@ function Landing() {
                       <div className="font-display text-5xl font-bold tabular-nums text-[#8f6b12]">
                         $19.99
                       </div>
-                      <div className="text-base text-slate-500">/month for 6 months</div>
+                      <div className="text-base text-slate-500">/month</div>
                     </div>
-                    <div className="mb-6 text-sm text-slate-500">(Then $27.99/month thereafter)</div>
+                    <div className="mb-6 text-sm text-slate-600">14-Day Free Trial. Cancel anytime.</div>
                     <div className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-[#1E4D49]/25 bg-[#4E9A94]/15 px-3 py-1.5 text-xs font-semibold text-[#1E4D49]">
                       <Sparkles className="h-3.5 w-3.5 text-[#C9973A]" />
                       Includes Pocket Broker Standalone Access ($0 extra)
@@ -824,7 +825,7 @@ function Landing() {
                         tier.cta
                       )}
                     </button>
-                    <p className="-mt-4 mb-6 text-center text-sm text-slate-500">No credit card required upfront.</p>
+                    <p className="-mt-4 mb-6 text-center text-sm text-slate-500">14 days free, then $19.99/month.</p>
                     <div className="mb-3 flex items-start gap-2 rounded-xl border border-[#c59a22]/45 bg-[#fff6dd] px-3 py-2.5 shadow-[0_10px_24px_-16px_rgba(184,137,24,0.6)]">
                       <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#b88918]" />
                       <span className="text-base font-semibold leading-snug text-slate-900">
@@ -873,7 +874,7 @@ function Landing() {
               >
                 Start 14-Day Free Trial
               </Link>
-              <p className="mt-3 text-sm text-slate-400">No credit card required upfront.</p>
+              <p className="mt-3 text-sm text-slate-400">14 days free, then $19.99/month.</p>
             </div>
           </div>
 
