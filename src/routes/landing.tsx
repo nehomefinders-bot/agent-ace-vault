@@ -206,8 +206,8 @@ function Landing() {
   };
 
   const handleFounderAccessClick = () => {
-    if (user) { openStripeCheckout(user); return; }
-    nav({ to: "/signup" });
+    if (user) { nav({ to: "/dashboard" }); return; }
+    nav({ to: "/auth" });
   };
   const isFounderCheckoutLoading = false;
 
