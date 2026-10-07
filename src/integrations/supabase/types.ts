@@ -795,6 +795,9 @@ export type Database = {
           phone: string | null
           plan: string | null
           starting_odometer: number | null
+          subscription_status: string
+          trial_end_date: string | null
+          trial_start_date: string | null
           updated_at: string
         }
         Insert: {
@@ -808,6 +811,9 @@ export type Database = {
           phone?: string | null
           plan?: string | null
           starting_odometer?: number | null
+          subscription_status?: string
+          trial_end_date?: string | null
+          trial_start_date?: string | null
           updated_at?: string
         }
         Update: {
@@ -821,6 +827,9 @@ export type Database = {
           phone?: string | null
           plan?: string | null
           starting_odometer?: number | null
+          subscription_status?: string
+          trial_end_date?: string | null
+          trial_start_date?: string | null
           updated_at?: string
         }
         Relationships: []

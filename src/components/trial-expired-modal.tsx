@@ -34,16 +34,14 @@ export function TrialExpiredModal() {
           Your 14-Day Free Trial Has Ended
         </h1>
         <p className="mt-3 text-sm leading-6 text-white/75">
-          We hope you enjoyed using Agent Business Tracker! To continue accessing your pipeline,
-          tracking your mileage, and practicing with Pocket Broker, please upgrade your account
-          for $19.99/month.
+          Continue managing your pipeline and transactions for just $19.99/month.
         </p>
         <Button
           type="button"
           onClick={() => openStripeCheckout(user)}
           className="mt-7 h-auto w-full cursor-pointer whitespace-normal rounded-lg bg-spotlight-gold px-6 py-3 text-base font-bold text-spotlight shadow-elevated hover:bg-spotlight-gold-soft"
         >
-          Subscribe Now — $19.99/month
+          Subscribe Now ($19.99/mo)
         </Button>
         <button
           type="button"
