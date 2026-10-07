@@ -36,13 +36,13 @@ export interface Plan {
 export const PLANS: Plan[] = [
   {
     id: "beta_tester",
-    name: "14-Day Free Trial",
-    tagline: "Start with 14 days free. Then $19.99/month for 6 months.",
-    monthly: { priceId: "beta_monthly", amount: 10 },
-    yearly: { priceId: "beta_monthly", amount: 10 },
+    name: "Full Access",
+    tagline: "Start with a 14-Day Free Trial, then $19.99/month.",
+    monthly: { priceId: "beta_monthly", amount: 19.99 },
+    yearly: { priceId: "beta_monthly", amount: 19.99 },
     features: [
       "Every feature unlocked — no tiers, no upsells",
-      "Introductory rate: $19.99/mo for first 6 months",
+      "One simple membership: $19.99/month",
       "Help shape the product roadmap",
       "Direct line to the team",
       "Priority bug-fix turnaround",

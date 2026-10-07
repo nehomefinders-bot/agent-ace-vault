@@ -1,0 +1,2 @@
+# Architecture rules
+- Subscription purchase buttons use the shared direct Payment Link URL builder with the authenticated user's email and ID; this keeps checkout attribution consistent across the website.

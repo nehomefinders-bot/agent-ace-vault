@@ -5,7 +5,14 @@ import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/support")({
   component: SupportPage,
-  head: () => ({ meta: [{ title: "Support - Agent Business Tracker" }] }),
+  head: () => ({ meta: [
+    { title: "Support - Agent Business Tracker" },
+    { name: "description", content: "Contact Agent Business Tracker support and find membership help and how-to guides." },
+    { property: "og:title", content: "Support - Agent Business Tracker" },
+    { property: "og:description", content: "Get help with your Agent Business Tracker membership and tools." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
 });
 
 function SupportPage() {
@@ -110,7 +117,7 @@ function SupportPage() {
                 to="/pricing"
                 className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium hover:bg-muted"
               >
-                {isBeta ? "Switch to a regular plan" : "View plans"}
+                View membership — $19.99/month
               </Link>
             </div>
           </div>

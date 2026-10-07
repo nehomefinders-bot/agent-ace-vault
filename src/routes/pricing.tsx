@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Check, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { PageShell } from "@/components/page-shell";
 import { PLANS, openStripeCheckout } from "@/lib/stripe";
 import { useAuth } from "@/hooks/use-auth";
@@ -12,14 +13,18 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Pricing - Agent Business Tracker" },
-      { name: "description", content: "Start free for 14 days, then $19.99/month for 6 months. Cancel anytime." },
+      { name: "description", content: "Start a 14-Day Free Trial, then $19.99/month. One plan, every feature. Cancel anytime." },
+      { property: "og:title", content: "Pricing - Agent Business Tracker" },
+      { property: "og:description", content: "One plan, every feature. 14-Day Free Trial, then $19.99/month." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
 });
 
 function PricingPage() {
   const { user, loading: authLoading } = useAuth();
-  const { subscription, isActive } = useSubscription();
+  const { isActive } = useSubscription();
   const [profileActive, setProfileActive] = useState(false);
   const plan = PLANS[0];
 
@@ -83,7 +88,7 @@ function PricingPage() {
       <div className="mx-auto max-w-md">
         <div className="relative rounded-2xl border border-primary/30 bg-card p-8 shadow-card">
           <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[10px] font-medium uppercase tracking-wider text-primary-foreground shadow-sm">
-            <Sparkles className="h-3 w-3" /> Limited Seats Available
+            <Sparkles className="h-3 w-3" /> 14-Day Free Trial
           </div>
 
           <div className="font-display text-2xl font-bold text-foreground">{plan.name}</div>
@@ -91,31 +96,24 @@ function PricingPage() {
 
           <div className="mb-1 flex items-baseline gap-1">
             <span className="font-display text-5xl font-bold tabular-nums text-foreground">$19.99</span>
-            <span className="text-sm text-muted-foreground">/month for 6 months</span>
+            <span className="text-sm text-muted-foreground">/month</span>
           </div>
-          <div className="mb-4 text-sm text-muted-foreground">(Then $27.99/month thereafter)</div>
+
 
           <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
-            Start with full access for 14 days free—no credit card required. After your trial, enjoy
-            our special introductory rate of just{" "}
-            <span className="font-semibold text-foreground">$19.99/month</span> for your first 6
-            months (standard rate $27.99/month thereafter).
+            Every feature is included in your 14-Day Free Trial. After your trial, continue for{" "}
+            <span className="font-semibold text-foreground">$19.99/month</span>. Cancel anytime.
           </p>
 
 
-          <button
+          <Button
             type="button"
             onClick={startCheckout}
             disabled={isSubscribed}
-            aria-disabled={isSubscribed}
-            className={
-              isSubscribed
-                ? "inline-flex w-full items-center justify-center gap-2 rounded-lg bg-muted border border-border/50 px-4 py-3 text-sm font-semibold text-muted-foreground/60 opacity-75 cursor-not-allowed pointer-events-none select-none"
-                : "inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#0b2545] px-4 py-3 text-sm font-medium text-white transition hover:bg-[#134074] shadow-md cursor-pointer"
-            }
+            className="h-auto w-full cursor-pointer whitespace-normal px-4 py-3 text-center"
           >
-            {isSubscribed ? "Already Subscribed" : subscription ? "Resubscribe" : "Start 14-Day Free Trial"}
-          </button>
+            {isSubscribed ? "Already Subscribed" : "Start Your 14-Day Free Trial"}
+          </Button>
 
           <ul className="mt-6 space-y-2.5">
             {plan.features.map((feature) => (

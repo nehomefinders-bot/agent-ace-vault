@@ -6,10 +6,11 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { supabase } from "@/integrations/supabase/client";
 
 import { buildStripeCheckoutUrl } from "@/lib/stripe";
+import { Button } from "@/components/ui/button";
 
 const FEATURES = [
   "Every feature unlocked — no tiers, no upsells",
-  "Introductory rate: $19.99/mo for first 6 months",
+  "One simple membership: $19.99/month",
   "Help shape the product roadmap",
   "Direct line to the founders",
   "Priority bug-fix turnaround",
@@ -49,46 +50,44 @@ export function FoundersPaywallCard() {
       <div className="w-full max-w-xl relative rounded-3xl border border-white/10 bg-[#0b1020] p-8 shadow-[0_40px_100px_-30px_rgba(0,0,0,0.7)]">
         <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-[#d4af37] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-950 shadow-[0_10px_30px_-8px_rgba(212,175,55,0.6)]">
-            <Sparkles className="h-3.5 w-3.5" /> Limited Seats Available
+            <Sparkles className="h-3.5 w-3.5" /> 14-Day Free Trial
           </div>
         </div>
 
         <h1 className="mt-2 font-display text-3xl font-bold text-white">Full Access</h1>
         <p className="mt-2 text-sm text-white/70">
-          Start with 14 days free. Then just $19.99/month for 6 months.
+          Start with a 14-Day Free Trial, then $19.99/month.
         </p>
 
         <div className="mt-6 flex items-baseline gap-1">
           <span className="font-display text-6xl font-bold tabular-nums text-white">$19.99</span>
-          <span className="text-base text-white/60">/month for 6 months</span>
+          <span className="text-base text-white/60">/month</span>
         </div>
-        <p className="mt-1 text-sm text-white/50">(Then $27.99/month thereafter)</p>
+
 
         <p className="mt-5 text-sm leading-relaxed text-white/70">
-          Start with full access for 14 days free—no credit card required. After your trial, enjoy
-          our special introductory rate of just{" "}
-          <span className="font-semibold text-white">$19.99/month</span> for your first 6 months
-          (standard rate $27.99/month thereafter).
+          Start with full access for a 14-Day Free Trial. After your trial, continue for{" "}
+          <span className="font-semibold text-white">$19.99/month</span>. Cancel anytime.
         </p>
 
 
         {alreadyMember ? (
-          <button
+          <Button
             type="button"
             disabled
             aria-disabled="true"
-            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white/10 px-5 py-4 text-base font-bold text-white/50 cursor-not-allowed pointer-events-none select-none"
+            className="mt-6 h-auto w-full rounded-lg bg-muted px-5 py-4 text-base font-bold text-muted-foreground"
           >
             Already Subscribed
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
             type="button"
             onClick={handleSubscribe}
-            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#d4af37] px-5 py-4 text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition hover:bg-[#c89e2f]"
+            className="mt-6 h-auto w-full cursor-pointer whitespace-normal rounded-lg bg-spotlight-gold px-5 py-4 text-base font-bold text-spotlight shadow-elevated hover:bg-spotlight-gold-soft"
           >
             Start 14-Day Free Trial
-          </button>
+          </Button>
         )}
 
         <ul className="mt-6 space-y-3">

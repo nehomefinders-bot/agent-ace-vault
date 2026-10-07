@@ -5,8 +5,9 @@ import { PageShell, StatusPill } from "@/components/page-shell";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { cancelSubscription, createPortalSession, resumeSubscription } from "@/utils/payments.functions";
-import { getStripeEnvironment, PLANS } from "@/lib/stripe";
+import { getStripeEnvironment, PLANS, openStripeCheckout } from "@/lib/stripe";
 
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -15,7 +16,14 @@ import {
 
 export const Route = createFileRoute("/billing")({
   component: BillingPage,
-  head: () => ({ meta: [{ title: "Billing — Agent Business Tracker" }] }),
+  head: () => ({ meta: [
+    { title: "Billing — Agent Business Tracker" },
+    { name: "description", content: "Manage your Agent Business Tracker membership, payment method and invoices. $19.99/month after a 14-Day Free Trial." },
+    { property: "og:title", content: "Billing — Agent Business Tracker" },
+    { property: "og:description", content: "Manage your $19.99/month membership and billing details." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
 });
 
 function BillingPage() {
@@ -111,10 +119,10 @@ function BillingPage() {
             <CreditCard className="h-5 w-5 text-muted-foreground" />
           </div>
           <h3 className="font-display text-lg font-bold">No active subscription</h3>
-          <p className="text-sm text-muted-foreground mb-5 mt-1">Full access — $19.99/month for your first 6 months. Cancel anytime.</p>
-          <Link to="/pricing" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-sm font-medium">
-            View plans
-          </Link>
+          <p className="text-sm text-muted-foreground mb-5 mt-1">14-Day Free Trial, then full access for $19.99/month. Cancel anytime.</p>
+          <Button onClick={() => openStripeCheckout(user)} className="h-auto whitespace-normal px-4 py-2.5">
+            Start Your 14-Day Free Trial
+          </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -138,7 +146,7 @@ function BillingPage() {
               <div className="mb-5 bg-primary/10 border border-primary/30 text-primary rounded-lg px-3 py-2.5 text-sm flex items-start gap-2">
                 <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" />
                 <div>
-                  <strong>Subscription active</strong> — every feature unlocked at your $19.99/month introductory rate.
+                  <strong>Subscription active</strong> — every feature unlocked for $19.99/month.
                 </div>
               </div>
             )}
