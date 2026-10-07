@@ -66,8 +66,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     // 14-day free trial. If the user is still inside their in-app trial
     // (counted from signup), Stripe's trial covers only the remaining days so
     // billing starts exactly when the app trial ends. If the app trial already
-    // expired, Stripe still grants the full 14-day trial configuration only for
-    // first-time subscribers who never had a subscription.
+    // expired (or they subscribed before), they are charged immediately.
     const TRIAL_DAYS = 14;
     const createdAt = (claims as any)?.created_at
       ? new Date((claims as any).created_at).getTime()
