@@ -61,7 +61,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     const customerId = existing?.stripe_customer_id as string | undefined;
     const customerEmail = (claims as any)?.email as string | undefined;
 
-    const isBeta = data.priceId === "beta_monthly";
+    const isBeta = true;
 
     const session = await stripe.checkout.sessions.create({
       line_items: [{ price: stripePrice.id, quantity: 1 }],
