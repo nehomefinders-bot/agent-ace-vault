@@ -32,19 +32,23 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     const { userId, supabase, claims } = context;
     const stripe = createStripeClient(data.environment);
 
-    // Resolve the monthly subscription price. Primary: the managed catalog
-    // price ("pro_monthly") which exists in BOTH test and live. Fallback: the
-    // permanent live-mode Stripe price ID the user created manually.
+    // Resolve the monthly subscription price. Live mode: the permanent
+    // live-mode Stripe price ID the user created manually. Test mode: the
+    // managed catalog price ("pro_monthly"), with the live ID as fallback.
     const LOOKUP_KEY = "pro_monthly";
     const LIVE_PRICE_ID = "price_1UNuBAD41bB8a8UgJh63PeIN";
     let stripePrice;
     try {
-      const prices = await stripe.prices.list({ lookup_keys: [LOOKUP_KEY], limit: 1 });
-      if (prices.data.length) {
-        stripePrice = prices.data[0];
-      } else {
-        console.warn(`[checkout] lookup_key "${LOOKUP_KEY}" not found in ${data.environment}; trying ${LIVE_PRICE_ID}`);
+      if (data.environment === "live") {
         stripePrice = await stripe.prices.retrieve(LIVE_PRICE_ID);
+      } else {
+        const prices = await stripe.prices.list({ lookup_keys: [LOOKUP_KEY], limit: 1 });
+        if (prices.data.length) {
+          stripePrice = prices.data[0];
+        } else {
+          console.warn(`[checkout] lookup_key "${LOOKUP_KEY}" not found in ${data.environment}; trying ${LIVE_PRICE_ID}`);
+          stripePrice = await stripe.prices.retrieve(LIVE_PRICE_ID);
+        }
       }
     } catch (error) {
       console.error(`[checkout] Price resolution failed in ${data.environment} mode. lookup_key=${LOOKUP_KEY}, fallback=${LIVE_PRICE_ID}`, error);
