@@ -33,8 +33,7 @@ export function EmbeddedCheckoutModal({
       setError(msg);
       throw e;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [priceId, returnUrl, keyVersion]);
+  }, [priceId, returnUrl]);
 
   if (!open) return null;
 
@@ -55,7 +54,7 @@ export function EmbeddedCheckoutModal({
               <div className="text-xs opacity-90">{error}</div>
             </div>
           ) : priceId ? (
-            <div key={keyVersion} className="min-h-[420px]">
+            <div className="min-h-[420px]">
               <EmbeddedCheckoutProvider stripe={getStripe()} options={{ fetchClientSecret }}>
                 <EmbeddedCheckout />
               </EmbeddedCheckoutProvider>
