@@ -1,9 +1,11 @@
 import { Lock } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { EmbeddedCheckoutModal } from "@/components/embedded-checkout-modal";
 import { useAuth } from "@/hooks/use-auth";
 
 export function TrialExpiredModal() {
   const { signOut } = useAuth();
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   // Lock background scroll while the overlay is up.
   useEffect(() => {
@@ -36,14 +38,13 @@ export function TrialExpiredModal() {
           tracking your mileage, and practicing with Pocket Broker, please upgrade your account
           today.
         </p>
-        <a
-          href="https://buy.stripe.com/dRm8wOcLSgQ8b1X2hV9AA05?prefilled_promo_code=FOUNDERS19"
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          type="button"
+          onClick={() => setCheckoutOpen(true)}
           className="mt-7 inline-flex w-full items-center justify-center rounded-lg bg-[#d4af37] px-6 py-3 text-base font-bold text-slate-950 shadow-[0_16px_40px_-16px_rgba(212,175,55,0.8)] transition-colors hover:bg-[#c89e2f]"
         >
-          Subscribe to Continue
-        </a>
+          Subscribe Now — $19.99/month
+        </button>
         <button
           type="button"
           onClick={() => signOut()}
@@ -52,6 +53,16 @@ export function TrialExpiredModal() {
           Sign out
         </button>
       </div>
+      {checkoutOpen && (
+        <div className="fixed inset-0 z-[110]">
+          <EmbeddedCheckoutModal
+            priceId="monthly"
+            open={checkoutOpen}
+            onClose={() => setCheckoutOpen(false)}
+            returnUrl={`${window.location.origin}/thankyou?session_id={CHECKOUT_SESSION_ID}`}
+          />
+        </div>
+      )}
     </div>
   );
 }

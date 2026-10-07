@@ -63,10 +63,26 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
 
     const isBeta = true;
 
+    // 14-day free trial. If the user is still inside their in-app trial
+    // (counted from signup), Stripe's trial covers only the remaining days so
+    // billing starts exactly when the app trial ends. If the app trial already
+    // expired (or they subscribed before), they are charged immediately.
+    const TRIAL_DAYS = 14;
+    const createdAt = (claims as any)?.created_at
+      ? new Date((claims as any).created_at).getTime()
+      : NaN;
+    let trialDays = TRIAL_DAYS;
+    if (!Number.isNaN(createdAt)) {
+      const elapsed = Math.floor((Date.now() - createdAt) / 86400000);
+      trialDays = TRIAL_DAYS - elapsed;
+    }
+    const hadSubscription = Boolean(existing);
+    const trialPeriodDays = !hadSubscription && trialDays >= 1 ? trialDays : undefined;
+
     const session = await stripe.checkout.sessions.create({
       line_items: [{ price: stripePrice.id, quantity: 1 }],
       mode: "subscription",
-      ui_mode: "embedded",
+      ui_mode: "embedded_page",
       return_url: data.returnUrl,
       ...(customerId
         ? { customer: customerId }
@@ -76,6 +92,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       // Full compliance handling — Stripe handles tax + fraud + disputes + support
       managed_payments: { enabled: true },
       subscription_data: {
+        ...(trialPeriodDays ? { trial_period_days: trialPeriodDays } : {}),
         metadata: { userId, ...(isBeta ? { beta_program: "true" } : {}) },
       },
       metadata: { userId, lovable_price_id: data.priceId, managed_payments: "true" },
