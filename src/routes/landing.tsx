@@ -385,7 +385,7 @@ function Landing() {
                     <span className="text-sm text-white/55">/month</span>
                   </div>
                   <div className="mt-2 text-xs text-white/45">
-                    then $27.99/mo. Cancel anytime.
+                    14-Day Free Trial. Cancel anytime.
                   </div>
 
 
