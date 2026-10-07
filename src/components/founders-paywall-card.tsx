@@ -41,7 +41,7 @@ export function FoundersPaywallCard() {
       toast.message("You're already a member.");
       return;
     }
-    window.location.href = STRIPE_PAYMENT_LINK;
+    window.location.href = buildStripeCheckoutUrl(user);
   };
 
   return (
