@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Check, Sparkles } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
-import { EmbeddedCheckoutModal } from "@/components/embedded-checkout-modal";
 import { PLANS } from "@/lib/stripe";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";

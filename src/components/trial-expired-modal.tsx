@@ -1,11 +1,10 @@
 import { Lock } from "lucide-react";
-import { useEffect, useState } from "react";
-import { EmbeddedCheckoutModal } from "@/components/embedded-checkout-modal";
+import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { openStripeCheckout } from "@/lib/stripe";
 
 export function TrialExpiredModal() {
-  const { signOut } = useAuth();
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   // Lock background scroll while the overlay is up.
   useEffect(() => {
