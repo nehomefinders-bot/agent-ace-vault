@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { type StripeEnv, createStripeClient } from "@/lib/stripe.server";
+import { type StripeEnv, createStripeClient, getStripeErrorMessage } from "@/lib/stripe.server";
 
 const SAAS_TAX_CODE = "txcd_10103001";
 
@@ -32,10 +32,28 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     const { userId, supabase, claims } = context;
     const stripe = createStripeClient(data.environment);
 
-    // Permanent Stripe price for the monthly subscription.
-    const PERMANENT_PRICE_ID = "price_1UNuBAD41bB8a8UgJh63PeIN";
-    const stripePrice = await stripe.prices.retrieve(PERMANENT_PRICE_ID);
-    if (!stripePrice) throw new Error("Subscription price not found in Stripe.");
+    // Resolve the monthly subscription price. Primary: the managed catalog
+    // price ("pro_monthly") which exists in BOTH test and live. Fallback: the
+    // permanent live-mode Stripe price ID the user created manually.
+    const LOOKUP_KEY = "pro_monthly";
+    const LIVE_PRICE_ID = "price_1UNuBAD41bB8a8UgJh63PeIN";
+    let stripePrice;
+    try {
+      const prices = await stripe.prices.list({ lookup_keys: [LOOKUP_KEY], limit: 1 });
+      if (prices.data.length) {
+        stripePrice = prices.data[0];
+      } else {
+        console.warn(`[checkout] lookup_key "${LOOKUP_KEY}" not found in ${data.environment}; trying ${LIVE_PRICE_ID}`);
+        stripePrice = await stripe.prices.retrieve(LIVE_PRICE_ID);
+      }
+    } catch (error) {
+      console.error(`[checkout] Price resolution failed in ${data.environment} mode. lookup_key=${LOOKUP_KEY}, fallback=${LIVE_PRICE_ID}`, error);
+      return { error: getStripeErrorMessage(error) };
+    }
+    if (!stripePrice) {
+      console.error(`[checkout] No subscription price found in ${data.environment} mode (lookup_key=${LOOKUP_KEY}, fallback=${LIVE_PRICE_ID})`);
+      return { error: "Subscription price not found in Stripe." };
+    }
 
     // Make sure the product has a tax code so managed_payments / tax works.
     if (typeof stripePrice.product === "string") {
@@ -79,27 +97,31 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     const hadSubscription = Boolean(existing);
     const trialPeriodDays = !hadSubscription && trialDays >= 1 ? trialDays : undefined;
 
-    const session = await stripe.checkout.sessions.create({
-      line_items: [{ price: stripePrice.id, quantity: 1 }],
-      mode: "subscription",
-      ui_mode: "embedded_page",
-      return_url: data.returnUrl,
-      ...(customerId
-        ? { customer: customerId }
-        : customerEmail
-        ? { customer_email: customerEmail }
-        : {}),
-      // Full compliance handling — Stripe handles tax + fraud + disputes + support
-      managed_payments: { enabled: true },
-      subscription_data: {
-        ...(trialPeriodDays ? { trial_period_days: trialPeriodDays } : {}),
-        metadata: { userId, ...(isBeta ? { beta_program: "true" } : {}) },
-      },
-      metadata: { userId, lovable_price_id: data.priceId, managed_payments: "true" },
-      allow_promotion_codes: true,
-    } as any);
-
-
+    let session;
+    try {
+      session = await stripe.checkout.sessions.create({
+        line_items: [{ price: stripePrice.id, quantity: 1 }],
+        mode: "subscription",
+        ui_mode: "embedded_page",
+        return_url: data.returnUrl,
+        ...(customerId
+          ? { customer: customerId }
+          : customerEmail
+          ? { customer_email: customerEmail }
+          : {}),
+        // Full compliance handling — Stripe handles tax + fraud + disputes + support
+        managed_payments: { enabled: true },
+        subscription_data: {
+          ...(trialPeriodDays ? { trial_period_days: trialPeriodDays } : {}),
+          metadata: { userId, ...(isBeta ? { beta_program: "true" } : {}) },
+        },
+        metadata: { userId, lovable_price_id: data.priceId, managed_payments: "true" },
+        allow_promotion_codes: true,
+      } as any);
+    } catch (error) {
+      console.error(`[checkout] Session creation failed in ${data.environment} mode. stripePriceId=${stripePrice.id}, userId=${userId}`, error);
+      return { error: getStripeErrorMessage(error) };
+    }
 
     return { clientSecret: (session as any).client_secret as string };
   });

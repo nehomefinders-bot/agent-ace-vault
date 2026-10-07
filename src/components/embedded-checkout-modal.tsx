@@ -30,9 +30,12 @@ export function EmbeddedCheckoutModal({
   const fetchClientSecret = useCallback(async (): Promise<string> => {
     if (!priceId) throw new Error("No price selected");
     try {
-      const { clientSecret } = await createCheckoutSession({
+      const result = await createCheckoutSession({
         data: { priceId, environment: getStripeEnvironment(), returnUrl },
       });
+      if ("error" in result && result.error) throw new Error(result.error);
+      const clientSecret = (result as { clientSecret?: string }).clientSecret;
+      if (!clientSecret) throw new Error("Stripe did not return a client secret");
       return clientSecret;
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Could not start checkout";
