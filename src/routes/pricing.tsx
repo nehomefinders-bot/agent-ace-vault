@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Check, Sparkles } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
-import { PLANS } from "@/lib/stripe";
+import { PLANS, openStripeCheckout } from "@/lib/stripe";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,7 +38,6 @@ function PricingPage() {
   }, [user]);
 
   const isSubscribed = isActive || profileActive;
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   const startCheckout = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -46,8 +45,8 @@ function PricingPage() {
       import("sonner").then(({ toast }) => toast.message("You're already a member."));
       return;
     }
-    setCheckoutOpen(true);
-  }, [isSubscribed]);
+    openStripeCheckout(user);
+  }, [isSubscribed, user]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
