@@ -2,6 +2,7 @@ import { Lock } from "lucide-react";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { openStripeCheckout } from "@/lib/stripe";
+import { Button } from "@/components/ui/button";
 
 export function TrialExpiredModal() {
   const { user, signOut } = useAuth();
@@ -35,15 +36,15 @@ export function TrialExpiredModal() {
         <p className="mt-3 text-sm leading-6 text-white/75">
           We hope you enjoyed using Agent Business Tracker! To continue accessing your pipeline,
           tracking your mileage, and practicing with Pocket Broker, please upgrade your account
-          today.
+          for $19.99/month.
         </p>
-        <button
+        <Button
           type="button"
           onClick={() => openStripeCheckout(user)}
-          className="mt-7 inline-flex w-full items-center justify-center rounded-lg bg-[#d4af37] px-6 py-3 text-base font-bold text-slate-950 shadow-[0_16px_40px_-16px_rgba(212,175,55,0.8)] transition-colors hover:bg-[#c89e2f]"
+          className="mt-7 h-auto w-full cursor-pointer whitespace-normal rounded-lg bg-spotlight-gold px-6 py-3 text-base font-bold text-spotlight shadow-elevated hover:bg-spotlight-gold-soft"
         >
           Subscribe Now — $19.99/month
-        </button>
+        </Button>
         <button
           type="button"
           onClick={() => signOut()}
