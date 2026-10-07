@@ -51,3 +51,17 @@ export const PLANS: Plan[] = [
 ] as const;
 
 export type PlanId = typeof PLANS[number]["id"];
+
+// Direct Stripe Payment Link — checkout runs on Stripe's hosted page.
+export const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/dRm3cudPW0Ra0njaOr9AA07";
+
+export function buildStripeCheckoutUrl(user?: { id?: string; email?: string | null } | null): string {
+  const url = new URL(STRIPE_PAYMENT_LINK);
+  if (user?.email) url.searchParams.set("prefilled_email", user.email);
+  if (user?.id) url.searchParams.set("client_reference_id", user.id);
+  return url.toString();
+}
+
+export function openStripeCheckout(user?: { id?: string; email?: string | null } | null): void {
+  window.location.href = buildStripeCheckoutUrl(user);
+}
