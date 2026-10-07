@@ -8,7 +8,11 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Agent Business Tracker" },
-      { name: "description", content: "Business tracker for brokers & agents." },
+      { name: "description", content: "Manage your real estate business with Agent Business Tracker. 14-Day Free Trial, then $19.99/month." },
+      { property: "og:title", content: "Agent Business Tracker" },
+      { property: "og:description", content: "Your real estate business in one place. 14-Day Free Trial, then $19.99/month." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
 });

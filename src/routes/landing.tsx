@@ -36,6 +36,9 @@ import { toast } from "sonner";
 import maColonialHeroBg from "@/assets/landing-house-autumn.jpeg";
 import { BRAND_TITLE, BrandLockup } from "@/components/brand-lockup";
 import { Reveal } from "@/components/reveal";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { openStripeCheckout } from "@/lib/stripe";
 
 
 export const Route = createFileRoute("/landing")({
@@ -143,6 +146,7 @@ const footerColumns: FooterColumn[] = [
 
 function Landing() {
   const nav = useNavigate();
+  const { user } = useAuth();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [videoMountReady, setVideoMountReady] = useState(false);
@@ -202,6 +206,7 @@ function Landing() {
   };
 
   const handleFounderAccessClick = () => {
+    if (user) { openStripeCheckout(user); return; }
     nav({ to: "/signup" });
   };
   const isFounderCheckoutLoading = false;
@@ -232,11 +237,11 @@ function Landing() {
             >
               Sign in
             </Link>
-            <button
+            <Button
               type="button"
               onClick={handleFounderAccessClick}
               disabled={isFounderCheckoutLoading}
-              className="founder-nav-cta whitespace-nowrap rounded-lg bg-[#d4af37] px-3 py-2 text-sm font-bold text-slate-950 shadow-[0_12px_30px_-12px_rgba(212,175,55,0.7)] transition-colors hover:bg-[#c89e2f] disabled:cursor-not-allowed disabled:opacity-70 sm:px-4 sm:text-base"
+              className="h-auto founder-nav-cta whitespace-normal rounded-lg bg-[#d4af37] px-3 py-2 text-sm font-bold text-slate-950 shadow-[0_12px_30px_-12px_rgba(212,175,55,0.7)] transition-colors hover:bg-[#c89e2f] disabled:cursor-not-allowed disabled:opacity-70 sm:px-4 sm:text-base"
             >
               {isFounderCheckoutLoading ? (
                 <span className="inline-flex items-center gap-2">
@@ -246,7 +251,7 @@ function Landing() {
               ) : (
                 "Start 14-Day Free Trial"
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </nav>
@@ -274,12 +279,12 @@ function Landing() {
               bookkeeping for end-of-day reports all in one spot.
             </p>
             <div className="mt-7 flex w-full max-w-4xl flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-0">
-              <Link
-                to="/signup"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-[#c89e2f] hover:shadow-[0_18px_50px_-8px_rgba(212,175,55,0.7)] sm:w-auto sm:px-7"
+              <Button
+                onClick={handleFounderAccessClick}
+                className="h-auto whitespace-normal text-center inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-[#c89e2f] hover:shadow-[0_18px_50px_-8px_rgba(212,175,55,0.7)] sm:w-auto sm:px-7"
               >
                 Start 14-Day Free Trial <ArrowRight className="h-4 w-4" />
-              </Link>
+              </Button>
             </div>
             <p className="mt-3 text-sm text-white/60">14 days free, then $19.99/month.</p>
           </div>
@@ -334,11 +339,11 @@ function Landing() {
                 ))}
               </ul>
               <div className="mt-8 flex flex-wrap items-center gap-4">
-                <button
+                <Button
                   type="button"
                   onClick={handleFounderAccessClick}
                   disabled={isFounderCheckoutLoading}
-                  className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-7 py-3.5 text-base font-bold text-slate-950 shadow-[0_18px_50px_-12px_rgba(212,175,55,0.7)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-12px_rgba(212,175,55,0.85)] disabled:cursor-not-allowed disabled:opacity-70"
+                  className="h-auto whitespace-normal group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-7 py-3.5 text-base font-bold text-slate-950 shadow-[0_18px_50px_-12px_rgba(212,175,55,0.7)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-12px_rgba(212,175,55,0.85)] disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                   {isFounderCheckoutLoading ? (
@@ -351,7 +356,7 @@ function Landing() {
                       Start 14-Day Free Trial <ArrowRight className="h-4 w-4" />
                     </>
                   )}
-                </button>
+                </Button>
               </div>
               <p className="mt-3 text-sm text-white/60">14 days free, then $19.99/month.</p>
             </div>
@@ -454,11 +459,11 @@ function Landing() {
                 Ready to track your Real Estate Business?
               </h2>
               <div className="flex flex-col items-center gap-2 sm:items-end">
-                <button
+                <Button
                   type="button"
                   onClick={handleFounderAccessClick}
                   disabled={isFounderCheckoutLoading}
-                  className="inline-flex items-center justify-center rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_28px_-14px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f] disabled:cursor-not-allowed disabled:opacity-70"
+                  className="h-auto whitespace-normal inline-flex items-center justify-center rounded-lg bg-[#d4af37] px-6 py-3 text-base font-semibold text-slate-950 shadow-[0_12px_28px_-14px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f] disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {isFounderCheckoutLoading ? (
                     <span className="inline-flex items-center gap-2">
@@ -468,7 +473,7 @@ function Landing() {
                   ) : (
                     "Start 14-Day Free Trial"
                   )}
-                </button>
+                </Button>
                 <p className="text-sm font-medium text-[#0B1424]/70">14 days free, then $19.99/month.</p>
               </div>
 
@@ -625,14 +630,14 @@ function Landing() {
             </div>
 
             <div className="mt-12 text-center sm:mt-14">
-              <Link
-                to="/signup"
-                className="group relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-spotlight-gold px-7 py-3.5 text-base font-bold text-spotlight shadow-elevated transition-all hover:-translate-y-0.5 hover:bg-spotlight-gold-soft"
+              <Button
+                onClick={handleFounderAccessClick}
+                className="h-auto whitespace-normal text-center group relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-spotlight-gold px-7 py-3.5 text-base font-bold text-spotlight shadow-elevated transition-all hover:-translate-y-0.5 hover:bg-spotlight-gold-soft"
               >
                 <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                 Start 14-Day Free Trial — Includes Pocket Broker
                 <ArrowRight className="h-4 w-4" />
-              </Link>
+              </Button>
               <p className="mt-3 text-sm text-spotlight-copy">14 days free, then $19.99/month.</p>
             </div>
           </Reveal>
@@ -809,11 +814,11 @@ function Landing() {
 
                   </div>
                   <div>
-                    <button
+                    <Button
                       type="button"
                       onClick={handleFounderAccessClick}
                       disabled={isFounderCheckoutLoading}
-                      className="group relative mb-6 block w-full overflow-hidden rounded-lg bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-4 py-3 text-center text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_24px_60px_-12px_rgba(212,175,55,0.85)] disabled:cursor-not-allowed disabled:opacity-70"
+                      className="h-auto whitespace-normal group relative mb-6 block w-full overflow-hidden rounded-lg bg-[linear-gradient(135deg,#fff0a8_0%,#d4af37_45%,#b88918_100%)] px-4 py-3 text-center text-base font-bold text-slate-950 shadow-[0_18px_40px_-12px_rgba(212,175,55,0.7)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_24px_60px_-12px_rgba(212,175,55,0.85)] disabled:cursor-not-allowed disabled:opacity-70"
                     >
                       <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/70 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                       {isFounderCheckoutLoading ? (
@@ -824,7 +829,7 @@ function Landing() {
                       ) : (
                         tier.cta
                       )}
-                    </button>
+                    </Button>
                     <p className="-mt-4 mb-6 text-center text-sm text-slate-500">14 days free, then $19.99/month.</p>
                     <div className="mb-3 flex items-start gap-2 rounded-xl border border-[#c59a22]/45 bg-[#fff6dd] px-3 py-2.5 shadow-[0_10px_24px_-16px_rgba(184,137,24,0.6)]">
                       <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#b88918]" />
@@ -868,12 +873,12 @@ function Landing() {
                 Join elite agents automating their real estate business. Set up your workspace in 60
                 seconds.
               </p>
-              <Link
-                to="/signup"
-                className="mt-8 inline-flex items-center justify-center rounded-full bg-[#d4af37] px-6 py-3 text-sm font-semibold text-slate-950 shadow-[0_14px_36px_-16px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f]"
+              <Button
+                onClick={handleFounderAccessClick}
+                className="h-auto whitespace-normal text-center mt-8 inline-flex items-center justify-center rounded-full bg-[#d4af37] px-6 py-3 text-sm font-semibold text-slate-950 shadow-[0_14px_36px_-16px_rgba(212,175,55,0.75)] transition-colors hover:bg-[#c89e2f]"
               >
                 Start 14-Day Free Trial
-              </Link>
+              </Button>
               <p className="mt-3 text-sm text-slate-400">14 days free, then $19.99/month.</p>
             </div>
           </div>
