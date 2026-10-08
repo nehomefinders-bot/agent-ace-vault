@@ -39,6 +39,11 @@ import { Reveal } from "@/components/reveal";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { openStripeCheckout } from "@/lib/stripe";
+import YouTubeEmbed from "@/components/youtube-embed";
+
+/** Swap this YouTube video ID for the live tutorial whenever it's published. */
+const TUTORIAL_VIDEO_ID = "dQw4w9WgXcQ";
+
 
 
 export const Route = createFileRoute("/landing")({
