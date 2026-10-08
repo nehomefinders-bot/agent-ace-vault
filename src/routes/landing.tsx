@@ -22,6 +22,7 @@ import {
   PhoneCall,
   Mic,
   Send,
+  Play,
 } from "lucide-react";
 import pocketBrokerInterface from "@/assets/pocket-broker-interface.png.asset.json";
 import jackieAvatar from "@/assets/jackie-avatar.jpg.asset.json";
@@ -301,6 +302,48 @@ function Landing() {
           <LandingVideo open={isVideoOpen} onOpenChange={setIsVideoOpen} />
         </Suspense>
       )}
+
+      <section className="relative overflow-hidden border-y border-[#d4af37]/15 bg-slate-950 py-20 sm:py-24">
+        <div
+          className="pointer-events-none absolute -top-24 left-1/2 h-80 w-[46rem] -translate-x-1/2 rounded-full bg-[#d4af37]/10 blur-[130px]"
+          aria-hidden
+        />
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+          <Reveal className="mx-auto max-w-3xl text-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[#f0cf6a]">
+              <Play className="h-3.5 w-3.5" /> See It in Action
+            </div>
+            <h2 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl">
+              Watch the Full Walkthrough
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-white/70 sm:text-lg">
+              Click below to watch the complete step-by-step tutorial of Agent Business Tracker
+              and see how to manage your pipeline, commissions, and mileage in minutes.
+            </p>
+          </Reveal>
+
+          <Reveal delay={120} className="mt-10 sm:mt-12">
+            <YouTubeEmbed videoId={TUTORIAL_VIDEO_ID} />
+          </Reveal>
+
+          <Reveal delay={80} className="mt-10 text-center sm:mt-12">
+            <h3 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              Ready to put your business tracking on autopilot?
+            </h3>
+            <div className="mt-6 flex justify-center">
+              <Button
+                onClick={handleFounderAccessClick}
+                className="inline-flex h-auto w-full items-center justify-center gap-2 rounded-lg bg-[#d4af37] px-7 py-3.5 text-base font-semibold text-slate-950 shadow-[0_12px_40px_-8px_rgba(212,175,55,0.5)] transition-all duration-300 ease-out hover:scale-[1.03] hover:bg-[#c89e2f] hover:shadow-[0_18px_50px_-8px_rgba(212,175,55,0.7)] sm:w-auto"
+              >
+                Start Your 14-Day Free Trial <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+            <p className="mt-3 text-sm text-white/55">
+              Free for 14 days &bull; $19.99/mo thereafter &bull; Cancel anytime
+            </p>
+          </Reveal>
+        </div>
+      </section>
 
 
       <section className="relative overflow-hidden border-y border-[#d4af37]/20 bg-[#050b22]">
