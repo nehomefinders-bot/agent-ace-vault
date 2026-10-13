@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Play } from "lucide-react";
 
-/** Placeholder tutorial video — pass a different videoId once the real one is live. */
-export const DEFAULT_TUTORIAL_VIDEO_ID = "dQw4w9WgXcQ";
+/** Official Agent Business Tracker demo walkthrough video. */
+export const DEFAULT_TUTORIAL_VIDEO_ID = "E5Bl7eG3fSY";
 
 type Props = {
   /** YouTube video ID — drop in the live tutorial ID anytime. */

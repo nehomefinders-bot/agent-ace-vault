@@ -43,7 +43,7 @@ import { openStripeCheckout } from "@/lib/stripe";
 import YouTubeEmbed from "@/components/youtube-embed";
 
 /** Swap this YouTube video ID for the live tutorial whenever it's published. */
-const TUTORIAL_VIDEO_ID = "dQw4w9WgXcQ";
+const TUTORIAL_VIDEO_ID = "E5Bl7eG3fSY";
 
 
 
@@ -215,6 +215,12 @@ function Landing() {
     if (user) { nav({ to: "/dashboard" }); return; }
     nav({ to: "/auth" });
   };
+
+  const scrollToWalkthrough = () => {
+    document
+      .getElementById("walkthrough-player")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
   const isFounderCheckoutLoading = false;
 
 
@@ -291,6 +297,14 @@ function Landing() {
               >
                 Start 14-Day Free Trial <ArrowRight className="h-4 w-4" />
               </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={scrollToWalkthrough}
+                className="inline-flex h-auto w-full items-center justify-center gap-2 rounded-lg border border-[#d4af37]/50 bg-white/5 px-6 py-3 text-base font-semibold text-white shadow-[0_12px_40px_-12px_rgba(0,0,0,0.7)] transition-all duration-300 ease-out hover:scale-[1.03] hover:border-[#d4af37] hover:bg-white/10 sm:ml-3 sm:w-auto sm:px-7"
+              >
+                <Play className="h-4 w-4 fill-[#d4af37] text-[#d4af37]" /> Watch 2-Min Demo
+              </Button>
             </div>
             <p className="mt-3 text-sm text-white/60">14 days free, then $19.99/month.</p>
           </div>
@@ -303,7 +317,10 @@ function Landing() {
         </Suspense>
       )}
 
-      <section className="relative overflow-hidden border-y border-[#d4af37]/15 bg-slate-950 py-20 sm:py-24">
+      <section
+        id="video-walkthrough"
+        className="relative scroll-mt-24 overflow-hidden border-y border-[#d4af37]/15 bg-slate-950 py-20 sm:py-24"
+      >
         <div
           className="pointer-events-none absolute -top-24 left-1/2 h-80 w-[46rem] -translate-x-1/2 rounded-full bg-[#d4af37]/10 blur-[130px]"
           aria-hidden
@@ -323,7 +340,9 @@ function Landing() {
           </Reveal>
 
           <Reveal delay={120} className="mt-10 sm:mt-12">
-            <YouTubeEmbed videoId={TUTORIAL_VIDEO_ID} />
+            <div id="walkthrough-player" className="scroll-mt-28">
+              <YouTubeEmbed videoId={TUTORIAL_VIDEO_ID} />
+            </div>
           </Reveal>
 
           <Reveal delay={80} className="mt-10 text-center sm:mt-12">
