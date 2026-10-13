@@ -303,7 +303,7 @@ function Landing() {
                 onClick={scrollToWalkthrough}
                 className="inline-flex h-auto w-full items-center justify-center gap-2 rounded-lg border border-[#d4af37]/50 bg-white/5 px-6 py-3 text-base font-semibold text-white shadow-[0_12px_40px_-12px_rgba(0,0,0,0.7)] transition-all duration-300 ease-out hover:scale-[1.03] hover:border-[#d4af37] hover:bg-white/10 sm:ml-3 sm:w-auto sm:px-7"
               >
-                <Play className="h-4 w-4 fill-[#d4af37] text-[#d4af37]" /> Watch 2-Min Demo
+                <Play className="h-4 w-4 fill-[#d4af37] text-[#d4af37]" /> Watch Demo
               </Button>
             </div>
             <p className="mt-3 text-sm text-white/60">14 days free, then $19.99/month.</p>
