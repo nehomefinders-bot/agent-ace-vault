@@ -218,8 +218,8 @@ function Landing() {
 
   const scrollToWalkthrough = () => {
     document
-      .getElementById("video-walkthrough")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      .getElementById("walkthrough-player")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
   const isFounderCheckoutLoading = false;
 
@@ -340,7 +340,9 @@ function Landing() {
           </Reveal>
 
           <Reveal delay={120} className="mt-10 sm:mt-12">
-            <YouTubeEmbed videoId={TUTORIAL_VIDEO_ID} />
+            <div id="walkthrough-player" className="scroll-mt-28">
+              <YouTubeEmbed videoId={TUTORIAL_VIDEO_ID} />
+            </div>
           </Reveal>
 
           <Reveal delay={80} className="mt-10 text-center sm:mt-12">
