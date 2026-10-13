@@ -41,11 +41,32 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { openStripeCheckout } from "@/lib/stripe";
 import YouTubeEmbed from "@/components/youtube-embed";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 /** Swap this YouTube video ID for the live tutorial whenever it's published. */
 const TUTORIAL_VIDEO_ID = "E5Bl7eG3fSY";
 
 
+
+const FAQS = [
+  { q: "How is Agent Business Tracker different from complex CRMs?", a: "Traditional CRMs are overloaded with expensive lead-gen funnels you rarely touch. Agent Business Tracker is built purely as your daily transaction operating system—giving you a clean, fast way to track listings, buyer deals under agreement, net commission splits, and tax mileage in one place." },
+  { q: "How does the 14-day free trial work?", a: "You receive complete, unrestricted access to all features for 14 days upon sign-up. On Day 15, you can subscribe for just $19.99/month to keep your data active. No surprise charges." },
+  { q: "Are there any contracts or cancellation fees?", a: "No contracts and no hidden fees. Pricing is a flat $19.99/month. You can cancel your subscription at any time with a single click." },
+  { q: "Can I calculate my exact brokerage splits and concessions?", a: "Yes. The deal tracker accounts for sale price, commission percentages, brokerage split ratios, and concessions so you always see your actual take-home net revenue." },
+  { q: "How does the IRS mileage tracker save me money?", a: "Driving to showings, open houses, and closings adds up quickly. Our built-in log automatically calculates your tax-deductible mileage using IRS standard deduction rates, helping you keep clear records for tax season." },
+  { q: "Can I access the app from my phone on the go?", a: "Yes. Agent Business Tracker is fully responsive across mobile phones, tablets, and desktop browsers, allowing you to log mileage and check deal status between showings." },
+  { q: "What is the Pocket Broker AI assistant?", a: "Pocket Broker is your built-in AI assistant designed to help agents draft client messages, check routine transaction details, and get quick business guidance on demand." },
+];
+
+const FAQ_JSON_LD = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQS.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+});
 
 export const Route = createFileRoute("/landing")({
   component: Landing,
@@ -69,6 +90,7 @@ export const Route = createFileRoute("/landing")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    scripts: [{ type: "application/ld+json", children: FAQ_JSON_LD }],
   }),
 });
 
@@ -926,6 +948,36 @@ function Landing() {
             Every feature unlocked. Unlimited transactions, secure cloud backup, free updates.
           </p>
 
+        </div>
+      </section>
+
+      <section id="faq" className="scroll-mt-28 bg-slate-950 text-white">
+        <div className="mx-auto max-w-3xl px-6 py-20 sm:py-24">
+          <Reveal className="text-center">
+            <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">Frequently Asked Questions</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-base text-white/65 sm:text-lg">
+              Everything you need to know about pricing, trial access, deal management, and mileage tracking.
+            </p>
+          </Reveal>
+          <Accordion type="single" collapsible className="mt-10 space-y-3">
+            {FAQS.map((f, i) => (
+              <AccordionItem key={f.q} value={`faq-${i}`} className="rounded-xl border border-white/10 bg-white/[0.03] px-5 transition-colors data-[state=open]:border-[#d4af37]/40">
+                <AccordionTrigger className="py-5 text-left text-base font-semibold text-white hover:no-underline sm:text-lg [&>svg]:text-[#d4af37]">
+                  {f.q}
+                </AccordionTrigger>
+                <AccordionContent className="pb-5 text-[0.95rem] leading-relaxed text-white/70">{f.a}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+          <div className="mt-12 rounded-2xl border border-[#d4af37]/30 bg-[#0a1024] px-6 py-8 text-center">
+            <p className="font-display text-xl font-bold sm:text-2xl">Have more questions? Ready to ditch messy spreadsheets?</p>
+            <Button
+              onClick={handleFounderAccessClick}
+              className="mt-5 inline-flex h-auto w-full items-center justify-center gap-2 rounded-lg bg-[#d4af37] px-7 py-3.5 text-base font-semibold text-slate-950 hover:bg-[#c89e2f] sm:w-auto"
+            >
+              Start Your 14-Day Free Trial <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </section>
 
