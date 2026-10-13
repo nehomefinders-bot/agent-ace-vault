@@ -43,7 +43,7 @@ import { openStripeCheckout } from "@/lib/stripe";
 import YouTubeEmbed from "@/components/youtube-embed";
 
 /** Swap this YouTube video ID for the live tutorial whenever it's published. */
-const TUTORIAL_VIDEO_ID = "dQw4w9WgXcQ";
+const TUTORIAL_VIDEO_ID = "E5Bl7eG3fSY";
 
 
 
@@ -215,6 +215,12 @@ function Landing() {
     if (user) { nav({ to: "/dashboard" }); return; }
     nav({ to: "/auth" });
   };
+
+  const scrollToWalkthrough = () => {
+    document
+      .getElementById("video-walkthrough")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   const isFounderCheckoutLoading = false;
 
 
@@ -303,7 +309,10 @@ function Landing() {
         </Suspense>
       )}
 
-      <section className="relative overflow-hidden border-y border-[#d4af37]/15 bg-slate-950 py-20 sm:py-24">
+      <section
+        id="video-walkthrough"
+        className="relative scroll-mt-24 overflow-hidden border-y border-[#d4af37]/15 bg-slate-950 py-20 sm:py-24"
+      >
         <div
           className="pointer-events-none absolute -top-24 left-1/2 h-80 w-[46rem] -translate-x-1/2 rounded-full bg-[#d4af37]/10 blur-[130px]"
           aria-hidden

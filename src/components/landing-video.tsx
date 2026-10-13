@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Play, X } from "lucide-react";
 
-const YT_ID = "g-FDTVZ-InI";
+const YT_ID = "E5Bl7eG3fSY";
 const THUMB = `https://i.ytimg.com/vi/${YT_ID}/hqdefault.jpg`;
 
 type Props = {
