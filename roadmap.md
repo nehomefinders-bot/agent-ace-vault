@@ -6,4 +6,5 @@
 
 # Landing video tutorial
 - [x] Add "Watch the Full Walkthrough" section below the hero with a swappable YouTube video ID.
-- [ ] Drop in the real tutorial video ID — currently the placeholder dQw4w9WgXcQ.
+- [x] Drop in the real tutorial video ID (E5Bl7eG3fSY) across the inline player, the floating demo modal, and the hero "Watch 2-Min Demo" scroll action.
+- [ ] Set the YouTube video to Public or Unlisted — it is currently Private, so the player shows "This video is private" and the thumbnail cannot load; blocked on the owner changing visibility in YouTube.
