@@ -8,3 +8,8 @@
 - [x] Add "Watch the Full Walkthrough" section below the hero with a swappable YouTube video ID.
 - [x] Drop in the real tutorial video ID (E5Bl7eG3fSY) across the inline player, the floating demo modal, and the hero "Watch 2-Min Demo" scroll action.
 - [ ] Set the YouTube video to Public or Unlisted — it is currently Private, so the player shows "This video is private" and the thumbnail cannot load; blocked on the owner changing visibility in YouTube.
+
+# Additional QA demo records
+- [ ] Add five listings with stored photos, four revenue entries and five linked expenses to the QA account only.
+- [ ] Add four playable/downloadable sample media files and five clearly marked sample documents using actual file sizes.
+- [ ] Verify all five tabs while signed in as the QA account, preserving existing records and access.
