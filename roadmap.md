@@ -10,6 +10,6 @@
 - [ ] Set the YouTube video to Public or Unlisted — it is currently Private, so the player shows "This video is private" and the thumbnail cannot load; blocked on the owner changing visibility in YouTube.
 
 # Additional QA demo records
-- [ ] Add five listings with stored photos, four revenue entries and five linked expenses to the QA account only.
-- [ ] Add four playable/downloadable sample media files and five clearly marked sample documents using actual file sizes.
-- [ ] Verify all five tabs while signed in as the QA account, preserving existing records and access.
+- [x] Add five listings with stored photos, four revenue entries and five linked expenses to the QA account only.
+- [x] Add four playable/downloadable sample media files and five clearly marked sample documents using actual file sizes.
+- [x] Verify all five tabs while signed in as the QA account, preserving existing records and access.
