@@ -1,2 +1,4 @@
 # Architecture rules
 - Subscription purchase buttons use the shared direct Payment Link URL builder with the authenticated user's email and ID; this keeps checkout attribution consistent across the website.
+- Paywall and sidebar trial state use the shared trial helper with the stored profile expiration, falling back to account creation only when missing; this keeps extended access and displayed countdowns consistent.
+- Targeted signup trial duration is assigned by the database signup handler, and paid-feature checks honor that bounded entitlement; client labels never grant permanent or admin access.

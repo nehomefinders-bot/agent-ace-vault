@@ -34,6 +34,7 @@ import { PLANS } from "@/lib/stripe";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandLockup } from "@/components/brand-lockup";
 import { RefundRequestModal } from "@/components/refund-request-modal";
+import { getTrialState, isExtendedVipTrial, type TrialProfile } from "@/lib/trial";
 
 const sections = [
   {
@@ -87,14 +88,14 @@ export function AppSidebar() {
   const { user, signOut } = useAuth();
   const { subscription, isActive, refetch } = useSubscription();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [profilePlan, setProfilePlan] = useState<string | null>(null);
+  const [profile, setProfile] = useState<TrialProfile | null>(null);
   const [refundOpen, setRefundOpen] = useState(false);
 
   // Force a clean re-fetch of subscription + profile state whenever the user
   // arrives on the dashboard (e.g. coming from /thankyou → "Enter the Dashboard").
   useEffect(() => {
     if (!user?.id) {
-      setProfilePlan(null);
+      setProfile(null);
       return;
     }
     let cancelled = false;
@@ -102,10 +103,10 @@ export function AppSidebar() {
     (async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("plan")
+        .select("plan, trial_end_date")
         .eq("id", user.id)
         .maybeSingle();
-      if (!cancelled) setProfilePlan((data?.plan as string | null) ?? null);
+      if (!cancelled) setProfile(data ?? null);
     })();
     return () => { cancelled = true; };
   }, [user?.id, path, refetch]);
@@ -132,7 +133,9 @@ export function AppSidebar() {
           p.monthly.priceId === subscription.price_id || p.yearly.priceId === subscription.price_id,
       )
     : null;
-  const planName = currentPlan?.name ?? "14-Day Free Trial";
+  const trial = getTrialState(profile, user?.created_at);
+  const extendedTrial = isExtendedVipTrial(user?.email) && trial.active && !isActive;
+  const planName = extendedTrial ? "Extended VIP Trial (6 Months)" : currentPlan?.name ?? "14-Day Free Trial";
   const status = subscription?.status ?? null;
   const cancelAtEnd = subscription?.cancel_at_period_end ?? false;
   const periodEndLabel = subscription?.current_period_end
@@ -143,13 +146,16 @@ export function AppSidebar() {
   let statusTone: StatusTone = "slate";
   let statusLabel = "No plan";
   let statusDetail: string | null = null;
-  const profileActive = profilePlan === "active" || profilePlan === "gifted";
-  const createdAt = user?.created_at ? new Date(user.created_at).getTime() : null;
-  const trialEndsAt = createdAt ? createdAt + 14 * 24 * 60 * 60 * 1000 : null;
-  const trialActive = !!trialEndsAt && Date.now() < trialEndsAt && !status && !profileActive;
+  const profileActive = profile?.plan === "active" || profile?.plan === "gifted";
+  const trialEndsAt = trial.endsAt;
+  const trialActive = trial.active && !isActive && !profileActive;
 
   if (user) {
-    if (status === "trialing") {
+    if (extendedTrial) {
+      statusTone = "emerald";
+      statusLabel = "Trial";
+      statusDetail = trialEndsAt ? `${trial.daysRemaining} days left · Ends ${new Date(trialEndsAt).toLocaleDateString()}` : null;
+    } else if (status === "trialing") {
       statusTone = "emerald";
       statusLabel = "Trial";
       statusDetail = periodEndLabel ? `Ends ${periodEndLabel}` : null;
@@ -284,7 +290,7 @@ export function AppSidebar() {
           ) : showPlanLine ? (
             <>
               <div className="text-base font-semibold text-sidebar-foreground">{planName}</div>
-              <div className="mt-1 flex items-center gap-1.5 text-xs">
+              <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs">
                 <span className={`inline-block h-2 w-2 rounded-full ${tone.dot}`} aria-hidden />
                 <span className={`font-medium ${tone.text}`}>{statusLabel}</span>
                 {statusDetail && (
