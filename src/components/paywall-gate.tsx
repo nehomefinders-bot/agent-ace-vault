@@ -5,8 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useSubscription } from "@/hooks/use-subscription";
 import { TrialExpiredModal } from "@/components/trial-expired-modal";
-
-const TRIAL_DAYS = 14;
+import { getTrialState, type TrialProfile } from "@/lib/trial";
 const OWNER_EMAIL = "nehomefinders@gmail.com";
 // Lifetime free access (paywall bypass only — never grants admin access).
 const LIFETIME_FREE_EMAILS = ["kimg37111@gmail.com"];
@@ -23,7 +22,7 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const { isActive, loading: subLoading } = useSubscription();
   const nav = useNavigate();
-  const [profilePlan, setProfilePlan] = useState<string | null | undefined>(undefined);
+  const [profile, setProfile] = useState<TrialProfile | null | undefined>(undefined);
 
   // Redirect unauthenticated users away from non-public routes.
   useEffect(() => {
@@ -51,15 +50,15 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
 
   // Load profile.plan to support manual activation via /thankyou.
   useEffect(() => {
-    if (!user) { setProfilePlan(undefined); return; }
+    if (!user) { setProfile(undefined); return; }
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("plan")
+        .select("plan, trial_end_date")
         .eq("id", user.id)
         .maybeSingle();
-      if (!cancelled) setProfilePlan((data?.plan ?? null) as string | null);
+      if (!cancelled) setProfile(data ?? null);
     })();
     return () => { cancelled = true; };
   }, [user]);
@@ -83,7 +82,7 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
   }
 
   // Wait for subscription + profile to resolve before deciding.
-  if (subLoading || profilePlan === undefined) {
+  if (subLoading || profile === undefined) {
     return (
       <div className="min-h-dvh flex items-center justify-center">
         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -97,12 +96,8 @@ export function PaywallGate({ children }: { children: React.ReactNode }) {
   // Lifetime free users: full premium access, NO admin privileges.
   const isLifetimeFree = LIFETIME_FREE_EMAILS.includes(email);
 
-  const subscribed = isOwner || isLifetimeFree || isActive || profilePlan === "active" || profilePlan === "gifted";
-
-  // 14-day free trial measured from account creation.
-  const createdAt = user.created_at ? new Date(user.created_at).getTime() : null;
-  const trialEndsAt = createdAt ? createdAt + TRIAL_DAYS * 24 * 60 * 60 * 1000 : null;
-  const trialActive = !!trialEndsAt && Date.now() < trialEndsAt;
+  const subscribed = isOwner || isLifetimeFree || isActive || profile?.plan === "active" || profile?.plan === "gifted";
+  const { active: trialActive } = getTrialState(profile, user.created_at);
 
   if (subscribed || trialActive) return <>{children}</>;
 
