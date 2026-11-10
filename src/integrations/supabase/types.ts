@@ -1180,6 +1180,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      signup_trial_duration: { Args: { signup_email: string }; Returns: string }
     }
     Enums: {
       account_kind: "Income" | "Expense" | "Asset" | "Liability" | "Equity"

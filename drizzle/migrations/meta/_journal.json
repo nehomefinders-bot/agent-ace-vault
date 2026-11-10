@@ -8,6 +8,13 @@
       "when": 1791387593571,
       "tag": "0000_profile_trial_tracking",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794341716408,
+      "tag": "0001_kayla_extended_signup_trial",
+      "breakpoints": true
     }
   ]
 }
